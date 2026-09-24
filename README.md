@@ -1,4 +1,4 @@
-# Open-source SRAM Memory Compiler
+# Open-Source SRAM Memory Compiler
 
 Compilador open-source de memória SRAM single-port baseado em uma bitcell 6T
 para o PDK SKY130A. O escopo prevê profundidades de 4, 8, 16 e 32 palavras,
@@ -20,6 +20,36 @@ O trabalho está concentrado nas leaf cells e na validação elétrica da bitcel
 
 Layout, DRC, LVS, caracterização completa e geração final das views ainda estão
 pendentes.
+
+## Configurações suportadas
+
+O compilador terá largura fixa de 8 bits, uma palavra por linha física e as
+seguintes profundidades:
+
+| Configuração | Capacidade |
+|---|---:|
+| 4×8 | 32 bits |
+| 8×8 | 64 bits |
+| 16×8 | 128 bits |
+| 32×8 | 256 bits |
+
+A configuração 4×8 é o primeiro alvo de implementação e integração.
+
+## Views e verificação previstas
+
+Para cada configuração serão previstas as views GDSII, LEF, Verilog
+comportamental e Liberty simplificada (`.lib`). A qualificação completa deverá
+incluir DRC, LVS, caracterização temporal, potência dinâmica e estática, SNM e
+avaliação nos corners TT, SS e FF.
+
+## Toolchain
+
+- SkyWater SKY130 / open_pdks
+- Xschem e ngspice
+- Magic e Netgen
+- Python e gdstk
+- Icarus Verilog e GTKWave
+- Git
 
 ## Topologia da bitcell 6T
 
@@ -319,3 +349,4 @@ O CSV é salvo em sims/bitcell_read_sweep.csv.
 - [Relatório de validação SKY130A](docs/relatorio_validacao_bitcell_6t_sky130.md)
 - [Contrato das leaf cells](cells/README.md)
 - [Especificação da célula](specs/sram_6t_cell.md)
+- [Especificação técnica do projeto](specs/technical_specification.md)
