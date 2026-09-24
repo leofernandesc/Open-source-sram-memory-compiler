@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 MEASURE_RE = re.compile(
-    r"^\s*(?P<name>bl_read_min|blb_read_min|q_read_min|qb_read_min)\s*=\s*"
+    r"^\s*(?P<name>bl_read_min|blb_read_min|bl_21n|blb_21n|q_read_min|qb_read_min)\s*=\s*"
     r"(?P<value>[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)",
     re.MULTILINE,
 )
@@ -95,7 +95,7 @@ def parse_measurements(output: str) -> dict[str, float]:
         match.group("name"): float(match.group("value"))
         for match in MEASURE_RE.finditer(output)
     }
-    missing = {"bl_read_min", "blb_read_min", "q_read_min", "qb_read_min"} - measurements.keys()
+    missing = {"bl_read_min", "blb_read_min", "bl_21n", "blb_21n", "q_read_min", "qb_read_min"} - measurements.keys()
     if missing:
         raise RuntimeError(f"missing measurements: {', '.join(sorted(missing))}")
     return measurements
@@ -137,6 +137,7 @@ def main() -> int:
                         "blb_read_min_v": "",
                         "bl_read_min_v": "",
                         "delta_max_v": "",
+                        "delta_21n_v": "",
                         "q_read_min_v": "",
                         "qb_read_min_v": "",
                     }
@@ -150,10 +151,16 @@ def main() -> int:
                                 else measurements["bl_read_min"]
                             )
                             delta_max = 1.8 - selected_min
+                            delta_21n = (
+                                measurements["bl_21n"] - measurements["blb_21n"]
+                                if state == 1
+                                else measurements["blb_21n"] - measurements["bl_21n"]
+                            )
                             row["selected_bitline"] = selected_bitline
                             row["blb_read_min_v"] = measurements["blb_read_min"]
                             row["bl_read_min_v"] = measurements["bl_read_min"]
                             row["delta_max_v"] = delta_max
+                            row["delta_21n_v"] = delta_21n
                             row["q_read_min_v"] = measurements["q_read_min"]
                             row["qb_read_min_v"] = measurements["qb_read_min"]
                             stored_high_min = (
@@ -163,7 +170,7 @@ def main() -> int:
                             )
                             row["status"] = (
                                 "PASS"
-                                if delta_max >= 0.050 and stored_high_min >= 0.9
+                                if delta_21n >= 0.050 and stored_high_min >= 0.9
                                 else "MARGIN_FAIL"
                             )
                         except RuntimeError as error:
@@ -182,22 +189,25 @@ def main() -> int:
         "bl_read_min_v",
         "blb_read_min_v",
         "delta_max_v",
+        "delta_21n_v",
         "q_read_min_v",
         "qb_read_min_v",
         "error",
     ]
     with args.output.open("w", newline="", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames, extrasaction="ignore")
+        writer = csv.DictWriter(
+            csv_file, fieldnames=fieldnames, extrasaction="ignore", lineterminator="\n"
+        )
         writer.writeheader()
         writer.writerows(rows)
 
-    print("corner  cap_f  Q  line  line_min(V)  delta_max(V)  q_min(V)  status")
+    print("corner  cap_f  Q  line  line_min(V)  delta_21n(V)  q_min(V)  status")
     for row in rows:
         print(
             f"{row['corner']:>6}  {row['cap_f']:>5}  {row['stored_q']}  "
             f"{row['selected_bitline']:>4}  "
             f"{str(row['bl_read_min_v'] if row['selected_bitline'] == 'BL' else row['blb_read_min_v']):>11}  "
-            f"{str(row['delta_max_v']):>12}  "
+            f"{str(row['delta_21n_v']):>12}  "
             f"{str(row['q_read_min_v']):>8}  {row['status']}"
         )
     print(f"CSV: {args.output}")
