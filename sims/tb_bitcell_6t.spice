@@ -1,0 +1,42 @@
+* First SKY130A transient smoke test for the SRAM 6T bitcell.
+* Requires PDK_ROOT to point to a directory containing sky130A/.
+* The continuous model smoke uses WPU=WACC=0.42um because this runtime
+* rejects the initial WPU=0.21um/WACC=0.30um trial; the sizing remains open.
+.title bitcell_6t_hold_read_write_tt
+
+.lib "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice" tt
+
+VDD vdd 0 1.8
+* Both bitlines are precharged for the first read. BL is then driven low
+* for the write pulse; BLB remains high.
+VBL  bl  0 PWL(0 1.8 19n 1.8 30n 1.8 49n 1.8 50n 0 70n 0 71n 1.8)
+VBLB blb 0 1.8
+VWL  wl  0 PULSE(0 1.8 20n 50p 50p 10n 30n)
+
+* Flattened device view for the continuous SKY130 model set. The reusable
+* X-subcircuit is kept in ../cells/bitcell_6t.spice for the PDK netlist flow.
+XPU_L Q  QB VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XPU_R QB Q  VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XPD_L Q  QB 0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XPD_R QB Q  0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XACC_L Q  WL BL  0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XACC_R QB WL BLB 0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+
+.ic V(Q)=1.8 V(QB)=0
+.options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-9 iabstol=1e-12
+.tran 10p 90n 0 10p uic
+
+.meas tran q_hold FIND V(Q) AT=10n
+.meas tran qb_hold FIND V(QB) AT=10n
+.meas tran bl_read FIND V(bl) AT=29n
+.meas tran blb_read FIND V(blb) AT=29n
+.meas tran q_read_min MIN V(Q) FROM=20n TO=30n
+.meas tran q_after_write FIND V(Q) AT=70n
+.meas tran qb_after_write FIND V(QB) AT=70n
+
+.control
+run
+write tb_bitcell_6t_tt.raw all
+quit
+.endc
+.end

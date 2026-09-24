@@ -1,0 +1,26 @@
+v {xschem version=3.4.6 file_version=1.2}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname WPU=@WPU WPD=@WPD WACC=@WACC"
+template="name=x1 WPU=0.21 WPD=0.42 WACC=0.30"
+}
+V {}
+S 4 -100 -100 100 100 {}
+T {SRAM 6T} 0 -75 0 0 0.3 0.3 {}
+T {@name} 0 75 0 0 0.2 0.2 {}
+B 5 -112.5 -62.5 -107.5 -57.5 {name=VDD dir=inout}
+B 5 -112.5 -22.5 -107.5 -17.5 {name=BL dir=inout}
+B 5 107.5 -62.5 112.5 -57.5 {name=BLB dir=inout}
+B 5 107.5 -22.5 112.5 -17.5 {name=VSS dir=inout}
+B 5 -2.5 107.5 2.5 112.5 {name=WL dir=inout}
+L 4 -105 -60 -70 -60 {}
+L 4 -105 -20 -70 -20 {}
+L 4 105 -60 70 -60 {}
+L 4 105 -20 70 -20 {}
+L 4 0 105 0 70 {}
+T {VDD} -65 -67.5 0 0 0.2 0.2 {}
+T {BL} -65 -27.5 0 0 0.2 0.2 {}
+T {BLB} 65 -67.5 0 0 0.2 0.2 {}
+T {VSS} 65 -27.5 0 0 0.2 0.2 {}
+T {WL} 7.5 57.5 0 0 0.2 0.2 {}
+E {}
