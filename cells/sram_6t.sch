@@ -2,7 +2,7 @@ v {xschem version=3.4.4 file_version=1.2}
 
 C {sky130_fd_pr/pfet_01v8.sym} 420 -420 0 0 {name=M1
 L=0.15
-W=0.42
+W=0.21
 ad="'W * 0.29'" pd="'W + 2 * 0.29'"
 as="'W * 0.29'" ps="'W + 2 * 0.29'"
 nrd=0 nrs=0 sa=0 sb=0 sd=0 nf=1 mult=1
@@ -22,7 +22,7 @@ spiceprefix=X
 
 C {sky130_fd_pr/pfet_01v8.sym} 720 -420 0 0 {name=M3
 L=0.15
-W=0.42
+W=0.21
 ad="'W * 0.29'" pd="'W + 2 * 0.29'"
 as="'W * 0.29'" ps="'W + 2 * 0.29'"
 nrd=0 nrs=0 sa=0 sb=0 sd=0 nf=1 mult=1
@@ -42,7 +42,7 @@ spiceprefix=X
 
 C {sky130_fd_pr/nfet_01v8.sym} 260 -120 1 0 {name=M5
 L=0.15
-W=0.42
+W=0.30
 ad="'W * 0.29'" pd="'W + 2 * 0.29'"
 as="'W * 0.29'" ps="'W + 2 * 0.29'"
 nrd=0 nrs=0 sa=0 sb=0 sd=0 nf=1 mult=1
@@ -52,7 +52,7 @@ spiceprefix=X
 
 C {sky130_fd_pr/nfet_01v8.sym} 880 -120 1 0 {name=M6
 L=0.15
-W=0.42
+W=0.30
 ad="'W * 0.29'" pd="'W + 2 * 0.29'"
 as="'W * 0.29'" ps="'W + 2 * 0.29'"
 nrd=0 nrs=0 sa=0 sb=0 sd=0 nf=1 mult=1
