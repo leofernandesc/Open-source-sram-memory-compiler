@@ -1,107 +1,38 @@
-# Git Flow
+# Git workflow
 
-## Estrutura de Branches
+Phase 1 uses a small Git Flow with `main`, `develop`, and `feature/*` branches.
 
-### Branches Principais
-- **main**: Código em produção, sempre estável
-- **develop**: Branch de integração para desenvolvimento
+| Branch | Purpose | Integration |
+|---|---|---|
+| `main` | Reviewed project milestones | Pull request from `develop` |
+| `develop` | Integration of completed work | Pull requests from feature branches |
+| `feature/*` | Work owned by one Phase 1 block owner | Starts from and returns to `develop` |
 
-### Branches de Suporte
+Do not commit directly to `main` or `develop`. Keep commits focused, review the
+diff, and use a pull request for integration. Merge the latest `develop` into a
+feature branch before its pull request; do not rewrite a shared branch's history.
+Keep generated temporary files out of commits unless they are deliberately
+selected as reproducible verification evidence.
 
-#### Feature Branches
-- Nomenclatura: `feature/<nome-da-feature>`
-- Origem: `develop`
-- Merge para: `develop`
-- Exemplo: `feature/sram-layout-generator`
+## Phase 1 branches and owners
 
-```bash
-# Criar feature
-git checkout develop
-git checkout -b feature/nome-da-feature
+| Branch | Owner | Blocks |
+|---|---|---|
+| `feature/bitcell` | Danilo (Person 1) | 6T bitcell through schematic, simulation, layout, DRC, and LVS |
+| `feature/sense-precharge` | Leonardo (Person 2) | Sense amplifier and precharge/equalization through the same flow |
 
-# Finalizar feature
-git checkout develop
-git merge --no-ff feature/nome-da-feature
-git branch -d feature/nome-da-feature
-```
+Person 3 owns the row decoder, wordline driver, and write driver. Their feature
+branch will be created when that work begins.
 
-#### Release Branches
-- Nomenclatura: `release/<versao>`
-- Origem: `develop`
-- Merge para: `main` e `develop`
-- Exemplo: `release/1.0.0`
+The previous `feat/sram-6t-cell-schematic` branch is retained as a historical
+reference. New bitcell work belongs in `feature/bitcell`.
 
-```bash
-# Criar release
-git checkout develop
-git checkout -b release/1.0.0
+Do not merge a leaf cell as validated without the evidence required for the
+stage being reviewed. A schematic, functional simulation, DRC result, and LVS
+result each answer a different question. The project architecture and required
+verification are defined in `specs/technical_specification.md`.
 
-# Finalizar release
-git checkout main
-git merge --no-ff release/1.0.0
-git tag -a v1.0.0 -m "Release version 1.0.0"
-
-git checkout develop
-git merge --no-ff release/1.0.0
-git branch -d release/1.0.0
-```
-
-#### Hotfix Branches
-- Nomenclatura: `hotfix/<versao>`
-- Origem: `main`
-- Merge para: `main` e `develop`
-- Exemplo: `hotfix/1.0.1`
-
-```bash
-# Criar hotfix
-git checkout main
-git checkout -b hotfix/1.0.1
-
-# Finalizar hotfix
-git checkout main
-git merge --no-ff hotfix/1.0.1
-git tag -a v1.0.1 -m "Hotfix version 1.0.1"
-
-git checkout develop
-git merge --no-ff hotfix/1.0.1
-git branch -d hotfix/1.0.1
-```
-
-## Workflow
-
-1. **Desenvolvimento normal**: trabalhe em feature branches
-2. **Preparação para release**: crie release branch quando develop estiver pronto
-3. **Correções urgentes**: use hotfix branches
-
-## Configuração do Repositório
-
-### Para fazer fork e configurar seu próprio repositório:
-
-```bash
-# 1. Faça fork no GitHub do repositório leofernandesc/Open-source-sram-memory-compiler
-
-# 2. Adicione seu fork como remote
-git remote rename origin upstream
-git remote add origin https://github.com/SEU-USUARIO/Open-source-sram-memory-compiler.git
-
-# 3. Ou use SSH
-git remote set-url origin git@github.com:SEU-USUARIO/Open-source-sram-memory-compiler.git
-
-# 4. Push da branch develop
-git push -u origin develop
-```
-
-### Sincronizar com upstream:
-
-```bash
-git fetch upstream
-git checkout develop
-git merge upstream/develop
-```
-
-## Regras
-
-- Nunca commitar direto em `main` ou `develop`
-- Sempre usar `--no-ff` nos merges (preserva histórico de branches)
-- Tags sempre em `main`
-- Release branches permitem apenas bugfixes, sem novas features
+After the Phase 1 leaf cells have passed their required checks and the team has
+reviewed the integrated work, merge `develop` into `main` through a pull request.
+Create a milestone tag on `main` only after that merge. Release and hotfix
+branches are outside the current workflow.
