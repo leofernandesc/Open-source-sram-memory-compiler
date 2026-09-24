@@ -9,7 +9,7 @@
 VDD vdd 0 1.8
 
 * Precharge is active while PRE=1, then both bitlines are released.
-VPRE pre 0 PULSE(1.8 0 10n 50p 50p 10n 40n)
+VPRE pre 0 PULSE(1.8 0 10n 50p 50p 90n 200n)
 SBL  bl  vdd pre 0 SWPRE
 SBLB blb vdd pre 0 SWPRE
 .model SWPRE SW(Ron=10 Roff=1e12 Vt=0.9 Vh=0.1)
@@ -40,7 +40,11 @@ XACC_R QB wl  blb 0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
 .meas tran blb_pre FIND V(blb) AT=9n
 .meas tran bl_read FIND V(bl)  AT=29n
 .meas tran blb_read FIND V(blb) AT=29n
+.meas tran bl_21n FIND V(bl) AT=21n
+.meas tran blb_21n FIND V(blb) AT=21n
+.meas tran delta_21n PARAM='bl_21n-blb_21n'
 .meas tran bl_read_min MIN V(bl) FROM=20n TO=30n
+.meas tran blb_read_min MIN V(blb) FROM=20n TO=30n
 .meas tran delta_read PARAM='bl_read-blb_read'
 .meas tran q_read_min MIN V(Q) FROM=20n TO=30n
 .meas tran qb_read_min MIN V(QB) FROM=20n TO=30n
@@ -51,4 +55,3 @@ write tb_bitcell_6t_read_tt.raw all
 quit
 .endc
 .end
-.meas tran blb_read_min MIN V(blb) FROM=20n TO=30n
