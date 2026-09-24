@@ -26,9 +26,18 @@ export PDK_ROOT=/opt/pdks
 xschem cells/tb_bitcell_6t_read.sch
 ```
 
+`bitcell_6t.sch` é uma leaf cell, mas contém um smoke test marcado
+`only_toplevel=true`. Quando aberta diretamente, ela carrega os modelos
+SKY130A, usa `WPU=WPD=WACC=0.42 µm`, aplica pré-carga e um pulso de WL e grava
+`bitcell_6t.raw`. Quando instanciada, esse smoke test é omitido e os estímulos
+vêm do testbench hierárquico.
+
 O arquivo `tb_bitcell_6t_read.sch` instancia `bitcell_6t.sym`, duas chaves
-ideais de pré-carga e os capacitores de 5 fF em `BL` e `BLB`. A sequência
-visual é pré-carga de 0 a 10 ns e leitura com `WL` de 20 a 30 ns.
+ideais de pré-carga e os capacitores de 5 fF em `BL` e `BLB`. A pré-carga é
+desligada em 10 ns e permanece desligada durante a leitura, de 20 a 30 ns.
+O símbolo tem parâmetros `WPU`, `WPD` e `WACC`: seus padrões são os valores
+alvo 0,21/0,42/0,30 µm; o testbench usa explicitamente 0,42/0,42/0,42 µm,
+único sizing desta etapa aceito pelos modelos contínuos instalados.
 
 As fontes do testbench usam `vsource_drive.sym`, que declara o terminal
 positivo como saída para que o ERC do Xschem reconheça `WL` e `PRE` como redes
@@ -36,7 +45,10 @@ dirigidas. O retorno elétrico usa uma única rede `GND`, conectada ao pino `VSS
 da bitcell, evitando o curto artificial entre `GND` e `VSS` causado por duas
 redes de referência distintas.
 
-Para a validação elétrica oficial, continue usando o deck externo
-`sims/tb_bitcell_6t_read.spice` e o sweep automatizado. O testbench Xschem é a
-visão hierárquica para inspeção e edição dos estímulos; ele não substitui o
-deck externo validado.
+O botão de simulação do Xschem executa o testbench hierárquico com o corner
+`tt`. O bloco de controle inicializa `Q=1` e `QB=0`, mede as bitlines em 21 ns
+e mede os nós internos como `v(xbitcell.Q)` e `v(xbitcell.QB)`. A simulação
+grava `tb_bitcell_6t_read.raw` no diretório de simulações do Xschem para
+inspeção das formas de onda. O deck externo
+`sims/tb_bitcell_6t_read.spice` usa os mesmos estímulos para o sweep dos cinco
+corners e dos dois estados armazenados.

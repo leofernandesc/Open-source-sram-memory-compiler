@@ -159,6 +159,10 @@ O esquemático contém os seis transistores e os nós Q, QB, BL, BLB, WL, VDD
 e VSS. A captura está em
 [docs/assets/bitcell_6t_xschem.png](docs/assets/bitcell_6t_xschem.png).
 
+Quando a bitcell é aberta diretamente, um smoke test `only_toplevel` carrega
+o corner `tt`, aplica pré-carga e WL e grava `bitcell_6t.raw`. Esse bloco usa
+`WPU=WPD=WACC=0.42 µm` e é omitido quando a célula participa da hierarquia.
+
 O testbench visual de leitura é aberto com:
 
 ~~~bash
@@ -179,16 +183,19 @@ com WL ativo de 20 ns a 30 ns.
 
 ![Testbench hierárquico da bitcell SRAM 6T no Xschem](docs/assets/tb_bitcell_6t_read_xschem.png)
 
-A expansão confirmou:
+A expansão confirmou o sizing provisório da instância:
 
 ~~~spice
-XBITCELL VDD BL BLB GND WL bitcell_6t
+XBITCELL VDD BL BLB GND WL bitcell_6t WPU=0.42 WPD=0.42 WACC=0.42
 ~~~
 
-A captura hierárquica serve para inspeção e edição dos estímulos. O deck
-externo continua sendo a referência dos resultados elétricos, pois a simulação
-direta dos símbolos sky130_fd_pr ainda depende da compatibilidade entre o
-netlist gerado e a biblioteca carregada.
+O símbolo mantém como padrão o sizing alvo `WPU=0.21`, `WPD=0.42` e
+`WACC=0.30` µm. A instância do testbench usa 0,42 µm nos seis transistores,
+valor aceito pelo modelo contínuo instalado. O botão **Simulate** do Xschem
+executa o testbench hierárquico em `tt`; o deck externo e o sweep cobrem os
+demais corners e o estado complementar. Os dois fluxos usam pré-carga
+desligada durante toda a leitura. Os nós internos são medidos com os nomes
+hierárquicos `xbitcell.Q` e `xbitcell.QB`.
 
 ## Testes manuais
 
@@ -224,12 +231,14 @@ Para CBL = CBLB = 5 fF:
 ~~~text
 bl_pre       = 1.800000 V
 blb_pre      = 1.800000 V
-blb_read_min = 0.9531515 V
-delta_max    = 0.8468485 V
-q_read_min   = 1.799998 V
+blb_21n      ≈ 0 V
+delta_21n    = 1.83618 V
+q_read_min   = 1.773700 V
 ~~~
 
-A métrica usada é a maior queda durante a janela de leitura:
+A margem diferencial é avaliada em 21 ns, com as bitlines isoladas da fonte
+de pré-carga. A menor tensão da bitline durante a leitura continua disponível
+como diagnóstico de descarga:
 
 ~~~spice
 .meas tran blb_read_min MIN V(blb) FROM=20n TO=30n
@@ -262,13 +271,14 @@ Foram executados 40 casos:
 Critérios provisórios:
 
 ~~~
-delta_max >= 50 mV
+delta_21n >= 50 mV
 nó armazenado em nível alto >= 0,9 V
 ~~~
 
-Todos os 40 casos retornaram PASS. O pior caso foi ss com 50 fF, com
-delta_max = 67,325 mV. Isso passa o critério automatizado de 50 mV, mas fica
-abaixo da meta provisória de 100 mV registrada no guia.
+Todos os 40 casos retornaram PASS. A menor diferença em 21 ns foi
+`1,4258955 V`, no corner `ss` com 50 fF. Esses números substituem o sweep
+anterior, no qual `PRE` voltava a ligar quando `WL` subia e reduzia
+artificialmente a diferença medida.
 
 O CSV é salvo em sims/bitcell_read_sweep.csv.
 
@@ -280,7 +290,7 @@ O CSV é salvo em sims/bitcell_read_sweep.csv.
 | Fórmulas beta-ratio e gamma-ratio | documentadas |
 | Captura da bitcell no Xschem | criada |
 | Símbolo hierárquico | criado e expandido no netlist |
-| Testbench hierárquico | criado e documentado |
+| Testbench hierárquico | netlist e simulação ngspice executados em `tt` |
 | Retenção manual | passou no sizing provisório |
 | Escrita manual | passou no sizing provisório |
 | Leitura capacitiva | passou com critério de 50 mV |
