@@ -2,7 +2,7 @@
 
 ## Escopo
 
-Este documento registra o desenvolvimento da célula SRAM 6T single-port para SKY130A, incluindo a preparação dos esquemáticos, os testes manuais em ngspice e a automação da varredura de leitura.
+Este documento registra o desenvolvimento da célula SRAM 6T single-port para SKY130A, incluindo a preparação dos esquemáticos, a criação do testbench hierárquico no Xschem, os testes manuais em ngspice e a automação da varredura de leitura.
 
 O relatório separa resultados executados daqueles que continuam pendentes. A presença de um resultado PASS neste documento não substitui netlist final, caracterização completa, DRC, LVS ou validação do layout.
 
@@ -75,6 +75,48 @@ Esses valores são requisitos de projeto. Eles ainda não foram validados no mod
 
 ## 2. Captura manual dos esquemáticos
 
+### Esquemático da bitcell 6T no Xschem
+
+![Esquemático da bitcell SRAM 6T no Xschem](assets/bitcell_6t_xschem.png)
+
+*Figura 1. Captura do esquemático da bitcell SRAM 6T com os nós Q, QB, BL, BLB, WL, VDD e VSS.*
+
+### Testbench hierárquico de leitura no Xschem
+
+Foi criado um símbolo hierárquico para a bitcell e um testbench visual de
+leitura com a seguinte estrutura:
+
+~~~text
+tb_bitcell_6t_read.sch
+└── bitcell_6t.sym
+    └── bitcell_6t.sch
+~~~
+
+O testbench contém a instância `XBITCELL`, fontes de `VDD`, `WL` e `PRE`,
+chaves ideais de pré-carga em `BL` e `BLB`, capacitores de 5 fF nas bitlines e
+um bloco de controle com as medições de leitura. A sequência representada é:
+
+- pré-carga de 0 ns a 10 ns;
+- leitura com `WL` ativo de 20 ns a 30 ns;
+- observação de `BL`, `BLB` e `Q`.
+
+![Testbench hierárquico da bitcell SRAM 6T no Xschem](assets/tb_bitcell_6t_read_xschem.png)
+
+*Figura 2. Testbench hierárquico de leitura com a bitcell, pré-carga, capacitâncias de bitline e bloco de controle SKY130A.*
+
+Arquivos criados:
+
+~~~text
+cells/bitcell_6t.sym
+cells/tb_bitcell_6t_read.sch
+~~~
+
+A geração do netlist hierárquico foi verificada. O símbolo expandiu a célula
+com a interface `VDD BL BLB VSS WL`, preservando a conectividade dos seis
+transistores e dos nós internos `Q` e `QB`. A captura é usada para inspeção
+visual e edição dos estímulos; a validação elétrica oficial continua sendo
+executada pelo deck externo `sims/tb_bitcell_6t_read.spice`.
+
 Foram preparados os seguintes arquivos em cells/:
 
 | Arquivo | Função | Estado |
@@ -146,6 +188,23 @@ Unknown subckt: xmp1 ... sky130_fd_pr__pfet_01v8
 Os símbolos sky130_fd_pr/pfet_01v8.sym e nfet_01v8.sym geram instâncias X, enquanto a biblioteca contínua usada pelo smoke test fornece modelos compatíveis com outra forma de instanciação. Por isso, a simulação direta do esquemático Xschem ficou pendente.
 
 Os avisos sobre arquivos OSDI, como psp103_nqs.osdi, não foram a causa fatal desse erro.
+
+### 4.1 Separação entre captura hierárquica e deck elétrico
+
+O testbench hierárquico foi criado para permitir a inspeção visual da
+conexão entre a bitcell e o circuito de pré-carga. A expansão Xschem foi
+confirmada no arquivo de simulação com a instância:
+
+~~~spice
+XBITCELL VDD BL BLB GND WL bitcell_6t
+.subckt bitcell_6t VDD BL BLB VSS WL
+~~~
+
+Essa verificação comprova a hierarquia e a ordem dos pinos, mas não substitui
+a execução elétrica do deck externo já validado. A simulação hierárquica pelo
+botão de simulação do Xschem permanece condicionada à compatibilidade entre os
+modelos gerados pelos símbolos `sky130_fd_pr` e a biblioteca contínua carregada
+no container.
 
 ## 5. Testes manuais sem automação
 
@@ -344,6 +403,8 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | leitura com bitlines capacitivas | passou com critério de 50 mV |
 | sweep de capacitância | automatizado |
 | corners tt/ff/ss/fs/sf | 40 casos executados, todos PASS no critério de 50 mV |
+| símbolo hierárquico da bitcell | criado e expandido no netlist Xschem |
+| testbench hierárquico de leitura | criado para inspeção visual; deck externo permanece oficial |
 | sizing alvo 0,21/0,42/0,30 um | pendente |
 | sense amplifier | pendente |
 | drivers e pré-carga | pendentes |
