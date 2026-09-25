@@ -19,13 +19,19 @@ selected as reproducible verification evidence.
 | Branch | Owner | Blocks |
 |---|---|---|
 | `feature/bitcell` | Danilo (Person 1) | 6T bitcell through schematic, simulation, layout, DRC, and LVS |
-| `feature/sense-precharge` | Leonardo (Person 2) | Sense amplifier and precharge/equalization through the same flow |
+| `feature/sense-precharge` | André (Person 2) | Sense amplifier and precharge/equalization through schematic, simulation, layout, DRC, and LVS |
+| `feature/peripherals` | Leonardo (Person 3) | 2-to-4 row decoder, wordline driver, and write driver through schematic, simulation, layout, DRC, and LVS |
 
-Person 3 owns the row decoder, wordline driver, and write driver. Their feature
-branch will be created when that work begins.
+Each owner is responsible for carrying the assigned blocks through the complete
+Phase 1 flow. Collaboration is allowed, but architecture or implementation
+changes in another owner's block should be reviewed with that owner first.
 
-The previous `feat/sram-6t-cell-schematic` branch is retained as a historical
-reference. New bitcell work belongs in `feature/bitcell`.
+The previous `feat/sram-6t-cell-schematic` work has already been integrated into
+`develop`. New bitcell work belongs in `feature/bitcell`.
+
+Before starting new work on an existing feature branch, synchronize it with the
+latest `develop`. Feature branches must not be force-updated or have their shared
+history rewritten.
 
 Do not merge a leaf cell as validated without the evidence required for the
 stage being reviewed. A schematic, functional simulation, DRC result, and LVS
