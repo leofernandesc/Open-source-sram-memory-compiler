@@ -1,0 +1,57 @@
+* SKY130A 6T SRAM bitcell: read-disturb smoke test.
+* Stored state before read: Q=1, QB=0.
+* BL and BLB are precharged through controlled switches, then released.
+
+.title bitcell_6t_read_tt
+
+.lib "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice" tt
+
+VDD vdd 0 1.8
+
+* Precharge is active while PRE=1, then both bitlines are released.
+VPRE pre 0 PULSE(1.8 0 10n 50p 50p 90n 200n)
+SBL  bl  vdd pre 0 SWPRE
+SBLB blb vdd pre 0 SWPRE
+.model SWPRE SW(Ron=10 Roff=1e12 Vt=0.9 Vh=0.1)
+
+* Realistic capacitive load on the two bitlines.
+CBL  bl  0 5f
+CBLB blb 0 5f
+
+* Read wordline pulse occurs after precharge is released.
+VWL wl 0 PULSE(0 1.8 20n 50p 50p 10n 40n)
+
+* Provisional continuous-model sizing accepted by this runtime:
+* WPU=WPD=WACC=0.42 um. The target sizing WPU=0.21/WACC=0.30
+* is kept as an open task because this model set has no valid bin for it.
+XPU_L  Q  QB  vdd vdd sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XPU_R  QB Q   vdd vdd sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XPD_L  Q  QB  0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XPD_R  QB Q   0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XACC_L Q  wl  bl  0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XACC_R QB wl  blb 0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+
+* Force the initial stored state and keep WL low until the read pulse.
+.ic V(Q)=1.8 V(QB)=0 V(bl)=1.8 V(blb)=1.8
+.options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-9 iabstol=1e-12
+.tran 10p 40n 0 10p uic
+
+.meas tran bl_pre  FIND V(bl)  AT=9n
+.meas tran blb_pre FIND V(blb) AT=9n
+.meas tran bl_read FIND V(bl)  AT=29n
+.meas tran blb_read FIND V(blb) AT=29n
+.meas tran bl_21n FIND V(bl) AT=21n
+.meas tran blb_21n FIND V(blb) AT=21n
+.meas tran delta_21n PARAM='bl_21n-blb_21n'
+.meas tran bl_read_min MIN V(bl) FROM=20n TO=30n
+.meas tran blb_read_min MIN V(blb) FROM=20n TO=30n
+.meas tran delta_read PARAM='bl_read-blb_read'
+.meas tran q_read_min MIN V(Q) FROM=20n TO=30n
+.meas tran qb_read_min MIN V(QB) FROM=20n TO=30n
+
+.control
+run
+write tb_bitcell_6t_read_tt.raw all
+quit
+.endc
+.end

@@ -1,0 +1,15 @@
+* SKY130A SRAM 6T single-port bitcell.
+* Pin order: BL BLB WL VDD VSS
+.subckt bitcell_6t BL BLB WL VDD VSS
+* Pull-up PMOS: W=0.21um, L=0.15um.
+* The continuous SKY130 model set is primitive-model based, so this
+* simulation view uses its pshort_model bin directly.
+MPU_L Q  QB VDD VDD pshort_model.1 l=0.15 w=0.21 nf=1 m=1
+MPU_R QB Q  VDD VDD pshort_model.1 l=0.15 w=0.21 nf=1 m=1
+* Pull-down NMOS: W=0.42um, L=0.15um.
+M_PD_L Q  QB VSS VSS nshort_model.1 l=0.15 w=0.42 nf=1 m=1
+M_PD_R QB Q  VSS VSS nshort_model.1 l=0.15 w=0.42 nf=1 m=1
+* Access NMOS: W=0.30um, L=0.15um.
+M_ACC_L Q  WL BL  VSS nshort_model.1 l=0.15 w=0.30 nf=1 m=1
+M_ACC_R QB WL BLB VSS nshort_model.1 l=0.15 w=0.30 nf=1 m=1
+.ends bitcell_6t
