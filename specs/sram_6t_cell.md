@@ -107,7 +107,7 @@ aceite, não resultados medidos:
 
 | Item | Estado |
 |---|---|
-| Topologia e conexões lógicas | capturadas no `cells/sram_6t.sch` |
+| Topologia e conexões lógicas | capturadas no `cells/bitcell_6t/sram_6t.sch` |
 | Sizing inicial | corrigido para beta=1.40 e gamma=0.70 |
 | Toolchain SKY130A | disponível no container `isaiassh/unic-cass-tools:1.1.0`; `ngspice 44.2`, `xschem`, `magic` e `netgen` confirmados |
 | Netlist Xschem | pendente: captura ainda não foi netlisted no container SKY130A |
@@ -119,11 +119,11 @@ aceite, não resultados medidos:
 
 O contrato de captura Xschem está centralizado em `cells/README.md`:
 
-- `sram_6t.sch`: bitcell 6T existente;
-- `sense_amp.sch`: rascunho estrutural do latch diferencial (`SCLK`);
-- `precharge.sch`: PMOS de pré-carga e equalização (`PRECH` ativo-baixo);
-- `wl_driver.sch`: buffer de wordline em dois estágios;
-- `write_driver.sch`: rascunho do driver diferencial de escrita (`DATA`,
+- `cells/bitcell_6t/bitcell_6t.sch`: esquemático canônico da bitcell 6T;
+- `cells/sense_amp/sense_amp.sch`: rascunho estrutural do latch diferencial (`SCLK`);
+- `cells/precharge/precharge.sch`: PMOS de pré-carga e equalização (`PRECH` ativo-baixo);
+- `cells/wordline_driver/wl_driver.sch`: buffer de wordline em dois estágios;
+- `cells/write_driver/write_driver.sch`: rascunho do driver diferencial de escrita (`DATA`,
   `DATA_B`, `WE`).
 
 Os sinais de coluna foram padronizados como `BL` e `BLB`; os controles como

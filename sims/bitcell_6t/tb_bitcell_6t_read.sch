@@ -26,10 +26,10 @@ N 350 320 350 640 {lab=WL}
 N 350 640 700 640 {lab=WL}
 N 700 510 700 640 {lab=WL}
 N 250 550 250 590 {lab=GND}
-C {cells/bitcell_6t.sym} 700 400 0 0 {name=XBITCELL WPU=0.42 WPD=0.42 WACC=0.42}
-C {cells/vsource_drive.sym} 250 180 0 0 {name=VDD_SRC value=1.8 savecurrent=false}
-C {cells/vsource_drive.sym} 250 350 0 0 {name=VWL_SRC value="PULSE(0 1.8 20n 50p 50p 10n 40n)" savecurrent=false}
-C {cells/vsource_drive.sym} 250 520 0 0 {name=VPRE_SRC value="PULSE(1.8 0 10n 50p 50p 90n 200n)" savecurrent=false}
+C {cells/bitcell_6t/bitcell_6t.sym} 700 400 0 0 {name=XBITCELL WPU=0.42 WPD=0.42 WACC=0.42}
+C {sims/bitcell_6t/vsource_drive.sym} 250 180 0 0 {name=VDD_SRC value=1.8 savecurrent=false}
+C {sims/bitcell_6t/vsource_drive.sym} 250 350 0 0 {name=VWL_SRC value="PULSE(0 1.8 20n 50p 50p 10n 40n)" savecurrent=false}
+C {sims/bitcell_6t/vsource_drive.sym} 250 520 0 0 {name=VPRE_SRC value="PULSE(1.8 0 10n 50p 50p 90n 200n)" savecurrent=false}
 C {devices/switch_ngspice.sym} 470 290 0 0 {name=SBL model=SWPRE device_model=".model SWPRE SW(RON=10 ROFF=1e12 VT=0.9 VH=0.1)"}
 C {devices/switch_ngspice.sym} 930 290 0 0 {name=SBLB model=SWPRE device_model=".model SWPRE SW(RON=10 ROFF=1e12 VT=0.9 VH=0.1)"}
 C {devices/capa.sym} 550 530 0 0 {name=CBL value=5f m=1}

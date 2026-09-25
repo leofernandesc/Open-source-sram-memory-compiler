@@ -122,19 +122,30 @@ O pull-up mais fraco facilita que o driver de escrita force a inversão do estad
 ~~~
 .
 ├── cells/
-│   ├── bitcell_6t.sch
-│   ├── bitcell_6t.sym
-│   ├── tb_bitcell_6t_read.sch
-│   ├── sense_amp.sch
-│   ├── precharge.sch
-│   ├── wl_driver.sch
-│   ├── write_driver.sch
+│   ├── bitcell_6t/
+│   │   ├── bitcell_6t.sch
+│   │   ├── bitcell_6t.sym
+│   │   ├── bitcell_6t.spice
+│   │   └── sram_6t.sch (legacy)
+│   ├── row_decoder/
+│   │   └── row_decoder.sch
+│   ├── precharge/
+│   │   └── precharge.sch
+│   ├── sense_amp/
+│   │   └── sense_amp.sch
+│   ├── wordline_driver/
+│   │   └── wl_driver.sch
+│   ├── write_driver/
+│   │   └── write_driver.sch
 │   └── README.md
 ├── sims/
-│   ├── tb_bitcell_6t.spice
-│   ├── tb_bitcell_6t_read.spice
-│   ├── run_bitcell_read_sweep.py
-│   └── bitcell_read_sweep.csv
+│   └── bitcell_6t/
+│       ├── tb_bitcell_6t_read.sch
+│       ├── vsource_drive.sym
+│       ├── tb_bitcell_6t.spice
+│       ├── tb_bitcell_6t_read.spice
+│       ├── run_bitcell_read_sweep.py
+│       └── bitcell_read_sweep.csv
 ├── specs/sram_6t_cell.md
 └── docs/
     ├── relatorio_validacao_bitcell_6t_sky130.md
@@ -182,7 +193,7 @@ export PDK_ROOT=/opt/pdks
 Abra a bitcell isolada com:
 
 ~~~bash
-xschem cells/bitcell_6t.sch
+xschem cells/bitcell_6t/bitcell_6t.sch
 ~~~
 
 O esquemático contém os seis transistores e os nós Q, QB, BL, BLB, WL, VDD
@@ -196,15 +207,15 @@ o corner `tt`, aplica pré-carga e WL e grava `bitcell_6t.raw`. Esse bloco usa
 O testbench visual de leitura é aberto com:
 
 ~~~bash
-xschem cells/tb_bitcell_6t_read.sch
+xschem sims/bitcell_6t/tb_bitcell_6t_read.sch
 ~~~
 
 Hierarquia:
 
 ~~~
-tb_bitcell_6t_read.sch
-└── bitcell_6t.sym
-    └── bitcell_6t.sch
+sims/bitcell_6t/tb_bitcell_6t_read.sch
+└── cells/bitcell_6t/bitcell_6t.sym
+    └── cells/bitcell_6t/bitcell_6t.sch
 ~~~
 
 O testbench representa VDD, WL, PRE, chaves ideais de pré-carga e capacitores
@@ -232,7 +243,7 @@ hierárquicos `xbitcell.Q` e `xbitcell.QB`.
 ### Retenção, leitura inicial e escrita
 
 ~~~bash
-cd /home/designer/shared/sims
+cd /home/designer/shared/sims/bitcell_6t
 ngspice -n -b tb_bitcell_6t.spice | tee tb_bitcell_6t_tt.log
 ~~~
 
@@ -252,7 +263,7 @@ conclusiva porque BL e BLB estavam presas a fontes ideais de 1,8 V.
 ### Leitura com bitlines capacitivas
 
 ~~~bash
-cd /home/designer/shared/sims
+cd /home/designer/shared/sims/bitcell_6t
 ngspice -n -b tb_bitcell_6t_read.spice | tee tb_bitcell_6t_read.log
 ~~~
 
@@ -276,13 +287,13 @@ como diagnóstico de descarga:
 
 ## Sweep automatizado
 
-O script sims/run_bitcell_read_sweep.py varia capacitância, estado armazenado,
+O script sims/bitcell_6t/run_bitcell_read_sweep.py varia capacitância, estado armazenado,
 bitline que deve descarregar e corner. As capacitâncias são 5, 10, 20 e 50 fF.
 
 Execução padrão:
 
 ~~~bash
-cd /home/designer/shared/sims
+cd /home/designer/shared/sims/bitcell_6t
 python3 run_bitcell_read_sweep.py
 ~~~
 
@@ -310,7 +321,7 @@ Todos os 40 casos retornaram PASS. A menor diferença em 21 ns foi
 anterior, no qual `PRE` voltava a ligar quando `WL` subia e reduzia
 artificialmente a diferença medida.
 
-O CSV é salvo em sims/bitcell_read_sweep.csv.
+O CSV é salvo em sims/bitcell_6t/bitcell_read_sweep.csv.
 
 ## Estado do projeto
 

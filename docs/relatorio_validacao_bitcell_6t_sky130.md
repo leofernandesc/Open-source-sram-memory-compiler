@@ -87,9 +87,9 @@ Foi criado um símbolo hierárquico para a bitcell e um testbench visual de
 leitura com a seguinte estrutura:
 
 ~~~text
-tb_bitcell_6t_read.sch
-└── bitcell_6t.sym
-    └── bitcell_6t.sch
+sims/bitcell_6t/tb_bitcell_6t_read.sch
+└── cells/bitcell_6t/bitcell_6t.sym
+    └── cells/bitcell_6t/bitcell_6t.sch
 ~~~
 
 O testbench contém a instância `XBITCELL`, fontes de `VDD`, `WL` e `PRE`,
@@ -107,8 +107,8 @@ um bloco de controle com as medições de leitura. A sequência representada é:
 Arquivos criados:
 
 ~~~text
-cells/bitcell_6t.sym
-cells/tb_bitcell_6t_read.sch
+cells/bitcell_6t/bitcell_6t.sym
+sims/bitcell_6t/tb_bitcell_6t_read.sch
 ~~~
 
 A geração e a simulação do netlist hierárquico foram verificadas no corner
@@ -121,11 +121,11 @@ Foram preparados os seguintes arquivos em cells/:
 
 | Arquivo | Função | Estado |
 |---|---|---|
-| bitcell_6t.sch | bitcell SRAM 6T | netlist hierárquico e simulação `tt` verificados com sizing provisório |
-| sense_amp.sch | voltage-latch sense amplifier | rascunho estrutural |
-| precharge.sch | pré-carga e equalização | rascunho estrutural |
-| wl_driver.sch | driver de WL | rascunho estrutural |
-| write_driver.sch | driver diferencial de escrita | rascunho estrutural |
+| cells/bitcell_6t/bitcell_6t.sch | bitcell SRAM 6T | netlist hierárquico e simulação `tt` verificados com sizing provisório |
+| cells/sense_amp/sense_amp.sch | voltage-latch sense amplifier | rascunho estrutural |
+| cells/precharge/precharge.sch | pré-carga e equalização | rascunho estrutural |
+| cells/wordline_driver/wl_driver.sch | driver de WL | rascunho estrutural |
+| cells/write_driver/write_driver.sch | driver diferencial de escrita | rascunho estrutural |
 | cells/README.md | contrato de pinos | documentado |
 
 Os nomes de sinais foram padronizados como:
@@ -170,7 +170,7 @@ Dentro do container, o Xschem foi aberto com:
 cd /home/designer/shared
 export PDK=sky130A
 export PDK_ROOT=/opt/pdks
-xschem cells/bitcell_6t.sch
+xschem cells/bitcell_6t/bitcell_6t.sch
 ~~~
 
 ## 4. Dificuldades com o netlist e a simulação Xschem
@@ -273,13 +273,13 @@ diferença reflete detalhes distintos de parasitas das instâncias.
 Arquivo:
 
 ~~~text
-sims/tb_bitcell_6t.spice
+sims/bitcell_6t/tb_bitcell_6t.spice
 ~~~
 
 Execução:
 
 ~~~bash
-cd /home/designer/shared/sims
+cd /home/designer/shared/sims/bitcell_6t
 ngspice -n -b tb_bitcell_6t.spice | tee tb_bitcell_6t_tt.log
 ~~~
 
@@ -318,7 +318,7 @@ WPU=WPD=WACC=0,42 um
 Arquivo:
 
 ~~~text
-sims/tb_bitcell_6t_read.spice
+sims/bitcell_6t/tb_bitcell_6t_read.spice
 ~~~
 
 O segundo deck acrescentou:
@@ -333,7 +333,7 @@ O segundo deck acrescentou:
 Execução manual:
 
 ~~~bash
-cd /home/designer/shared/sims
+cd /home/designer/shared/sims/bitcell_6t
 ngspice -n -b tb_bitcell_6t_read.spice | tee tb_bitcell_6t_read_5f.log
 ~~~
 
@@ -368,7 +368,7 @@ Uma diretiva .meas deve estar dentro do arquivo SPICE. Ela não pode ser digitad
 Foi criado o script:
 
 ~~~text
-sims/run_bitcell_read_sweep.py
+sims/bitcell_6t/run_bitcell_read_sweep.py
 ~~~
 
 O script:
@@ -396,7 +396,7 @@ O segundo critério é selecionado corretamente para cada estado. Quando Q=0, Q 
 ### 6.1 Execução padrão
 
 ~~~bash
-cd /home/designer/shared/sims
+cd /home/designer/shared/sims/bitcell_6t
 python3 run_bitcell_read_sweep.py
 ~~~
 
@@ -421,7 +421,7 @@ Essa execução cobre:
 Relatório gerado:
 
 ~~~text
-sims/bitcell_read_sweep.csv
+sims/bitcell_6t/bitcell_read_sweep.csv
 ~~~
 
 ## 7. Resultado automatizado nos corners SKY130A
