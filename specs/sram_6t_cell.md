@@ -69,18 +69,36 @@ nos corners do SKY130A.
 | M5 | `nfet_01v8` | Q | WL | BL | VSS | acesso de BL |
 | M6 | `nfet_01v8` | QB | WL | BLB | VSS | acesso de BLB |
 
-O ponto de partida elétrico é `L=0.15 um`, `nf=1`, com sizing por função:
+O sizing candidato é `L=0.15 um`, `nf=1`, com as larguras originais escaladas
+por dois para selecionar bins válidos do SKY130A sem alterar as razões:
 
 | Dispositivos | Função | W (um) | Razão |
 |---|---|---:|---:|
-| M1, M3 | pull-up PMOS | 0.21 | gamma = 0.70 em relação ao acesso |
-| M2, M4 | pull-down NMOS | 0.42 | beta = 1.40 em relação ao acesso |
-| M5, M6 | acesso NMOS | 0.30 | referência |
+| M1, M3 | pull-up PMOS | 0.42 | gamma = 0.70 em relação ao acesso |
+| M2, M4 | pull-down NMOS | 0.84 | beta = 1.40 em relação ao acesso |
+| M5, M6 | acesso NMOS | 0.60 | referência |
 
-Esses valores são apenas o ponto de partida; estabilidade de leitura,
-writability, leakage e área deverão ser medidos antes de congelar o
-dimensionamento. Os valores devem permanecer parametrizados na captura para
-permitir uma varredura posterior.
+O candidato passou pela primeira caracterização de Hold/Read SNM nos corners
+`tt/ff/ss/fs/sf`; a WLVM nominal foi medida em testbench ideal. Ainda faltam
+critérios e escrita com driver real, além de leakage e Monte Carlo, antes do
+congelamento. Os valores permanecem parametrizados na captura.
+
+A leitura transitória com bitlines capacitivas reprovou o limite provisório
+de excursão máxima do nó baixo em 28/40 casos para `WPD=0.84 µm`. A exploração
+de `WPD=1.05 µm` e `1.26 µm` passou esse gate em 40/40 casos, mantendo os demais
+tamanhos. Essas variantes seguem experimentais até a medição de write margin;
+nenhuma foi aplicada ao esquemático.
+
+O teste de escrita com bitlines ideais full-swing, `WL=1.8 V` por 10 ns e
+verificação após `WL` descer passou em 30/30 combinações de corner, sentido
+de escrita e sizing (`WPD=0.84/1.05/1.26 µm`). Esse resultado é funcional:
+não caracteriza write margin, resistência do driver ou tempo mínimo.
+
+A margem dinâmica por WLVM também foi medida por busca binária para
+`WPD=0.84/1.05 µm`, pulso de 10 ns, cinco corners e ambos os sentidos. O pior
+caso foi `0.619/0.605 V`, respectivamente. Como a especificação ainda não
+define um WLVM mínimo e os drivers são ideais, isso permanece comparação
+exploratória, não critério de aprovação.
 
 ## Critérios da primeira captura
 
@@ -98,8 +116,15 @@ aceite, não resultados medidos:
 - retenção: `Q/QB` permanecem nos estados complementares com `WL=0 V`;
 - leitura: diferença de bitline de pelo menos `100 mV` durante a janela de
   leitura, sem aumento do nó armazenando `0` superior a `0.2 V`;
+- Read SNM no ponto nominal (`tt`, `VDD=1.8 V`, temperatura nominal):
+  `>= 0.4 V` como recomendação de engenharia do projeto;
 - escrita: ambos os nós internos devem cruzar `0.9 V` dentro da janela de
   escrita, com `BL=0 V`, `BLB=1.8 V` e `WL=1.8 V`;
+- janela inferior de WL: `1.30 ×` o pior tempo de flip completo medido, onde
+  flip completo exige os dois nós internos em `90%/10%` de `VDD`;
+- `C_BL` final: derivada da profundidade da coluna, parasita de fio por PEX e
+  cargas de precharge/mux/sense, com teto de `1.15 × C_BL_extraído`; `50 fF`
+  permanece somente condição de triagem pré-layout;
 - SNM de retenção e leitura, além de write margin, serão medidos em simulação
   e não podem ser inferidos apenas das razões beta/gamma.
 
@@ -107,24 +132,38 @@ aceite, não resultados medidos:
 
 | Item | Estado |
 |---|---|
-| Topologia e conexões lógicas | capturadas no `cells/sram_6t.sch` |
+| Topologia e conexões lógicas | capturadas no `cells/bitcell_6t.sch` |
 | Sizing inicial | corrigido para beta=1.40 e gamma=0.70 |
 | Toolchain SKY130A | disponível no container `isaiassh/unic-cass-tools:1.1.0`; `ngspice 44.2`, `xschem`, `magic` e `netgen` confirmados |
-| Netlist Xschem | pendente: captura ainda não foi netlisted no container SKY130A |
-| Smoke transitório | executado em `tt` com modelo contínuo e sizing provisório `WPU=WACC=0.42 um` |
-| Sizing original `WPU=0.21 um`, `WACC=0.30 um` | pendente: o runtime contínuo rejeitou esses valores; não está aprovado |
+| Netlist Xschem | captura hierárquica netlistada; netlist canônico alinhado à ordem `VDD BL BLB VSS WL` |
+| Smoke transitório | executado em `tt` com `WPU/WPD/WACC=0.42/0.84/0.60 um` |
+| Hold/Read SNM | cinco corners medidos; piores casos `646.567/288.342 mV` em `sf` |
+| Read disturb | `0.42/0.84/0.60 µm`: 12/40 no limite provisório de 0.20 V; `WPD=1.05/1.26 µm`: 40/40, exploração apenas |
+| SNM nominal vs. meta de 0,4 V | `WPD=0.84`: `0.349 V` FAIL; `1.05`: `0.388 V` FAIL; `1.26`: `0.414 V` PASS em `tt/1.8 V` |
+| PVT provisório | `VDD=1.62/1.80/1.95 V`, `T=-40/27/125 °C`, cinco corners; `1.98 V` fora do limite de 1.95 V documentado para os modelos 01v8 |
+| Read disturb PVT, 50 fF | `WPD=1.05 µm`: 72/90, pior pico `0.230218 V`; `WPD=1.26 µm`: 90/90, pior pico `0.194778 V`; ambos exploratórios |
+| SNM PVT | `WPD=1.05 µm`: mínimo Hold/Read `581.312/289.261 mV`; `WPD=1.26 µm`: `577.761/312.029 mV`; a meta de 0,4 V vale no ponto nominal, enquanto limite PVT/Hold permanece pendente |
+| Escrita PVT full-swing | `WPD=1.26 µm`: 90/90 smoke tests; margem dinâmica não medida |
+| Fuga em hold PVT | `WPD=1.26 µm`: 90/90 estados estáveis; pior corrente total `21.759 nA` em `fs/1.95 V/125 °C`; orçamento pendente |
+| Tensão terminal na leitura | em `VDD=1.95 V`, 30/30 condições excederam 1.95 V; maior pico `2.056858 V` em `sf/125 °C`; impede qualificação desse ponto com o modelo atual |
+| SNM com mismatch | `sf_mm`, 200 seeds de Read a 1.62 V/125 °C: mínimo `269.936 mV`; 200 seeds de Hold a 1.62 V/–40 °C: mínimo `541.229 mV`; critério estatístico/yield pendente |
+| Write driver | netlist Xschem corrigido; smoke standalone confirma escrita complementar e isolamento com `WE=0`; sweep integrado nominal passou `12/12`; em `1.62 V`, `WPD=1.26 µm` passou `30/30` em cinco corners e três temperaturas |
+| Janela inferior de WL | pior flip completo `90/10%` = `0.3216 ns` em `ss/1.62 V/-40 °C`, 0→1; +30% => `0.418 ns` provisórios com `50 fF` |
+| Escrita full-swing | 30/30 smoke tests aprovados |
+| WLVM | mínimo `0.619 V` em `WPD=0.84 µm`, `0.605 V` em `1.05 µm`; critério de aceite pendente |
+| Schematic Freeze | bloqueado: `WPD=1.26 µm` é o único sizing testado que atende Read SNM nominal >=0.4 V, mas ainda faltam carga PEX, limite superior de WL/read disturb dinâmico, qualificação do alvo +10% de VDD, leakage/mismatch e revisão de arquitetura |
 | Layout, DRC e LVS | pendentes |
 
 ## Leaf cells da etapa 2
 
 O contrato de captura Xschem está centralizado em `cells/README.md`:
 
-- `sram_6t.sch`: bitcell 6T existente;
+- `bitcell_6t.sch`: bitcell 6T canônica;
 - `sense_amp.sch`: rascunho estrutural do latch diferencial (`SCLK`);
 - `precharge.sch`: PMOS de pré-carga e equalização (`PRECH` ativo-baixo);
 - `wl_driver.sch`: buffer de wordline em dois estágios;
-- `write_driver.sch`: rascunho do driver diferencial de escrita (`DATA`,
-  `DATA_B`, `WE`).
+- `write_driver.sch`: driver diferencial tri-state (`DATA`, `DATA_B`, `WE`),
+  com netlist e smoke funcional verificados; sizing ainda não congelado.
 
 Os sinais de coluna foram padronizados como `BL` e `BLB`; os controles como
 `WL`, `SCLK` e `WE`; e as alimentações como `VDD` e `VSS`. Os símbolos `.sym`

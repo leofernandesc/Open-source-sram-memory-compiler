@@ -80,9 +80,9 @@ O guia define VDD = 1,8 V, L = 0,15 µm e nf = 1:
 
 | Dispositivo | Função | Modelo | W (µm) | L (µm) |
 |---|---|---|---:|---:|
-| MPL, MPR | PMOS pull-up | sky130_fd_pr__pfet_01v8 | 0,21 | 0,15 |
-| MNL, MNR | NMOS pull-down | sky130_fd_pr__nfet_01v8 | 0,42 | 0,15 |
-| MAL, MAR | NMOS de acesso | sky130_fd_pr__nfet_01v8 | 0,30 | 0,15 |
+| MPL, MPR | PMOS pull-up | sky130_fd_pr__pfet_01v8 | 0,42 | 0,15 |
+| MNL, MNR | NMOS pull-down | sky130_fd_pr__nfet_01v8 | 0,84 | 0,15 |
+| MAL, MAR | NMOS de acesso | sky130_fd_pr__nfet_01v8 | 0,60 | 0,15 |
 
 A razão de leitura, ou beta-ratio, é:
 
@@ -93,8 +93,8 @@ A razão de leitura, ou beta-ratio, é:
 Com o sizing definido:
 
 \[
-\beta = \frac{0,42/0,15}{0,30/0,15}
-       = \frac{0,42}{0,30}
+\beta = \frac{0,84/0,15}{0,60/0,15}
+       = \frac{0,84}{0,60}
        = 1,40
 \]
 
@@ -110,8 +110,8 @@ A razão de escrita, ou gamma-ratio, é:
 Com o sizing definido:
 
 \[
-\gamma = \frac{0,21/0,15}{0,30/0,15}
-        = \frac{0,21}{0,30}
+\gamma = \frac{0,42/0,15}{0,60/0,15}
+        = \frac{0,42}{0,60}
         = 0,70 < 1,0
 \]
 
@@ -163,7 +163,7 @@ Para iniciar o container localmente, sem VNC:
 ~~~bash
 cd /home/danilo_cunha/projetos/ueletronica/entregas/ueletronica_projeto_final
 make \
-  SHARED_DIR=/home/danilo_cunha/projetos/ueletronica/projeto-sram/Open-source-sram-memory-compiler \
+  SHARED_DIR=/home/danilo_cunha/projetos/ueletronica/projeto-sram \
   PDK=sky130A \
   DOCKER_TAG=1.1.0 \
   start
@@ -191,7 +191,7 @@ e VSS. A captura está em
 
 Quando a bitcell é aberta diretamente, um smoke test `only_toplevel` carrega
 o corner `tt`, aplica pré-carga e WL e grava `bitcell_6t.raw`. Esse bloco usa
-`WPU=WPD=WACC=0.42 µm` e é omitido quando a célula participa da hierarquia.
+`WPU/WPD/WACC=0.42/0.84/0.60 µm` e é omitido quando a célula participa da hierarquia.
 
 O testbench visual de leitura é aberto com:
 
@@ -213,15 +213,15 @@ com WL ativo de 20 ns a 30 ns.
 
 ![Testbench hierárquico da bitcell SRAM 6T no Xschem](docs/assets/tb_bitcell_6t_read_xschem.png)
 
-A expansão confirmou o sizing provisório da instância:
+A expansão confirmou o sizing candidato da instância:
 
 ~~~spice
-XBITCELL VDD BL BLB GND WL bitcell_6t WPU=0.42 WPD=0.42 WACC=0.42
+XBITCELL VDD BL BLB GND WL bitcell_6t WPU=0.42 WPD=0.84 WACC=0.60
 ~~~
 
-O símbolo mantém como padrão o sizing alvo `WPU=0.21`, `WPD=0.42` e
-`WACC=0.30` µm. A instância do testbench usa 0,42 µm nos seis transistores,
-valor aceito pelo modelo contínuo instalado. O botão **Simulate** do Xschem
+O símbolo e a instância do testbench usam o sizing candidato `WPU=0.42`,
+`WPD=0.84` e `WACC=0.60` µm, aceito pelo modelo contínuo instalado e com as
+razões beta/gamma preservadas. O botão **Simulate** do Xschem
 executa o testbench hierárquico em `tt`; o deck externo e o sweep cobrem os
 demais corners e o estado complementar. Os dois fluxos usam pré-carga
 desligada durante toda a leitura. Os nós internos são medidos com os nomes
@@ -240,13 +240,13 @@ Resultado obtido:
 
 ~~~text
 q_hold         = 1.800000e+00
-qb_hold        = 3.777216e-08
-q_read_min     = 1.799998e+00
-q_after_write  = 3.769092e-08
+qb_hold        = 1.659282e-08
+q_read_min     = 1.799999e+00
+q_after_write  = 1.648274e-08
 qb_after_write = 1.800000e+00
 ~~~
 
-Retenção e escrita passaram no sizing provisório. A leitura diferencial não foi
+Retenção e escrita passaram no sizing candidato. A leitura diferencial não foi
 conclusiva porque BL e BLB estavam presas a fontes ideais de 1,8 V.
 
 ### Leitura com bitlines capacitivas
@@ -262,8 +262,8 @@ Para CBL = CBLB = 5 fF:
 bl_pre       = 1.800000 V
 blb_pre      = 1.800000 V
 blb_21n      ≈ 0 V
-delta_21n    = 1.83618 V
-q_read_min   = 1.773700 V
+delta_21n    = 1.85107198 V
+q_read_min   = 1.772935 V
 ~~~
 
 A margem diferencial é avaliada em 21 ns, com as bitlines isoladas da fonte
@@ -286,10 +286,10 @@ cd /home/designer/shared/sims
 python3 run_bitcell_read_sweep.py
 ~~~
 
-Execução em todos os corners:
+Execução em uma seleção de corners:
 
 ~~~bash
-python3 run_bitcell_read_sweep.py --corners tt ff ss fs sf
+python3 run_bitcell_read_sweep.py --corners tt ss sf
 ~~~
 
 Foram executados 40 casos:
@@ -301,16 +301,79 @@ Foram executados 40 casos:
 Critérios provisórios:
 
 ~~~
-delta_21n >= 50 mV
-nó armazenado em nível alto >= 0,9 V
+delta_21n >= 100 mV
+nó armazenando 1 >= 0,9 V
+pico do nó armazenando 0 <= 0,2 V
+estado recuperado 5 ns após WL descer
 ~~~
 
-Todos os 40 casos retornaram PASS. A menor diferença em 21 ns foi
-`1,4258955 V`, no corner `ss` com 50 fF. Esses números substituem o sweep
-anterior, no qual `PRE` voltava a ligar quando `WL` subia e reduzia
-artificialmente a diferença medida.
+Os limites são critérios provisórios da especificação do projeto, não valores
+universais da literatura. No sizing atual `WPU/WPD/WACC=0,42/0,84/0,60 µm`,
+12/40 casos passaram o limite de excursão do nó baixo. A menor diferença em
+21 ns foi `1,78029642 V` em `ss/50 fF`; o diferencial passou em 40/40 casos.
+Com `WPD=1,05 µm`, todos os 40 casos passaram e o pico máximo do nó baixo foi
+`0,185621 V`. Essa variante permanece exploratória enquanto a escrita não for
+qualificada com driver e critério de margem aprovados.
+
+O gerador permite testar outras larguras de pull-down, por exemplo:
+
+~~~bash
+python3 run_bitcell_read_sweep.py --wpd 1.05 --output bitcell_read_sweep_wpd1p05.csv
+~~~
 
 O CSV é salvo em sims/bitcell_read_sweep.csv.
+
+## Hold/Read SNM
+
+O script `sims/run_bitcell_snm.py` gera as VTCs, as curvas borboleta e mede o
+menor quadrado máximo entre os dois lóbulos para hold e leitura:
+
+~~~bash
+cd /home/designer/shared
+python3 sims/run_bitcell_snm.py
+~~~
+
+| Corner | Hold SNM | Read SNM |
+|---|---:|---:|
+| tt | 704,953 mV | 348,804 mV |
+| ff | 681,541 mV | 319,564 mV |
+| ss | 723,615 mV | 367,942 mV |
+| fs | 730,281 mV | 399,390 mV |
+| sf | 646,567 mV | 288,342 mV |
+
+Artefatos: `sims/bitcell_snm_summary.csv`, `sims/bitcell_snm_curves.csv` e
+`docs/assets/bitcell_6t_snm_butterfly.png`.
+
+Sizing exploratório `WPD=1,05 µm`: menor Hold/Read SNM de
+`642,994/332,353 mV`; o sizing original tem `646,567/288,342 mV`.
+
+Adotando a recomendação de engenharia de `Read SNM >= 0,4 V` no ponto nominal
+(`tt`, 1,8 V), os resultados são: `WPD=0,84 µm` = `0,349 V` (FAIL),
+`WPD=1,05 µm` = `0,388 V` (FAIL) e `WPD=1,26 µm` = `0,414 V` (PASS).
+
+## Escrita e WLVM
+
+O smoke full-swing passou em 30/30 casos (`WPD=0,84/1,05/1,26 µm`, cinco
+corners, dois sentidos). A medida dinâmica WLVM reduz a amplitude de `WL` até
+o limite de escrita para um pulso de 10 ns. O pior WLVM foi `0,619 V` para
+`WPD=0,84 µm` e `0,605 V` para `1,05 µm`, no corner `fs`; a resolução é 14 mV.
+Os bitlines são fontes ideais e ainda falta definir o limite WLVM aceitável.
+Dados: `sims/bitcell_write_smoke_sweep.csv` e
+`sims/bitcell_write_margin_wlvm.csv`.
+
+Com o write driver transistor-level, o tempo de flip completo foi definido
+como ambos os nós internos atingindo `90%/10%` de VDD. Para `WPD=1,26 µm`,
+o sweep em `VDD=1,62 V`, cinco corners, `-40/27/125 °C` e ambos os sentidos
+passou `30/30`; o pior flip foi `0,3216 ns` (`ss`, -40 °C, 0→1). Aplicando
+a margem de 30%, o limite inferior provisório de WL é `0,418 ns`. O resultado
+ainda usa `50 fF` por bitline, portanto não é o valor final da janela.
+
+Para capacitância de coluna, o projeto passa a usar
+`C_BL = Nrows × (0,2 fF + Cwire/célula) + Cprecharge + Cmux + Csense` e
+`C_BL,max = 1,15 × C_BL,PEX`. A parcela apenas de dreno é
+`0,8/1,6/3,2/6,4 fF` para profundidades `4/8/16/32`. Como a arquitetura
+atual usa uma palavra por linha física e um par de bitlines por bit, não há
+column mux (`Cmux=0`) e `Nrows` fica fechado em `4/8/16/32`.
 
 ## Estado do projeto
 
@@ -321,27 +384,34 @@ O CSV é salvo em sims/bitcell_read_sweep.csv.
 | Captura da bitcell no Xschem | criada |
 | Símbolo hierárquico | criado e expandido no netlist |
 | Testbench hierárquico | netlist e simulação ngspice executados em `tt` |
-| Retenção manual | passou no sizing provisório |
-| Escrita manual | passou no sizing provisório |
-| Leitura capacitiva | passou com critério de 50 mV |
+| Retenção manual | passou no sizing candidato em `tt` |
+| Escrita manual | passou no sizing candidato em `tt` |
+| Leitura capacitiva | sizing 0,84 µm falhou excursão em 28/40; sizing 1,05 µm passou 40/40 |
 | Sweep de capacitância | automatizado |
-| Corners tt, ff, ss, fs, sf | 40 casos, todos PASS no critério de 50 mV |
-| Sense amplifier, pré-carga e drivers | rascunhos, validação pendente |
-| Sizing alvo 0,21/0,42/0,30 µm | pendente de validação |
-| SNM, write margin e leakage | pendentes |
+| Corners tt, ff, ss, fs, sf | diferencial passou 40/40; read disturb depende do sizing |
+| Sense amplifier, pré-carga e wl_driver | rascunhos, validação pendente |
+| Sizing atual 0,42/0,84/0,60 µm | gate de read disturb reprovado; freeze bloqueado |
+| Sizing exploratório 0,42/1,05/0,60 µm | leitura 40/40 nominal, mas 72/90 na triagem PVT/50 fF; não selecionado |
+| Sizing exploratório 0,42/1,26/0,60 µm | único candidato testado que atende Read SNM nominal >=0,4 V (`0,414 V`); leitura 90/90 e escrita ideal full-swing 90/90 na triagem PVT; ainda não congelado |
+| Janela PVT provisória | 1,62/1,80/1,95 V e –40/27/125 °C; 1,98 V solicitado excede o limite modelado de 1,95 V dos transistores 01v8 |
+| Auditoria de terminal | leitura a VDD=1,95 V excedeu 1,95 V em 30/30 cenários (pior 2,056858 V); a 1,62/1,80 V não excedeu no mesmo testbench |
+| Fuga em hold | 90/90 estados estáveis; pior corrente total 21,759 nA (`fs`, 1,95 V, 125 °C), sem orçamento aprovado |
+| Monte Carlo de SNM | 200 seeds de Read e 200 de Hold em `sf_mm`; critério estatístico/yield e mismatch de escrita pendentes |
+| Write driver | conectividade e smoke funcional corrigidos; 30/30 trocas em 1,62 V para WPD=1,26 µm; pior flip 90/10% `0,3216 ns`, WL mínimo provisório +30% = `0,418 ns` |
+| Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
+| WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; critérios estatísticos/potência e escrita real pendentes |
 | Layout, DRC, LVS e parasitas | pendentes |
 
 ## Limitações e próximos passos
 
-1. Reexecutar retenção, leitura e escrita com o sizing alvo. Os resultados atuais
-   usam WPU = WPD = WACC = 0,42 µm por limitação do modelo contínuo.
-2. Medir SNM de retenção e leitura, write margin e leakage nos cinco corners.
-3. Validar pré-carga, equalização, wl_driver e write_driver.
-4. Criar o testbench do sense amplifier para diferenças de 5 mV a 20 mV.
-5. Integrar precharge -> write -> hold -> read -> SCLK.
-6. Executar Monte Carlo de mismatch.
-7. Iniciar layout, DRC, LVS e extração parasitária após fechar a validação
-   elétrica da célula.
+1. Obter `C_BL` por PEX e congelar o teto em `1,15 ×` o extraído; `50 fF` continua apenas como screening.
+2. Fechar o limite superior da janela de WL por read disturb/estabilidade dinâmica e validar o limite inferior de `0,418 ns` com a carga extraída.
+3. Resolver a qualificação do alvo de alimentação `+10%` (`1,98 V`), que não pode ser declarado PASS com o modelo `01v8` atual.
+4. Definir orçamento de fuga e estender mismatch à escrita real e read disturb.
+5. Validar pré-carga/equalização e wl_driver; ampliar o write_driver para mismatch com a carga final.
+6. Criar testbench do sense amplifier e validar o alvo preliminar de `100 mV` contra offset/noise.
+7. Integrar precharge -> write -> hold -> read -> SCLK.
+8. Só então selecionar o sizing, revisar arquitetura e declarar freeze antes de layout/DRC/LVS.
 
 ## Documentação relacionada
 

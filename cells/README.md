@@ -8,12 +8,30 @@ Contrato de nomes para a etapa 2:
 | `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | rascunho estrutural |
 | `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | rascunho estrutural |
 | `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | rascunho estrutural |
-| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | rascunho estrutural |
+| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | netlist e smoke funcional verificados; sizing ainda provisório |
 | `vsource_drive.sym` | `p`, `m` | `p` como saída | fonte de estímulo do testbench hierárquico |
 
 `sram_6t.sch` permanece como captura legada para comparação. Os arquivos devem gerar símbolos `.sym` somente depois de a conectividade ser
 verificada pelo Xschem. A presença de um `.sch` nesta etapa não significa que a
 célula já passou por netlist, DRC, LVS ou simulação.
+
+## Write driver
+
+`write_driver.sch` usa dois ramos tri-state complementares e um inversor interno
+para gerar `WE_B`. Com `WE=1`, o driver força `BL=DATA` e `BLB=DATA_B`; com
+`WE=0`, ambos os caminhos de pull-up/pull-down ficam desabilitados.
+
+O netlist headless do Xschem foi gerado sem o curto `DATA_B–BLB` da versão
+anterior e sem redes de controle abertas. O smoke standalone em `tt`, 1,8 V e
+50 fF por bitline observou os dois sentidos de escrita e, durante `WE=0`,
+deriva de apenas `3,391/1,459 mV` em 3 ns. Um sweep integrado com a bitcell em
+`tt/ss/ff`, 1,8 V, 27 °C, dois sentidos e `WPD=0,84/1,26 µm` resultou em
+`12/12` trocas de estado; o cruzamento de `Q=VDD/2` ocorreu entre
+`0,148–0,212 ns` após a subida de `WL`.
+
+Esses resultados fecham somente conectividade, complementaridade e isolamento
+funcional do driver. `50 fF`, janela de `10 ns`, borda de `200 ps` e
+`Wdriver=0,84 µm` são hipóteses de triagem, não requisitos de write margin.
 
 ## Testbench hierárquico de leitura
 
@@ -28,16 +46,16 @@ xschem cells/tb_bitcell_6t_read.sch
 
 `bitcell_6t.sch` é uma leaf cell, mas contém um smoke test marcado
 `only_toplevel=true`. Quando aberta diretamente, ela carrega os modelos
-SKY130A, usa `WPU=WPD=WACC=0.42 µm`, aplica pré-carga e um pulso de WL e grava
+SKY130A, usa `WPU/WPD/WACC=0,42/0,84/0,60 µm`, aplica pré-carga e um pulso de WL e grava
 `bitcell_6t.raw`. Quando instanciada, esse smoke test é omitido e os estímulos
 vêm do testbench hierárquico.
 
 O arquivo `tb_bitcell_6t_read.sch` instancia `bitcell_6t.sym`, duas chaves
 ideais de pré-carga e os capacitores de 5 fF em `BL` e `BLB`. A pré-carga é
 desligada em 10 ns e permanece desligada durante a leitura, de 20 a 30 ns.
-O símbolo tem parâmetros `WPU`, `WPD` e `WACC`: seus padrões são os valores
-alvo 0,21/0,42/0,30 µm; o testbench usa explicitamente 0,42/0,42/0,42 µm,
-único sizing desta etapa aceito pelos modelos contínuos instalados.
+O símbolo tem parâmetros `WPU`, `WPD` e `WACC`: seus padrões e os do testbench
+são `0,42/0,84/0,60 µm`. Esse candidato preserva beta=1,40 e gamma=0,70 e usa
+larguras aceitas pelos modelos contínuos instalados.
 
 As fontes do testbench usam `vsource_drive.sym`, que declara o terminal
 positivo como saída para que o ERC do Xschem reconheça `WL` e `PRE` como redes
