@@ -26,7 +26,7 @@ N 350 320 350 640 {lab=WL}
 N 350 640 700 640 {lab=WL}
 N 700 510 700 640 {lab=WL}
 N 250 550 250 590 {lab=GND}
-C {cells/bitcell_6t.sym} 700 400 0 0 {name=XBITCELL WPU=0.42 WPD=0.42 WACC=0.42}
+C {cells/bitcell_6t.sym} 700 400 0 0 {name=XBITCELL WPU=0.42 WPD=0.84 WACC=0.60}
 C {cells/vsource_drive.sym} 250 180 0 0 {name=VDD_SRC value=1.8 savecurrent=false}
 C {cells/vsource_drive.sym} 250 350 0 0 {name=VWL_SRC value="PULSE(0 1.8 20n 50p 50p 10n 40n)" savecurrent=false}
 C {cells/vsource_drive.sym} 250 520 0 0 {name=VPRE_SRC value="PULSE(1.8 0 10n 50p 50p 90n 200n)" savecurrent=false}
