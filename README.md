@@ -277,7 +277,9 @@ como diagnóstico de descarga:
 ## Sweep automatizado
 
 O script sims/run_bitcell_read_sweep.py varia capacitância, estado armazenado,
-bitline que deve descarregar e corner. As capacitâncias são 5, 10, 20 e 50 fF.
+bitline que deve descarregar e corner. A lista histórica era 5, 10, 20 e
+50 fF; o default agora inclui 60 fF para cobrir a nova estimativa pré-layout
+de 32 linhas em triagem.
 
 Execução padrão:
 
@@ -370,10 +372,18 @@ ainda usa `50 fF` por bitline, portanto não é o valor final da janela.
 
 Para capacitância de coluna, o projeto passa a usar
 `C_BL = Nrows × (0,2 fF + Cwire/célula) + Cprecharge + Cmux + Csense` e
-`C_BL,max = 1,15 × C_BL,PEX`. A parcela apenas de dreno é
+uma estimativa conservadora pré-layout dessa expressão como carga de projeto
+para o freeze. A parcela apenas de dreno é
 `0,8/1,6/3,2/6,4 fF` para profundidades `4/8/16/32`. Como a arquitetura
 atual usa uma palavra por linha física e um par de bitlines por bit, não há
-column mux (`Cmux=0`) e `Nrows` fica fechado em `4/8/16/32`.
+column mux (`Cmux=0`) e `Nrows` fica fechado em `4/8/16/32`. O valor de
+`50 fF` era a triagem da topologia antiga do sense amplifier. Com a entrada
+do latch atual medida em até `9,004605 fF` nas bitlines pré-carregadas, o
+orçamento de 32 linhas sobe para `58,376530 fF`; `60 fF` é a nova triagem.
+Ainda faltam validação elétrica nessa carga e verificação da capacitância
+durante a excursão da bitline. Depois do schematic freeze e do layout, o PEX
+substitui a estimativa e o teto de requalificação passa a ser
+`C_BL,max = 1,15 × C_BL,PEX`.
 
 ## Estado do projeto
 
@@ -389,34 +399,35 @@ column mux (`Cmux=0`) e `Nrows` fica fechado em `4/8/16/32`.
 | Leitura capacitiva | sizing 0,84 µm falhou excursão em 28/40; sizing 1,05 µm passou 40/40 |
 | Sweep de capacitância | automatizado |
 | Corners tt, ff, ss, fs, sf | diferencial passou 40/40; read disturb depende do sizing |
-| Sense amplifier, pré-carga e wl_driver | rascunhos, validação pendente |
+| Sense amplifier, pré-carga e wl_driver | esquemáticos netlistados; sense 330/330 casos determinísticos; precharge/WL passaram pontos selecionados em 60/50 fF, sweep completo pendente |
 | Sizing atual 0,42/0,84/0,60 µm | gate de read disturb reprovado; freeze bloqueado |
 | Sizing exploratório 0,42/1,05/0,60 µm | leitura 40/40 nominal, mas 72/90 na triagem PVT/50 fF; não selecionado |
-| Sizing exploratório 0,42/1,26/0,60 µm | único candidato testado que atende Read SNM nominal >=0,4 V (`0,414 V`); leitura 90/90 e escrita ideal full-swing 90/90 na triagem PVT; ainda não congelado |
-| Janela PVT provisória | 1,62/1,80/1,95 V e –40/27/125 °C; 1,98 V solicitado excede o limite modelado de 1,95 V dos transistores 01v8 |
+| Sizing selecionado para closure 0,42/1,26/0,60 µm | único candidato testado que atende Read SNM nominal >=0,4 V (`0,414 V`); leitura 90/90 e escrita ideal full-swing 90/90 na triagem PVT/50 fF; ainda não congelado nem aplicado ao esquemático; revalidação G1 em 60 fF permanece aberta |
+| Faixa de alimentação | qualificação contínua em 1,62–1,80 V; 1,95 V mantido somente como limite estático/auditoria do modelo 01v8; 1,98 V não é qualificável com o modelo atual |
 | Auditoria de terminal | leitura a VDD=1,95 V excedeu 1,95 V em 30/30 cenários (pior 2,056858 V); a 1,62/1,80 V não excedeu no mesmo testbench |
 | Fuga em hold | 90/90 estados estáveis; pior corrente total 21,759 nA (`fs`, 1,95 V, 125 °C), sem orçamento aprovado |
 | Monte Carlo de SNM | 200 seeds de Read e 200 de Hold em `sf_mm`; critério estatístico/yield e mismatch de escrita pendentes |
-| Write driver | conectividade e smoke funcional corrigidos; 30/30 trocas em 1,62 V para WPD=1,26 µm; pior flip 90/10% `0,3216 ns`, WL mínimo provisório +30% = `0,418 ns` |
+| Write driver | conectividade corrigida; em 60 fF, `tt/1,62 V/27 °C` passou 2/2, full flip `0,288 ns`; o pior PVT anterior em 50 fF foi `0,3216 ns`, com limite interno +30% `0,418 ns` a revalidar |
 | Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
 | WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; critérios estatísticos/potência e escrita real pendentes |
-| Layout, DRC, LVS e parasitas | pendentes |
+| Layout, DRC, LVS e parasitas | pendentes; nenhuma leaf física aprovada |
 
 ## Limitações e próximos passos
 
-1. Obter `C_BL` por PEX e congelar o teto em `1,15 ×` o extraído; `50 fF` continua apenas como screening.
-2. Fechar o limite superior da janela de WL por read disturb/estabilidade dinâmica e validar o limite inferior de `0,418 ns` com a carga extraída.
-3. Resolver a qualificação do alvo de alimentação `+10%` (`1,98 V`), que não pode ser declarado PASS com o modelo `01v8` atual.
-4. Definir orçamento de fuga e estender mismatch à escrita real e read disturb.
-5. Validar pré-carga/equalização e wl_driver; ampliar o write_driver para mismatch com a carga final.
-6. Criar testbench do sense amplifier e validar o alvo preliminar de `100 mV` contra offset/noise.
-7. Integrar precharge -> write -> hold -> read -> SCLK.
-8. Só então selecionar o sizing, revisar arquitetura e declarar freeze antes de layout/DRC/LVS.
+1. Revalidar o orçamento pré-layout de `C_BL` de até `58,376530 fF` em 32 linhas: triagens selecionadas em `60 fF` passaram, mas falta sweep PVT, verificar `Csense` ao longo da excursão e conferir o orçamento de fio no layout.
+2. Confirmar com o bloco de sense amplifier o `ΔV_BL,target` e o offset/noise aceitável; `100 mV` permanece alvo preliminar, não requisito congelado.
+3. Fechar o limite superior da janela de WL no corner rápido a partir do `ΔV_BL,target`, da excursão de bitline e do limite de read disturb. Não há critério aprovado de "dynamic SNM" neste estágio.
+4. Registrar formalmente a faixa contínua de qualificação em `1,62–1,80 V`; manter `1,95 V` somente como limite estático/auditoria do modelo e `1,98 V` como não qualificado com os dispositivos `01v8` atuais.
+5. Fechar os critérios de aceite das medições já executadas de leakage e mismatch e estender mismatch à escrita/read disturb onde necessário.
+6. Completar PVT de pré-carga/equalização e `wl_driver`; ampliar o `write_driver` para mismatch usando a carga pré-layout fechada.
+7. Integrar precharge -> write -> hold -> read -> SCLK e revisar a arquitetura com o sizing candidato.
+8. Declarar o schematic freeze antes de layout/DRC/LVS/PEX. Após o layout, usar `C_BL,PEX` e repetir a qualificação com teto de `1,15 × C_BL,PEX`; divergência relevante reabre o gate.
 
 ## Documentação relacionada
 
 - [Guia passo a passo da bitcell 6T](../passo_a_passo_pessoa1_bitcell6t-v2.md)
 - [Relatório de validação SKY130A](docs/relatorio_validacao_bitcell_6t_sky130.md)
 - [Contrato das leaf cells](cells/README.md)
+- [Gates de fechamento da Fase 1](docs/phase1_leaf_cell_closure.md)
 - [Especificação da célula](specs/sram_6t_cell.md)
 - [Especificação técnica do projeto](specs/technical_specification.md)

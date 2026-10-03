@@ -86,8 +86,10 @@ congelamento. Os valores permanecem parametrizados na captura.
 A leitura transitória com bitlines capacitivas reprovou o limite provisório
 de excursão máxima do nó baixo em 28/40 casos para `WPD=0.84 µm`. A exploração
 de `WPD=1.05 µm` e `1.26 µm` passou esse gate em 40/40 casos, mantendo os demais
-tamanhos. Essas variantes seguem experimentais até a medição de write margin;
-nenhuma foi aplicada ao esquemático.
+tamanhos. `WPD=1.26 µm` foi selecionado para closure após também ser o único
+sizing testado que atingiu a meta nominal de Read SNM de `0.4 V`; ele continua
+não congelado e não aplicado ao esquemático. `WPD=1.05 µm` permanece apenas
+exploratório.
 
 O teste de escrita com bitlines ideais full-swing, `WL=1.8 V` por 10 ns e
 verificação após `WL` descer passou em 30/30 combinações de corner, sentido
@@ -122,9 +124,13 @@ aceite, não resultados medidos:
   escrita, com `BL=0 V`, `BLB=1.8 V` e `WL=1.8 V`;
 - janela inferior de WL: `1.30 ×` o pior tempo de flip completo medido, onde
   flip completo exige os dois nós internos em `90%/10%` de `VDD`;
-- `C_BL` final: derivada da profundidade da coluna, parasita de fio por PEX e
-  cargas de precharge/mux/sense, com teto de `1.15 × C_BL_extraído`; `50 fF`
-  permanece somente condição de triagem pré-layout;
+- `C_BL` para schematic freeze: estimativa conservadora pré-layout derivada da
+  profundidade da coluna e das cargas de célula/fio/precharge/mux/sense; o
+  orçamento recalculado é `15.971/22.029/34.145/58.377 fF` para 4/8/16/32 linhas,
+  sob a constraint de `metal2`, `0.14 µm`, `<=5.0 µm/linha` e +20% no fio;
+- `C_BL` pós-layout: substituída pelo valor extraído por PEX, com teto de
+  requalificação de `1.15 × C_BL_extraído`; PEX não é pré-requisito do
+  schematic freeze;
 - SNM de retenção e leitura, além de write margin, serão medidos em simulação
   e não podem ser inferidos apenas das razões beta/gamma.
 
@@ -140,8 +146,9 @@ aceite, não resultados medidos:
 | Hold/Read SNM | cinco corners medidos; piores casos `646.567/288.342 mV` em `sf` |
 | Read disturb | `0.42/0.84/0.60 µm`: 12/40 no limite provisório de 0.20 V; `WPD=1.05/1.26 µm`: 40/40, exploração apenas |
 | SNM nominal vs. meta de 0,4 V | `WPD=0.84`: `0.349 V` FAIL; `1.05`: `0.388 V` FAIL; `1.26`: `0.414 V` PASS em `tt/1.8 V` |
-| PVT provisório | `VDD=1.62/1.80/1.95 V`, `T=-40/27/125 °C`, cinco corners; `1.98 V` fora do limite de 1.95 V documentado para os modelos 01v8 |
+| Faixa de alimentação | qualificação contínua em `1.62–1.80 V`; `1.95 V` permanece somente limite estático/auditoria do modelo 01v8; `1.98 V` não é qualificável com o modelo atual |
 | Read disturb PVT, 50 fF | `WPD=1.05 µm`: 72/90, pior pico `0.230218 V`; `WPD=1.26 µm`: 90/90, pior pico `0.194778 V`; ambos exploratórios |
+| Sizing selecionado para closure | `WPU/WPD/WACC=0.42/1.26/0.60 µm`; ainda não congelado nem aplicado; G1 em 60 fF/PVT permanece aberto |
 | SNM PVT | `WPD=1.05 µm`: mínimo Hold/Read `581.312/289.261 mV`; `WPD=1.26 µm`: `577.761/312.029 mV`; a meta de 0,4 V vale no ponto nominal, enquanto limite PVT/Hold permanece pendente |
 | Escrita PVT full-swing | `WPD=1.26 µm`: 90/90 smoke tests; margem dinâmica não medida |
 | Fuga em hold PVT | `WPD=1.26 µm`: 90/90 estados estáveis; pior corrente total `21.759 nA` em `fs/1.95 V/125 °C`; orçamento pendente |
@@ -151,7 +158,8 @@ aceite, não resultados medidos:
 | Janela inferior de WL | pior flip completo `90/10%` = `0.3216 ns` em `ss/1.62 V/-40 °C`, 0→1; +30% => `0.418 ns` provisórios com `50 fF` |
 | Escrita full-swing | 30/30 smoke tests aprovados |
 | WLVM | mínimo `0.619 V` em `WPD=0.84 µm`, `0.605 V` em `1.05 µm`; critério de aceite pendente |
-| Schematic Freeze | bloqueado: `WPD=1.26 µm` é o único sizing testado que atende Read SNM nominal >=0.4 V, mas ainda faltam carga PEX, limite superior de WL/read disturb dinâmico, qualificação do alvo +10% de VDD, leakage/mismatch e revisão de arquitetura |
+| Carga de bitline pré-layout | orçamento recalculado: `Ccell_access,max=0.452619 fF`, `Cprecharge,max=0.908533 fF`, novo `Csense,max=9.004605 fF` em BL/BLB pré-carregadas; com fio `1.061862 fF/célula`, `C_BL,max=58.376530 fF` em 32 linhas; requalificação elétrica e excursão do sense pendentes |
+| Schematic Freeze | bloqueado: `WPD=1.26 µm` é o único sizing testado que atende Read SNM nominal >=0.4 V; novo `C_BL` e sense ainda precisam de integração, offset/timing, limite superior de WL e critérios de leakage/mismatch; PEX fica para pós-freeze |
 | Layout, DRC e LVS | pendentes |
 
 ## Leaf cells da etapa 2
@@ -159,8 +167,11 @@ aceite, não resultados medidos:
 O contrato de captura Xschem está centralizado em `cells/README.md`:
 
 - `bitcell_6t.sch`: bitcell 6T canônica;
-- `sense_amp.sch`: rascunho estrutural do latch diferencial (`SCLK`);
-- `precharge.sch`: PMOS de pré-carga e equalização (`PRECH` ativo-baixo);
+- `sense_amp.sch`: latch diferencial de sete transistores com conectividade
+  netlistada, chaves PMOS de amostragem `W=2,0 µm`; resposta determinística
+  medida, offset/ruído/setup ainda pendentes;
+- `precharge.sch`: três PMOS de pré-carga/equalização com conectividade
+  netlistada; capacitância de entrada já caracterizada;
 - `wl_driver.sch`: buffer de wordline em dois estágios;
 - `write_driver.sch`: driver diferencial tri-state (`DATA`, `DATA_B`, `WE`),
   com netlist e smoke funcional verificados; sizing ainda não congelado.

@@ -1,5 +1,16 @@
 # Matriz de testes e decisões — bitcell SRAM 6T SKY130A
 
+> **Atualização de 03/10/2026:** parte dos registros abaixo descreve a matriz
+> histórica que usava 50 fF e o sense amplifier anterior. O contrato técnico
+> corrente usa qualificação contínua em `1,62–1,80 V`, mantém `1,95 V` somente
+> como auditoria/limite estático do modelo e não qualifica `1,98 V` com os
+> modelos `01v8` atuais. O orçamento de coluna foi recalculado com o sense
+> atual e o teto pré-layout de 32 linhas é `58,376530 fF`; 50 fF não o cobre.
+> A definição atual das leaf
+> cells, as simulações selecionadas a 60 fF e os gates remanescentes estão em
+> [`phase1_leaf_cell_closure.md`](phase1_leaf_cell_closure.md). Use-a como
+> estado corrente; os valores anteriores permanecem evidência histórica.
+
 **Data do levantamento:** 02/10/2026
 **Escopo:** testes elétricos pré-layout, falhas de bancada/netlist registradas e estado das verificações físicas.
 **Estado geral:** caracterização exploratória em andamento; **Schematic Freeze bloqueado**. Este documento consolida evidências já salvas no repositório. Não declara sign-off.
@@ -8,7 +19,7 @@
 
 Os testes registrados foram executados no container `isaiassh/unic-cass-tools:1.1.0`, com `PDK=sky130A`, `PDK_ROOT=/opt/pdks`, biblioteca contínua `/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice` e ngspice 44.2. Os dados e scripts citados estão em `sims/`.
 
-Os cantos de processo são `tt`, `ff`, `ss`, `fs` e `sf`. O sizing canônico que permanece no esquemático é `WPU/WPD/WACC = 0,42/0,84/0,60 µm`, `L=0,15 µm`, `nf=1`. `WPD=1,05 µm` e `1,26 µm` foram variantes de exploração e **não foram aplicadas** ao esquemático.
+Os cantos de processo são `tt`, `ff`, `ss`, `fs` e `sf`. O sizing canônico que permanece no esquemático é `WPU/WPD/WACC = 0,42/0,84/0,60 µm`, `L=0,15 µm`, `nf=1`. `WPD=1,05 µm` permanece variante exploratória. `WPD=1,26 µm` foi **selecionado para closure** por ser o único sizing testado que atende a meta nominal de Read SNM e o screening PVT de read-disturb já disponível; ele ainda **não está congelado nem aplicado** ao esquemático.
 
 Neste documento, **PASS** quer dizer que o caso cumpriu o teste e o limite específico usado pelo script; não implica automaticamente aprovação de arquitetura, confiabilidade ou fabricação. **MARGIN_FAIL** indica que o limite interno provisório não foi atendido, ainda que a célula não tenha invertido o estado.
 
@@ -17,13 +28,14 @@ Neste documento, **PASS** quer dizer que o caso cumpriu o teste e o limite espec
 | Conquista / decisão | Valor usado ou medido | Motivo do uso | Teste / evidência | Estado atual |
 |---|---|---|---|---|
 | Baseline canônico caracterizado | `WPU/WPD/WACC=0,42/0,84/0,60 µm`, `L=0,15 µm` | É o sizing que permanece no esquemático e serve de referência para comparar as variantes. | Read-disturb nominal `12/40 PASS`; Read SNM nominal `0,348804 V`. | **Não atende** os gates provisórios de leitura; continua canônico somente porque nenhum sizing novo foi congelado. |
-| Candidato exploratório de leitura identificado | `WPU/WPD/WACC=0,42/1,26/0,60 µm`, β=`2,10` | Aumentar o pull-down reduz a elevação do nó que armazena `0` durante leitura. | `40/40` no sweep nominal; `90/90` no PVT/50 fF; Read SNM nominal `0,414349 V`. | É o único sizing testado que atende a meta nominal de `0,4 V`, mas **não está congelado nem aplicado** ao esquemático canônico. |
+| Sizing selecionado para closure | `WPU/WPD/WACC=0,42/1,26/0,60 µm`, β=`2,10` | Aumentar o pull-down reduz a elevação do nó que armazena `0` durante leitura. | `40/40` no sweep nominal; `90/90` no PVT/50 fF; Read SNM nominal `0,414349 V`. | Selecionado para a revalidação de G1; **não está congelado nem aplicado** ao esquemático canônico. A matriz PVT em 60 fF continua aberta. |
 | Write driver corrigido | `Wdriver=0,84 µm`; `WE_B` interno; saída diferencial tri-state | Remover o curto `DATA_B–BLB` e garantir isolamento das bitlines quando `WE=0`. | Netlist Xschem PASS; smoke standalone complementar; deriva em `WE=0` de `3,391/1,459 mV` em 3 ns com 50 fF. | Funcional para triagem; resistência, corrente e carga final ainda não estão qualificadas. |
 | Escrita integrada com driver real demonstrada | `1,8 V`, `tt/ss/ff`, 27 °C, 50 fF, ambos os sentidos, WPD `0,84/1,26 µm` | Verificar que o driver corrigido realmente troca a bitcell e não apenas bitlines isoladas. | `12/12` trocas; cruzamento de `Q=VDD/2` entre `0,148–0,212 ns`. | PASS de triagem funcional, não write margin. |
 | Limite inferior provisório de WL obtido | pior flip completo `90/10% = 0,3216 ns`; regra `1,30×`; resultado `0,4181 ns` | Garantir tempo para a escrita completar no pior caso já testado com 30% de margem de engenharia. | WPD=1,26 µm, `1,62 V`, cinco corners × três temperaturas × dois sentidos = `30/30 PASS`; pior em `ss/-40 °C`, `0→1`. | Válido apenas como limite **pré-layout** com 50 fF; deve ser revisto com carga final. |
-| Organização da coluna explicitada | uma palavra por linha física; `Nrows=4/8/16/32`; `Cmux=0` | A profundidade da macro define quantas células carregam cada BL/BLB; a arquitetura atual não usa mux de coluna. | Parcela de dreno pela aproximação de `0,2 fF/célula`: `0,8/1,6/3,2/6,4 fF`. | Base para estimativa pré-layout de `C_BL`; fio, precharge e sense ainda precisam ser adicionados. |
-| Regra de carga da bitline formalizada | `C_BL=Nrows×(0,2 fF+Cwire/célula)+Cprecharge+Cmux+Csense`; teto final `1,15×C_BL,PEX` | Separar a carga física da coluna da hipótese de screening de 50 fF e reservar 15% de folga sobre a extração. | Fórmula registrada nas especificações; 50 fF continua sendo usado apenas para triagem elétrica. | O teto pré-layout ainda precisa ser fechado; a confirmação por PEX é **pós-freeze**. |
-| Limite de tensão do modelo auditado | nominal `1,80 V`; alvo de engenharia `1,62–1,98 V`; auditoria em `1,95 V` | O sweep ±10% é recomendação de engenharia, mas o conjunto atual `01v8` não qualifica automaticamente o extremo superior. | Em `1,95 V`, `30/30` condições tiveram pelo menos um terminal acima de 1,95 V; pior `2,056858 V`. | `1,95/1,98 V` **não estão qualificados** com a bancada/modelos atuais. |
+| Organização da coluna explicitada | uma palavra por linha física; `Nrows=4/8/16/32`; `Cmux=0` | A profundidade da macro define quantas células carregam cada BL/BLB; a arquitetura atual não usa mux de coluna. | Parcela de dreno pela aproximação de `0,2 fF/célula`: `0,8/1,6/3,2/6,4 fF`. | Base do orçamento pré-layout; as parcelas de célula, fio, precharge e sense já estão consolidadas em `docs/cbl_pre_layout_estimate.md`. |
+| Regra de carga da bitline formalizada | `C_BL=Nrows×(Ccell_access+Cwire/célula)+Cprecharge+Cmux+Csense`; `C_BL,max=58,376530 fF` para 32 linhas | Separar a carga física da coluna da hipótese de screening e fechar um bound antes do freeze. | `Ccell_access,max=0,452619 fF`, `Cwire/célula<=1,061862 fF`, `Cprecharge,max=0,908533 fF`, `Csense,max=9,004605 fF`; 60 fF é o novo ponto de triagem. | Bound pré-layout atual fechado; **PEX ocorre somente pós-freeze** e então a requalificação usa `1,15×C_BL,PEX`. |
+| Sense amplifier atual | latch regenerativo diferencial de sete transistores; dispositivos PMOS de amostragem `W=2,0 µm` | Registrar a topologia realmente presente em `cells/sense_amp.sch`. | Netlist Xschem da topologia atual: `330/330` casos determinísticos; entrada AC PVT: `60/60`, `7,853676–9,004605 fF`. | Topologia definida; offset/mismatch, ruído, `ΔV_min` e setup/janela de SCLK continuam abertos. |
+| Contrato de tensão | nominal `1,80 V`; qualificação contínua `1,62–1,80 V`; auditoria em `1,95 V` | Manter a qualificação dentro da estratégia válida dos dispositivos/modelos `01v8`. | Em `1,95 V`, `30/30` condições tiveram pelo menos um terminal acima de 1,95 V; pior `2,056858 V`. | `1,95 V` é somente auditoria/limite estático; `1,98 V` não é qualificável com os modelos `01v8` atuais. |
 | Mismatch de SNM iniciado | `N=200`, seeds `1001–1200`, `.lib sf_mm` | Medir dispersão por mismatch local sem confundir com variação global de processo. | Read: `269,936/300,933/11,038/330,733 mV`; Hold: `541,229/569,536/10,442/600,905 mV` (`min/média/σ_pop/máx`). | Evidência estatística exploratória; ainda falta critério de yield e mismatch de escrita/read-disturb. |
 | Fuga estática quantificada | pior soma das fontes `21,759 nA`; corrente de VDD ≈`21,751 nA` | Criar uma referência de leakage antes de definir orçamento da macro e periféricos. | `90/90` estados estáveis; pior ponto `fs/1,95 V/125 °C`. | Medido, mas sem orçamento de aceite; o ponto de 1,95 V não é qualificado pelo gate de tensão. |
 
@@ -34,11 +46,11 @@ Os rótulos abaixo distinguem **especificação/arquitetura**, **recomendação 
 | Parâmetro | Valores usados | Natureza do valor | Justificativa e limite da escolha |
 |---|---|---|---|
 | Alimentação nominal | 1,80 V | Especificação do projeto / nominal do domínio `01v8` | Ponto nominal usado para comparação de sizing e para o gate de Read SNM. |
-| Faixa alvo de engenharia | 1,62–1,98 V (±10%) | **Recomendação de engenharia** | O extremo de 1,98 V não pode ser qualificado com o conjunto atual de modelos `01v8`; 1,95 V foi usado somente como stress/model-limit e apresentou excedências transitórias. |
-| Alimentação de triagem executada | 1,62 / 1,80 / 1,95 V | Cobertura efetivamente simulada | 1,62 V corresponde a −10% do nominal; 1,80 V é nominal; 1,95 V foi o teto usado nos testes existentes e não substitui o ponto +10%. |
+| Faixa de qualificação contínua | 1,62–1,80 V | **Contrato técnico corrente** | É a faixa de qualificação elétrica adotada com a estratégia atual de dispositivos/modelos `01v8`. |
+| Auditoria de limite do modelo | 1,95 V | **Auditoria, não ponto qualificado** | Mantido para verificar stress/limite estático; apresentou excedências transitórias. `1,98 V` fica fora da qualificação com o model set atual. |
 | Temperatura | −40 / 27 / 125 °C | Cobertura PVT de projeto | Extremos escolhidos para cobrir frio/quente e 27 °C como referência nominal. A cobertura em simulação não certifica, por si só, a validade dos modelos em toda a faixa. |
 | Cantos | `tt/ff/ss/fs/sf` | Cobertura do model set | Incluem os cinco cantos de processo presentes na biblioteca SKY130 usada. |
-| Carga de bitline | `C_BL = Nrows × (0,2 fF + Cwire/célula) + Cprecharge + Cmux + Csense`; sweep pré-layout 5/10/20/50 fF | Regra de engenharia + **screening** | A parcela só de dreno é 0,8/1,6/3,2/6,4 fF para 4/8/16/32 linhas e `Cmux=0` na arquitetura atual. O valor final é confirmado por PEX pós-freeze, com teto de `1,15 × C_BL,PEX`; 50 fF não é requisito. |
+| Carga de bitline | `C_BL = Nrows × (Ccell_access + Cwire/célula) + Cprecharge + Cmux + Csense`; `C_BL,max=58,376530 fF` para 32 linhas; 60 fF para screening | Regra de engenharia + **screening** | O bound atual é pré-layout e está fechado em `docs/cbl_pre_layout_estimate.md`; 60 fF cobre esse bound para revalidação. PEX é exclusivamente pós-freeze; depois dele a requalificação usa `1,15 × C_BL,PEX`. |
 | Estados armazenados | Q=1/QB=0 e Q=0/QB=1 | Cobertura funcional | Verificam as duas polaridades, inclusive a assimetria entre BL e BLB e os dois sentidos de escrita. |
 | Excursão do nó baixo em leitura | ≤0,20 V | **Gate provisório** | Limite interno da especificação/testbench para expor read-disturb. Não é um limite universal do SKY130 nem um critério formal aprovado por arquitetura. |
 | Diferencial de bitline | ≥100 mV em 21 ns | **Meta preliminar de engenharia** | Usado como alvo de leitura enquanto offset/noise do sense amplifier não são caracterizados. O testbench mede a diferença em 21 ns, com WL iniciado em 20 ns. |
@@ -178,9 +190,9 @@ Evidências: [`mismatch Read`](../sims/bitcell_read_snm_mismatch_sf_1p62_125.csv
 
 Bloqueios/gates pendentes:
 
-1. A faixa-alvo agora é `1,62–1,98 V` (±10% de 1,8 V), mas `1,98 V` ainda não pode ser qualificado com o modelo `01v8` atual; resolver essa incompatibilidade antes de declarar cobertura completa de tensão.
-2. Fechar um **teto pré-layout** de `C_BL` a partir de `Nrows`, contribuição de dreno, estimativa conservadora de fio e cargas de precharge/sense. Com esse teto, revalidar o WL mínimo provisório de `0,4181 ns` e fechar a janela superior por read-disturb/excursão da bitline e estabilidade dinâmica. Os 50 fF atuais continuam apenas como screening.
-3. Caracterizar o sense amplifier para confirmar se a meta preliminar de `100 mV` cobre offset/noise e cabe no objetivo de acesso `<2,5 ns`.
+1. Revalidar a bitcell na faixa contínua qualificada `1,62–1,80 V`. `1,95 V` permanece somente auditoria/limite estático, e `1,98 V` não integra a qualificação enquanto não houver outra estratégia válida de dispositivo/modelo.
+2. Usar o bound pré-layout já fechado `C_BL,max=58,376530 fF` para 32 linhas e revalidar em `60 fF` o WL mínimo provisório de `0,4181 ns`, além de fechar a janela superior por read-disturb/excursão da bitline e estabilidade dinâmica. PEX não é entrada deste gate: ocorre somente pós-freeze.
+3. Caracterizar offset/mismatch, ruído, `ΔV_min` e setup/janela de SCLK do sense amplifier atual, um latch regenerativo diferencial de sete transistores com amostragem PMOS `W=2,0 µm`; a topologia não está mais em aberto.
 4. Definir orçamento de leakage e completar mismatch/yield para escrita/read disturb com driver real e a carga pré-layout adotada para o freeze.
 5. Com os gates elétricos pré-layout fechados, escolher e aplicar o sizing canônico, revisar borboleta/read disturb e então declarar Schematic Freeze.
 6. **Pós-freeze:** desenhar `bitcell_6t.mag`, executar Magic DRC, extrair SPICE/PEX e executar Netgen LVS. Fixar então `C_BL,max = 1,15 × C_BL,PEX` e repetir a caracterização elétrica; se a extração violar os gates, reabrir o sizing/freeze. Validar ainda orientação MX/tiling e a matriz 4×8 completa; orientação MX não garante automaticamente compartilhamento de poços, taps ou alimentação.
