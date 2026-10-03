@@ -18,7 +18,7 @@ STORED_LOW_MAX_V = 0.2
 
 MEASURE_RE = re.compile(
     r"^\s*(?P<name>bl_pre|blb_pre|bl_read_min|blb_read_min|bl_21n|blb_21n|"
-    r"q_read_min|qb_read_min|q_read_max|qb_read_max|q_post_read|qb_post_read)\s*=\s*"
+    r"q_read_min|qb_read_min|q_read_max|qb_read_max|q_post_read|qb_post_read|t_dv100)\s*=\s*"
     r"(?P<value>[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)",
     re.MULTILINE,
 )
@@ -40,7 +40,7 @@ def parse_args() -> argparse.Namespace:
         "--cap-f",
         nargs="+",
         type=float,
-        default=[5.0, 10.0, 20.0, 50.0],
+        default=[5.0, 10.0, 20.0, 50.0, 60.0],
         help="Bitline capacitances in fF.",
     )
     parser.add_argument(
@@ -55,6 +55,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wacc", type=float, default=0.60, help="Access width in um.")
     parser.add_argument("--vdd-values", nargs="+", type=float, default=[1.8])
     parser.add_argument("--temps-c", nargs="+", type=float, default=[27.0])
+    parser.add_argument("--states", nargs="+", type=int, choices=[0, 1], default=[1, 0])
+    parser.add_argument("--tran-step-ps", type=float, default=10.0)
+    parser.add_argument("--timeout-s", type=float, default=45.0)
     return parser.parse_args()
 
 
@@ -76,6 +79,7 @@ def make_deck(
     wacc: float,
     vdd: float = 1.8,
     temp_c: float = 27.0,
+    tran_step_ps: float = 10.0,
 ) -> str:
     updated = replace_once(
         template,
@@ -130,6 +134,17 @@ def make_deck(
         r"^(\.lib\s+\S+\s+\w+\s*)$",
         rf"\g<1>\n.temp {temp_c:g}",
     )
+    updated = replace_once(
+        updated,
+        r"^\.tran\s+\S+\s+40n\s+0\s+\S+\s+uic\s*$",
+        f".tran {tran_step_ps:g}p 40n 0 {tran_step_ps:g}p uic",
+    )
+    bitline_pair = "bl,blb" if state == 1 else "blb,bl"
+    updated = replace_once(
+        updated,
+        r"^\.control$",
+        f".meas tran t_dv100 WHEN par('v({bitline_pair.split(',')[0]})-v({bitline_pair.split(',')[1]})')=0.1 CROSS=1 TD=20n\n.control",
+    )
     return updated
 
 
@@ -161,7 +176,7 @@ def main() -> int:
         workdir = Path(temp_dir)
         for corner in args.corners:
             for vdd, temp_c, cap_f, state in itertools.product(
-                args.vdd_values, args.temps_c, args.cap_f, (1, 0)
+                args.vdd_values, args.temps_c, args.cap_f, args.states
             ):
                     suffix = f"{corner}_{vdd:g}V_{temp_c:g}C_{cap_f:g}f_q{state}"
                     deck_path = workdir / f"tb_{suffix}.spice"
@@ -178,17 +193,36 @@ def main() -> int:
                             args.wacc,
                             vdd,
                             temp_c,
+                            args.tran_step_ps,
                         ),
                         encoding="utf-8",
                     )
-                    result = subprocess.run(
-                        ["ngspice", "-n", "-b", str(deck_path)],
-                        cwd=workdir,
-                        text=True,
-                        capture_output=True,
-                        check=False,
-                    )
-                    output = f"{result.stdout}\n{result.stderr}"
+                    timed_out = False
+                    try:
+                        result = subprocess.run(
+                            ["ngspice", "-n", "-b", str(deck_path)],
+                            cwd=workdir,
+                            text=True,
+                            capture_output=True,
+                            check=False,
+                            timeout=args.timeout_s,
+                        )
+                        returncode = result.returncode
+                        output = f"{result.stdout}\n{result.stderr}"
+                    except subprocess.TimeoutExpired as exc:
+                        timed_out = True
+                        returncode = 124
+                        stdout = (
+                            exc.stdout.decode()
+                            if isinstance(exc.stdout, bytes)
+                            else (exc.stdout or "")
+                        )
+                        stderr = (
+                            exc.stderr.decode()
+                            if isinstance(exc.stderr, bytes)
+                            else (exc.stderr or "")
+                        )
+                        output = f"{stdout}\n{stderr}"
                     row: dict[str, object] = {
                         "corner": corner,
                         "vdd_v": vdd,
@@ -198,7 +232,8 @@ def main() -> int:
                         "wpu_um": args.wpu,
                         "wpd_um": args.wpd,
                         "wacc_um": args.wacc,
-                        "returncode": result.returncode,
+                        "tran_step_ps": args.tran_step_ps,
+                        "returncode": returncode,
                         "status": "FAIL",
                         "selected_bitline": "",
                         "blb_read_min_v": "",
@@ -214,8 +249,9 @@ def main() -> int:
                         "q_post_read_v": "",
                         "qb_post_read_v": "",
                         "read_disturb_peak_v": "",
+                        "t_dv100_ns_from_wl": "",
                     }
-                    if result.returncode == 0:
+                    if returncode == 0:
                         try:
                             measurements = parse_measurements(output)
                             selected_bitline = "BLB" if state == 1 else "BL"
@@ -235,6 +271,10 @@ def main() -> int:
                             row["bl_read_min_v"] = measurements["bl_read_min"]
                             row["delta_max_v"] = delta_max
                             row["delta_21n_v"] = delta_21n
+                            if "t_dv100" in measurements:
+                                row["t_dv100_ns_from_wl"] = (
+                                    measurements["t_dv100"] - 20e-9
+                                ) * 1e9
                             row["bl_pre_v"] = measurements["bl_pre"]
                             row["blb_pre_v"] = measurements["blb_pre"]
                             row["q_read_min_v"] = measurements["q_read_min"]
@@ -279,6 +319,8 @@ def main() -> int:
                             )
                         except RuntimeError as error:
                             row["error"] = str(error)
+                    elif timed_out:
+                        row["error"] = f"ngspice timeout after {args.timeout_s:g} s"
                     else:
                         row["error"] = "ngspice failed"
                     rows.append(row)
@@ -292,6 +334,7 @@ def main() -> int:
         "wpu_um",
         "wpd_um",
         "wacc_um",
+        "tran_step_ps",
         "returncode",
         "status",
         "selected_bitline",
@@ -308,6 +351,7 @@ def main() -> int:
         "q_post_read_v",
         "qb_post_read_v",
         "read_disturb_peak_v",
+        "t_dv100_ns_from_wl",
         "error",
     ]
     with args.output.open("w", newline="", encoding="utf-8") as csv_file:
@@ -324,7 +368,7 @@ def main() -> int:
             f"{row['selected_bitline']:>4}  "
             f"{str(row['bl_read_min_v'] if row['selected_bitline'] == 'BL' else row['blb_read_min_v']):>11}  "
             f"{str(row['delta_21n_v']):>12}  "
-            f"{str(row['read_disturb_peak_v']):>11}  {row['status']}"
+            f"{str(row['read_disturb_peak_v']):>11}  {str(row['t_dv100_ns_from_wl']):>12}  {row['status']}"
         )
     print(f"CSV: {args.output}")
     return 0 if all(row["status"] == "PASS" for row in rows) else 1

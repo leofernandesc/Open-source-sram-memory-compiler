@@ -35,6 +35,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wdriver", type=float, default=0.84)
     parser.add_argument("--vdd-values", nargs="+", type=float, default=[1.80])
     parser.add_argument("--temps-c", nargs="+", type=float, default=[27.0])
+    parser.add_argument("--states", nargs="+", type=int, choices=[0, 1], default=[0, 1])
     parser.add_argument("--cbl-ff", type=float, default=50.0)
     parser.add_argument("--write-window-ns", type=float, default=10.0)
     parser.add_argument("--edge-ps", type=float, default=200.0)
@@ -145,7 +146,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="bitcell-write-driver-") as temp:
         work = Path(temp)
         for wpd, corner, vdd, temp_c, old_q in itertools.product(
-            args.wpd_values, args.corners, args.vdd_values, args.temps_c, (0, 1)
+            args.wpd_values, args.corners, args.vdd_values, args.temps_c, args.states
         ):
             deck = work / (
                 f"write_driver_{corner}_{vdd:g}V_{temp_c:g}C_q{old_q}_wpd{wpd:g}.spice"
