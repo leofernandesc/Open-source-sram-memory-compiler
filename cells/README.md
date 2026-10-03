@@ -5,15 +5,18 @@ Contrato de nomes para a etapa 2:
 | Célula | Pinos externos | Controle | Estado |
 |---|---|---|---|
 | `bitcell_6t.sch` | `BL`, `BLB`, `WL`, `VDD`, `VSS` | `WL` | captura canônica da bitcell |
-| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | rascunho estrutural |
-| `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | rascunho estrutural |
-| `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | rascunho estrutural |
+| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores netlistado; 330/330 casos determinísticos; offset/ruído/setup pendentes |
+| `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | conectividade netlistada; capacitância de entrada caracterizada; timing funcional pendente |
+| `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois inversores conectados, sizing provisório; PVT e carga real de WL pendentes |
 | `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | netlist e smoke funcional verificados; sizing ainda provisório |
 | `vsource_drive.sym` | `p`, `m` | `p` como saída | fonte de estímulo do testbench hierárquico |
 
-`sram_6t.sch` permanece como captura legada para comparação. Os arquivos devem gerar símbolos `.sym` somente depois de a conectividade ser
-verificada pelo Xschem. A presença de um `.sch` nesta etapa não significa que a
-célula já passou por netlist, DRC, LVS ou simulação.
+`sram_6t.sch` permanece como captura legada para comparação. Gerar símbolos
+`.sym` depois de conferir a conectividade no Xschem. A presença de um `.sch`
+ou de um smoke PASS não significa DRC/LVS nem qualificação da leaf.
+
+O estado e os gates de fechamento estão em
+[`docs/phase1_leaf_cell_closure.md`](../docs/phase1_leaf_cell_closure.md).
 
 ## Write driver
 
