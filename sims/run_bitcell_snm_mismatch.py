@@ -27,6 +27,7 @@ def deck(mode: str, corner: str, vdd: float, temp_c: float, seed: int,
         )
     return f"""* Two independent inverter VTCs for mismatch butterfly SNM.
 .title bitcell_{mode}_mismatch_{corner}_{seed}
+.options seed={seed} seedinfo
 .lib \"{MODEL_LIB}\" {corner}
 .temp {temp_c:g}
 VDD vdd 0 {vdd:g}
@@ -38,7 +39,6 @@ XPD_R out_r in 0 0 sky130_fd_pr__nfet_01v8 l=0.15 w={wpd:g} nf=1
 {access}.options ngbehavior=ps reltol=1e-6 vabstol=1e-9 iabstol=1e-12
 .dc VIN 0 {vdd:g} {step:g}
 .control
-setseed {seed}
 run
 set wr_singlescale
 set wr_vecnames

@@ -21,12 +21,12 @@ CBLB blb 0 5f
 * Read wordline pulse occurs after precharge is released.
 VWL wl 0 PULSE(0 1.8 20n 50p 50p 10n 40n)
 
-* Model-compatible sizing preserving beta=1.40 and gamma=0.70:
-* WPU=0.42 um, WPD=0.84 um and WACC=0.60 um.
+* Canonical frozen sizing for pre-layout closure:
+* WPU=0.42 um, WPD=1.26 um and WACC=0.60 um.
 XPU_L  Q  QB  vdd vdd sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
 XPU_R  QB Q   vdd vdd sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
-XPD_L  Q  QB  0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.84 nf=1
-XPD_R  QB Q   0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.84 nf=1
+XPD_L  Q  QB  0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XPD_R  QB Q   0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
 XACC_L Q  wl  bl  0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.60 nf=1
 XACC_R QB wl  blb 0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.60 nf=1
 

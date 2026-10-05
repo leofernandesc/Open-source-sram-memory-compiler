@@ -1,7 +1,6 @@
 * First SKY130A transient smoke test for the SRAM 6T bitcell.
 * Requires PDK_ROOT to point to a directory containing sky130A/.
-* Model-compatible sizing preserves the original beta=1.40 and gamma=0.70 ratios by
-* scaling the rejected 0.21/0.42/0.30um dimensions by two.
+* Canonical frozen sizing for pre-layout closure.
 .title bitcell_6t_hold_read_write_tt
 
 .lib "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice" tt
@@ -17,8 +16,8 @@ VWL  wl  0 PULSE(0 1.8 20n 50p 50p 10n 30n)
 * X-subcircuit is kept in ../cells/bitcell_6t.spice for the PDK netlist flow.
 XPU_L Q  QB VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
 XPU_R QB Q  VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
-XPD_L Q  QB 0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.84 nf=1
-XPD_R QB Q  0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.84 nf=1
+XPD_L Q  QB 0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XPD_R QB Q  0   0   sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
 XACC_L Q  WL BL  0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.60 nf=1
 XACC_R QB WL BLB 0   sky130_fd_pr__nfet_01v8 l=0.15 w=0.60 nf=1
 

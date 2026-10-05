@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the G1 60 fF read/write revalidation in bounded parallel batches."""
+"""Run the G1 read/write revalidation in bounded parallel batches."""
 
 from __future__ import annotations
 
@@ -31,6 +31,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--read-timeout-s", type=float, default=45.0)
     parser.add_argument("--write-timeout-s", type=float, default=45.0)
     parser.add_argument("--read-tran-step-ps", type=float, default=100.0)
+    parser.add_argument("--cbl-ff", type=float, default=60.0)
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip part CSVs that already contain a passing result.",
+    )
     parser.add_argument(
         "--parts-dir",
         type=Path,
@@ -62,12 +68,23 @@ def first_row(path: Path) -> dict[str, str]:
         return next(csv.DictReader(stream), {})
 
 
+def part_passed(kind: str, path: Path) -> bool:
+    row = first_row(path)
+    if kind == "read":
+        return row.get("status") == "PASS"
+    return (
+        row.get("returncode") == "0"
+        and row.get("initialized") == "True"
+        and row.get("switched") == "True"
+    )
+
+
 def main() -> int:
     args = parse_args()
     if args.jobs <= 0 or args.read_timeout_s <= 0 or args.write_timeout_s <= 0:
         raise SystemExit("jobs and timeouts must be positive")
-    if args.read_tran_step_ps <= 0:
-        raise SystemExit("read-tran-step-ps must be positive")
+    if args.read_tran_step_ps <= 0 or args.cbl_ff <= 0:
+        raise SystemExit("read-tran-step-ps and cbl-ff must be positive")
 
     sims = Path(__file__).resolve().parent
     args.parts_dir.mkdir(parents=True, exist_ok=True)
@@ -85,7 +102,7 @@ def main() -> int:
             "--corners", corner,
             "--vdd-values", f"{vdd:g}",
             "--temps-c", f"{temp_c:g}",
-            "--cap-f", "60",
+            "--cap-f", f"{args.cbl_ff:g}",
             "--states", str(state),
             "--wpu", "0.42",
             "--wpd", "1.26",
@@ -104,12 +121,18 @@ def main() -> int:
             "--wpd-values", "1.26",
             "--wpu", "0.42",
             "--wacc", "0.60",
-            "--cbl-ff", "60",
+            "--cbl-ff", f"{args.cbl_ff:g}",
             "--timeout-s", f"{args.write_timeout_s:g}",
             "--output", str(write_output),
         ]
-        tasks.append((f"read:{stem}", "\0".join(read_command), args.read_timeout_s + 5.0))
-        tasks.append((f"write:{stem}", "\0".join(write_command), args.write_timeout_s + 5.0))
+        if not (args.resume and part_passed("read", read_output)):
+            tasks.append((f"read:{stem}", "\0".join(read_command), args.read_timeout_s + 5.0))
+        if not (args.resume and part_passed("write", write_output)):
+            tasks.append((f"write:{stem}", "\0".join(write_command), args.write_timeout_s + 5.0))
+
+    if args.resume:
+        total = 2 * len(list(itertools.product(args.corners, args.vdd_values, args.temps_c, (0, 1))))
+        print(f"resume: {total-len(tasks)}/{total} passing parts reused; {len(tasks)} tasks pending")
 
     def execute(task: tuple[str, str, float]) -> tuple[str, int, str]:
         name, encoded, timeout_s = task

@@ -51,7 +51,7 @@ def parse_args() -> argparse.Namespace:
         help="SKY130A model corners.",
     )
     parser.add_argument("--wpu", type=float, default=0.42, help="Pull-up width in um.")
-    parser.add_argument("--wpd", type=float, default=0.84, help="Pull-down width in um.")
+    parser.add_argument("--wpd", type=float, default=1.26, help="Pull-down width in um.")
     parser.add_argument("--wacc", type=float, default=0.60, help="Access width in um.")
     parser.add_argument("--vdd-values", nargs="+", type=float, default=[1.8])
     parser.add_argument("--temps-c", nargs="+", type=float, default=[27.0])

@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--vdd", type=float, default=1.8)
     parser.add_argument("--step", type=float, default=0.001)
     parser.add_argument("--wpu", type=float, default=0.42)
-    parser.add_argument("--wpd", type=float, default=0.84)
+    parser.add_argument("--wpd", type=float, default=1.26)
     parser.add_argument("--wacc", type=float, default=0.60)
     parser.add_argument("--length", type=float, default=0.15)
     parser.add_argument("--model-lib", type=Path, default=DEFAULT_MODEL_LIB)
