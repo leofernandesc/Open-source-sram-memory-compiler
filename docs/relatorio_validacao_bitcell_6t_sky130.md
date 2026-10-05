@@ -842,10 +842,10 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 
 A sequência corrente é o **G7 — PEX e requalificação pós-layout**:
 
-1. Extrair os parasitas das cinco leafs já fechadas em G6 e registrar os netlists PEX reproduzíveis.
-2. Substituir `C_BL,max=62,409659 fF` e a carga adicional de WL de `17 fF` como referências de decisão pelos valores extraídos; manter os números antigos identificados como baseline pré-layout.
-3. Requalificar leitura, escrita, SNM/read-disturb, precharge, wl_driver e sense amplifier com os parasitas extraídos. Para a coluna, usar o teto interno `1,15 × C_BL,PEX`.
+1. Consolidar os netlists RC das cinco leafs já extraídas no G7 e construir a estrutura física representativa da coluna, priorizando o pior caso de 32 linhas.
+2. Extrair o `C_BL,PEX` real da coluna e a carga física representativa de WL; manter `C_BL,max=62,409659 fF` e os `17 fF` adicionais de WL apenas como baselines históricas pré-layout.
+3. Definir o teto final de requalificação da coluna como `1,15 × C_BL,PEX` e repetir leitura, escrita, SNM/read-disturb, precharge, wl_driver e sense amplifier com os parasitas pós-layout.
 4. Reabrir G1–G4 somente onde PEX alterar o contrato elétrico; preservar os PASS pré-layout como evidência histórica, sem tratá-los como sign-off pós-layout.
 5. Reavaliar a guarda de `50 mV` do sense amplifier e o timing ativo `SCLK=2,84 ns` com a carga pós-layout.
-6. Consolidar a integração/tiling 4×8 e verificações de nível de array que ainda forem necessárias após a requalificação das leafs.
+6. Se a carga real ainda mantiver escrita/precharge acima do objetivo de acesso `<2,5 ns`, corrigir drive, sizing, roteamento ou arquitetura física antes de fechar o gate; não encerrar G7 apenas relaxando atrasos.
 7. Manter como trabalhos posteriores o critério formal de yield/ruído e expansões estatísticas que não bloqueiam o G7 atual.

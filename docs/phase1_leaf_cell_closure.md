@@ -7,9 +7,12 @@ fechamento elétrico G1–G4 e uma regressão curta pós-aplicação. As cinco l
 layout SKY130A, Magic DRC `0` no flat e Netgen LVS com `Circuits match uniquely`.
 A bitcell também passou smoke de abutment em gap zero, tanto na orientação
 normal quanto com o vizinho espelhado horizontalmente, ambos com DRC `0`.
-A entrega física da Fase 1 está concluída; PEX e requalificação pós-layout
-permanecem abertas no G7. Os resultados de mismatch continuam sendo triagem de
-engenharia, sem claim de yield de produção.
+A entrega física da Fase 1 está concluída. O G7 já iniciou a extração RC das
+leafs e a requalificação elétrica, mas permanece aberto porque ainda não existe
+uma coluna física 32× para fornecer `C_BL,PEX` diretamente e porque o stress
+conservador construído a partir das leafs reabre drive/timing de escrita. Os
+resultados de mismatch continuam sendo triagem de engenharia, sem claim de
+yield de produção.
 
 ## Como usar as referências
 
@@ -37,7 +40,7 @@ extremas continua sujeita à confirmação do PDK.
 |---|---|---|
 | Bitcell 6T | `cells/bitcell_6t.sch` e `cells/bitcell_6t.sym` usam o sizing canônico `0,42/1,26/0,60 µm`. G1–G4 fecharam para screening pré-layout; Read SNM nominal `0,414349 V` e read-disturb crítico `0,1781393 V`. `layout/bitcell_6t` fecha com DRC `0`, LVS único e abutment normal/espelhado em gap zero com DRC `0`. | Extrair parasitas e requalificar leitura, escrita, SNM/disturb e cargas com o teto `1,15 × C_BL,PEX`. |
 | Sense amplifier | `cells/sense_amp.sch` contém latch regenerativo de sete transistores com amostragem PMOS; o netlist do próprio Xschem passou 330/330 casos determinísticos. No G2, `150 mV` acumula `800/800` decisões sem falha; G4 promoveu `SCLK=2,84 ns`. `layout/sense_amp` fecha com DRC `0` e LVS único, 7 dispositivos/8 nets. | Reabrir G2/G4 após PEX e verificar se a guarda de `50 mV` continua disponível. |
-| Precharge/equalização | `cells/precharge.sch` gera netlist conectado; Ceff máximo `0,908533 fF` por bitline. Com `60 fF`, chegou a `>=0,95 VDD` e equalizou nos smokes documentados. `layout/precharge` fecha com DRC `0` e LVS único, 3 PMOS; `VSS` permanece pino desconectado em ambos os lados, conforme o esquemático. | PEX; sweep completo de pré-carga/sequenciamento/potência usando as cargas extraídas. |
+| Precharge/equalização | `cells/precharge.sch` gera netlist conectado; Ceff máximo pré-layout `0,908533 fF` por bitline. Com `60 fF`, chegou a `>=0,95 VDD` e equalizou nos smokes documentados. `layout/precharge` fecha com DRC `0` e LVS único, 3 PMOS. No início do PEX foi encontrado `VSUBS` flutuante no layout; foi adicionado tap físico de substrato para `VSS`, mantendo DRC `0` e removendo o nó flutuante do netlist RC. | Requalificar precharge com a carga de coluna extraída; o stress leaf-PEX indica recuperação muito lenta sob carga extrema. |
 | WL driver | `cells/wl_driver.sch` gera dois inversores conectados; sizing `0,42/0,84 µm`. O smoke selecionado passou em `tt/1,8 V/27 °C` e `ss/1,62 V/−40 °C`. `layout/wl_driver` fecha com DRC `0` e LVS único, 4 dispositivos/5 nets. | PEX; revalidar carga física de WL, slew no extremo da linha, timing e read disturb. |
 | Write driver | Com bitcell `WPD=1,26 µm` e 65 fF, a integração passou `60/60`; G4 mismatch passou os corners selecionados. `layout/write_driver` fecha com DRC `0` e LVS único, 10 dispositivos/12 nets, preservando `WE_B` e os quatro nós internos dos stacks. | PEX e requalificação integrada de escrita com a carga extraída. |
 
@@ -118,9 +121,14 @@ extremas continua sujeita à confirmação do PDK.
    `layout/bitcell_6t/check_abutment.tcl` em duas condições de gap zero:
    vizinho na mesma orientação e vizinho espelhado horizontalmente, ambas com
    DRC `0`. Os logs LVS ficam em `layout/<leaf>/*_lvs.log`.
-7. **Próximo gate: PEX e requalificação pós-layout.** A carga extraída passa a
-   substituir o orçamento pré-layout; requalificar com o teto interno de
-   `1,15 × C_BL,PEX`, atualizar a carga física de WL e reabrir G1–G4 onde o
-   parasítico afetar os contratos de read/write/sense. Se houver divergência
-   elétrica ou física, reabrir o gate afetado em vez de preservar um PASS
-   histórico.
+7. **G7 em andamento: leaf PEX disponível, coluna PEX ainda aberta.** Os
+   máximos PVT observados até aqui são `8,592457 fF/célula` para a bitcell,
+   `6,525894 fF` para precharge, `26,721160 fF` para write driver desligado
+   e `28,101193 fF` para a entrada do sense. Como ainda não há layout de uma
+   coluna 32×, manter o fio pré-layout produz apenas um surrogate conservador:
+   `C_BL,surrogate=370,286455 fF` e stress de `425,829423 fF` após +15%.
+   Esse ponto não deve ser chamado de `C_BL,PEX`. No stress, a leitura crítica
+   mantém o contrato formal de `ΔV/setup/t_res`, mas a escrita precisa de
+   `WL_IN≈7,5 ns` para preparar as bitlines e a recuperação por precharge
+   falha em 15 ns, reabrindo drive/timing físico. Fechar G7 exige layout e PEX
+   da coluna real, depois repetir G1–G4 no `1,15 × C_BL,PEX` verdadeiro.

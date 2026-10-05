@@ -142,3 +142,40 @@ corrente é extrair `C_BL,PEX`, comparar o resultado com este orçamento e
 requalificar a coluna até o teto interno `1,15 × C_BL,PEX`. Se o PEX exceder
 os contratos elétricos fechados no pré-layout, o gate afetado deve ser
 reaberto.
+
+### Evidência preliminar de leaf PEX
+
+O G7 já possui extração RC das cinco leafs, mas ainda **não** existe layout
+físico de uma coluna 32× do qual se possa extrair diretamente
+`C_BL,PEX`. Portanto os números abaixo são evidência de leaf PEX e não devem
+ser rotulados como capacitância extraída da coluna completa.
+
+Os sweeps de pequena-sinal em `1 MHz` fecharam:
+
+| Parcela leaf PEX | Máximo observado por bitline |
+|---|---:|
+| bitcell 6T, WL desabilitada | `8,592457 fF/célula` |
+| precharge desligado | `6,525894 fF` |
+| write driver com `WE=0` | `26,721160 fF` |
+| entrada do sense | `28,101193 fF` |
+
+Enquanto a coluna física não existe, um **surrogate conservador** pode manter
+o bound pré-layout de fio `1,061862 fF/célula` junto dos máximos leaf PEX:
+
+```text
+C_BL,surrogate(32)
+  = 32 × (8,592457 + 1,061862)
+    + 6,525894 + 26,721160 + 28,101193
+  ≈ 370,286455 fF
+
+1,15 × C_BL,surrogate ≈ 425,829423 fF
+```
+
+Os valores de stress usam o termo de fio antes do arredondamento exibido na
+tabela pré-layout. Esse `425,829423 fF` é um ponto de estresse provisório, não
+`1,15 × C_BL,PEX` de sign-off. No corner `ss/1,62 V/-40 °C`, a leitura
+integrada ainda atende `ΔV>=200 mV`, setup `>=25 ps` e
+`t_res<=0,25 ns` nesse ponto, mas a escrita exige atraso muito maior entre
+`WE` e `WL`, e a recuperação de precharge torna-se da ordem de dezenas de
+nanosegundos. Isso reabre o gate de drive/timing físico e reforça a necessidade
+de extrair uma coluna real antes de fechar G7.

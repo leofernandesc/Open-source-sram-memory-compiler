@@ -65,7 +65,12 @@ g6_toolchain: Magic 8.3.613 + Netgen 1.5.293, SKY130A PDK 1.0.493-0-g0fe599b in 
 g6_lvs: bitcell_6t=unique_match; sense_amp=unique_match; precharge=unique_match; wl_driver=unique_match; write_driver=unique_match
 g6_drc: all five flattened routed leaves report 0 Magic DRC errors
 g6_bitcell_abutment: zero-gap same-orientation and horizontally mirrored pair both report Magic DRC=0 via layout/bitcell_6t/check_abutment.tcl
-g7_status: OPEN_PEX_REQUALIFICATION
+g7_status: OPEN_PEX_REQUALIFICATION; leaf RC extraction started, full-column C_BL_PEX still unavailable and write/precharge timing reopened by conservative leaf-PEX stress
+g7_leaf_pex_capacitance: bitcell_max=8.592457068 fF/cell; precharge_max=6.525893794 fF; write_driver_off_max=26.721160015 fF; sense_input_max=28.101192527 fF; see sims/leaf_pex_capacitance_pvt.csv sims/write_driver_capacitance_pex_pvt.csv sims/sense_input_capacitance_pex_pvt.csv
+g7_cbl_surrogate: no 32-row physical column exists yet; retaining the pre-layout wire bound 1.061862 fF/cell with leaf-PEX maxima gives C_BL_surrogate_32=370.286455 fF and internal +15% stress=425.829423 fF; this is not C_BL_PEX signoff
+g7_precharge_layout_fix: physical p-substrate tap tied to VSS added in layout/precharge/route_precharge.tcl after PEX exposed floating VSUBS; regenerated precharge PEX has no VSUBS node and layout remains Magic DRC=0
+g7_read_425ff_probe: ss/1.62V/-40C at SCLK=4.0 ns reaches delta=0.318198 V, setup=375.29 ps and t_res=0.22747 ns for stored Q=1, satisfying the frozen integrated delta/setup/t_res contract; 90/10 rail sample at 250 ps is retained as diagnostic and is not a second t_res gate
+g7_write_425ff_probe: ss/1.62V/-40C requires delaying WL_IN to 7.5 ns for bitlines to be within 90/10 before selection; Q0->Q1 full_flip=0.84478 ns, +30% WL_min=1.098214 ns and margin_to_WL_fall=0.61943 ns, but precharge recovery fails with a 15 ns observation window and passes with 30 ns; this exceeds the <2.5 ns access objective and reopens physical drive/timing
 g1_revalidation_scope: WPU/WPD/WACC=0.42/1.26/0.60 um, CBL=65 fF, continuous PVT 1.62..1.80 V, read-disturb plus transistor-level write driver
 g1_revalidation_status: CLOSED_65ff
 g1_runtime_guard: read sweep supports --timeout-s (45 s default), --tran-step-ps (10 ps default), per-state selection and explicit returncode=124 on TimeoutExpired; write sweep supports per-state selection and timeout

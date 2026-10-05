@@ -77,8 +77,9 @@ capacitor lumped adicional adotado é **17 fF**, acima do bound
 apenas como stress test conservador e não como estimativa física da linha.
 
 O bound `CWL,row,max=17,397827664 fF` e o capacitor lumped adicional de `17 fF`
-ficam preservados como baseline pré-layout. Com o layout já fechado em G6, o
-próximo passo é extrair a capacitância física da wordline no G7, comparar com
-esta estimativa e requalificar slew, atraso, largura efetiva de WL e
-read-disturb. Se o PEX exceder o contrato usado no screening, o gate de timing
-da WL deve ser reaberto.
+ficam preservados como baseline pré-layout. Com o layout das leafs já fechado
+em G6 e a extração RC das leafs iniciada no G7, a etapa pendente é obter a carga
+física representativa da wordline na integração de coluna/array e substituir a
+baseline lumped pelo valor pós-layout correspondente. Em seguida, requalificar
+slew, atraso, largura efetiva de WL e read-disturb. Se o PEX alterar o contrato
+usado no screening, o gate de timing da WL deve ser reaberto.
