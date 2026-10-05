@@ -1,21 +1,25 @@
 # Matriz de testes e decisões — bitcell SRAM 6T SKY130A
 
-> **Atualização de 04/10/2026:** parte dos registros abaixo descreve a matriz
+> **Atualização de 05/10/2026:** parte dos registros abaixo descreve a matriz
 > histórica que usava 50 fF e o sense amplifier anterior. O contrato técnico
 > corrente usa qualificação contínua em `1,62–1,80 V`, mantém `1,95 V` somente
 > como auditoria/limite estático do modelo e não qualifica `1,98 V` com os
 > modelos `01v8` atuais. O orçamento de coluna foi recalculado com o sense
 > atual e com a capacitância de saída do write driver desligado; o teto
 > pré-layout de 32 linhas é `62,409659 fF`. O ponto conservador de revalidação
-> elétrica é `65 fF`.
+> elétrica é `65 fF`. O schematic freeze e o G6 físico estão concluídos: as
+> cinco leaf cells têm layout, Magic DRC `0` e Netgen LVS com
+> `Circuits match uniquely`; a bitcell também passou abutment em gap zero nas
+> orientações normal e espelhada horizontalmente. O gate corrente é G7 — PEX
+> e requalificação pós-layout.
 > A definição atual das leaf
 > cells, as simulações selecionadas e os gates remanescentes estão em
 > [`phase1_leaf_cell_closure.md`](phase1_leaf_cell_closure.md). Use-a como
 > estado corrente; os valores anteriores permanecem evidência histórica.
 
-**Data do levantamento:** 02/10/2026
+**Data do levantamento:** 05/10/2026
 **Escopo:** testes elétricos pré-layout, falhas de bancada/netlist registradas e estado das verificações físicas.
-**Estado geral:** **Schematic Freeze pré-layout concluído em 05/10/2026**; Fase 1 permanece aberta para layout, DRC/LVS e PEX/requalificação. Este documento consolida evidências do screening de engenharia e não declara yield de produção.
+**Estado geral:** **Schematic Freeze e G6 físico concluídos em 05/10/2026**; G7 permanece aberto para PEX e requalificação pós-layout. Este documento consolida evidências do screening de engenharia e não declara yield de produção.
 
 ## 1. Ambiente e convenções
 
@@ -30,7 +34,8 @@ Neste documento, **PASS** quer dizer que o caso cumpriu o teste e o limite espec
 | Conquista / decisão | Valor usado ou medido | Motivo do uso | Teste / evidência | Estado atual |
 |---|---|---|---|---|
 | Baseline histórica | `WPU/WPD/WACC=0,42/0,84/0,60 µm`, `L=0,15 µm` | Referência para comparar variantes. | Read-disturb nominal `12/40 PASS`; Read SNM nominal `0,348804 V`. | **Não atende** os gates de leitura e não é mais o sizing canônico. |
-| Sizing canônico congelado | `WPU/WPD/WACC=0,42/1,26/0,60 µm`, β=`2,10` | Aumentar o pull-down reduz a elevação do nó baixo durante leitura e foi o único candidato que passou a meta nominal de Read SNM. | G1 `60/60` read + `60/60` write em 65 fF; G2 `60/60`; G3 `60/60`; G4 read/write mismatch fechado como screening. Regressão pós-aplicação: Read SNM `0,414349 V`, read-disturb crítico `0,1781393 V`. | **Aplicado e congelado** no `bitcell_6t.sch/.sym`; próximo gate é layout/DRC/LVS. |
+| Sizing canônico congelado | `WPU/WPD/WACC=0,42/1,26/0,60 µm`, β=`2,10` | Aumentar o pull-down reduz a elevação do nó baixo durante leitura e foi o único candidato que passou a meta nominal de Read SNM. | G1 `60/60` read + `60/60` write em 65 fF; G2 `60/60`; G3 `60/60`; G4 read/write mismatch fechado como screening. Regressão pós-aplicação: Read SNM `0,414349 V`, read-disturb crítico `0,1781393 V`. | **Aplicado e congelado** no `bitcell_6t.sch/.sym`; G6 físico concluído e próximo gate é G7/PEX. |
+| Fechamento físico G6 | cinco leafs: `bitcell_6t`, `sense_amp`, `precharge`, `wl_driver`, `write_driver` | Confirmar que a revisão congelada possui implementação física consistente antes da extração parasitária. | Magic flat DRC `0` e Netgen LVS `Circuits match uniquely` nas cinco leafs; bitcell com abutment gap zero normal e espelhado horizontalmente, ambos DRC `0`. | **G6 fechado em 05/10/2026**; PEX/requalificação seguem no G7. |
 | Write driver corrigido | `Wdriver=0,84 µm`; `WE_B` interno; saída diferencial tri-state | Remover o curto `DATA_B–BLB` e garantir isolamento das bitlines quando `WE=0`. | Netlist Xschem PASS; smoke standalone complementar; deriva em `WE=0` de `3,391/1,459 mV` em 3 ns com 50 fF. | Funcional para triagem; resistência, corrente e carga final ainda não estão qualificadas. |
 | Escrita integrada com driver real demonstrada | `1,8 V`, `tt/ss/ff`, 27 °C, 50 fF, ambos os sentidos, WPD `0,84/1,26 µm` | Verificar que o driver corrigido realmente troca a bitcell e não apenas bitlines isoladas. | `12/12` trocas; cruzamento de `Q=VDD/2` entre `0,148–0,212 ns`. | PASS de triagem funcional, não write margin. |
 | Limite inferior provisório de WL obtido | regra `1,30×` o pior flip completo `90/10%` | Garantir tempo para a escrita completar no pior caso medido com 30% de margem de engenharia. | G1 65 fF completo: pior screening `full_flip=0,3194 ns` (`WL_min=0,41522 ns`) em `ss/1,62 V/-40 °C`; rerun de 10 ps em ambos os sentidos: `0,3192 ns` e `WL_min=0,41496 ns`. | Limite inferior da bitcell/write-driver fechado como referência pré-layout; o pulso em `WL_IN` ainda depende da carga real da wordline e do `wl_driver`. |
@@ -94,7 +99,23 @@ O método varre em DC a VTC dos inversores e calcula o menor quadrado inscrito n
 | 0,42/1,05/0,60 | 642,994 mV | 332,353 mV | `sf` | Leitura melhora relativamente ao canônico; variante não congelada. |
 | 0,42/1,26/0,60 | 635,192 mV | 360,472 mV | `sf` | Read SNM melhora entre os sizings testados, enquanto Hold SNM cai um pouco; sem limite formal, isto é comparação, não aprovação. |
 
-Dados: [`SNM canônico`](../sims/bitcell_snm_summary.csv), [`SNM WPD=1,05`](../sims/bitcell_snm_summary_wpd1p05.csv), [`SNM WPD=1,26`](../sims/bitcell_snm_summary_wpd1p26.csv) e curvas VTC correspondentes em `sims/bitcell_snm_curves*.csv`. Figuras: [`borboleta canônica`](assets/bitcell_6t_snm_butterfly.png), [`WPD=1,05`](assets/bitcell_6t_snm_wpd1p05.png), [`WPD=1,26`](assets/bitcell_6t_snm_wpd1p26.png).
+Dados: [`SNM canônico`](../sims/bitcell_snm_summary.csv), [`SNM WPD=1,05`](../sims/bitcell_snm_summary_wpd1p05.csv), [`SNM WPD=1,26`](../sims/bitcell_snm_summary_wpd1p26.csv) e curvas VTC correspondentes em `sims/bitcell_snm_curves*.csv`.
+
+**Baseline histórica — WPD=0,84 µm:**
+
+![Curva borboleta SNM — baseline histórica WPD=0,84 µm](assets/bitcell_6t_snm_butterfly.png)
+
+**Variante exploratória — WPD=1,05 µm:**
+
+![Curva borboleta SNM — variante WPD=1,05 µm](assets/bitcell_6t_snm_wpd1p05.png)
+
+**Sizing canônico congelado — WPD=1,26 µm:**
+
+![Curva borboleta SNM — sizing canônico WPD=1,26 µm](assets/bitcell_6t_snm_wpd1p26.png)
+
+As duas primeiras figuras permanecem como comparação histórica. A terceira
+corresponde ao sizing canônico congelado `0,42/1,26/0,60 µm`; os valores são
+pré-layout e devem ser reavaliados após PEX no G7.
 
 Para o novo gate **nominal** de `Read SNM >= 0,40 V`, usa-se o ponto `tt/1,8 V/27 °C`, e não o mínimo entre corners: `WPD=0,84` resulta em `0,348804 V` (FAIL), `1,05` em `0,388060 V` (FAIL) e `1,26` em `0,414349 V` (PASS). Isso não transforma os resultados de `ff/sf` abaixo de 0,4 V em PASS de PVT; o critério aqui é explicitamente nominal.
 
@@ -188,7 +209,7 @@ Evidências: [`mismatch Read`](../sims/bitcell_read_snm_mismatch_sf_1p62_125.csv
 
 ## 6. Pendências e decisão de freeze
 
-**O esquemático está congelado para a etapa pré-layout.** A geometria e a verificação física ainda não foram concluídas. O estado de layout consultado não contém as cinco leaf `.mag`; DRC e LVS ainda não foram executados.
+**O esquemático está congelado e o G6 físico foi concluído em 05/10/2026.** As cinco leafs possuem layout roteado, Magic DRC `0` e Netgen LVS com `Circuits match uniquely`. A bitcell também passou abutment em gap zero nas orientações normal e espelhada horizontalmente. O gate aberto é G7 — PEX e requalificação pós-layout.
 
 Bloqueios/gates pendentes:
 
@@ -197,6 +218,6 @@ Bloqueios/gates pendentes:
 3. G2 integrado fechado: em `65 fF + 17 fF` de WL, `SCLK=2,79 ns` passou `60/60` determinístico. G4 mismatch mostrou que esse ponto tinha margem insuficiente para uma seed real (`3,66 ps` de setup em seed 7007); `SCLK=2,84 ns` passou a ser o timing ativo de freeze. No canto crítico pós-aplicação, `2/2` passaram com setup mínimo `78,46 ps`, `ΔV>=360,848 mV` e `t_res<=0,07144 ns`.
 4. Escrita integrada fechada em screening pré-layout: `60/60` PASS com `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura de `1,0 ns`; pior full-flip `0,37283 ns`, regra `+30% = 0,484679 ns` e menor margem até a queda de WL `0,59366 ns`. Registrar potência dinâmica/estática como referência de arquitetura; não existe teto macro aprovado para rotular potência PASS/FAIL.
 5. G4 fechado como **engineering screening**: read crítico `ss_mm/1,62 V/-40 °C` `10/10` PASS em `SCLK=2,84 ns`, `ff_mm/1,80 V/125 °C` `10/10`, smoke all-corner `10/10`; write `ss_mm/sf_mm` `20/20` e demais selecionados `6/6`. Seeds reprodutíveis foram verificadas; não há claim de yield de produção.
-6. **Pós-freeze:** desenhar as cinco leafs no Magic, executar Magic DRC e Netgen LVS. Depois extrair PEX, fixar `C_BL,max = 1,15 × C_BL,PEX` e repetir a caracterização elétrica; se a extração violar os gates, reabrir o sizing/freeze. Validar ainda orientação MX/tiling e a matriz 4×8 completa.
+6. **G6 fechado:** as cinco leafs já foram desenhadas no Magic e fecharam DRC/LVS; a bitcell passou ainda os dois smokes de abutment em gap zero. **G7 aberto:** extrair PEX, substituir os bounds pré-layout por parasitas extraídos, usar o teto interno `1,15 × C_BL,PEX` e repetir a caracterização elétrica. Se a extração violar um contrato, reabrir o gate afetado. A validação de integração/tiling da matriz 4×8 continua sendo evidência adicional de nível de array, sem invalidar o fechamento físico das leafs.
 
 O resumo de desenvolvimento em [`relatorio_validacao_bitcell_6t_sky130.md`](relatorio_validacao_bitcell_6t_sky130.md) contém contexto adicional das bancadas e do esquemático. Os artefatos CSV e scripts listados aqui são as evidências detalhadas deste documento.

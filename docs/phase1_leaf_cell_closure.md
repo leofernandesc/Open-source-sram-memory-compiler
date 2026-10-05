@@ -1,11 +1,15 @@
 # Fase 1 — fechamento das leaf cells SKY130A
 
-**Estado em 2026-10-05: schematic freeze concluído; Fase 1 ainda aberta.** O
+**Estado em 2026-10-05: schematic freeze e fechamento físico G6 concluídos.** O
 sizing canônico foi congelado em `WPU/WPD/WACC=0,42/1,26/0,60 µm` após o
-fechamento elétrico G1–G4 e uma regressão curta pós-aplicação. A entrega da
-Fase 1, porém, ainda exige layout de cada leaf, Magic DRC e Netgen LVS limpos.
-Os resultados de mismatch continuam sendo triagem de engenharia pré-layout,
-sem claim de yield de produção.
+fechamento elétrico G1–G4 e uma regressão curta pós-aplicação. As cinco leafs
+(`bitcell_6t`, `sense_amp`, `precharge`, `wl_driver`, `write_driver`) têm agora
+layout SKY130A, Magic DRC `0` no flat e Netgen LVS com `Circuits match uniquely`.
+A bitcell também passou smoke de abutment em gap zero, tanto na orientação
+normal quanto com o vizinho espelhado horizontalmente, ambos com DRC `0`.
+A entrega física da Fase 1 está concluída; PEX e requalificação pós-layout
+permanecem abertas no G7. Os resultados de mismatch continuam sendo triagem de
+engenharia, sem claim de yield de produção.
 
 ## Como usar as referências
 
@@ -29,13 +33,13 @@ extremas continua sujeita à confirmação do PDK.
 
 ## Estado por célula
 
-| Leaf | Esquemático e evidência elétrica | O que falta para aceite da leaf |
+| Leaf | Esquemático, evidência elétrica e fechamento físico | O que permanece aberto após G6 |
 |---|---|---|
-| Bitcell 6T | `cells/bitcell_6t.sch` e `cells/bitcell_6t.sym` usam agora o sizing canônico congelado `0,42/1,26/0,60 µm`. G1–G4 fecharam para screening pré-layout; a regressão pós-aplicação confirmou Read SNM nominal `0,414349 V` e read-disturb crítico `0,1781393 V`. | Fazer layout, DRC/LVS e depois requalificação PEX. |
-| Sense amplifier | `cells/sense_amp.sch` contém latch regenerativo de sete transistores com amostragem PMOS; o netlist do próprio Xschem passou 330/330 casos determinísticos. No G2, `150 mV` acumula `800/800` decisões sem falha. A matriz determinística integrada fechou `60/60` em `SCLK=2,79 ns`; G4 revelou uma seed real com setup insuficiente nesse ponto e promoveu `SCLK=2,84 ns` para o contrato ativo. No rerun crítico pós-freeze em `ss/1,62 V/-40 °C`, `2/2` passaram com setup `78,46 ps` e `ΔV>=360,848 mV`. | G2/G4 fechados para screening pré-layout; reabrir após PEX ou se ruído explícito consumir a guarda de 50 mV. |
-| Precharge/equalização | `cells/precharge.sch` gera netlist conectado; Ceff máximo `0,908533 fF` por bitline. Com `60 fF`, chegou a `>=0,95 VDD` e equalizou em `tt/1,8 V/27 °C` e `ss/1,62 V/−40 °C` no estímulo de 4 ns. | Sweep completo, menor tempo de pré-carga, sequenciamento PRECH/WL/SCLK, potência e layout/DRC/LVS. |
-| WL driver | `cells/wl_driver.sch` gera dois inversores conectados; sizing `0,42/0,84 µm` provisório. Com 50 fF, o smoke selecionado passou em `tt/1,8 V/27 °C` (atraso 50% `0,415 ns`) e `ss/1,62 V/−40 °C` (`0,665 ns`). | Sweep PVT, carga física real de WL, slew no extremo da linha, read disturb e layout/DRC/LVS. |
-| Write driver | Com bitcell `WPD=1,26 µm` e 65 fF, a integração precharge → write driver → WL driver → bitcell passou `60/60`; G4 mismatch passou `20/20` nos cantos críticos `ss_mm/sf_mm` e `6/6` nos demais selecionados. Pior G4: full-flip `0,39181 ns`, `WL_min(+30%)=0,509353 ns`, margem `0,56732 ns`. | Screening elétrico fechado; falta layout/DRC/LVS e requalificação pós-PEX. |
+| Bitcell 6T | `cells/bitcell_6t.sch` e `cells/bitcell_6t.sym` usam o sizing canônico `0,42/1,26/0,60 µm`. G1–G4 fecharam para screening pré-layout; Read SNM nominal `0,414349 V` e read-disturb crítico `0,1781393 V`. `layout/bitcell_6t` fecha com DRC `0`, LVS único e abutment normal/espelhado em gap zero com DRC `0`. | Extrair parasitas e requalificar leitura, escrita, SNM/disturb e cargas com o teto `1,15 × C_BL,PEX`. |
+| Sense amplifier | `cells/sense_amp.sch` contém latch regenerativo de sete transistores com amostragem PMOS; o netlist do próprio Xschem passou 330/330 casos determinísticos. No G2, `150 mV` acumula `800/800` decisões sem falha; G4 promoveu `SCLK=2,84 ns`. `layout/sense_amp` fecha com DRC `0` e LVS único, 7 dispositivos/8 nets. | Reabrir G2/G4 após PEX e verificar se a guarda de `50 mV` continua disponível. |
+| Precharge/equalização | `cells/precharge.sch` gera netlist conectado; Ceff máximo `0,908533 fF` por bitline. Com `60 fF`, chegou a `>=0,95 VDD` e equalizou nos smokes documentados. `layout/precharge` fecha com DRC `0` e LVS único, 3 PMOS; `VSS` permanece pino desconectado em ambos os lados, conforme o esquemático. | PEX; sweep completo de pré-carga/sequenciamento/potência usando as cargas extraídas. |
+| WL driver | `cells/wl_driver.sch` gera dois inversores conectados; sizing `0,42/0,84 µm`. O smoke selecionado passou em `tt/1,8 V/27 °C` e `ss/1,62 V/−40 °C`. `layout/wl_driver` fecha com DRC `0` e LVS único, 4 dispositivos/5 nets. | PEX; revalidar carga física de WL, slew no extremo da linha, timing e read disturb. |
+| Write driver | Com bitcell `WPD=1,26 µm` e 65 fF, a integração passou `60/60`; G4 mismatch passou os corners selecionados. `layout/write_driver` fecha com DRC `0` e LVS único, 10 dispositivos/12 nets, preservando `WE_B` e os quatro nós internos dos stacks. | PEX e requalificação integrada de escrita com a carga extraída. |
 
 ## Gates para concluir
 
@@ -108,14 +112,15 @@ extremas continua sujeita à confirmação do PDK.
    fechou como screening de engenharia: read `10/10` no canto crítico
    `ss_mm/1,62 V/-40 °C`, `10/10` em `ff_mm/1,80 V/125 °C`, smoke all-corner
    `10/10` e write crítico `20/20`, sem claim de yield de produção.
-6. **Próximo gate: desenhar cada layout no Magic** (`bitcell_6t`, `sense_amp`,
-   `precharge`, `wl_driver`, `write_driver`); verificar espelhamento/abutment
-   da bitcell, pinos, alimentação e regras de geometria. Executar DRC Magic
-   sem violações e LVS Netgen entre extração e netlist Xschem sem diferenças
-   não justificadas para **cada** leaf. Guardar logs, relatórios, versão do
-   PDK e views. Só então a entrega física da Fase 1 está completa.
-
-O PEX vem depois do schematic freeze e do layout. Sua carga extraída substitui
-o orçamento pré-layout; requalificar com o teto interno de
-`1,15 × C_BL,PEX`. Se houver divergência elétrica ou física, reabrir o gate
-afetado em vez de manter o status de fechado.
+6. **G6 físico concluído em 05/10/2026.** `bitcell_6t`, `sense_amp`,
+   `precharge`, `wl_driver` e `write_driver` possuem layout roteado, flat com
+   Magic DRC `0` e Netgen LVS `Circuits match uniquely`. A bitcell passou ainda
+   `layout/bitcell_6t/check_abutment.tcl` em duas condições de gap zero:
+   vizinho na mesma orientação e vizinho espelhado horizontalmente, ambas com
+   DRC `0`. Os logs LVS ficam em `layout/<leaf>/*_lvs.log`.
+7. **Próximo gate: PEX e requalificação pós-layout.** A carga extraída passa a
+   substituir o orçamento pré-layout; requalificar com o teto interno de
+   `1,15 × C_BL,PEX`, atualizar a carga física de WL e reabrir G1–G4 onde o
+   parasítico afetar os contratos de read/write/sense. Se houver divergência
+   elétrica ou física, reabrir o gate afetado em vez de preservar um PASS
+   histórico.

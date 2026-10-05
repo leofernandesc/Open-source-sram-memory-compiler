@@ -1,10 +1,15 @@
 # Orçamento pré-layout da capacitância de wordline
 
+Status em 05/10/2026: **baseline pré-layout congelada; G6 físico concluído e
+G7/PEX aberto**. A bitcell e o `wl_driver` já possuem layout com Magic DRC `0`
+e Netgen LVS único. Os valores deste documento permanecem como referência do
+screening esquemático e **não** devem ser tratados como capacitâncias PEX.
+
 Este documento fecha um bound de engenharia para a carga da wordline antes do
 layout. O objetivo é substituir o antigo smoke arbitrário de `50 fF` por uma
 carga derivada dos gates das oito bitcells da linha e de uma restrição física
 de roteamento. O valor continua sendo pré-layout e deve ser substituído pelo
-PEX após o schematic freeze/layout.
+PEX no G7 após o fechamento físico G6.
 
 ## Capacitância dos gates de acesso
 
@@ -71,6 +76,9 @@ capacitor lumped adicional adotado é **17 fF**, acima do bound
 `CWL,extra,max=16,314090726 fF`. O antigo smoke de `50 fF` continua válido
 apenas como stress test conservador e não como estimativa física da linha.
 
-Se o layout exigir mais de `5 µm/bit`, camada diferente, mais acoplamento ou
-geometria que exceda este bound, o gate de timing da WL deve ser reaberto. O
-PEX substitui integralmente esta estimativa após o layout.
+O bound `CWL,row,max=17,397827664 fF` e o capacitor lumped adicional de `17 fF`
+ficam preservados como baseline pré-layout. Com o layout já fechado em G6, o
+próximo passo é extrair a capacitância física da wordline no G7, comparar com
+esta estimativa e requalificar slew, atraso, largura efetiva de WL e
+read-disturb. Se o PEX exceder o contrato usado no screening, o gate de timing
+da WL deve ser reaberto.

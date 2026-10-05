@@ -2,7 +2,7 @@ run_id:      memory-ip_20260921_165204
 design_name: sram_6t_cell
 tool:        xschem
 start_time:  2026-09-21T16:52:04-04:00
-last_stage:  schematic_freeze_complete_layout_start
+last_stage:  leaf_layout_drc_lvs_complete_pex_ready
 freeze_status: frozen_pre_layout
 schematic_sizing_um: WPU=0.42 WPD=1.26 WACC=0.60 L=0.15
 candidate_sizing_um: WPU=0.42 WPD=1.26 WACC=0.60 L=0.15
@@ -30,7 +30,7 @@ engineering_read_snm_nominal_min: 0.400 V
 read_snm_nominal_tt: WPD0.84=0.348804 V FAIL, WPD1.05=0.388060 V FAIL, WPD1.26=0.414349 V PASS
 engineering_cbl_rule: Nrows*(Ccell_access+Cwire_per_cell)+Cprecharge+Cwrite+Cmux+Csense
 freeze_cbl_basis: corrected pre-layout budget includes disabled write-driver output capacitance; 32-row C_BL,max=62.409659 fF under the same routing constraint; use 65 fF screening
-pex_stage: post-schematic-freeze; requalification_ceiling=1.15*C_BL_PEX
+pex_stage: ready_after_g6; requalification_ceiling=1.15*C_BL_PEX
 column_organization: one word per physical row; Nrows=4/8/16/32 for 4x8/8x8/16x8/32x8
 column_mux: none in current architecture, Cmux=0
 cell_drain_only_cbl: rows4=0.8 fF, rows8=1.6 fF, rows16=3.2 fF, rows32=6.4 fF
@@ -44,7 +44,7 @@ g4_read_timing_decision: seed 7007 at ss_mm/1.62V/-40C failed SCLK=2.79 ns on se
 g4_read_screen: ss_mm/1.62V/-40C 10/10 PASS at SCLK=2.84 ns with disturb<=0.09247513 V, delta>=0.277567 V, setup>=41.84 ps, t_res<=0.08602 ns; ff_mm/1.80V/125C 10/10 PASS; all mismatch corners smoke at 1.62V/-40C 10/10 PASS; remaining tt_mm/fs_mm/sf_mm at 1.80V/125C 6/6 PASS
 g4_write_screen: ss_mm+sf_mm at 1.62V/-40C 20/20 PASS; worst full_flip=0.39181 ns, WL_min_30pct=0.509353 ns, minimum margin_to_WL_fall=0.56732 ns; remaining tt_mm/ff_mm/fs_mm 6/6 PASS
 postfreeze_regression: canonical WPD=1.26 Xschem netlist confirmed; Read SNM tt/1.80V=0.414349 V PASS; ff/1.80V/125C/65fF read-disturb 2/2 PASS worst=0.1781393 V; ss/1.62V/-40C integrated read at SCLK=2.84 ns 2/2 PASS setup>=78.46 ps delta>=0.360848 V; integrated write 2/2 PASS worst_full_flip=0.37283 ns
-freeze_blockers: none for pre-layout schematic freeze; Phase 1 remains open for leaf layout, Magic DRC, Netgen LVS and post-layout PEX/requalification; power remains a measured architecture reference because no macro ceiling is approved
+freeze_blockers: none for pre-layout schematic freeze; G6 physical leaf closure is complete; G7 PEX/requalification remains open; power remains a measured architecture reference because no macro ceiling is approved
 cbl_pre_layout_assessment: budget recalculated, gate reopened by sense-amp topology change; see docs/cbl_pre_layout_estimate.md
 cbl_device_cap_pvt: 270/270 PASS at 1 MHz across 5 corners x 1.62/1.80 V x -40/27/125 C; Ccell_access_max=0.452619 fF, Cprecharge_max=0.908533 fF from existing precharge topology
 cwrite_pvt: 120/120 PASS with extracted write_driver and WE=0; Cwrite_max=4.033129497 fF at ss/1.62 V/125 C DATA=0 BLB; tracked in sims/write_driver_capacitance_pvt.csv
@@ -59,7 +59,13 @@ sense_input_cap_excursion_tt: 12/12 PASS at tt/1.80V/27C for 0/100/200mV dischar
 bitcell_read_60ff_tt: WPD=1.26, tt/1.80V/27C, both data states PASS at 60fF; 10ns ideal WL discharges selected BL almost fully; t100=0.0638ns from WL rise, not final read pulse
 bitcell_write_driver_60ff_tt: WPD=1.26, tt/1.62V/27C, 2/2 switched at 60fF; full_flip=0.288ns; +30% screening lower bound=0.374ns at this point only
 leaf_peripheral_selected: precharge and WL driver passed 60fF/50fF screening at tt/1.8V/27C and ss/1.62V/-40C; WL 50% propagation=0.415/0.665ns; full PVT matrix remains open
-phase1_leaf_status: open; no project leaf .mag layout or DRC/LVS evidence; see docs/phase1_leaf_cell_closure.md
+phase1_leaf_status: physical_complete_g6; bitcell_6t, sense_amp, precharge, wl_driver and write_driver have Magic flat DRC=0 and unique Netgen LVS matches; post-layout PEX/requalification remains open; see docs/phase1_leaf_cell_closure.md
+g6_status: CLOSED_PHYSICAL_LEAF_DRC_LVS
+g6_toolchain: Magic 8.3.613 + Netgen 1.5.293, SKY130A PDK 1.0.493-0-g0fe599b in isaiassh/unic-cass-tools:1.1.0
+g6_lvs: bitcell_6t=unique_match; sense_amp=unique_match; precharge=unique_match; wl_driver=unique_match; write_driver=unique_match
+g6_drc: all five flattened routed leaves report 0 Magic DRC errors
+g6_bitcell_abutment: zero-gap same-orientation and horizontally mirrored pair both report Magic DRC=0 via layout/bitcell_6t/check_abutment.tcl
+g7_status: OPEN_PEX_REQUALIFICATION
 g1_revalidation_scope: WPU/WPD/WACC=0.42/1.26/0.60 um, CBL=65 fF, continuous PVT 1.62..1.80 V, read-disturb plus transistor-level write driver
 g1_revalidation_status: CLOSED_65ff
 g1_runtime_guard: read sweep supports --timeout-s (45 s default), --tran-step-ps (10 ps default), per-state selection and explicit returncode=124 on TimeoutExpired; write sweep supports per-state selection and timeout

@@ -1,11 +1,18 @@
 # Avaliação pré-layout de C_BL
 
-Status: **orçamento pré-layout recalculado, com validação elétrica pendente**.
+Status em 05/10/2026: **baseline pré-layout congelada; G6 físico concluído e G7/PEX aberto**.
+As cinco leaf cells já possuem layout com Magic DRC `0` e Netgen LVS único.
+Os valores deste documento continuam sendo o orçamento histórico usado para o
+schematic freeze e para os screenings de 65 fF; eles **não** são PEX e serão
+substituídos pelos parasitas extraídos no G7.
+
 As capacitâncias de terminal da bitcell, precharge e entrada do sense
 amplifier foram caracterizadas com o modelo SKY130A em PVT. A entrada do novo
 `cells/sense_amp.sch` é maior que a da topologia anterior; o orçamento antigo
-de `49,696512 fF` não é mais válido. `Cwire_cell` continua sendo uma hipótese
-física a verificar no layout.
+de `49,696512 fF` não é mais válido. `Cwire_cell` foi uma hipótese física
+pré-layout. Agora que o layout existe, o próximo passo é substituí-la pela
+extração parasitária, sem rebatizar os bounds abaixo como valores medidos de
+PEX.
 
 ## Modelo e convenções
 
@@ -127,10 +134,11 @@ reaberto.
 O próximo screening usa `65 fF` para 32 linhas. O bound pré-layout depende da validade
 do orçamento de fio e do máximo de `Csense` ao longo da excursão de leitura.
 
-## Condição para fechar o gate
+## Transição para o G7 pós-layout
 
-O orçamento de `62,409659 fF` só pode fechar o gate pré-layout depois que
-leitura, escrita e temporização forem reavaliadas nessa carga e a variação de
-`Csense` com a excursão da bitline for verificada. Após o schematic freeze e
-layout, substituir a estimativa por `C_BL,PEX` e requalificar até
-`1,15 × C_BL,PEX`.
+O screening pré-layout em `65 fF` e o bound `62,409659 fF` ficam preservados
+como baseline de engenharia que sustentou o freeze. Com G6 concluído, o gate
+corrente é extrair `C_BL,PEX`, comparar o resultado com este orçamento e
+requalificar a coluna até o teto interno `1,15 × C_BL,PEX`. Se o PEX exceder
+os contratos elétricos fechados no pré-layout, o gate afetado deve ser
+reaberto.
