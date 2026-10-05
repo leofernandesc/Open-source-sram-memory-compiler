@@ -5,10 +5,10 @@ Contrato de nomes para a etapa 2:
 | Célula | Pinos externos | Controle | Estado |
 |---|---|---|---|
 | `bitcell_6t.sch` | `BL`, `BLB`, `WL`, `VDD`, `VSS` | `WL` | captura canônica da bitcell |
-| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores netlistado; 330/330 casos determinísticos; offset/ruído/setup pendentes |
-| `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | conectividade netlistada; capacitância de entrada caracterizada; timing funcional pendente |
-| `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois inversores conectados, sizing provisório; PVT e carga real de WL pendentes |
-| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | netlist e smoke funcional verificados; sizing ainda provisório |
+| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores; G2/G4 fechados para screening pré-layout |
+| `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | conectividade/capacitância verificadas e exercitado na integração PVT; topologia congelada pré-layout |
+| `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois inversores; sizing atual exercitado em G2/G3/G4 e congelado pré-layout |
+| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | integração PVT e G4 mismatch fechados; sizing atual congelado pré-layout |
 | `vsource_drive.sym` | `p`, `m` | `p` como saída | fonte de estímulo do testbench hierárquico |
 
 `sram_6t.sch` permanece como captura legada para comparação. Gerar símbolos
@@ -32,9 +32,9 @@ deriva de apenas `3,391/1,459 mV` em 3 ns. Um sweep integrado com a bitcell em
 `12/12` trocas de estado; o cruzamento de `Q=VDD/2` ocorreu entre
 `0,148–0,212 ns` após a subida de `WL`.
 
-Esses resultados fecham somente conectividade, complementaridade e isolamento
-funcional do driver. `50 fF`, janela de `10 ns`, borda de `200 ps` e
-`Wdriver=0,84 µm` são hipóteses de triagem, não requisitos de write margin.
+Os testes posteriores em 65 fF + 17 fF de WL fecharam G3 e G4 com o driver
+real. `Wdriver=0,84 µm` é o sizing congelado para o schematic freeze pré-layout;
+PEX pode reabrir esse sizing caso a carga extraída viole os gates.
 
 ## Testbench hierárquico de leitura
 
@@ -49,7 +49,7 @@ xschem cells/tb_bitcell_6t_read.sch
 
 `bitcell_6t.sch` é uma leaf cell, mas contém um smoke test marcado
 `only_toplevel=true`. Quando aberta diretamente, ela carrega os modelos
-SKY130A, usa `WPU/WPD/WACC=0,42/0,84/0,60 µm`, aplica pré-carga e um pulso de WL e grava
+SKY130A, usa `WPU/WPD/WACC=0,42/1,26/0,60 µm`, aplica pré-carga e um pulso de WL e grava
 `bitcell_6t.raw`. Quando instanciada, esse smoke test é omitido e os estímulos
 vêm do testbench hierárquico.
 
@@ -57,8 +57,7 @@ O arquivo `tb_bitcell_6t_read.sch` instancia `bitcell_6t.sym`, duas chaves
 ideais de pré-carga e os capacitores de 5 fF em `BL` e `BLB`. A pré-carga é
 desligada em 10 ns e permanece desligada durante a leitura, de 20 a 30 ns.
 O símbolo tem parâmetros `WPU`, `WPD` e `WACC`: seus padrões e os do testbench
-são `0,42/0,84/0,60 µm`. Esse candidato preserva beta=1,40 e gamma=0,70 e usa
-larguras aceitas pelos modelos contínuos instalados.
+são `0,42/1,26/0,60 µm`, o sizing congelado para a etapa pré-layout.
 
 As fontes do testbench usam `vsource_drive.sym`, que declara o terminal
 positivo como saída para que o ERC do Xschem reconheça `WL` e `PRE` como redes

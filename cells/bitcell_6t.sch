@@ -4,7 +4,7 @@ K {}
 V {}
 S {}
 E {}
-T {Standalone smoke: TT, WPU/WPD/WACC=0.42/0.84/0.60 um} 820 -720 0 0 0.22 0.22 {}
+T {Standalone smoke: TT, WPU/WPD/WACC=0.42/1.26/0.60 um} 820 -720 0 0 0.22 0.22 {}
 N 480 -500 480 -460 {lab=VDD}
 N 700 -420 720 -420 {lab=Q}
 N 480 -460 480 -450 {lab=VDD}
@@ -89,7 +89,7 @@ C {devices/iopin.sym} 310 -320 1 0 {name=p3 lab=BL}
 C {devices/iopin.sym} 890 -420 1 0 {name=p4 lab=BLB}
 C {devices/iopin.sym} 610 -210 1 0 {name=p8 lab=VSS}
 C {devices/netlist.sym} 1030 -650 0 0 {name=STANDALONE_TEST only_toplevel=true value=".lib /opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice tt
-.param WPU=0.42 WPD=0.84 WACC=0.60
+.param WPU=0.42 WPD=1.26 WACC=0.60
 VVSS_LEAF VSS 0 0
 VDD_LEAF VDD VSS 1.8
 VWL_LEAF WL VSS PULSE(0 1.8 20n 50p 50p 10n 40n)

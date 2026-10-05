@@ -116,8 +116,11 @@ Até que a caracterização seja executada, os seguintes valores são metas de
 aceite, não resultados medidos:
 
 - retenção: `Q/QB` permanecem nos estados complementares com `WL=0 V`;
-- leitura: diferença de bitline de pelo menos `100 mV` durante a janela de
-  leitura, sem aumento do nó armazenando `0` superior a `0.2 V`;
+- leitura: alvo integrado provisório de pelo menos `200 mV` antes da
+  amostragem do sense, sem aumento do nó armazenando `0` superior a `0.2 V`;
+  `150 mV` é mantido como piso efetivo de mismatch após `800/800` decisões
+  sem falha, reservando `50 mV` de guarda pré-layout para incerteza/ruído de
+  entrada. Essa guarda é uma alocação de engenharia, não sign-off de ruído;
 - Read SNM no ponto nominal (`tt`, `VDD=1.8 V`, temperatura nominal):
   `>= 0.4 V` como recomendação de engenharia do projeto;
 - escrita: ambos os nós internos devem cruzar `0.9 V` dentro da janela de
@@ -125,9 +128,10 @@ aceite, não resultados medidos:
 - janela inferior de WL: `1.30 ×` o pior tempo de flip completo medido, onde
   flip completo exige os dois nós internos em `90%/10%` de `VDD`;
 - `C_BL` para schematic freeze: estimativa conservadora pré-layout derivada da
-  profundidade da coluna e das cargas de célula/fio/precharge/mux/sense; o
-  orçamento recalculado é `15.971/22.029/34.145/58.377 fF` para 4/8/16/32 linhas,
-  sob a constraint de `metal2`, `0.14 µm`, `<=5.0 µm/linha` e +20% no fio;
+  profundidade da coluna e das cargas de célula/fio/precharge/write-driver/mux/sense;
+  o orçamento corrigido é `20.004/26.062/38.178/62.410 fF` para 4/8/16/32 linhas,
+  sob a constraint de `metal2`, `0.14 µm`, `<=5.0 µm/linha` e +20% no fio. A
+  revalidação elétrica usa `65 fF` como ponto conservador de screening;
 - `C_BL` pós-layout: substituída pelo valor extraído por PEX, com teto de
   requalificação de `1.15 × C_BL_extraído`; PEX não é pré-requisito do
   schematic freeze;
@@ -148,18 +152,18 @@ aceite, não resultados medidos:
 | SNM nominal vs. meta de 0,4 V | `WPD=0.84`: `0.349 V` FAIL; `1.05`: `0.388 V` FAIL; `1.26`: `0.414 V` PASS em `tt/1.8 V` |
 | Faixa de alimentação | qualificação contínua em `1.62–1.80 V`; `1.95 V` permanece somente limite estático/auditoria do modelo 01v8; `1.98 V` não é qualificável com o modelo atual |
 | Read disturb PVT, 50 fF | `WPD=1.05 µm`: 72/90, pior pico `0.230218 V`; `WPD=1.26 µm`: 90/90, pior pico `0.194778 V`; ambos exploratórios |
-| Sizing selecionado para closure | `WPU/WPD/WACC=0.42/1.26/0.60 µm`; ainda não congelado nem aplicado; G1 em 60 fF/PVT permanece aberto |
+| Sizing canônico congelado | `WPU/WPD/WACC=0.42/1.26/0.60 µm`; aplicado em `cells/bitcell_6t.sch` e `.sym`; G1/G2/G3/G4 fechados para screening pré-layout |
 | SNM PVT | `WPD=1.05 µm`: mínimo Hold/Read `581.312/289.261 mV`; `WPD=1.26 µm`: `577.761/312.029 mV`; a meta de 0,4 V vale no ponto nominal, enquanto limite PVT/Hold permanece pendente |
 | Escrita PVT full-swing | `WPD=1.26 µm`: 90/90 smoke tests; margem dinâmica não medida |
-| Fuga em hold PVT | `WPD=1.26 µm`: 90/90 estados estáveis; pior corrente total `21.759 nA` em `fs/1.95 V/125 °C`; orçamento pendente |
+| Fuga em hold PVT | `WPD=1.26 µm`: 90/90 estados estáveis; na faixa qualificada 1,62–1,80 V, pior corrente total `20,0676 nA/célula` e potência VDD `36,1079 nW/célula` em `fs/1,80 V/125 °C`; 1,95 V permanece auditoria |
 | Tensão terminal na leitura | em `VDD=1.95 V`, 30/30 condições excederam 1.95 V; maior pico `2.056858 V` em `sf/125 °C`; impede qualificação desse ponto com o modelo atual |
 | SNM com mismatch | `sf_mm`, 200 seeds de Read a 1.62 V/125 °C: mínimo `269.936 mV`; 200 seeds de Hold a 1.62 V/–40 °C: mínimo `541.229 mV`; critério estatístico/yield pendente |
 | Write driver | netlist Xschem corrigido; smoke standalone confirma escrita complementar e isolamento com `WE=0`; sweep integrado nominal passou `12/12`; em `1.62 V`, `WPD=1.26 µm` passou `30/30` em cinco corners e três temperaturas |
-| Janela inferior de WL | pior flip completo `90/10%` = `0.3216 ns` em `ss/1.62 V/-40 °C`, 0→1; +30% => `0.418 ns` provisórios com `50 fF` |
+| Janela inferior de WL | G1 65 fF: `0.41496 ns` no rerun crítico; integração com `17 fF` extras de WL elevou o pior full-flip para `0.37283 ns`, portanto `WL_min(+30%)=0.484679 ns`. A campanha integrada de escrita usou `WL_IN=3.2 ns` e passou `60/60`. |
 | Escrita full-swing | 30/30 smoke tests aprovados |
 | WLVM | mínimo `0.619 V` em `WPD=0.84 µm`, `0.605 V` em `1.05 µm`; critério de aceite pendente |
-| Carga de bitline pré-layout | orçamento recalculado: `Ccell_access,max=0.452619 fF`, `Cprecharge,max=0.908533 fF`, novo `Csense,max=9.004605 fF` em BL/BLB pré-carregadas; com fio `1.061862 fF/célula`, `C_BL,max=58.376530 fF` em 32 linhas; requalificação elétrica e excursão do sense pendentes |
-| Schematic Freeze | bloqueado: `WPD=1.26 µm` é o único sizing testado que atende Read SNM nominal >=0.4 V; novo `C_BL` e sense ainda precisam de integração, offset/timing, limite superior de WL e critérios de leakage/mismatch; PEX fica para pós-freeze |
+| Carga de bitline pré-layout | orçamento corrigido: `Ccell_access,max=0.452619 fF`, `Cprecharge,max=0.908533 fF`, `Cwrite,max=4.033129 fF`, `Csense,max=9.004605 fF` e fio `1.061862 fF/célula`; `C_BL,max=62.409659 fF` em 32 linhas; usar 65 fF para revalidação pré-layout |
+| Schematic Freeze | **concluído em 05/10/2026**: G4 dinâmico fechado como engineering screening; timing ativo de leitura `SCLK=2.84 ns`; potência permanece referência medida sem teto macro aprovado; PEX continua pós-layout. |
 | Layout, DRC e LVS | pendentes |
 
 ## Leaf cells da etapa 2
@@ -168,13 +172,15 @@ O contrato de captura Xschem está centralizado em `cells/README.md`:
 
 - `bitcell_6t.sch`: bitcell 6T canônica;
 - `sense_amp.sch`: latch diferencial de sete transistores com conectividade
-  netlistada, chaves PMOS de amostragem `W=2,0 µm`; resposta determinística
-  medida, offset/ruído/setup ainda pendentes;
+  netlistada, chaves PMOS de amostragem `W=2,0 µm`; resposta determinística,
+  mismatch, setup e integração PVT em 65 fF já caracterizados para screening
+  pré-layout; ruído/yield de produção não é reivindicado;
 - `precharge.sch`: três PMOS de pré-carga/equalização com conectividade
   netlistada; capacitância de entrada já caracterizada;
 - `wl_driver.sch`: buffer de wordline em dois estágios;
 - `write_driver.sch`: driver diferencial tri-state (`DATA`, `DATA_B`, `WE`),
-  com netlist e smoke funcional verificados; sizing ainda não congelado.
+  com netlist, integração PVT e G4 mismatch verificados; sizing atual preservado
+  no schematic freeze pré-layout.
 
 Os sinais de coluna foram padronizados como `BL` e `BLB`; os controles como
 `WL`, `SCLK` e `WE`; e as alimentações como `VDD` e `VSS`. Os símbolos `.sym`

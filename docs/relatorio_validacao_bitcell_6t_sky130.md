@@ -3,9 +3,10 @@
 > **Atualização de 03/10/2026:** este relatório preserva resultados de
 > caracterizações anteriores, muitas delas a 50 fF e com periféricos ainda em
 > desenvolvimento. A entrada do sense amplifier atual foi medida em
-> `7,853676–9,004605 fF`, elevando o orçamento de 32 linhas a
-> `58,376530 fF`. A triagem em 60 fF passou no ponto nominal de leitura e
-> escrita com WL ideal; isso não fecha PVT ou timing da coluna. O estado atual
+> `7,853676–9,004605 fF` e o write driver desligado acrescenta até
+> `4,033129 fF`, elevando o orçamento de 32 linhas a `62,409659 fF`.
+> A triagem histórica em 60 fF foi supersedida; a revalidação conservadora
+> corrente usa 65 fF. O estado atual
 > e os gates da Fase 1 estão em
 > [`phase1_leaf_cell_closure.md`](phase1_leaf_cell_closure.md).
 
@@ -605,8 +606,8 @@ ponto nominal (`tt`, `VDD=1,8 V`). Sob esse gate, os valores já medidos são:
 | 1,26 µm | 0,414349 V | PASS |
 
 Esse critério é uma recomendação de projeto, não um limite prescrito pelas
-fontes de referência. Ele torna `WPD=1,26 µm` o único sizing testado que passa
-o gate nominal de Read SNM, mas ainda não autoriza alterar a captura canônica.
+fontes de referência. Ele tornou `WPD=1,26 µm` o único sizing testado que passa
+o gate nominal de Read SNM e serviu como base para o fechamento elétrico posterior.
 
 Resultados reproduzíveis: `sims/bitcell_read_pvt_wpd1p05_50ff.csv`,
 `sims/bitcell_read_pvt_wpd1p26_50ff.csv`,
@@ -615,21 +616,15 @@ Resultados reproduzíveis: `sims/bitcell_read_pvt_wpd1p05_50ff.csv`,
 `sims/bitcell_write_pvt_wpd1p26.csv`. Os scripts aceitam listas de tensão e
 temperatura e rejeitam `VDD > 1,95 V` para estes modelos 01v8.
 
-**Decisão:** `0,42/1,26/0,60 µm` passa a ser o sizing selecionado para closure,
-mas ainda não está congelado nem aplicado à captura. O esquemático canônico
-continua em `0,42/0,84/0,60 µm`. A revalidação G1 em 60 fF foi iniciada para
-leitura PVT/read-disturb e escrita com driver real. O runner agora limita o
-tempo por caso e usa execução serial por padrão para evitar contenção do host.
-Como screening, leitura em `60 fF` passou nos dois estados em
-`tt/1,80 V/27 °C`, `ss/1,62 V/−40 °C` e `ff/1,80 V/125 °C`; a escrita com
-driver transistor-level também passou `2/2` nesses pontos representativos.
-A matriz PVT completa ainda não foi concluída e o passo acelerado de leitura
-(`50/100 ps`) não substitui a resolução de referência para qualificação de
-timing; portanto, G1 permanece aberto. O freeze também continua bloqueado por
-critério de WLVM/escrita com driver e carga realistas, fechamento de leakage e
-mismatch, solução dos picos terminais, timing do sense amplifier e revisão de
-arquitetura. Layout, DRC/LVS e validação pós-extração são gates posteriores ao
-freeze para fechar o Marco 1.
+**Decisão atualizada em 05/10/2026:** `0,42/1,26/0,60 µm` é o sizing canônico
+congelado e foi aplicado ao `bitcell_6t.sch/.sym`. G1–G3 fecharam nos budgets
+de 65 fF e 17 fF extras de WL; G4 mismatch fechou como screening de engenharia.
+O ponto determinístico `SCLK=2,79 ns` permanece evidência histórica de G2, mas
+uma seed mismatch apresentou apenas `3,66 ps` de setup. Por isso o contrato
+ativo de freeze usa `SCLK=2,84 ns`. A regressão curta pós-aplicação confirmou
+Read SNM nominal `0,414349 V`, read-disturb crítico `0,1781393 V`, leitura
+integrada crítica `2/2 PASS` e escrita integrada crítica `2/2 PASS`. Layout,
+DRC/LVS e validação pós-extração permanecem gates da Fase 1.
 A solicitação de `1,98 V` precisa
 ser revista ou suportada por orientação/modelo de confiabilidade adequado.
 
@@ -704,10 +699,10 @@ margem de engenharia de 30%, o limite inferior provisório de WL é
 
 Esse limite inferior ainda foi obtido com `50 fF` por bitline. O bound
 pré-layout corrente é
-`C_BL = Nrows × (Ccell_access + Cwire/célula) + Cprecharge + Cmux + Csense`.
+`C_BL = Nrows × (Ccell_access + Cwire/célula) + Cprecharge + Cwrite + Cmux + Csense`.
 Com os máximos esquemáticos/PVT e a restrição de roteamento já documentados,
-o caso de 32 linhas resulta em `C_BL,max=58,376530 fF`; por isso `60 fF` é o
-ponto de screening adotado para a revalidação pré-freeze. A arquitetura atual
+o caso de 32 linhas resulta em `C_BL,max=62,409659 fF`; por isso `65 fF` é o
+ponto de screening conservador adotado para a revalidação pré-freeze. A arquitetura atual
 usa uma palavra por linha física e um par de bitlines por bit, sem column mux
 (`Cmux=0`), com `Nrows=4/8/16/32`. PEX é executado somente pós-freeze; após a
 extração, a requalificação passa a usar `1,15 × C_BL,PEX`.
@@ -755,10 +750,14 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 
 1. O sizing original `0,21/0,42/0,30 µm` foi substituído pelo candidato
    escalado `0,42/0,84/0,60 µm`, que preserva beta/gamma, mas aumenta área.
-2. A triagem usa `delta_21n >= 100 mV` como alvo preliminar do sense amplifier
-   e excursão do nó baixo `<=0,20 V`; o alvo de 100 mV ainda precisa ser
-   validado contra offset/noise do sense amplifier. O bound pré-layout atual
-   da coluna é `58,376530 fF` para 32 linhas e a revalidação usa `60 fF`;
+2. A triagem histórica usa `delta_21n >= 100 mV`, mas o G2 mostrou que esse
+   valor não é robusto sob mismatch (`480/500`). No sweep de transição
+   110–150 mV, `140 mV` ainda teve 1 falha em 500 decisões, enquanto
+   `150 mV` passou `500/500`; somado ao sweep anterior, são `800/800` em
+   `150 mV`. Por isso, `150 mV` passa a ser o piso efetivo de mismatch e o
+   alvo integrado é `200 mV`, reservando `50 mV` como guarda pré-layout de
+   entrada. Essa guarda não é sign-off de ruído/yield. O bound pré-layout atual
+   da coluna é `62,409659 fF` para 32 linhas e a revalidação usa `65 fF`;
    `1,15 × C_BL,PEX` só passa a valer na requalificação pós-freeze.
 3. A triagem PVT de 8.1 cobre leitura em 50 fF e SNM dos sizings exploratórios,
    além de escrita full-swing para `WPD=1,26 µm`; os pontos de leitura a
@@ -767,14 +766,17 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
    8.4 cobre somente SNM em dois pontos críticos.
 4. O testbench hierárquico foi validado no corner `tt`; o sweep de cinco
    corners e dois estados usa o deck externo.
-5. O sense_amp atual já possui caracterização determinística e de capacitância
-   de entrada, mas ainda não fechou offset/mismatch, ruído, `ΔV_min` e timing de
-   SCLK. Precharge e wl_driver ainda não possuem qualificação elétrica completa;
+5. O sense_amp atual já possui caracterização determinística, capacitância de
+   entrada, mismatch e setup de SCLK. Em `150 mV`, setup de `0 ps` até `SCLK50`
+   passou `60/60`, enquanto `-50 ps` teve `2/60` falhas; a guarda provisória é
+   `>=25 ps` e a janela alta de avaliação proposta é `>=0,25 ns`. Ruído/yield
+   formal ainda não está fechado. Precharge e wl_driver ainda não possuem qualificação elétrica completa;
    o write_driver já passou smoke funcional, mas não margem PVT completa.
 6. WLVM foi medido com drivers ideais. O driver real já possui timing de
-   triagem: pior flip completo `0,3216 ns` em 1,62 V, dando WL mínimo
-   provisório de `0,4181 ns` com +30%; faltam revalidação com o bound pré-layout
-   em ~60 fF, limite superior de WL e Monte Carlo de mismatch de escrita. PEX é
+   triagem: o full-PVT histórico em 60 fF teve pior flip completo `0,3210 ns`
+   em 1,62 V, dando WL mínimo provisório de `0,4173 ns` com +30%; o ponto crítico
+   de 65 fF em 10 ps passou com `0,3192 ns` e `0,41496 ns`. Falta fechar a matriz
+   65 fF, o limite superior de WL e Monte Carlo de mismatch de escrita. PEX é
    posterior ao schematic freeze.
 7. Layout, DRC, LVS e extração parasitária ainda não foram executados.
 8. A bitline foi representada por um modelo simples de chave e capacitor e
@@ -798,13 +800,13 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | corners tt/ff/ss/fs/sf | diferencial passou 40/40; excursão do nó baixo passou 12/40 |
 | símbolo hierárquico da bitcell | criado e expandido no netlist Xschem |
 | testbench hierárquico de leitura | simulado em `tt`; deck externo usado para sweep |
-| sizing atual 0,42/0,84/0,60 um | Hold/Read SNM preliminares; gate de read disturb reprovado em 28/40 |
+| baseline histórica 0,42/0,84/0,60 um | Hold/Read SNM preliminares; gate de read disturb reprovado em 28/40; não é mais o sizing canônico |
 | alternativa exploratória 0,42/1,05/0,60 um | read disturb passou 40/40 nominal, mas apenas 72/90 em PVT/50 fF |
-| alternativa exploratória 0,42/1,26/0,60 um | Read SNM nominal `0,414 V` PASS na meta de 0,4 V; read disturb 90/90 em PVT/50 fF; ainda não congelado |
+| sizing canônico 0,42/1,26/0,60 um | Read SNM nominal `0,414349 V` PASS; G1–G4 fechados para screening pré-layout; aplicado e congelado em 05/10/2026 |
 | SNM exploratório 0,42/1,05/0,60 um | mínimo Hold/Read = 642,994/332,353 mV; sem mismatch |
-| sense amplifier | topologia definida: latch regenerativo diferencial de 7 transistores, amostragem PMOS `W=2,0 µm`; 330/330 casos determinísticos e `Csense=7,853676–9,004605 fF` em PVT; offset/mismatch, ruído, `ΔV_min` e timing SCLK pendentes |
+| sense amplifier | topologia definida: latch regenerativo diferencial de 7 transistores, amostragem PMOS `W=2,0 µm`; 330/330 determinísticos; `Csense=7,853676–9,004605 fF`; `100 mV` mismatch=`480/500`, `150/200 mV`=`300/300` cada; setup `0 ps`=`60/60`, guarda provisória `>=25 ps`; ruído/yield formal pendente |
 | write driver | netlist/smoke corrigidos; 30/30 trocas em 1,62 V para WPD=1,26 µm; pior flip 90/10% `0,3216 ns`, WL mínimo provisório `0,4181 ns` |
-| carga de bitline | bound pré-layout fechado; `C_BL,max=58,376530 fF` para 32 linhas; screening em 60 fF; PEX somente pós-freeze e então requalificação em `1,15 × C_BL,PEX` |
+| carga de bitline | bound pré-layout corrigido; `C_BL,max=62,409659 fF` para 32 linhas; screening em 65 fF; PEX somente pós-freeze e então requalificação em `1,15 × C_BL,PEX` |
 | wl_driver e pré-carga | pendentes |
 | Hold/Read SNM | medidos nos cinco corners; pior Read SNM=288,342 mV |
 | leakage em hold | 90/90 estados estáveis; pior corrente total `21,759 nA` em `fs/1,95 V/125 °C`; orçamento pendente |
@@ -817,10 +819,10 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 
 A sequência recomendada é:
 
-1. Revalidar o sizing selecionado em `60 fF`, cobrindo o bound pré-layout `C_BL,max=58,376530 fF`, e atualizar o limite inferior de WL; definir o limite superior por read disturb/excursão da bitline e recuperação.
+1. Revalidar o sizing selecionado em `65 fF`, cobrindo o bound pré-layout `C_BL,max=62,409659 fF`, e atualizar o limite inferior de WL; definir o limite superior por read disturb/excursão da bitline e recuperação.
 2. Definir orçamento de fuga e ampliar Monte Carlo de mismatch a read disturb e aos dois sentidos de escrita com driver real.
 3. Manter a qualificação contínua em `1,62–1,80 V`; usar `1,95 V` somente como auditoria/limite estático e não qualificar `1,98 V` com os modelos `01v8` atuais.
-4. Caracterizar offset/mismatch, ruído, `ΔV_min` e setup/janela de SCLK do sense amplifier atual e então decidir se `100 mV` de diferencial é suficiente.
+4. Definir o critério formal de ruído/yield do sense amplifier e validar o alvo integrado provisório de `200 mV` (`150 mV` de piso efetivo de mismatch + `50 mV` de guarda pré-layout), setup `>=25 ps`, `t_res<=0,25 ns` e janela de avaliação `>=0,25 ns` antes do freeze.
 5. Testar o precharge com equalização e desligamento correto.
 6. Testar o wl_driver, medindo amplitude e atraso de WL.
 7. Criar o testbench do sense_amp com diferenças de entrada de 5 mV a 20 mV.

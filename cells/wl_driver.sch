@@ -4,7 +4,7 @@ K {}
 V {}
 S {}
 E {}
-T {Two-stage noninverting CMOS WL buffer; sizing provisional} 240 -620 0 0 0.22 0.22 {}
+T {Two-stage noninverting CMOS WL buffer; sizing frozen for pre-layout closure} 240 -620 0 0 0.22 0.22 {}
 N 480 -500 480 -450 {lab=VDD}
 N 740 -500 740 -450 {lab=VDD}
 N 480 -500 740 -500 {lab=VDD}
