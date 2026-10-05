@@ -59,6 +59,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--delta-mv", nargs="+", type=float, default=[5, 10, 20, 50, 100])
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--timeout-s", type=float, default=90.0)
+    parser.add_argument("--pex", action="store_true", help="Use the Magic RC-extracted sense-amplifier netlist.")
+    parser.add_argument(
+        "--pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional PEX netlist override; implies --pex.",
+    )
     parser.add_argument("--sclk-at-ns", type=float, default=2.0)
     parser.add_argument("--sclk-rise-ps", type=float, default=50.0)
     parser.add_argument("--sample-at-ns", type=float, default=1.9)
@@ -112,6 +119,29 @@ def sense_subckt(schematic: Path) -> str:
         + "\n".join(body)
         + "\n.ends sense_amp_core\n"
     )
+
+
+def sense_pex_subckt(root: Path, netlist_override: Path | None = None) -> tuple[str, str]:
+    netlist = (
+        netlist_override.resolve()
+        if netlist_override is not None
+        else root / "layout" / "sense_amp" / "pex" / "sense_amp_pex.spice"
+    )
+    text = netlist.read_text(encoding="utf-8")
+    match = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
+    if not match:
+        raise RuntimeError(f"Missing PEX sense subcircuit: {netlist}")
+    name = match.group(1)
+    pins = tuple(match.group(2).split())
+    expected = ("VDD", "VSS", "BL", "BLB", "SCLK", "SA_OUT", "SA_OUTB")
+    if pins != expected:
+        raise RuntimeError(f"Unexpected PEX sense pins: {pins}")
+    wrapper = (
+        ".subckt sense_amp_core BL BLB SA_OUT SA_OUTB SCLK VDD VSS\n"
+        f"XPEX VDD VSS BL BLB SCLK SA_OUT SA_OUTB {name}\n"
+        ".ends sense_amp_core\n"
+    )
+    return text + "\n" + wrapper, hashlib.sha256(netlist.read_bytes()).hexdigest()
 
 
 def initial_voltage(case: Case) -> tuple[float, float]:
@@ -280,6 +310,7 @@ def run_batch(
 
 def main() -> int:
     args = parse_args()
+    root = Path(__file__).resolve().parent.parent
     if args.workers < 1:
         raise SystemExit("--workers must be >= 1")
     if any(not 0 < voltage <= 1.8 for voltage in args.vdd_values):
@@ -287,9 +318,14 @@ def main() -> int:
     if any(delta <= 0 for delta in args.delta_mv):
         raise SystemExit("--delta-mv values must be positive")
 
-    args.schematic_sha256 = hashlib.sha256(args.schematic.read_bytes()).hexdigest()
-    args.subckt = sense_subckt(args.schematic)
-    print(f"Xschem netlist: {args.schematic}, sha256={args.schematic_sha256}", flush=True)
+    if args.pex or args.pex_netlist is not None:
+        args.subckt, args.schematic_sha256 = sense_pex_subckt(root, args.pex_netlist)
+        source = args.pex_netlist or root / "layout" / "sense_amp" / "pex" / "sense_amp_pex.spice"
+        print(f"PEX netlist: {source}, sha256={args.schematic_sha256}", flush=True)
+    else:
+        args.schematic_sha256 = hashlib.sha256(args.schematic.read_bytes()).hexdigest()
+        args.subckt = sense_subckt(args.schematic)
+        print(f"Xschem netlist: {args.schematic}, sha256={args.schematic_sha256}", flush=True)
 
     deltas_v = [delta * 1e-3 for delta in args.delta_mv]
     batches: list[list[Case]] = []

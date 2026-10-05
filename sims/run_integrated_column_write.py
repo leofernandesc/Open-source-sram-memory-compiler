@@ -79,10 +79,17 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--we-at-ns", type=float, default=2.20)
     p.add_argument("--wl-in-at-ns", type=float, default=3.20)
     p.add_argument("--wl-in-width-ns", type=float, default=1.0)
+    p.add_argument(
+        "--precharge-recovery-window-ns",
+        type=float,
+        default=4.0,
+        help="Observation window after precharge is re-enabled.",
+    )
     p.add_argument("--edge-ps", type=float, default=50.0)
     p.add_argument("--tran-step-ps", type=float, default=10.0)
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--timeout-s", type=float, default=90.0)
+    p.add_argument("--pex", action="store_true", help="Use Magic RC-extracted leaf netlists.")
     p.add_argument(
         "--resume",
         action="store_true",
@@ -168,6 +175,36 @@ def extract_leaf(root: Path, key: str) -> str:
     )
 
 
+def pex_leaf(root: Path, key: str) -> str:
+    pex_paths = {
+        "bitcell": root / "layout" / "bitcell_6t" / "pex" / "bitcell_6t_pex.spice",
+        "precharge": root / "layout" / "precharge" / "pex" / "precharge_pex.spice",
+        "wl_driver": root / "layout" / "wl_driver" / "pex" / "wl_driver_pex.spice",
+        "write_driver": root / "layout" / "write_driver" / "pex" / "write_driver_pex.spice",
+    }
+    expected_pex_pins = {
+        "bitcell": ("VDD", "BL", "BLB", "VSS", "WL"),
+        "precharge": ("VDD", "BL", "BLB", "PRECH", "VSS"),
+        "wl_driver": ("VDD", "VSS", "WL_IN", "WL"),
+        "write_driver": ("DATA", "DATA_B", "WE", "BL", "BLB", "VDD", "VSS"),
+    }
+    text = pex_paths[key].read_text(encoding="utf-8")
+    match = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
+    if not match:
+        raise RuntimeError(f"missing PEX subcircuit for {key}")
+    pex_name = match.group(1)
+    pex_pins = tuple(match.group(2).split())
+    if pex_pins != expected_pex_pins[key]:
+        raise RuntimeError(f"unexpected {key} PEX pins: {pex_pins}")
+    canonical_pins = LEAFS[key][1]
+    wrapper = (
+        f".subckt {key}_core {' '.join(canonical_pins)}\n"
+        f"XPEX {' '.join(pex_pins)} {pex_name}\n"
+        f".ends {key}_core\n"
+    )
+    return text + "\n" + wrapper
+
+
 def make_deck(
     *, args: argparse.Namespace, leafs: dict[str, str], corner: str,
     vdd: float, temp_c: float, old_q: int,
@@ -177,7 +214,7 @@ def make_deck(
     wl_in_off_ns = args.wl_in_at_ns + args.wl_in_width_ns
     we_off_ns = wl_in_off_ns + 0.50
     pre_reenable_ns = we_off_ns + 0.25
-    stop_ns = pre_reenable_ns + 4.0
+    stop_ns = pre_reenable_ns + args.precharge_recovery_window_ns
 
     # Total C_BL already includes the explicit selected-cell access, precharge,
     # and disabled write-driver output capacitances. The sense input and wire
@@ -192,6 +229,8 @@ def make_deck(
 
     q0 = vdd if old_q else 0.0
     qb0 = 0.0 if old_q else vdd
+    q_ref = "v(xcell.xpex.a_173_n1434.t0)" if args.pex else "v(xcell.q)"
+    qb_ref = "v(xcell.xpex.a_126_n1530.t1)" if args.pex else "v(xcell.qb)"
     data = vdd if new_q else 0.0
     data_b = 0.0 if new_q else vdd
     q_crossing = "rise=1" if new_q else "fall=1"
@@ -228,21 +267,26 @@ XCELL vdd bl blb 0 wl bitcell_core
 CBL_EXTRA bl 0 {lumped_extra_ff:.6f}f
 CBLB_EXTRA blb 0 {lumped_extra_ff:.6f}f
 {wl_extra}
-.ic v(xcell.q)={q0:.12g} v(xcell.qb)={qb0:.12g} v(bl)={vdd:.12g} v(blb)={vdd:.12g}
+.ic {q_ref}={q0:.12g} {qb_ref}={qb0:.12g} v(bl)={vdd:.12g} v(blb)={vdd:.12g}
 .options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-7 iabstol=1e-10
 .tran {args.tran_step_ps:g}p {stop_ns:.12g}n 0 {args.tran_step_ps:g}p uic
-.meas tran q_before find v(xcell.q) at={args.we_at_ns - 0.05:.12g}n
-.meas tran qb_before find v(xcell.qb) at={args.we_at_ns - 0.05:.12g}n
+.meas tran q_before find {q_ref} at={args.we_at_ns - 0.05:.12g}n
+.meas tran qb_before find {qb_ref} at={args.we_at_ns - 0.05:.12g}n
 .meas tran t_wl_rise when v(wl)={vdd/2:.12g} rise=1
 .meas tran t_wl_fall when v(wl)={vdd/2:.12g} fall=1 td={wl_in_off_ns:.12g}n
 .meas tran bl_at_wl find v(bl) when v(wl)={vdd/2:.12g} rise=1
 .meas tran blb_at_wl find v(blb) when v(wl)={vdd/2:.12g} rise=1
-.meas tran t_q_full when v(xcell.q)={q_full:.12g} {q_crossing} td={args.wl_in_at_ns:g}n
-.meas tran t_qb_full when v(xcell.qb)={qb_full:.12g} {qb_crossing} td={args.wl_in_at_ns:g}n
-.meas tran q_after find v(xcell.q) at={stop_ns - 0.1:.12g}n
-.meas tran qb_after find v(xcell.qb) at={stop_ns - 0.1:.12g}n
+.meas tran t_q_full when {q_ref}={q_full:.12g} {q_crossing} td={args.wl_in_at_ns:g}n
+.meas tran t_qb_full when {qb_ref}={qb_full:.12g} {qb_crossing} td={args.wl_in_at_ns:g}n
+.meas tran q_after find {q_ref} at={stop_ns - 0.1:.12g}n
+.meas tran qb_after find {qb_ref} at={stop_ns - 0.1:.12g}n
 .meas tran bl_recovery find v(bl) at={stop_ns - 0.1:.12g}n
 .meas tran blb_recovery find v(blb) at={stop_ns - 0.1:.12g}n
+.meas tran bl_prech_on find v(bl) at={pre_reenable_ns + edge_ns / 2.0:.12g}n
+.meas tran blb_prech_on find v(blb) at={pre_reenable_ns + edge_ns / 2.0:.12g}n
+.meas tran t_prech_on50 when v(prech)={vdd/2:.12g} fall=1 td={pre_reenable_ns:.12g}n
+.meas tran t_bl_recovery when v(bl)={vdd-0.1:.12g} rise=1 td={pre_reenable_ns:.12g}n
+.meas tran t_blb_recovery when v(blb)={vdd-0.1:.12g} rise=1 td={pre_reenable_ns:.12g}n
 .control
 run
 quit
@@ -285,30 +329,72 @@ def run_case(
     }
     complete = rc == 0 and required <= m.keys()
     new_q = 1 - old_q
-    if complete:
+    if {"t_wl_rise", "t_wl_fall"} <= m.keys():
+        wl_high_ns = (m["t_wl_fall"] - m["t_wl_rise"]) * 1e9
+    else:
+        wl_high_ns = None
+    if {"t_q_full", "t_qb_full", "t_wl_rise"} <= m.keys():
         full_flip_s = max(m["t_q_full"], m["t_qb_full"])
         full_flip_ns = (full_flip_s - m["t_wl_rise"]) * 1e9
-        wl_high_ns = (m["t_wl_fall"] - m["t_wl_rise"]) * 1e9
+    else:
+        full_flip_s = None
+        full_flip_ns = None
+    if full_flip_s is not None and "t_wl_fall" in m:
         margin_ns = (m["t_wl_fall"] - full_flip_s) * 1e9
+    else:
+        margin_ns = None
+    if {"bl_at_wl", "blb_at_wl"} <= m.keys():
         bitlines_ready = (
             m["bl_at_wl"] >= 0.9 * vdd and m["blb_at_wl"] <= 0.1 * vdd
             if new_q else
             m["bl_at_wl"] <= 0.1 * vdd and m["blb_at_wl"] >= 0.9 * vdd
         )
+    else:
+        bitlines_ready = False
+    if {"q_before", "qb_before"} <= m.keys():
         initialized = (
             m["q_before"] <= 0.1 * vdd and m["qb_before"] >= 0.9 * vdd
             if old_q == 0 else
             m["q_before"] >= 0.9 * vdd and m["qb_before"] <= 0.1 * vdd
         )
+    else:
+        initialized = False
+    if {"q_after", "qb_after"} <= m.keys():
         final_ok = (
             m["q_after"] >= 0.9 * vdd and m["qb_after"] <= 0.1 * vdd
             if new_q else
             m["q_after"] <= 0.1 * vdd and m["qb_after"] >= 0.9 * vdd
         )
+    else:
+        final_ok = False
+    if {"bl_recovery", "blb_recovery"} <= m.keys():
         recovered = m["bl_recovery"] >= vdd - 0.1 and m["blb_recovery"] >= vdd - 0.1
     else:
-        full_flip_ns = wl_high_ns = margin_ns = None
-        bitlines_ready = initialized = final_ok = recovered = False
+        recovered = False
+    threshold = vdd - 0.1
+    edge_ns = args.edge_ps * 1e-3
+    wl_in_off_ns = args.wl_in_at_ns + args.wl_in_width_ns
+    we_off_ns = wl_in_off_ns + 0.50
+    pre_reenable_ns = we_off_ns + 0.25
+    prech50_s = (pre_reenable_ns + edge_ns / 2.0) * 1e-9
+    recovery_delays_ns: list[float] = []
+    recovery_complete = True
+    for prefix in ("bl", "blb"):
+        initial = m.get(f"{prefix}_prech_on")
+        crossing = m.get(f"t_{prefix}_recovery")
+        if initial is None:
+            recovery_complete = False
+        elif initial >= threshold:
+            recovery_delays_ns.append(0.0)
+        elif crossing is not None:
+            recovery_delays_ns.append((crossing - prech50_s) * 1e9)
+        else:
+            recovery_complete = False
+    precharge_recovery_ns = (
+        max(recovery_delays_ns)
+        if recovery_complete and len(recovery_delays_ns) == 2
+        else None
+    )
 
     passed = bool(
         complete and initialized and bitlines_ready and full_flip_ns is not None
@@ -331,12 +417,15 @@ def run_case(
         "full_flip_from_wl50_ns": "" if full_flip_ns is None else full_flip_ns,
         "full_flip_margin_to_wl_fall_ns": "" if margin_ns is None else margin_ns,
         "wl_min_30pct_ns": "" if full_flip_ns is None else 1.30 * full_flip_ns,
-        "bl_at_wl_v": "" if not complete else m["bl_at_wl"],
-        "blb_at_wl_v": "" if not complete else m["blb_at_wl"],
-        "q_after_v": "" if not complete else m["q_after"],
-        "qb_after_v": "" if not complete else m["qb_after"],
-        "bl_recovery_v": "" if not complete else m["bl_recovery"],
-        "blb_recovery_v": "" if not complete else m["blb_recovery"],
+        "bl_at_wl_v": m.get("bl_at_wl", ""),
+        "blb_at_wl_v": m.get("blb_at_wl", ""),
+        "q_after_v": m.get("q_after", ""),
+        "qb_after_v": m.get("qb_after", ""),
+        "bl_recovery_v": m.get("bl_recovery", ""),
+        "blb_recovery_v": m.get("blb_recovery", ""),
+        "precharge_recovery_ns": (
+            "" if precharge_recovery_ns is None else precharge_recovery_ns
+        ),
         "status": "PASS" if passed else "FAIL",
         "returncode": rc,
         "error": "" if rc == 0 else output[-800:].replace("\n", " | "),
@@ -350,10 +439,14 @@ def main() -> int:
     if (
         args.workers < 1 or args.cbl_total_ff <= 0 or args.wl_extra_ff < 0
         or args.wl_in_width_ns <= 0 or args.tran_step_ps <= 0
+        or args.precharge_recovery_window_ns <= 0
     ):
         raise SystemExit("invalid workers/capacitance/timing arguments")
 
-    leafs = {key: extract_leaf(args.root, key) for key in LEAFS}
+    leafs = {
+        key: (pex_leaf(args.root, key) if args.pex else extract_leaf(args.root, key))
+        for key in LEAFS
+    }
     cases = list(itertools.product(args.corners, args.vdd_values, args.temps_c, args.states))
     rows: list[dict[str, object]] = []
     pending = []

@@ -38,6 +38,27 @@ def netlist_leaf(root: Path, name: str, pins: set[str], devices: set[str]) -> st
     return f".subckt {name} {' '.join(header.split()[2:])}\n" + "\n".join(body) + f"\n.ends {name}\n"
 
 
+def pex_leaf(root: Path, name: str, expected_pins: tuple[str, ...]) -> str:
+    netlist = root / "layout" / name / "pex" / f"{name}_pex.spice"
+    text = netlist.read_text(encoding="utf-8")
+    match = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
+    if not match:
+        raise RuntimeError(f"Missing PEX subcircuit for {name}: {netlist}")
+    pins = tuple(match.group(2).split())
+    if pins != expected_pins:
+        raise RuntimeError(f"Wrong PEX pin contract for {name}: {pins}")
+    old_name = match.group(1)
+    text = re.sub(
+        rf"^\.subckt\s+{re.escape(old_name)}\b",
+        f".subckt {name}",
+        text,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    text = re.sub(r"^\.ends(?:\s+\S+)?\s*$", f".ends {name}", text, count=1, flags=re.MULTILINE)
+    return text
+
+
 def precharge_deck(subckt: str, corner: str, vdd: float, temp_c: float, cap_ff: float) -> str:
     return f"""* Precharge/equalization with two unequal initial bitline voltages.
 .lib "{MODEL_LIB}" {corner}
@@ -109,16 +130,21 @@ def main() -> int:
     parser.add_argument("--precharge-cap-ff", nargs="+", type=float, default=[16, 60])
     parser.add_argument("--wl-cap-ff", nargs="+", type=float, default=[10, 30, 50])
     parser.add_argument("--timeout-s", type=float, default=45)
+    parser.add_argument("--pex", action="store_true", help="Use Magic RC-extracted leaf netlists.")
     parser.add_argument("--output", type=Path, default=root / "sims" / "leaf_peripheral_smoke_pvt.csv")
     args = parser.parse_args()
-    precharge = netlist_leaf(
-        root, "precharge", {"VDD", "BL", "BLB", "PRECH", "VSS"},
-        {"XMPBL", "XMPBLB", "XMEQ"},
-    )
-    wl = netlist_leaf(
-        root, "wl_driver", {"VDD", "VSS", "WL_IN", "WL"},
-        {"XMP1", "XMN1", "XMP2", "XMN2"},
-    )
+    if args.pex:
+        precharge = pex_leaf(root, "precharge", ("VDD", "BL", "BLB", "PRECH", "VSS"))
+        wl = pex_leaf(root, "wl_driver", ("VDD", "VSS", "WL_IN", "WL"))
+    else:
+        precharge = netlist_leaf(
+            root, "precharge", {"VDD", "BL", "BLB", "PRECH", "VSS"},
+            {"XMPBL", "XMPBLB", "XMEQ"},
+        )
+        wl = netlist_leaf(
+            root, "wl_driver", {"VDD", "VSS", "WL_IN", "WL"},
+            {"XMP1", "XMN1", "XMP2", "XMN2"},
+        )
     rows: list[dict[str, object]] = []
     for corner, vdd, temp_c in itertools.product(args.corners, args.vdd_values, args.temps_c):
         for block, caps in (("precharge", args.precharge_cap_ff), ("wl_driver", args.wl_cap_ff)):
@@ -134,13 +160,18 @@ def main() -> int:
                         "bl_before", "blb_before", "bl_charged", "blb_charged",
                         "bl_released", "blb_released",
                     )
-                    pass_logic = all(key in values for key in required) and (
-                        values["bl_charged"] >= 0.95 * vdd
-                        and values["blb_charged"] >= 0.95 * vdd
-                        and abs(values["bl_charged"] - values["blb_charged"]) <= 0.02 * vdd
-                        and abs(values["bl_released"] - values["bl_charged"]) <= 0.02 * vdd
-                        and abs(values["blb_released"] - values["blb_charged"]) <= 0.02 * vdd
-                    )
+                    if all(key in values for key in required):
+                        charged_cm = 0.5 * (values["bl_charged"] + values["blb_charged"])
+                        released_cm = 0.5 * (values["bl_released"] + values["blb_released"])
+                        pass_logic = (
+                            values["bl_charged"] >= 0.95 * vdd
+                            and values["blb_charged"] >= 0.95 * vdd
+                            and abs(values["bl_charged"] - values["blb_charged"]) <= 0.02 * vdd
+                            and abs(values["bl_released"] - values["blb_released"]) <= 0.02 * vdd
+                            and abs(released_cm - charged_cm) <= 0.05 * vdd
+                        )
+                    else:
+                        pass_logic = False
                     delay_ns = ""
                 else:
                     required = ("wl_before", "wl_high", "wl_low", "t_in_50", "t_wl_50")

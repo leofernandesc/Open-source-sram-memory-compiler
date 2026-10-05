@@ -10,7 +10,7 @@ import subprocess
 from pathlib import Path
 
 from run_cbl_device_capacitance import run_deck
-from run_sense_amp_characterization import MODEL_LIB, sense_subckt
+from run_sense_amp_characterization import MODEL_LIB, sense_pex_subckt, sense_subckt
 
 
 def make_deck(
@@ -45,6 +45,13 @@ def main() -> int:
     parser.add_argument("--frequency-hz", type=float, default=1e6)
     parser.add_argument("--delta-mv", nargs="+", type=float, default=[0.0])
     parser.add_argument("--timeout-s", type=float, default=45.0)
+    parser.add_argument("--pex", action="store_true", help="Use the canonical Magic RC-extracted sense-amplifier netlist.")
+    parser.add_argument(
+        "--pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional sense PEX override; implies --pex.",
+    )
     parser.add_argument("--schematic", type=Path, default=root / "cells" / "sense_amp.sch")
     parser.add_argument(
         "--output", type=Path,
@@ -55,7 +62,10 @@ def main() -> int:
         parser.error("VDD must be within the 1.80 V qualification ceiling")
     if any(delta < 0 or delta >= 1000 * min(args.vdd_values) for delta in args.delta_mv):
         parser.error("each discharge delta must be >=0 and below the minimum VDD")
-    subckt = sense_subckt(args.schematic)
+    if args.pex or args.pex_netlist is not None:
+        subckt, _ = sense_pex_subckt(root, args.pex_netlist)
+    else:
+        subckt = sense_subckt(args.schematic)
     rows: list[dict[str, object]] = []
     for corner, vdd, temp_c, delta_mv, discharge, probe in itertools.product(
         args.corners, args.vdd_values, args.temps_c, args.delta_mv,
