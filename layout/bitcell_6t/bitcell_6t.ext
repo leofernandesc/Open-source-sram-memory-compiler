@@ -1,0 +1,244 @@
+timestamp 1791174869
+version 8.3
+tech sky130A
+style ngspice()
+scale 1000 1 500000
+resistclasses 4400000 2200000 950000 3050000 120000 197000 114000 191000 120000 197000 114000 191000 48200 319800 2000000 48200 48200 12800 125 125 47 47 29 5
+use sky130_fd_pr__pfet_01v8_RCZQRH XPU_R 1 0 527 0 1 -1445
+use sky130_fd_pr__pfet_01v8_RCZQRH XPU_L 1 0 158 0 1 -1392
+use sky130_fd_pr__nfet_01v8_6SJXNR XPD_R 1 0 1265 0 1 -1476
+use sky130_fd_pr__nfet_01v8_6SJXNR XPD_L 1 0 896 0 1 -1423
+use sky130_fd_pr__nfet_01v8_FJKXR4 XACC_R 1 0 2003 0 1 -1648
+use sky130_fd_pr__nfet_01v8_FJKXR4 XACC_L 1 0 1634 0 1 -1595
+node "BLB" 4 2008.17 4054 -3336 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 26080 772 204480 3648 638400 10880 0 0 0 0 0 0
+node "BL" 4 878.73 3316 -3230 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 25920 768 188400 3380 638400 10880 0 0 0 0 0 0
+node "WL" 6 1165.81 3220 -3020 v 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 28800 960 361680 6508 638400 10880 0 0 0 0 0 0
+node "VSS" 8 3295.09 1500 -2906 v 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 136480 2732 475440 8644 638400 10880 0 0 0 0 0 0
+node "m1_364_n2824#" 12 2121.53 364 -2824 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 100480 3112 706560 12976 638400 10880 0 0 0 0 0 0
+node "VDD" 9 2960.89 -500 -2844 v 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 139520 2848 510960 9236 638400 10880 0 0 0 0 0 0
+node "m1_260_n2632#" 11 2849.48 260 -2632 v 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 105440 3236 575280 10788 638400 10880 0 0 0 0 0 0
+node "w_n350_n2924#" 1083 463.12 -350 -2924 nw 0 0 0 0 78400 1120 0 0 78400 1120 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 78400 1120 0 0 0 0 0 0 0 0 0 0 0 0
+substrate "a_4340_n3220#" 0 0 4340 -3220 psc 0 0 0 0 0 0 0 0 0 0 78400 1120 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 78400 1120 0 0 0 0 0 0 0 0 0 0 0 0
+cap "m1_260_n2632#" "m1_364_n2824#" 3791.53
+cap "m1_364_n2824#" "BL" 28.7494
+cap "VDD" "VSS" 6.18795
+cap "VSS" "BLB" 280.297
+cap "VSS" "WL" 2320.43
+cap "VDD" "WL" 0.602351
+cap "m1_260_n2632#" "VSS" 123.307
+cap "m1_260_n2632#" "VDD" 679.796
+cap "w_n350_n2924#" "VDD" 223.832
+cap "BLB" "WL" 452.406
+cap "m1_260_n2632#" "BLB" 29.6556
+cap "m1_260_n2632#" "WL" 184.538
+cap "VDD" "BL" 0.0340978
+cap "VSS" "BL" 132.349
+cap "BLB" "BL" 2105.94
+cap "BL" "WL" 2628.52
+cap "m1_260_n2632#" "BL" 68.2054
+cap "m1_364_n2824#" "VSS" 78.3631
+cap "VDD" "m1_364_n2824#" 2942.1
+cap "m1_364_n2824#" "BLB" 0.189391
+cap "m1_364_n2824#" "WL" 126.192
+cap "XPD_L/a_n72_n126#" "VDD" 0.165289
+cap "VDD" "XPU_L/w_n210_n260#" 0.669621
+cap "m1_364_n2824#" "XPU_R/a_n72_n42#" 0.659237
+cap "m1_364_n2824#" "XPU_R/a_14_n42#" 0.42735
+cap "m1_364_n2824#" "XPU_L/w_n210_n260#" 1.01299
+cap "XPU_L/a_n72_n42#" "VDD" 0.623881
+cap "m1_364_n2824#" "XPU_R/a_n32_n138#" 1.02581
+cap "XPU_L/a_14_n42#" "VDD" 0.626688
+cap "VDD" "XPU_L/a_n32_n138#" 0.986194
+cap "m1_260_n2632#" "VDD" -0.0654107
+cap "m1_364_n2824#" "VSS" -0.0268201
+cap "m1_364_n2824#" "XACC_R/a_n32_n148#" 1.17871
+cap "VSS" "XACC_L/a_n32_n148#" 1.11901
+cap "m1_364_n2824#" "XACC_R/a_14_n60#" 0.741135
+cap "VSS" "VDD" -0.136101
+cap "VDD" "XPD_L/a_n72_n126#" 0.46281
+cap "m1_364_n2824#" "VDD" -0.073154
+cap "m1_260_n2632#" "XPD_R/a_n72_n126#" 0.676901
+cap "m1_260_n2632#" "XPD_L/a_n174_n300#" 0.0794043
+cap "m1_260_n2632#" "XPD_R/a_14_n126#" 0.654147
+cap "VDD" "XPD_L/a_n32_n214#" 0.985914
+cap "VSS" "XACC_L/a_14_n60#" 0.71663
+cap "VSS" "XPD_L/a_n174_n300#" 0.0789944
+cap "VDD" "XPD_L/a_14_n126#" 0.649312
+cap "m1_364_n2824#" "XPD_L/a_n174_n300#" 0.11386
+cap "VDD" "XPD_L/a_n174_n300#" 0.0428422
+cap "m1_260_n2632#" "XPD_R/a_n32_n214#" 1.03094
+cap "VSS" "XACC_L/a_n72_n60#" 0.707875
+cap "m1_364_n2824#" "XACC_R/a_n72_n60#" 0.750591
+cap "XPD_L/a_n174_n300#" "XPU_L/w_n210_n260#" 247.204
+cap "XPU_L/a_n32_n138#" "XPU_L/w_n210_n260#" 15.3982
+cap "XPU_R/a_14_n42#" "XPU_L/w_n210_n260#" -0.373222
+cap "XACC_L/a_n72_n60#" "XPU_R/a_n32_n138#" 0.00662196
+cap "XPU_R/a_n32_n138#" "XPU_L/w_n210_n260#" 15.34
+cap "VDD" "XPU_L/w_n210_n260#" 127.049
+cap "XPD_L/a_n72_n126#" "XPU_R/a_n72_n42#" 0.0354854
+cap "XPD_R/a_n32_n214#" "XPU_L/a_n32_n138#" 0.628685
+cap "XPU_L/a_n72_n42#" "XPU_R/a_n72_n42#" 0.0177427
+cap "XACC_L/a_14_n60#" "XPU_R/a_n32_n138#" 0.00474192
+cap "m1_364_n2824#" "XPU_R/a_n72_n42#" 2.26417
+cap "XPU_L/a_14_n42#" "XPU_R/a_n72_n42#" 4.91871
+cap "XPU_L/a_14_n42#" "XPD_L/a_n72_n126#" 2.72627
+cap "XPD_R/a_n32_n214#" "XPU_R/a_n32_n138#" 0.503593
+cap "XPU_L/a_14_n42#" "m1_364_n2824#" 0.59435
+cap "XPU_L/a_n32_n138#" "XPD_R/a_14_n126#" 0.0176377
+cap "XPU_L/a_14_n42#" "m1_260_n2632#" 0.279186
+cap "XPD_L/a_n174_n300#" "XPD_L/a_n72_n126#" -1.42109e-14
+cap "XPU_R/a_n32_n138#" "XACC_R/a_n32_n148#" 0.0793201
+cap "XPU_L/a_n32_n138#" "XPU_R/a_n72_n42#" 2.37594
+cap "XPD_L/a_14_n126#" "XPU_L/a_n32_n138#" 0.0531531
+cap "XPD_L/a_n72_n126#" "XPU_L/a_n32_n138#" 3.0768
+cap "XPU_R/a_n32_n138#" "XPD_R/a_14_n126#" 0.082945
+cap "XPU_R/a_14_n42#" "XPD_L/a_n72_n126#" 13.2253
+cap "XPU_L/a_14_n42#" "XPD_L/a_n174_n300#" 0.0827327
+cap "XPD_L/a_n174_n300#" "m1_364_n2824#" 3.97842
+cap "m1_364_n2824#" "XPU_L/a_n32_n138#" 0.175305
+cap "XPD_L/a_n174_n300#" "m1_260_n2632#" 0.52155
+cap "XPD_L/a_14_n126#" "XPU_R/a_n32_n138#" 0.412336
+cap "XPD_L/a_n72_n126#" "XPU_R/a_n32_n138#" 10.8607
+cap "m1_260_n2632#" "XPU_L/a_n32_n138#" 0.0926597
+cap "XPU_R/a_14_n42#" "m1_364_n2824#" 1.73339
+cap "XPU_L/a_14_n42#" "XPU_R/a_14_n42#" 0.0177427
+cap "VDD" "XPD_L/a_n72_n126#" 19.8945
+cap "VDD" "XPU_R/a_n72_n42#" 7.16812
+cap "XPU_R/a_n32_n138#" "XPU_L/a_n72_n42#" 0.145988
+cap "XPU_R/a_14_n42#" "m1_260_n2632#" 0.111317
+cap "VDD" "XPU_L/a_n72_n42#" 8.51116
+cap "m1_364_n2824#" "XPU_R/a_n32_n138#" 7.25493
+cap "XPU_L/a_14_n42#" "XPU_R/a_n32_n138#" 2.37594
+cap "XPU_L/a_14_n42#" "VDD" 4.51718
+cap "XACC_L/a_n32_n148#" "XPU_L/a_n32_n138#" 0.132387
+cap "XPD_L/a_n174_n300#" "XPU_L/a_n32_n138#" 0.357669
+cap "XPD_L/a_n32_n214#" "XPU_L/a_n32_n138#" 0.609234
+cap "XPD_L/a_n174_n300#" "XPU_R/a_14_n42#" 1.64472
+cap "XPU_R/a_14_n42#" "XPU_L/a_n32_n138#" 0.145988
+cap "XPD_L/a_n32_n214#" "XPU_R/a_n32_n138#" 1.00849
+cap "XACC_L/a_n32_n148#" "XPU_R/a_n32_n138#" 0.36142
+cap "XPD_L/a_n174_n300#" "XPU_R/a_n32_n138#" 3.05046
+cap "XPU_R/a_n32_n138#" "XPU_L/a_n32_n138#" 4.36613
+cap "VDD" "XPD_L/a_n174_n300#" 20.7579
+cap "VDD" "XPU_L/a_n32_n138#" 43.1788
+cap "XPD_L/a_n72_n126#" "XPU_L/w_n210_n260#" 16.7497
+cap "VDD" "XPU_R/a_14_n42#" 6.483
+cap "XPU_R/a_n72_n42#" "XPU_L/w_n210_n260#" 4.45202
+cap "XPD_R/a_n72_n126#" "XPU_L/a_n32_n138#" 0.0206066
+cap "VDD" "XPU_R/a_n32_n138#" 21.2911
+cap "m1_364_n2824#" "XPU_L/w_n210_n260#" 15.9145
+cap "XPU_L/a_14_n42#" "XPU_L/w_n210_n260#" 4.37799
+cap "XPD_R/a_n72_n126#" "XPU_R/a_n32_n138#" 0.87961
+cap "m1_260_n2632#" "XPU_L/w_n210_n260#" 5.07142
+cap "VDD" "XPD_L/a_n32_n214#" 37.7025
+cap "XPD_R/a_n72_n126#" "XPD_L/a_n32_n214#" 3.428
+cap "XPD_R/a_14_n126#" "XPD_L/a_n174_n300#" 7.52054
+cap "m1_364_n2824#" "XACC_L/a_14_n60#" 3.55702
+cap "XPD_R/a_14_n126#" "m1_260_n2632#" 1.56789
+cap "XACC_R/a_n32_n148#" "XACC_L/a_n32_n148#" 3.28637
+cap "XPD_R/a_n72_n126#" "XPD_L/a_n72_n126#" 0.0177427
+cap "m1_364_n2824#" "XACC_R/a_n32_n148#" 50.9376
+cap "XPD_L/a_n72_n126#" "VDD" 24.1916
+cap "XPD_R/a_n32_n214#" "XACC_L/a_n72_n60#" 3.428
+cap "VDD" "XPD_L/a_n174_n300#" 69.6004
+cap "XPD_R/a_n72_n126#" "XPD_L/a_n174_n300#" 5.01655
+cap "XACC_L/a_n72_n60#" "m1_364_n2824#" 3.55702
+cap "VSS" "XACC_L/a_14_n60#" 0.696087
+cap "XPD_R/a_n72_n126#" "m1_260_n2632#" 1.11063
+cap "XPU_R/a_14_n42#" "XACC_L/a_n32_n148#" 0.0169251
+cap "XACC_R/a_14_n60#" "VDD" 5.00141
+cap "XPD_R/a_14_n126#" "VDD" 19.3992
+cap "XPU_L/w_n210_n260#" "XACC_R/a_n32_n148#" 0.0260127
+cap "XACC_L/a_n72_n60#" "VSS" 0.707875
+cap "XACC_L/a_n72_n60#" "XPU_L/w_n210_n260#" 0.161035
+cap "XPD_R/a_n72_n126#" "VDD" 19.0552
+cap "XPD_R/a_n32_n214#" "XACC_L/a_n32_n148#" 1.64318
+cap "XPD_R/a_n32_n214#" "m1_364_n2824#" 4.47188
+cap "XPD_L/a_n32_n214#" "XACC_R/a_n72_n60#" 0.00662196
+cap "m1_364_n2824#" "XACC_L/a_n32_n148#" 14.4208
+cap "XPD_L/a_14_n126#" "XACC_R/a_n32_n148#" 0.00662196
+cap "XPD_L/a_n174_n300#" "XACC_R/a_n72_n60#" 2.5116
+cap "XPD_R/a_n32_n214#" "XPU_L/w_n210_n260#" 3.95967
+cap "VSS" "XACC_L/a_n32_n148#" 1.21296
+cap "m1_260_n2632#" "XACC_R/a_n72_n60#" 0.667795
+cap "XPU_L/w_n210_n260#" "XACC_L/a_n32_n148#" 0.957558
+cap "XPU_R/a_n72_n42#" "XACC_L/a_n32_n148#" 0.0135484
+cap "XPU_R/a_n32_n138#" "XPD_L/a_n32_n214#" 0.578714
+cap "VDD" "XACC_R/a_n72_n60#" 5.02787
+cap "XPD_L/a_n32_n214#" "XACC_L/a_14_n60#" 0.0384133
+cap "XPD_L/a_n32_n214#" "XACC_R/a_n32_n148#" 0.586867
+cap "XPD_L/a_14_n126#" "XPD_R/a_n32_n214#" 3.428
+cap "XPD_L/a_14_n126#" "XACC_L/a_n32_n148#" 0.0810493
+cap "XACC_L/a_n72_n60#" "XPD_L/a_n32_n214#" 1.68012
+cap "XPD_L/a_14_n126#" "m1_364_n2824#" 0.87656
+cap "XPD_L/a_n72_n126#" "XACC_R/a_n32_n148#" 0.00474192
+cap "XPD_L/a_n174_n300#" "XACC_L/a_14_n60#" 2.43199
+cap "m1_260_n2632#" "XACC_L/a_14_n60#" 0.557096
+cap "XPD_L/a_n174_n300#" "XACC_R/a_n32_n148#" 3.46776
+cap "XACC_R/a_14_n60#" "XACC_L/a_14_n60#" 0.0177427
+cap "XPD_R/a_14_n126#" "XACC_L/a_14_n60#" 0.0177427
+cap "XPD_R/a_n32_n214#" "XPU_L/a_n32_n138#" 0.577744
+cap "m1_260_n2632#" "XACC_R/a_n32_n148#" 0.159916
+cap "XACC_L/a_n72_n60#" "XPD_L/a_n174_n300#" 2.50386
+cap "XPU_L/a_n32_n138#" "XACC_L/a_n32_n148#" 0.225417
+cap "XPD_R/a_14_n126#" "XACC_R/a_n32_n148#" 1.68012
+cap "XACC_L/a_n72_n60#" "m1_260_n2632#" 0.557096
+cap "XPD_R/a_14_n126#" "XACC_L/a_n72_n60#" 10.5609
+cap "XPD_R/a_n72_n126#" "XPU_R/a_n32_n138#" 0.799325
+cap "VDD" "XACC_L/a_14_n60#" 10.4726
+cap "XPD_R/a_n32_n214#" "XPD_L/a_n32_n214#" 3.28637
+cap "VDD" "XACC_R/a_n32_n148#" 20.3485
+cap "XPD_R/a_n72_n126#" "XACC_R/a_n32_n148#" 0.0384133
+cap "m1_364_n2824#" "XPD_L/a_n32_n214#" 1.53363
+cap "XPD_R/a_n72_n126#" "XACC_L/a_n72_n60#" 0.0177427
+cap "XPD_L/a_n72_n126#" "XPD_R/a_n32_n214#" 0.147614
+cap "XACC_L/a_n72_n60#" "VDD" 8.96242
+cap "XPD_L/a_n72_n126#" "XACC_L/a_n32_n148#" 0.06426
+cap "XPD_R/a_n32_n214#" "XPD_L/a_n174_n300#" 4.11682
+cap "XPD_L/a_n174_n300#" "XACC_L/a_n32_n148#" 6.13032
+cap "XPD_R/a_n32_n214#" "m1_260_n2632#" 4.28431
+cap "m1_364_n2824#" "XPD_L/a_n174_n300#" 80.9371
+cap "m1_260_n2632#" "XACC_L/a_n32_n148#" 1.37957
+cap "XPD_L/a_n32_n214#" "XPU_L/w_n210_n260#" 26.2333
+cap "XACC_R/a_14_n60#" "XPD_R/a_n32_n214#" 0.0384133
+cap "XPD_R/a_14_n126#" "XACC_L/a_n32_n148#" 7.12776
+cap "XACC_R/a_14_n60#" "XACC_L/a_n32_n148#" 0.147614
+cap "XPD_R/a_14_n126#" "m1_364_n2824#" 1.76409
+cap "XACC_R/a_14_n60#" "m1_364_n2824#" 14.5691
+cap "VSS" "XPD_L/a_n174_n300#" 0.386546
+cap "XPD_R/a_n32_n214#" "VDD" 10.4008
+cap "XPD_R/a_n72_n126#" "XACC_L/a_n32_n148#" 0.223864
+cap "VDD" "XACC_L/a_n32_n148#" 19.5272
+cap "XACC_R/a_n72_n60#" "XACC_L/a_14_n60#" 10.5609
+cap "XPD_R/a_n72_n126#" "m1_364_n2824#" 1.76409
+cap "XACC_L/a_n72_n60#" "XACC_R/a_n72_n60#" 0.0177427
+cap "XPD_R/a_n72_n126#" "XPU_L/w_n210_n260#" 0.690188
+cap "XPD_L/a_14_n126#" "XPD_L/a_n174_n300#" 5.01655
+cap "XPU_L/a_n32_n138#" "XPD_L/a_n32_n214#" 0.572315
+cap "XPD_L/a_14_n126#" "m1_260_n2632#" 0.393338
+cap "XPD_L/a_14_n126#" "XPD_R/a_14_n126#" 0.0177427
+cap "XPD_R/a_n32_n214#" "XACC_R/a_n72_n60#" 1.68012
+cap "XPU_R/a_n32_n138#" "XACC_R/a_n32_n148#" 0.0793201
+cap "XACC_R/a_n72_n60#" "XACC_L/a_n32_n148#" 3.428
+cap "XACC_R/a_n32_n148#" "XACC_L/a_14_n60#" 3.428
+cap "XPD_R/a_n72_n126#" "XPD_L/a_14_n126#" 31.2491
+cap "XPD_L/a_14_n126#" "VDD" 19.3159
+cap "m1_364_n2824#" "XACC_R/a_n72_n60#" 7.23769
+cap "XACC_L/a_n72_n60#" "XACC_R/a_n32_n148#" 0.147614
+cap "XPD_L/a_n32_n214#" "XPD_L/a_n174_n300#" 2.83069
+cap "XPU_L/w_n210_n260#" "XACC_R/a_n72_n60#" 0.0643443
+cap "m1_260_n2632#" "XPD_L/a_n32_n214#" 0.437839
+cap "XACC_R/a_14_n60#" "XPD_L/a_n32_n214#" 0.00474192
+cap "XPD_R/a_14_n126#" "XPD_L/a_n32_n214#" 0.147614
+cap "XPU_R/a_n32_n138#" "XPD_R/a_n32_n214#" 0.503593
+cap "XPD_R/a_n32_n214#" "XACC_L/a_14_n60#" 0.147614
+cap "m1_260_n2632#" "XPD_L/a_n174_n300#" 14.3829
+cap "XPU_R/a_n32_n138#" "XACC_L/a_n32_n148#" 0.36142
+cap "m1_364_n2824#" "XPD_L/a_n174_n300#" 0.823801
+merge "XPU_L/w_n210_n260#" "XPU_R/w_n210_n260#" -320.339 0 0 0 0 -23817 -1036 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "XACC_L/a_n174_n234#" "XACC_R/a_n174_n234#" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "XACC_R/a_n174_n234#" "XPD_L/a_n174_n300#"
+merge "XPD_L/a_n174_n300#" "XPD_R/a_n174_n300#"
+merge "XPD_R/a_n174_n300#" "XPU_L/VSUBS"
+merge "XPU_L/VSUBS" "XPU_R/VSUBS"
+merge "XPU_R/VSUBS" "a_4340_n3220#"
