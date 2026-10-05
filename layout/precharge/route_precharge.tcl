@@ -62,6 +62,34 @@ proc guard_li_to_m3 {gx gy mx vx track} {
     terminal_to_m3 $mx $gy $vx $track
 }
 
+proc body_tap_to_m3 {well diff contact_type cx cy mx vx track} {
+    set cxlo [expr {$cx - 70}]
+    set cxhi [expr {$cx + 70}]
+    set cylo [expr {$cy - 70}]
+    set cyhi [expr {$cy + 70}]
+    box values $cxlo $cylo $cxhi $cyhi
+    paint $well
+    paint $diff
+    paint locali
+    contact $contact_type
+
+    set lxlo [expr {min($cx, $mx) - 20}]
+    set lxhi [expr {max($cx, $mx) + 20}]
+    box values $lxlo [expr {$cy - 20}] $lxhi [expr {$cy + 20}]
+    paint locali
+
+    set mxlo [expr {$mx - 30}]
+    set mxhi [expr {$mx + 30}]
+    set mylo [expr {$cy - 30}]
+    set myhi [expr {$cy + 30}]
+    box values $mxlo $mylo $mxhi $myhi
+    paint locali
+    paint metal1
+    contact mcon
+
+    terminal_to_m3 $mx $cy $vx $track
+}
+
 set VDD_Y   -300
 set PRECH_Y -500
 set BL_Y    -1500
@@ -91,6 +119,10 @@ terminal_to_m3 1944 -1000 2024 $BLB_Y
 guard_li_to_m3 300  -792  560  620 $VDD_Y
 guard_li_to_m3 1100 -792 1360 1420 $VDD_Y
 guard_li_to_m3 1900 -792 2160 2220 $VDD_Y
+
+# Tie the physical p-substrate to the exported VSS rail.  Without this tap,
+# Magic extracts a floating VSUBS node in the RC netlist.
+body_tap_to_m3 pwell psubdiff psc 2450 -2050 2280 2220 $VSS_Y
 
 proc make_port {name index x y} {
     set xlo [expr {$x - 25}]

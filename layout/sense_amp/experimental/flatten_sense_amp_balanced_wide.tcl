@@ -1,0 +1,8 @@
+load sense_amp_balanced_wide
+save sense_amp_balanced_wide_routed_hier
+flatten sense_amp_balanced_wide_flat
+load sense_amp_balanced_wide_flat
+drc check
+drc count total
+save sense_amp_balanced_wide_flat
+quit -noprompt

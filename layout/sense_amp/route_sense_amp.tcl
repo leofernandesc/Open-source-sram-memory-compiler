@@ -71,15 +71,22 @@ proc guard_li_to_m3 {gx gy mx vx track} {
 set VDD_Y    -300
 set BL_Y     -500
 set BLB_Y    -650
-set SCLK_Y   -2050
-set SAOUT_Y  -2200
-set SAOUTB_Y -2350
+set SAOUT_Y  -2005
+set SCLK_Y   -2350
+set SAOUTB_Y -2900
 set NTAIL_Y  -3400
 set VSS_Y    -3600
 
-foreach y [list $VDD_Y $SAOUT_Y $SAOUTB_Y $NTAIL_Y $VSS_Y $SCLK_Y $BL_Y $BLB_Y] {
+foreach y [list $VDD_Y $NTAIL_Y $VSS_Y $SCLK_Y $BL_Y $BLB_Y] {
     m3_rail $y
 }
+
+# Output rails stop shortly after their rightmost M2-to-M3 connection to avoid
+# unnecessary post-layout capacitance on the regenerative nodes.
+box values 145 [expr {$SAOUT_Y - 30}] 2055 [expr {$SAOUT_Y + 30}]
+paint metal3
+box values 270 [expr {$SAOUTB_Y - 30}] 2607 [expr {$SAOUTB_Y + 30}]
+paint metal3
 
 # MP1 at (300,-1000): D=SA_OUT, G=SA_OUTB, S=VDD.
 terminal_to_m3 256 -1000  176 $SAOUT_Y
@@ -150,8 +157,8 @@ make_port VSS     1 -230 $VSS_Y
 make_port BL      2 -230 $BL_Y
 make_port BLB     3 -230 $BLB_Y
 make_port SCLK    4 -230 $SCLK_Y
-make_port SA_OUT  5 -230 $SAOUT_Y
-make_port SA_OUTB 6 -230 $SAOUTB_Y
+make_port SA_OUT  5 170 $SAOUT_Y
+make_port SA_OUTB 6 295 $SAOUTB_Y
 
 drc check
 drc count total

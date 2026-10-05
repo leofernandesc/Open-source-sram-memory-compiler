@@ -1,0 +1,12 @@
+* NGSPICE file created from sense_amp_tuned_k_flat.ext - technology: sky130A
+
+.subckt sense_amp_tuned_k_flat VDD VSS BL BLB SCLK SA_OUT SA_OUTB
+X0 VSS SCLK a_615_n3065# VSS sky130_fd_pr__nfet_01v8 ad=0.1885 pd=1.88 as=0.1885 ps=1.88 w=0.65 l=0.15
+X1 BLB SCLK SA_OUTB VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X2 VDD SA_OUTB SA_OUT VDD sky130_fd_pr__pfet_01v8 ad=0.3654 pd=3.1 as=0.3654 ps=3.1 w=1.26 l=0.15
+X3 VDD SA_OUT SA_OUTB VDD sky130_fd_pr__pfet_01v8 ad=0.3654 pd=3.1 as=0.3654 ps=3.1 w=1.26 l=0.15
+X4 SA_OUT SCLK BL VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X5 a_615_n3065# SA_OUTB SA_OUT VSS sky130_fd_pr__nfet_01v8 ad=0.1885 pd=1.88 as=0.1885 ps=1.88 w=0.65 l=0.15
+X6 a_615_n3065# SA_OUT SA_OUTB VSS sky130_fd_pr__nfet_01v8 ad=0.1885 pd=1.88 as=0.1885 ps=1.88 w=0.65 l=0.15
+.ends
+
