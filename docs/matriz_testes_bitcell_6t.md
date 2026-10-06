@@ -1,6 +1,6 @@
 # Matriz de testes e decisões — bitcell SRAM 6T SKY130A
 
-> **Atualização de 05/10/2026:** parte dos registros abaixo descreve a matriz
+> **Atualização de 06/10/2026:** parte dos registros abaixo descreve a matriz
 > histórica que usava 50 fF e o sense amplifier anterior. O contrato técnico
 > corrente usa qualificação contínua em `1,62–1,80 V`, mantém `1,95 V` somente
 > como auditoria/limite estático do modelo e não qualifica `1,98 V` com os
@@ -10,16 +10,19 @@
 > elétrica é `65 fF`. O schematic freeze e o G6 físico estão concluídos: as
 > cinco leaf cells têm layout, Magic DRC `0` e Netgen LVS com
 > `Circuits match uniquely`; a bitcell também passou abutment em gap zero nas
-> orientações normal e espelhada horizontalmente. O gate corrente é G7 — PEX
-> e requalificação pós-layout.
+> orientações normal e espelhada horizontalmente. No G7, a coluna física 32×
+> completa também foi construída, passou Magic DRC `0`, Netgen LVS único e
+> extração RC. O `C_BL,PEX,max` medido é `422,651867 fF`, definindo teto de
+> requalificação de `486,049647 fF`. O G7 segue aberto por falhas de timing de
+> sense e write no pior corner pós-layout.
 > A definição atual das leaf
 > cells, as simulações selecionadas e os gates remanescentes estão em
 > [`phase1_leaf_cell_closure.md`](phase1_leaf_cell_closure.md). Use-a como
 > estado corrente; os valores anteriores permanecem evidência histórica.
 
-**Data do levantamento:** 05/10/2026
+**Data do levantamento:** 06/10/2026
 **Escopo:** testes elétricos pré-layout, falhas de bancada/netlist registradas e estado das verificações físicas.
-**Estado geral:** **Schematic Freeze e G6 físico concluídos em 05/10/2026**; G7 permanece aberto para PEX e requalificação pós-layout. Este documento consolida evidências do screening de engenharia e não declara yield de produção.
+**Estado geral:** **Schematic Freeze e G6 físico concluídos**; a coluna 32× do G7 já tem DRC/LVS/PEX e `C_BL,PEX` medido. G7 permanece aberto para requalificação elétrica pós-layout. Este documento consolida evidências do screening de engenharia e não declara yield de produção.
 
 ## 1. Ambiente e convenções
 
@@ -40,7 +43,7 @@ Neste documento, **PASS** quer dizer que o caso cumpriu o teste e o limite espec
 | Escrita integrada com driver real demonstrada | `1,8 V`, `tt/ss/ff`, 27 °C, 50 fF, ambos os sentidos, WPD `0,84/1,26 µm` | Verificar que o driver corrigido realmente troca a bitcell e não apenas bitlines isoladas. | `12/12` trocas; cruzamento de `Q=VDD/2` entre `0,148–0,212 ns`. | PASS de triagem funcional, não write margin. |
 | Limite inferior provisório de WL obtido | regra `1,30×` o pior flip completo `90/10%` | Garantir tempo para a escrita completar no pior caso medido com 30% de margem de engenharia. | G1 65 fF completo: pior screening `full_flip=0,3194 ns` (`WL_min=0,41522 ns`) em `ss/1,62 V/-40 °C`; rerun de 10 ps em ambos os sentidos: `0,3192 ns` e `WL_min=0,41496 ns`. | Limite inferior da bitcell/write-driver fechado como referência pré-layout; o pulso em `WL_IN` ainda depende da carga real da wordline e do `wl_driver`. |
 | Organização da coluna explicitada | uma palavra por linha física; `Nrows=4/8/16/32`; `Cmux=0` | A profundidade da macro define quantas células carregam cada BL/BLB; a arquitetura atual não usa mux de coluna. | Parcela de dreno pela aproximação de `0,2 fF/célula`: `0,8/1,6/3,2/6,4 fF`. | Base do orçamento pré-layout; as parcelas de célula, fio, precharge e sense já estão consolidadas em `docs/cbl_pre_layout_estimate.md`. |
-| Regra de carga da bitline formalizada | `C_BL=Nrows×(Ccell_access+Cwire/célula)+Cprecharge+Cwrite+Cmux+Csense`; `C_BL,max=62,409659 fF` para 32 linhas | Separar a carga física da coluna da hipótese de screening e fechar um bound antes do freeze. | `Ccell_access,max=0,452619 fF`, `Cwire/célula<=1,061862 fF`, `Cprecharge,max=0,908533 fF`, `Cwrite,max=4,033129 fF`, `Csense,max=9,004605 fF`; 65 fF é a triagem. | Bound pré-layout corrigido; **G1 e G2 integrado fecharam no screening pré-layout**. **PEX ocorre somente pós-freeze**. |
+| Regra de carga da bitline formalizada | baseline pré-layout `62,409659 fF`; coluna física `C_BL,PEX,max=422,651867 fF`; teto G7 `486,049647 fF` | Separar a carga física da coluna da hipótese de screening e fechar um bound antes do freeze, depois substituí-lo por PEX. | Baseline pré-layout: `Ccell_access/max`, fio, precharge, write e sense; pós-layout: `sims/column_32_full_pex_capacitance_pvt.csv`, `120/120 PASS`. | Baseline pré-layout preservada como histórico; **PEX da coluna concluído** e requalificação elétrica aberta. |
 | Sense amplifier atual | latch regenerativo diferencial de sete transistores; dispositivos PMOS de amostragem `W=2,0 µm` | Registrar a topologia realmente presente em `cells/sense_amp.sch` e caracterizar o gate G2. | Netlist Xschem: `330/330` determinísticos; entrada AC PVT: `60/60`, `7,853676–9,004605 fF`; `100 mV` mismatch = `480/500`; `150 mV` = `800/800` combinados; setup em `150 mV`: `0/25/50/100/200 ps` passaram `60/60`, `-50 ps` passou `58/60`; pior resolução observada `0,17277 ns`. | Critério de **schematic freeze** definido: zero falhas observadas no piso de mismatch de `150 mV` (`160/160` por corner, `800/800` pooled) + matriz integrada 65 fF com `ΔV>=200 mV`, setup `>=25 ps` e `t_res<=0,25 ns`. É triagem de engenharia, não yield de produção. |
 | Contrato de tensão | nominal `1,80 V`; qualificação contínua `1,62–1,80 V`; auditoria em `1,95 V` | Manter a qualificação dentro da estratégia válida dos dispositivos/modelos `01v8`. | Em `1,95 V`, `30/30` condições tiveram pelo menos um terminal acima de 1,95 V; pior `2,056858 V`. | `1,95 V` é somente auditoria/limite estático; `1,98 V` não é qualificável com os modelos `01v8` atuais. |
 | Mismatch de SNM iniciado | `N=200`, seeds `1001–1200`, `.lib sf_mm` | Medir dispersão por mismatch local sem confundir com variação global de processo. | Read: `269,936/300,933/11,038/330,733 mV`; Hold: `541,229/569,536/10,442/600,905 mV` (`min/média/σ_pop/máx`). | Evidência estatística exploratória; ainda falta critério de yield e mismatch de escrita/read-disturb. |
@@ -57,7 +60,7 @@ Os rótulos abaixo distinguem **especificação/arquitetura**, **recomendação 
 | Auditoria de limite do modelo | 1,95 V | **Auditoria, não ponto qualificado** | Mantido para verificar stress/limite estático; apresentou excedências transitórias. `1,98 V` fica fora da qualificação com o model set atual. |
 | Temperatura | −40 / 27 / 125 °C | Cobertura PVT de projeto | Extremos escolhidos para cobrir frio/quente e 27 °C como referência nominal. A cobertura em simulação não certifica, por si só, a validade dos modelos em toda a faixa. |
 | Cantos | `tt/ff/ss/fs/sf` | Cobertura do model set | Incluem os cinco cantos de processo presentes na biblioteca SKY130 usada. |
-| Carga de bitline | `C_BL = Nrows × (Ccell_access + Cwire/célula) + Cprecharge + Cwrite + Cmux + Csense`; `C_BL,max=62,409659 fF` para 32 linhas; 65 fF para screening | Regra de engenharia + **screening** | O write driver desligado adiciona até `4,033129 fF` por bitline e invalida o antigo bound de 58,376530 fF. O novo bound e a evidência estão em `docs/cbl_pre_layout_estimate.md`; 65 fF deixa `2,590341 fF` de folga. |
+| Carga de bitline | baseline `62,409659 fF`/screening `65 fF`; pós-layout `C_BL,PEX,max=422,651867 fF`; teto G7 `486,049647 fF` | Baseline histórica + **medição PEX** | O bound pré-layout sustentou o freeze. A coluna física completa passou `120/120` casos de capacitância PVT e substitui o surrogate como referência corrente de G7. |
 | Estados armazenados | Q=1/QB=0 e Q=0/QB=1 | Cobertura funcional | Verificam as duas polaridades, inclusive a assimetria entre BL e BLB e os dois sentidos de escrita. |
 | Excursão do nó baixo em leitura | ≤0,20 V | **Gate provisório** | Limite interno da especificação/testbench para expor read-disturb. Não é um limite universal do SKY130 nem um critério formal aprovado por arquitetura. |
 | Diferencial de bitline | ≥200 mV antes da amostragem; piso efetivo de mismatch =150 mV | **Meta provisória de G2** | `100 mV` falhou `20/500`; no sweep 110–150 mV, `140 mV` ainda teve 1/500 falha e `150 mV` passou 500/500. Somado ao sweep anterior, `150 mV` acumula `800/800`; o alvo integrado sobe para `200 mV`, deixando `50 mV` de guarda pré-layout. Não é claim de yield de produção. |
@@ -209,15 +212,15 @@ Evidências: [`mismatch Read`](../sims/bitcell_read_snm_mismatch_sf_1p62_125.csv
 
 ## 6. Pendências e decisão de freeze
 
-**O esquemático está congelado e o G6 físico foi concluído em 05/10/2026.** As cinco leafs possuem layout roteado, Magic DRC `0` e Netgen LVS com `Circuits match uniquely`. A bitcell também passou abutment em gap zero nas orientações normal e espelhada horizontalmente. O gate aberto é G7 — PEX e requalificação pós-layout.
+**O esquemático está congelado e o G6 físico foi concluído em 05/10/2026.** As cinco leafs possuem layout roteado, Magic DRC `0` e Netgen LVS com `Circuits match uniquely`. A bitcell também passou abutment em gap zero nas orientações normal e espelhada horizontalmente. No G7, a coluna física 32× completa também passou DRC/LVS e PEX; o gate aberto agora é a requalificação elétrica pós-layout no teto `486,049647 fF`.
 
 Bloqueios/gates pendentes:
 
 1. Revalidar a bitcell na faixa contínua qualificada `1,62–1,80 V`. `1,95 V` permanece somente auditoria/limite estático, e `1,98 V` não integra a qualificação enquanto não houver outra estratégia válida de dispositivo/modelo.
-2. Manter o bound pré-layout corrigido `C_BL,max=62,409659 fF` para 32 linhas e a triagem em `65 fF`. O G1 está fechado e a carga de WL pré-layout foi limitada a `17 fF` adicionais no bench. PEX não é entrada deste gate: ocorre somente pós-freeze.
+2. Manter `62,409659 fF` e `65 fF` apenas como baseline histórica pré-layout. A referência corrente é `C_BL,PEX,max=422,651867 fF`, com teto G7 de `486,049647 fF`. A carga de WL pré-layout segue em `17 fF` adicionais até a métrica física equivalente ser consolidada.
 3. G2 integrado fechado: em `65 fF + 17 fF` de WL, `SCLK=2,79 ns` passou `60/60` determinístico. G4 mismatch mostrou que esse ponto tinha margem insuficiente para uma seed real (`3,66 ps` de setup em seed 7007); `SCLK=2,84 ns` passou a ser o timing ativo de freeze. No canto crítico pós-aplicação, `2/2` passaram com setup mínimo `78,46 ps`, `ΔV>=360,848 mV` e `t_res<=0,07144 ns`.
 4. Escrita integrada fechada em screening pré-layout: `60/60` PASS com `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura de `1,0 ns`; pior full-flip `0,37283 ns`, regra `+30% = 0,484679 ns` e menor margem até a queda de WL `0,59366 ns`. Registrar potência dinâmica/estática como referência de arquitetura; não existe teto macro aprovado para rotular potência PASS/FAIL.
 5. G4 fechado como **engineering screening**: read crítico `ss_mm/1,62 V/-40 °C` `10/10` PASS em `SCLK=2,84 ns`, `ff_mm/1,80 V/125 °C` `10/10`, smoke all-corner `10/10`; write `ss_mm/sf_mm` `20/20` e demais selecionados `6/6`. Seeds reprodutíveis foram verificadas; não há claim de yield de produção.
-6. **G6 fechado:** as cinco leafs já foram desenhadas no Magic e fecharam DRC/LVS; a bitcell passou ainda os dois smokes de abutment em gap zero. **G7 aberto:** extrair PEX, substituir os bounds pré-layout por parasitas extraídos, usar o teto interno `1,15 × C_BL,PEX` e repetir a caracterização elétrica. Se a extração violar um contrato, reabrir o gate afetado. A validação de integração/tiling da matriz 4×8 continua sendo evidência adicional de nível de array, sem invalidar o fechamento físico das leafs.
+6. **G6 fechado:** as cinco leafs já foram desenhadas no Magic e fecharam DRC/LVS; a bitcell passou ainda os dois smokes de abutment em gap zero. **G7 aberto:** a coluna 32× já fecha DRC/LVS/PEX e mede `C_BL,PEX,max=422,651867 fF`; no teto de `486,049647 fF`, o sense canônico excede `t_res<=0,25 ns` no pior corner e o write path também não fecha. Reforçar sense/write, reextrair a coluna e repetir os gates afetados antes do fechamento. A validação de integração/tiling da matriz 4×8 continua sendo evidência adicional de nível de array, sem invalidar o fechamento físico das leafs.
 
 O resumo de desenvolvimento em [`relatorio_validacao_bitcell_6t_sky130.md`](relatorio_validacao_bitcell_6t_sky130.md) contém contexto adicional das bancadas e do esquemático. Os artefatos CSV e scripts listados aqui são as evidências detalhadas deste documento.

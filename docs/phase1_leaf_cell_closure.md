@@ -7,11 +7,13 @@ fechamento elétrico G1–G4 e uma regressão curta pós-aplicação. As cinco l
 layout SKY130A, Magic DRC `0` no flat e Netgen LVS com `Circuits match uniquely`.
 A bitcell também passou smoke de abutment em gap zero, tanto na orientação
 normal quanto com o vizinho espelhado horizontalmente, ambos com DRC `0`.
-A entrega física da Fase 1 está concluída. O G7 já iniciou a extração RC das
-leafs e a requalificação elétrica, mas permanece aberto porque ainda não existe
-uma coluna física 32× para fornecer `C_BL,PEX` diretamente e porque o stress
-conservador construído a partir das leafs reabre drive/timing de escrita. Os
-resultados de mismatch continuam sendo triagem de engenharia, sem claim de
+A entrega física G6 da Fase 1 está concluída. No G7, a coluna física 32× com
+precharge, sense amplifier e write driver também foi construída: o layout
+hierárquico e o flat têm Magic DRC `0`, o LVS estrutural contra 32 bitcells e os
+três periféricos fecha com `Circuits match uniquely`, e o PEX RC fornece agora
+`C_BL,PEX` real. A requalificação elétrica continua aberta porque o teto final
+de `1,15 × C_BL,PEX` expõe falhas de timing no sense e no caminho de escrita.
+Os resultados de mismatch continuam sendo triagem de engenharia, sem claim de
 yield de produção.
 
 ## Como usar as referências
@@ -121,14 +123,23 @@ extremas continua sujeita à confirmação do PDK.
    `layout/bitcell_6t/check_abutment.tcl` em duas condições de gap zero:
    vizinho na mesma orientação e vizinho espelhado horizontalmente, ambas com
    DRC `0`. Os logs LVS ficam em `layout/<leaf>/*_lvs.log`.
-7. **G7 em andamento: leaf PEX disponível, coluna PEX ainda aberta.** Os
+7. **G7 em andamento: coluna física/PEX fechada, requalificação elétrica ainda aberta.** Os
    máximos PVT observados até aqui são `8,592457 fF/célula` para a bitcell,
    `6,525894 fF` para precharge, `26,721160 fF` para write driver desligado
-   e `28,101193 fF` para a entrada do sense. Como ainda não há layout de uma
-   coluna 32×, manter o fio pré-layout produz apenas um surrogate conservador:
-   `C_BL,surrogate=370,286455 fF` e stress de `425,829423 fF` após +15%.
-   Esse ponto não deve ser chamado de `C_BL,PEX`. No stress, a leitura crítica
-   mantém o contrato formal de `ΔV/setup/t_res`, mas a escrita precisa de
-   `WL_IN≈7,5 ns` para preparar as bitlines e a recuperação por precharge
-   falha em 15 ns, reabrindo drive/timing físico. Fechar G7 exige layout e PEX
-   da coluna real, depois repetir G1–G4 no `1,15 × C_BL,PEX` verdadeiro.
+   e `28,101193 fF` para a entrada do sense. O antigo surrogate de
+   `370,286455 fF` (+15% = `425,829423 fF`) fica preservado apenas como
+   histórico. A coluna completa `layout/column_32_full` passou DRC hierárquico
+   e flat com `0` erros e LVS único; a varredura PVT de capacitância passou
+   `120/120`, com `C_BL,PEX,max=422,651867 fF`. Portanto, o teto oficial de G7
+   é `486,049647 fF`.
+
+   Nesse teto, o pior ponto já confirmado é `ss/1,62 V/125 °C`. A leitura com
+   o sense canônico apresenta `t_res=0,30633/0,32127 ns` para Q0/Q1, acima do
+   contrato `<=0,25 ns`; o candidato físico `tuned_k` também não fecha
+   (`0,30800/0,32303 ns`). Na escrita, WL de `1,0 ns` produz
+   `WL_min,30%=1,29844 ns` no pior sentido e falha; aumentar apenas a largura
+   para `1,4 ns` não produz uma transição full-flip mensurável limpa porque as
+   bitlines ainda chegam insuficientemente preparadas ao início de WL. Assim,
+   fechar G7 agora exige reforçar fisicamente o sense e o write driver,
+   reextrair a coluna, recalcular `C_BL,PEX` e repetir a requalificação no novo
+   `1,15 × C_BL,PEX`.

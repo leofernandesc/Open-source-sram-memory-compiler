@@ -412,7 +412,7 @@ substitui a estimativa e o teto de requalificação passa a ser
 | Write driver | conectividade corrigida; G1 em 65 fF passou `60/60`. Na integração com precharge + write driver + WL driver + bitcell, `65 fF + 17 fF` de carga de WL, `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura `1,0 ns` passaram `60/60`; pior full flip `0,37283 ns`, `WL_min(+30%)=0,484679 ns` |
 | Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
 | WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; o sense possui critério estatístico de engenharia para freeze, enquanto potência macro continua sem requisito numérico aprovado |
-| Layout, DRC, LVS e parasitas | G6 físico fechado nas cinco leafs com Magic DRC `0` e Netgen LVS único; G7 aberto para PEX de coluna e requalificação pós-layout |
+| Layout, DRC, LVS e parasitas | G6 físico fechado nas cinco leafs. No G7, a coluna 32× completa também fecha Magic DRC `0`, Netgen LVS único e PEX; `C_BL,PEX,max=422,651867 fF`, com teto final `486,049647 fF`. A requalificação segue aberta por timing de sense/write no pior corner. |
 
 ## Limitações e próximos passos
 
@@ -423,7 +423,7 @@ substitui a estimativa e o teto de requalificação passa a ser
 5. Registrar potência/leakage como referência de arquitetura enquanto não houver teto macro aprovado; não rotular potência como PASS/FAIL sem requisito. Estender mismatch à escrita/read disturb onde necessário.
 6. Completar PVT de pré-carga/equalização e `wl_driver`; ampliar o `write_driver` para mismatch usando a carga pré-layout fechada.
 7. Schematic freeze concluído com `WPU/WPD/WACC=0,42/1,26/0,60 µm` e `SCLK=2,84 ns` para o contrato ativo de leitura.
-8. G6 físico já concluído nas cinco leafs. No G7, construir/extrair a coluna física representativa, obter o `C_BL,PEX` real e a carga física de WL, então repetir a qualificação com teto de `1,15 × C_BL,PEX`. Se os parasitas reais violarem timing ou margem elétrica, reabrir o gate afetado e corrigir o projeto antes do fechamento da Fase 1.
+8. G6 físico já concluído nas cinco leafs. No G7, a coluna física 32× já foi construída, verificada e extraída; o teto de requalificação atual é `486,049647 fF`. O pior corner `ss/1,62 V/125 °C` ainda viola `t_res<=0,25 ns` no sense e evidencia drive insuficiente na escrita. Reforçar esses periféricos, reextrair a coluna e repetir a qualificação no novo `1,15 × C_BL,PEX` antes do fechamento da Fase 1.
 
 ## Documentação relacionada
 

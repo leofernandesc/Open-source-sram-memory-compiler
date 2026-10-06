@@ -777,10 +777,10 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
    `1,15 × C_BL,PEX` só passa a valer na requalificação pós-freeze.
 3. A triagem PVT de 8.1 cobre leitura em 50 fF e SNM dos sizings exploratórios,
    além de escrita full-swing para `WPD=1,26 µm`; os pontos de leitura a
-   `1,95 V` excedem o limite de modelo neste testbench. Falta a extração
-   parasitária para substituir os modelos lumped pré-layout e requalificar os
-   gates elétricos. A triagem de mismatch de 8.4 cobre somente SNM em dois
-   pontos críticos.
+   `1,95 V` excedem o limite de modelo neste testbench. A coluna física 32× já
+   foi extraída e substitui o modelo lumped de bitline como referência de G7:
+   `C_BL,PEX,max=422,651867 fF`, com teto de requalificação `486,049647 fF`.
+   A triagem de mismatch de 8.4 cobre somente SNM em dois pontos críticos.
 4. O testbench hierárquico foi validado no corner `tt`; o sweep de cinco
    corners e dois estados usa o deck externo.
 5. O sense_amp atual já possui caracterização determinística, capacitância de
@@ -799,10 +799,12 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 7. O G6 físico foi concluído em 05/10/2026: `bitcell_6t`, `sense_amp`,
    `precharge`, `wl_driver` e `write_driver` têm Magic DRC `0` e Netgen LVS com
    `Circuits match uniquely`. A bitcell passou também abutment em gap zero nas
-   orientações normal e espelhada horizontalmente. A extração parasitária
-   permanece aberta no G7.
-8. Os modelos de bitline/wordline usados nos screenings continuam lumped e
-   pré-layout. Eles são referência histórica até serem substituídos por PEX.
+   orientações normal e espelhada horizontalmente. No G7, a coluna 32× completa
+   também passou DRC hierárquico/flat `0`, LVS único e PEX RC.
+8. O modelo lumped de bitline permanece apenas como referência histórica. A
+   bitline corrente usa o PEX da coluna física; a wordline ainda mantém a carga
+   adicional lumped de `17 fF` como baseline até a carga física representativa
+   de WL ser consolidada.
 
 ## 10. Estado atual
 
@@ -828,7 +830,7 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | SNM exploratório 0,42/1,05/0,60 um | mínimo Hold/Read = 642,994/332,353 mV; sem mismatch |
 | sense amplifier | topologia definida: latch regenerativo diferencial de 7 transistores, amostragem PMOS `W=2,0 µm`; 330/330 determinísticos; `Csense=7,853676–9,004605 fF`; `100 mV` mismatch=`480/500`, `150/200 mV`=`300/300` cada; setup `0 ps`=`60/60`, guarda provisória `>=25 ps`; ruído/yield formal pendente |
 | write driver | netlist/smoke corrigidos; 30/30 trocas em 1,62 V para WPD=1,26 µm; pior flip 90/10% `0,3216 ns`, WL mínimo provisório `0,4181 ns`; layout com DRC `0` e LVS único |
-| carga de bitline | baseline pré-layout `C_BL,max=62,409659 fF` para 32 linhas; screening em 65 fF; será substituído por `C_BL,PEX` e requalificado até `1,15 × C_BL,PEX` no G7 |
+| carga de bitline | baseline pré-layout `62,409659 fF`/screening `65 fF`; coluna física `C_BL,PEX,max=422,651867 fF` (`120/120` PVT); teto G7 `486,049647 fF` |
 | wl_driver e pré-carga | layouts fechados com DRC `0` e LVS único; caracterização pós-PEX permanece aberta |
 | Hold/Read SNM | medidos nos cinco corners; pior Read SNM=288,342 mV |
 | leakage em hold | 90/90 estados estáveis; pior corrente total `21,759 nA` em `fs/1,95 V/125 °C`; orçamento pendente |
@@ -836,16 +838,16 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | write_driver.sch | netlist Xschem corrigido; complementaridade e isolamento com `WE=0` verificados em smoke |
 | Monte Carlo de SNM | 200 seeds de Read e 200 de Hold em `sf_mm`; critério estatístico/yield e mismatch de escrita pendentes |
 | G6 — layout, DRC e LVS das leafs | **fechado em 05/10/2026** nas cinco leafs; Magic DRC `0`, Netgen LVS `Circuits match uniquely`; bitcell com abutment gap zero normal/espelhado DRC `0` |
-| G7 — PEX e requalificação | **aberto**; substituir os bounds lumped pré-layout por parasitas extraídos e reabrir G1–G4 onde necessário |
+| G7 — PEX e requalificação | **aberto**; DRC/LVS/PEX da coluna 32× concluídos. No teto `486,049647 fF`, sense e write ainda violam os contratos pós-layout |
 
 ## 11. Próximos testes
 
-A sequência corrente é o **G7 — PEX e requalificação pós-layout**:
+A sequência corrente é o **G7 — requalificação pós-layout**:
 
-1. Consolidar os netlists RC das cinco leafs já extraídas no G7 e construir a estrutura física representativa da coluna, priorizando o pior caso de 32 linhas.
-2. Extrair o `C_BL,PEX` real da coluna e a carga física representativa de WL; manter `C_BL,max=62,409659 fF` e os `17 fF` adicionais de WL apenas como baselines históricas pré-layout.
-3. Definir o teto final de requalificação da coluna como `1,15 × C_BL,PEX` e repetir leitura, escrita, SNM/read-disturb, precharge, wl_driver e sense amplifier com os parasitas pós-layout.
-4. Reabrir G1–G4 somente onde PEX alterar o contrato elétrico; preservar os PASS pré-layout como evidência histórica, sem tratá-los como sign-off pós-layout.
-5. Reavaliar a guarda de `50 mV` do sense amplifier e o timing ativo `SCLK=2,84 ns` com a carga pós-layout.
-6. Se a carga real ainda mantiver escrita/precharge acima do objetivo de acesso `<2,5 ns`, corrigir drive, sizing, roteamento ou arquitetura física antes de fechar o gate; não encerrar G7 apenas relaxando atrasos.
+1. Preservar `C_BL,PEX,max=422,651867 fF` e usar `486,049647 fF` como teto corrente de requalificação até que uma alteração física exija nova extração.
+2. Reforçar o sense amplifier: no pior ponto `ss/1,62 V/125 °C`, o sense canônico apresenta `t_res=0,30633/0,32127 ns`, acima de `0,25 ns`; o candidato físico `tuned_k` também falha (`0,30800/0,32303 ns`).
+3. Reforçar o write driver/caminho de escrita: em `486,049647 fF`, o caso de WL de `1,0 ns` exige `WL_min,30%` de até `1,29844 ns`; aumentar apenas a largura para `1,4 ns` não fecha a preparação de BL/BLB.
+4. Consolidar a carga física representativa de WL e requalificar slew, atraso, largura efetiva de WL e read-disturb; os `17 fF` adicionais permanecem apenas baseline pré-layout.
+5. Após qualquer mudança física em sense/write/roteamento, repetir DRC/LVS/PEX da coluna, recalcular `C_BL,PEX` e atualizar o teto `1,15 × C_BL,PEX`.
+6. Reabrir G1–G4 somente onde o PEX alterar o contrato elétrico; preservar os PASS pré-layout como evidência histórica, sem tratá-los como sign-off pós-layout.
 7. Manter como trabalhos posteriores o critério formal de yield/ruído e expansões estatísticas que não bloqueiam o G7 atual.

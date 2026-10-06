@@ -1,9 +1,10 @@
 # Orçamento pré-layout da capacitância de wordline
 
-Status em 05/10/2026: **baseline pré-layout congelada; G6 físico concluído e
-G7/PEX aberto**. A bitcell e o `wl_driver` já possuem layout com Magic DRC `0`
-e Netgen LVS único. Os valores deste documento permanecem como referência do
-screening esquemático e **não** devem ser tratados como capacitâncias PEX.
+Status em 06/10/2026: **baseline pré-layout congelada; G6 físico concluído e
+G7 em requalificação pós-layout**. A bitcell e o `wl_driver` já possuem layout
+com Magic DRC `0` e Netgen LVS único. A coluna 32× também já foi construída,
+verificada e extraída; os valores deste documento permanecem como referência
+histórica da wordline e **não** devem ser tratados como capacitâncias PEX.
 
 Este documento fecha um bound de engenharia para a carga da wordline antes do
 layout. O objetivo é substituir o antigo smoke arbitrário de `50 fF` por uma
@@ -77,9 +78,9 @@ capacitor lumped adicional adotado é **17 fF**, acima do bound
 apenas como stress test conservador e não como estimativa física da linha.
 
 O bound `CWL,row,max=17,397827664 fF` e o capacitor lumped adicional de `17 fF`
-ficam preservados como baseline pré-layout. Com o layout das leafs já fechado
-em G6 e a extração RC das leafs iniciada no G7, a etapa pendente é obter a carga
-física representativa da wordline na integração de coluna/array e substituir a
-baseline lumped pelo valor pós-layout correspondente. Em seguida, requalificar
-slew, atraso, largura efetiva de WL e read-disturb. Se o PEX alterar o contrato
-usado no screening, o gate de timing da WL deve ser reaberto.
+ficam preservados como baseline pré-layout. A coluna 32× usada para fechar
+`C_BL,PEX` já existe, mas a carga física representativa da wordline ainda não
+foi consolidada como métrica pós-layout equivalente. Essa é a pendência deste
+documento: extrair/medir a WL física de integração e requalificar slew, atraso,
+largura efetiva de WL e read-disturb. Se esse PEX alterar o contrato usado no
+screening, o gate de timing da WL deve ser reaberto.

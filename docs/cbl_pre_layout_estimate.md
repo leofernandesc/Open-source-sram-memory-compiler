@@ -1,10 +1,10 @@
 # Avaliação pré-layout de C_BL
 
-Status em 05/10/2026: **baseline pré-layout congelada; G6 físico concluído e G7/PEX aberto**.
+Status em 06/10/2026: **baseline pré-layout congelada; G6 físico concluído; coluna 32× extraída no G7 e requalificação elétrica ainda aberta**.
 As cinco leaf cells já possuem layout com Magic DRC `0` e Netgen LVS único.
 Os valores deste documento continuam sendo o orçamento histórico usado para o
-schematic freeze e para os screenings de 65 fF; eles **não** são PEX e serão
-substituídos pelos parasitas extraídos no G7.
+schematic freeze e para os screenings de 65 fF; eles **não** são PEX. A coluna
+física 32× já fornece agora o valor pós-layout real usado pelo G7.
 
 As capacitâncias de terminal da bitcell, precharge e entrada do sense
 amplifier foram caracterizadas com o modelo SKY130A em PVT. A entrada do novo
@@ -137,18 +137,18 @@ do orçamento de fio e do máximo de `Csense` ao longo da excursão de leitura.
 ## Transição para o G7 pós-layout
 
 O screening pré-layout em `65 fF` e o bound `62,409659 fF` ficam preservados
-como baseline de engenharia que sustentou o freeze. Com G6 concluído, o gate
-corrente é extrair `C_BL,PEX`, comparar o resultado com este orçamento e
-requalificar a coluna até o teto interno `1,15 × C_BL,PEX`. Se o PEX exceder
-os contratos elétricos fechados no pré-layout, o gate afetado deve ser
-reaberto.
+como baseline de engenharia que sustentou o freeze. A coluna física 32× já foi
+extraída no G7: a varredura PVT de pequena-sinal passou `120/120` e mediu
+`C_BL,PEX,max=422,651867 fF` em `ss/1,62 V/125 °C`, estado Q=1, BL. O teto
+oficial de requalificação passa a ser `1,15 × C_BL,PEX = 486,049647 fF`.
+Como esse ponto viola contratos elétricos pós-layout, os gates afetados seguem
+abertos.
 
-### Evidência preliminar de leaf PEX
+### Evidência histórica de leaf PEX e surrogate
 
-O G7 já possui extração RC das cinco leafs, mas ainda **não** existe layout
-físico de uma coluna 32× do qual se possa extrair diretamente
-`C_BL,PEX`. Portanto os números abaixo são evidência de leaf PEX e não devem
-ser rotulados como capacitância extraída da coluna completa.
+Antes da coluna física existir, o G7 usou os máximos de leaf PEX abaixo para
+construir um surrogate conservador. Esses números continuam úteis como
+histórico, mas não substituem mais a extração da coluna completa.
 
 Os sweeps de pequena-sinal em `1 MHz` fecharam:
 
@@ -159,8 +159,8 @@ Os sweeps de pequena-sinal em `1 MHz` fecharam:
 | write driver com `WE=0` | `26,721160 fF` |
 | entrada do sense | `28,101193 fF` |
 
-Enquanto a coluna física não existe, um **surrogate conservador** pode manter
-o bound pré-layout de fio `1,061862 fF/célula` junto dos máximos leaf PEX:
+O **surrogate conservador** usado nessa etapa combinava o bound pré-layout de
+fio `1,061862 fF/célula` com os máximos leaf PEX:
 
 ```text
 C_BL,surrogate(32)
@@ -172,10 +172,9 @@ C_BL,surrogate(32)
 ```
 
 Os valores de stress usam o termo de fio antes do arredondamento exibido na
-tabela pré-layout. Esse `425,829423 fF` é um ponto de estresse provisório, não
-`1,15 × C_BL,PEX` de sign-off. No corner `ss/1,62 V/-40 °C`, a leitura
-integrada ainda atende `ΔV>=200 mV`, setup `>=25 ps` e
-`t_res<=0,25 ns` nesse ponto, mas a escrita exige atraso muito maior entre
-`WE` e `WL`, e a recuperação de precharge torna-se da ordem de dezenas de
-nanosegundos. Isso reabre o gate de drive/timing físico e reforça a necessidade
-de extrair uma coluna real antes de fechar G7.
+tabela pré-layout. Esse `425,829423 fF` é somente histórico; o teto atual é
+`486,049647 fF`. Nesse teto real, o corner `ss/1,62 V/125 °C` expõe
+`t_res=0,30633/0,32127 ns` para Q0/Q1 no sense canônico, acima do contrato
+`<=0,25 ns`, e o caminho de escrita também não fecha com o driver atual. O G7
+permanece aberto por esses blockers de timing/drive, não por falta de PEX da
+coluna.
