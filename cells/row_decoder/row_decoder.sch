@@ -349,8 +349,6 @@ sa=0 sb=0 sd=0
 model=pfet_01v8
 spiceprefix=X
 }
-C {ipin.sym} 1340 -1550 0 0 {name=p11 lab=PCLK
-}
 C {lab_pin.sym} 1380 -1470 0 0 {name=p12 sig_type=std_logic lab=N1
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1360 -1400 0 0 {name=M12
@@ -428,8 +426,6 @@ sa=0 sb=0 sd=0
 model=pfet_01v8
 spiceprefix=X
 }
-C {ipin.sym} 1710 -1550 0 0 {name=p18 lab=PCLK
-}
 C {lab_pin.sym} 1750 -1470 0 0 {name=p19 sig_type=std_logic lab=N2
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1730 -1400 0 0 {name=M17
@@ -505,8 +501,6 @@ sa=0 sb=0 sd=0
 model=pfet_01v8
 spiceprefix=X
 }
-C {ipin.sym} 2070 -1550 0 0 {name=p23 lab=PCLK
-}
 C {lab_pin.sym} 2110 -1480 0 0 {name=p24 sig_type=std_logic lab=N3
 }
 C {sky130_fd_pr/nfet_01v8.sym} 2090 -1400 0 0 {name=M22
@@ -569,3 +563,8 @@ C {opin.sym} 2300 -1460 0 0 {name=p25 lab=DEC3
 }
 C {lab_pin.sym} 2070 -1400 0 0 {name=p26 sig_type=std_logic lab=A1}
 C {lab_pin.sym} 2070 -1340 0 0 {name=p27 sig_type=std_logic lab=A0}
+C {lab_pin.sym} 1340 -1550 0 0 {name=p11 sig_type=std_logic lab=PCLK}
+C {lab_pin.sym} 1710 -1550 0 0 {name=p18 sig_type=std_logic lab=PCLK
+}
+C {lab_pin.sym} 2070 -1550 0 0 {name=p23 sig_type=std_logic lab=PCLK
+}
