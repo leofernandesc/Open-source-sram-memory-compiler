@@ -51,6 +51,7 @@ the same input stimulus for every candidate.
 | Candidate | W address inverter | W precharge PFET | W evaluation NMOS | W footer NMOS | W output inverter P/N | Load | DEC eval max | WL eval max | DEC precharge max | WL precharge max | Voltage checks |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | B0 | 1.00 µm | 1.00 µm | 1.00 µm | 1.00 µm | 1.00 / 1.00 µm | 17.4 fF | 93.30 ps | 272.65 ps | 119.55 ps | 295.94 ps | 72/72 PASS |
+| B1 | 1.00 µm | 1.00 µm | 1.50 µm | 1.00 µm | 1.00 / 1.00 µm | 17.4 fF | 95.04 ps | 274.60 ps | 151.92 ps | 326.98 ps | 72/72 PASS |
 
 All channels are L=0.15 µm for B0. Group membership is:
 
@@ -76,11 +77,43 @@ All channels are L=0.15 µm for B0. Group membership is:
 | DEC precharge delay range | 117.90–119.55 ps |
 | WL precharge delay range | 293.70–295.94 ps |
 
+## B1 measured results
+
+B1 changes only the evaluation-network NMOS widths (M6, M7, M12, M13, M17,
+M18, M22, and M23) from 1.00 µm to 1.50 µm. The shared footer M8 and all other
+devices remain at B0 widths. Xschem generated the updated hierarchy without
+structural errors; the generated SPICE netlist was checked to contain W=1.50 µm
+on all eight changed devices. ngspice completed with return code 0.
+
+| Metric | Result |
+|---|---:|
+| Evaluation samples passing | 32/32 (16 DEC + 16 WL) |
+| Precharge samples passing | 40/40 (20 DEC + 20 WL) |
+| Selected DEC and WL levels | 1.800 V at all sample points |
+| Largest absolute deselected DEC sample | 1.311 µV |
+| Largest absolute deselected WL sample | 0.291 µV |
+| Largest absolute DEC precharge sample | 0.486 µV |
+| Largest absolute WL precharge sample | 0.291 µV |
+| DEC evaluation delay range | 90.44–95.04 ps |
+| WL evaluation delay range | 270.03–274.60 ps |
+| DEC precharge delay range | 147.97–151.92 ps |
+| WL precharge delay range | 323.50–326.98 ps |
+
+Relative to B0, B1's maximum measured delays increased by 1.74 ps for DEC
+evaluation, 1.95 ps for WL evaluation, 32.37 ps for DEC precharge, and 31.04 ps
+for WL precharge. Thus B1 passes the same nominal voltage screen but does not
+improve the measured timing for this load. The larger evaluation devices add
+capacitance to the dynamic nodes; that is a plausible contributor to the slower
+precharge and is an engineering interpretation of the measurements, not a
+separately isolated capacitance measurement.
+
 ## Interpretation and next work
 
 B0 is a measured nominal-TT reference with the wordline drivers and estimated
-wordline loads attached. It is not an optimized sizing. No PVT sweep, layout,
-parasitic extraction, or post-layout simulation is included here.
+wordline loads attached. B1 is functionally passing in the same nominal-TT
+screen, but is slower than B0 in all four recorded maximum timing metrics. Neither
+candidate is an optimized sizing. No PVT sweep, layout, parasitic extraction, or
+post-layout simulation is included here.
 
 The next candidates will change one transistor family at a time while holding
 the rest at B0. Record the exact W values and rerun the same loaded testbench.
