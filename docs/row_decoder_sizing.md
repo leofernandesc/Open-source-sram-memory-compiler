@@ -55,6 +55,7 @@ the same input stimulus for every candidate.
 | B2 | 1.00 µm | 1.00 µm | 1.00 µm | 1.50 µm | 1.00 / 1.00 µm | 17.4 fF | 84.56 ps | 263.50 ps | 123.18 ps | 298.50 ps | 72/72 PASS |
 | B3 | 1.00 µm | 1.00 µm | 1.00 µm | 1.25 µm | 1.00 / 1.00 µm | 17.4 fF | 87.93 ps | 267.03 ps | 121.60 ps | 297.23 ps | 72/72 PASS |
 | B4 | 1.00 µm | 1.00 µm | 1.00 µm | 0.75 µm | 1.00 / 1.00 µm | 17.4 fF | 102.59 ps | 282.46 ps | 118.54 ps | 294.75 ps | 72/72 PASS |
+| B5 | 1.00 µm | 1.00 µm | 1.00 µm | 0.50 µm | 1.00 / 1.00 µm | 17.4 fF | 121.92 ps | 302.94 ps | 117.35 ps | 292.90 ps | 72/72 PASS |
 
 All channels are L=0.15 µm for B0. Group membership is:
 
@@ -188,17 +189,52 @@ and 9.81 ps for WL, while maximum precharge delays decreased by 1.01 ps for
 DEC and 1.19 ps for WL. B4 therefore trades evaluation speed for a small
 precharge improvement.
 
+## B5 measured results
+
+B5 changes only the shared footer M8 from 0.75 µm in B4 to 0.50 µm; all other
+devices remain at the B0 widths. The Xschem-generated netlist confirmed M8 at
+W=0.50 µm and the eight evaluation-network NMOS devices at W=1.00 µm. The
+loaded testbench contains the four wordline drivers and a 17.4 fF capacitor on
+each wordline. Xschem and ngspice completed without errors.
+
+| Metric | Result |
+|---|---:|
+| Evaluation samples passing | 32/32 (16 DEC + 16 WL) |
+| Precharge samples passing | 40/40 (20 DEC + 20 WL) |
+| Selected DEC and WL levels | 1.800 V at all sample points |
+| Largest absolute deselected DEC sample | 0.995 µV |
+| Largest absolute deselected WL sample | 0.291 µV |
+| Largest absolute DEC precharge sample | 0.430 µV |
+| Largest absolute WL precharge sample | 0.291 µV |
+| DEC evaluation delay range | 118.60–121.92 ps |
+| WL evaluation delay range | 299.58–302.94 ps |
+| DEC precharge delay range | 114.53–117.35 ps |
+| WL precharge delay range | 289.82–292.90 ps |
+
+Relative to B0, B5's maximum evaluation delays increased by 28.62 ps for DEC
+and 30.29 ps for WL, while maximum precharge delays decreased by 2.20 ps for
+DEC and 3.04 ps for WL. Relative to B4, evaluation became 19.33 ps slower for
+DEC and 20.48 ps slower for WL; precharge became 1.19 ps faster for DEC and
+1.85 ps faster for WL. B5 passes the same nominal voltage screen and is the
+fastest precharge candidate measured so far, with the slowest evaluation among
+the tested footer widths. These results show a timing tradeoff; they do not
+identify a single best width without a project-level priority between
+evaluation and precharge.
+
 ## Interpretation and next work
 
 B0 is a measured nominal-TT reference with the wordline drivers and estimated
 wordline loads attached. B1 is functionally passing in the same nominal-TT
 screen, but is slower than B0 in all four recorded maximum timing metrics. B2
-is fastest in evaluation so far; reducing the footer toward B3 and B4 trades
-some evaluation speed for faster precharge. These candidates are measured only
-at nominal TT and are not finalized sizes. No PVT sweep, layout, parasitic
-extraction, or post-layout simulation is included here.
+is fastest in evaluation so far; reducing the footer toward B3, B4, and B5
+trades evaluation speed for faster precharge. B5 is fastest in precharge so
+far. These candidates are measured only at nominal TT and are not finalized
+sizes. No PVT sweep, layout, parasitic extraction, or post-layout simulation is
+included here.
 
 The next candidates will change one transistor family at a time while holding
-the rest at B0. Record the exact W values and rerun the same loaded testbench.
-After individual sweeps, combine the best passing choices and repeat the
-comparison before freezing the schematic for Magic layout.
+the rest at B0. The next footer candidate is 0.42 µm, the SKY130A minimum
+channel width for ordinary devices under the applicable DRC rule. Record the
+exact W values and rerun the same loaded testbench. After individual sweeps,
+combine the best passing choices and repeat the comparison before freezing the
+schematic for Magic layout.
