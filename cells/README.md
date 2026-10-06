@@ -8,13 +8,15 @@ Contrato de nomes para a etapa 2:
 | `row_decoder/row_decoder.sch` | `A0`, `A1`, `PCLK`, `DEC0`–`DEC3`, `VDD`, `VSS` | `PCLK` | rascunho do decoder dinâmico 2-to-4 |
 | `sense_amp/sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | rascunho estrutural |
 | `precharge/precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | rascunho estrutural |
-| `wordline_driver/wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | rascunho estrutural |
-| `write_driver/write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | rascunho estrutural |
+| `wordline_driver/wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois estágios; smoke e DRC/LVS reportados; PEX/carga física pendentes |
+| `write_driver/write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | tri-state diferencial; integração e DRC/LVS reportados; requalificação PEX pendente |
 | `sims/bitcell_6t/vsource_drive.sym` | `p`, `m` | `p` como saída | fonte de estímulo do testbench hierárquico |
 
 `bitcell_6t/sram_6t.sch` permanece como captura legada para comparação. Os arquivos devem gerar símbolos `.sym` somente depois de a conectividade
 ser verificada pelo Xschem. A presença de um `.sch` nesta etapa não significa que a
-célula já passou por netlist, DRC, LVS ou simulação.
+célula já passou por netlist, DRC, LVS ou simulação. Para a procedência e os
+limites das evidências dos dois drivers, consulte
+[`docs/peripheral_driver_validation.md`](../docs/peripheral_driver_validation.md).
 
 ## Testbench hierárquico de leitura
 
