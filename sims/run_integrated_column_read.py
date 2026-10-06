@@ -64,6 +64,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--cell-access-ceff-ff", type=float, default=0.452619)
     p.add_argument("--precharge-ceff-ff", type=float, default=0.908533)
     p.add_argument("--sense-ceff-ff", type=float, default=9.004605)
+    p.add_argument("--pex-cell-access-ceff-ff", type=float, default=8.592457068)
+    p.add_argument("--pex-precharge-ceff-ff", type=float, default=6.525893794)
+    p.add_argument("--pex-sense-ceff-ff", type=float, default=28.101192527)
     p.add_argument("--cbl-total-ff", type=float, default=65.0)
     p.add_argument(
         "--wl-extra-ff",
@@ -236,8 +239,13 @@ def make_deck(
     # The total C_BL envelope already includes selected-cell access, precharge and
     # sense input capacitance.  Instantiate those real leaves and lump only the
     # remaining column/wire capacitance to avoid double counting.
+    use_pex = args.pex or args.sense_pex_netlist is not None
     modeled_leaf_ff = (
-        args.cell_access_ceff_ff + args.precharge_ceff_ff + args.sense_ceff_ff
+        args.pex_cell_access_ceff_ff
+        + args.pex_precharge_ceff_ff
+        + args.pex_sense_ceff_ff
+        if use_pex
+        else args.cell_access_ceff_ff + args.precharge_ceff_ff + args.sense_ceff_ff
     )
     lumped_extra_ff = args.cbl_total_ff - modeled_leaf_ff
     if lumped_extra_ff <= 0:
@@ -250,7 +258,6 @@ def make_deck(
     pre_reenable_ns = max(wl_off_ns + edge_ns + 0.25, args.sclk_at_ns + args.sclk_high_ns + edge_ns)
     stop_ns = pre_reenable_ns + args.precharge_recovery_window_ns
     target_v = args.delta_target_mv * 1e-3
-    use_pex = args.pex or args.sense_pex_netlist is not None
     q_ref = "v(xcell.xpex.a_173_n1434.t0)" if use_pex else "v(xcell.q)"
     qb_ref = "v(xcell.xpex.a_126_n1530.t1)" if use_pex else "v(xcell.qb)"
     wl_extra = (

@@ -66,6 +66,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--cell-access-ceff-ff", type=float, default=0.452619)
     p.add_argument("--precharge-ceff-ff", type=float, default=0.908533)
     p.add_argument("--write-ceff-ff", type=float, default=4.033129)
+    p.add_argument("--pex-cell-access-ceff-ff", type=float, default=8.592457068)
+    p.add_argument("--pex-precharge-ceff-ff", type=float, default=6.525893794)
+    p.add_argument("--pex-write-ceff-ff", type=float, default=26.721160015)
     p.add_argument(
         "--wl-extra-ff",
         type=float,
@@ -221,7 +224,11 @@ def make_deck(
     # remain in this lumped remainder because the sense leaf is not instantiated
     # in the write bench.
     explicit_ceff_ff = (
-        args.cell_access_ceff_ff + args.precharge_ceff_ff + args.write_ceff_ff
+        args.pex_cell_access_ceff_ff
+        + args.pex_precharge_ceff_ff
+        + args.pex_write_ceff_ff
+        if args.pex
+        else args.cell_access_ceff_ff + args.precharge_ceff_ff + args.write_ceff_ff
     )
     lumped_extra_ff = args.cbl_total_ff - explicit_ceff_ff
     if lumped_extra_ff <= 0:
