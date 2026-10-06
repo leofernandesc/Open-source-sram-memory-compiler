@@ -14,6 +14,45 @@ if ! docker inspect "$container" >/dev/null 2>&1; then
     exit 1
 fi
 
+# The Xauthority cookie created by Mutter has a session-specific filename.
+# The container stores the bind-mount source chosen when it was created, so
+# refresh that host-side file from this session before launching a GUI tool.
+# Docker may have created an empty directory at a missing bind source; remove
+# it only when empty, then install the current cookie with owner-only access.
+case "${1:-}" in
+    xschem|magic|gtkwave)
+        xauth_source="$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/tmp/xauth"}}{{.Source}}{{end}}{{end}}' "$container")"
+        if [[ -n "$xauth_source" ]]; then
+            if [[ -z "${XAUTHORITY:-}" || ! -f "$XAUTHORITY" ]]; then
+                printf 'Erro: ferramenta gráfica solicitada, mas XAUTHORITY não aponta para um arquivo válido.\n' >&2
+                exit 1
+            fi
+            if [[ -d "$xauth_source" && ! -L "$xauth_source" ]]; then
+                if ! rmdir -- "$xauth_source"; then
+                    printf 'Erro: origem do Xauthority é um diretório não vazio: %s\n' "$xauth_source" >&2
+                    exit 1
+                fi
+            fi
+            if [[ -f "$xauth_source" ]]; then
+                if [[ "$(realpath -e -- "$xauth_source")" != "$(realpath -e -- "$XAUTHORITY")" ]]; then
+                    if ! chmod 600 -- "$xauth_source" || ! cat -- "$XAUTHORITY" > "$xauth_source"; then
+                        printf 'Erro: não foi possível atualizar o Xauthority montado no container.\n' >&2
+                        exit 1
+                    fi
+                fi
+            elif [[ ! -e "$xauth_source" ]]; then
+                if ! install -m 600 -- "$XAUTHORITY" "$xauth_source"; then
+                    printf 'Erro: não foi possível criar o Xauthority montado no container.\n' >&2
+                    exit 1
+                fi
+            else
+                printf 'Erro: tipo inesperado para a origem do Xauthority: %s\n' "$xauth_source" >&2
+                exit 1
+            fi
+        fi
+        ;;
+esac
+
 mounted_repo="$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' "$container")"
 if [[ -z "$mounted_repo" || "$(realpath -- "$mounted_repo")" != "$repo_root" ]]; then
     printf 'Erro: o container %s não monta este checkout em /work.\n' "$container" >&2
@@ -37,7 +76,8 @@ for tool_dir in \
     /opt/ngspice/*/bin \
     /opt/magic/*/bin \
     /opt/netgen/*/bin \
-    /opt/iverilog/*/bin; do
+    /opt/iverilog/*/bin \
+    /opt/xschem/*/bin; do
     if [ -d "$tool_dir" ]; then
         PATH="$tool_dir:$PATH"
     fi

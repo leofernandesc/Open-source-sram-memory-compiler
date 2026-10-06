@@ -27,10 +27,15 @@ Na raiz do repositório:
 
 ```bash
 ./tools/sram-eda xschem cells/wordline_driver/wl_driver.sch
+./tools/sram-eda magic -rcfile /opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc
 ```
 
 O mesmo lançador pode iniciar Magic ou GTKWave com os argumentos apropriados
-para o layout ou waveform que será aberto.
+para o layout ou waveform que será aberto. Ao iniciar Xschem, Magic ou GTKWave,
+ele atualiza a montagem `/tmp/xauth` a partir do `XAUTHORITY` da sessão atual.
+Isso evita usar um caminho Mutter/Xwayland temporário que ficou obsoleto quando
+o container foi criado. O lançador só remove uma pasta de origem antiga se ela
+estiver vazia e instala o cookie com permissões restritas ao usuário.
 
 ## Rodar scripts e simuladores
 
