@@ -54,6 +54,7 @@ the same input stimulus for every candidate.
 | B1 | 1.00 µm | 1.00 µm | 1.50 µm | 1.00 µm | 1.00 / 1.00 µm | 17.4 fF | 95.04 ps | 274.60 ps | 151.92 ps | 326.98 ps | 72/72 PASS |
 | B2 | 1.00 µm | 1.00 µm | 1.00 µm | 1.50 µm | 1.00 / 1.00 µm | 17.4 fF | 84.56 ps | 263.50 ps | 123.18 ps | 298.50 ps | 72/72 PASS |
 | B3 | 1.00 µm | 1.00 µm | 1.00 µm | 1.25 µm | 1.00 / 1.00 µm | 17.4 fF | 87.93 ps | 267.03 ps | 121.60 ps | 297.23 ps | 72/72 PASS |
+| B4 | 1.00 µm | 1.00 µm | 1.00 µm | 0.75 µm | 1.00 / 1.00 µm | 17.4 fF | 102.59 ps | 282.46 ps | 118.54 ps | 294.75 ps | 72/72 PASS |
 
 All channels are L=0.15 µm for B0. Group membership is:
 
@@ -162,15 +163,40 @@ and 5.62 ps for WL. Its maximum precharge delays increased by 2.05 ps for DEC
 and 1.29 ps for WL. B2 remains faster in evaluation, while B3 is slightly
 faster in precharge.
 
+## B4 measured results
+
+B4 changes only the shared footer M8 from 1.00 µm in B0 to 0.75 µm; all other
+devices remain at B0 widths. The Xschem-generated netlist confirmed the intended
+widths, and Xschem and ngspice completed without errors.
+
+| Metric | Result |
+|---|---:|
+| Evaluation samples passing | 32/32 (16 DEC + 16 WL) |
+| Precharge samples passing | 40/40 (20 DEC + 20 WL) |
+| Selected DEC and WL levels | 1.800 V at all sample points |
+| Largest absolute deselected DEC sample | 0.994 µV |
+| Largest absolute deselected WL sample | 0.291 µV |
+| Largest absolute DEC precharge sample | 0.432 µV |
+| Largest absolute WL precharge sample | 0.291 µV |
+| DEC evaluation delay range | 98.62–102.59 ps |
+| WL evaluation delay range | 278.41–282.46 ps |
+| DEC precharge delay range | 116.66–118.54 ps |
+| WL precharge delay range | 291.89–294.75 ps |
+
+Relative to B0, B4's maximum evaluation delays increased by 9.29 ps for DEC
+and 9.81 ps for WL, while maximum precharge delays decreased by 1.01 ps for
+DEC and 1.19 ps for WL. B4 therefore trades evaluation speed for a small
+precharge improvement.
+
 ## Interpretation and next work
 
 B0 is a measured nominal-TT reference with the wordline drivers and estimated
 wordline loads attached. B1 is functionally passing in the same nominal-TT
 screen, but is slower than B0 in all four recorded maximum timing metrics. B2
-is fastest in evaluation so far; B3 gives some of that timing back while
-slightly improving precharge. B2 and B3 are candidates for further checks, not
-finalized sizes. No PVT sweep, layout, parasitic extraction, or post-layout
-simulation is included here.
+is fastest in evaluation so far; reducing the footer toward B3 and B4 trades
+some evaluation speed for faster precharge. These candidates are measured only
+at nominal TT and are not finalized sizes. No PVT sweep, layout, parasitic
+extraction, or post-layout simulation is included here.
 
 The next candidates will change one transistor family at a time while holding
 the rest at B0. Record the exact W values and rerun the same loaded testbench.
