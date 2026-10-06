@@ -269,7 +269,7 @@ C {ipin.sym} 980 -1550 0 0 {name=p5 lab=PCLK
 C {lab_pin.sym} 1020 -1470 0 0 {name=p6 sig_type=std_logic lab=N0
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1000 -1400 0 0 {name=M6
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -283,7 +283,7 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1000 -1340 0 0 {name=M7
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -297,7 +297,7 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1000 -1200 0 0 {name=M8
-W=1
+W=1.5
 L=0.15
 nf=1 
 mult=1
@@ -358,7 +358,7 @@ spiceprefix=X
 C {lab_pin.sym} 1380 -1470 0 0 {name=p12 sig_type=std_logic lab=N1
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1360 -1400 0 0 {name=M12
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -372,7 +372,7 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1360 -1340 0 0 {name=M13
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -435,7 +435,7 @@ spiceprefix=X
 C {lab_pin.sym} 1750 -1470 0 0 {name=p19 sig_type=std_logic lab=N2
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1730 -1400 0 0 {name=M17
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -449,7 +449,7 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} 1730 -1340 0 0 {name=M18
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -510,7 +510,7 @@ spiceprefix=X
 C {lab_pin.sym} 2110 -1480 0 0 {name=p24 sig_type=std_logic lab=N3
 }
 C {sky130_fd_pr/nfet_01v8.sym} 2090 -1400 0 0 {name=M22
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
@@ -524,7 +524,7 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} 2090 -1340 0 0 {name=M23
-W=1.5
+W=1
 L=0.15
 nf=1 
 mult=1
