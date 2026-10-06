@@ -135,22 +135,22 @@ The screen uses 0.1×VDD as the maximum inactive output and 0.9×VDD as the
 minimum selected output; these are test criteria, not numeric thresholds from
 the specification.
 
-All four evaluated addresses produced one-hot outputs: the selected output was
-1.800 V and the largest unselected output was 4.359 mV. During precharge,
-`DEC0` stayed near 0 V, but `DEC1`–`DEC3` measured 1.145–1.288 V and failed the
-inactive-output criterion. Across the 36 voltage samples, 21 passed and 15
-failed. The overall decoder is not functionally closed because outputs must
-remain inactive during precharge.
+The decoder wiring was corrected to keep the shared `EVAL_GND` rail distinct
+from `VSS`, connect it to the four evaluation branches and the footer drain,
+and keep NMOS bodies and output-inverter pull-down sources at `VSS`. The saved
+schematic netlisted without structural diagnostics (Xschem return code 0), and
+ngspice completed successfully.
 
-Xschem generated a netlist but returned code 10 and reported three undriven
-internal nodes (`#net1`, `#net2`, and `#net3`). Inspection of the emitted SPICE
-shows these nodes at the body terminals of the NMOS evaluation-stack devices
-for `DEC1`–`DEC3` (M12/M13, M17/M18, and M22/M23). The same netlist shows the
-NMOS pull-down devices of those three output inverters (M15, M20, and M25) with
-their source and body on the switched `EVAL_GND` rail. These connections are
-the current leading causes of the structural errors and precharge output
-failure; they need schematic review and a rerun before claiming decoder
-validation.
+The rerun passed all 36 sampled voltage checks: 16 evaluation samples and 20
+precharge samples. The four selected outputs measured 1.800 V; unselected
+outputs were within about 1 µV of 0 V. During precharge, the largest output was
+0.434 µV, below the 0.18 V inactive-output limit. The 0.1×VDD and 0.9×VDD
+limits are screening criteria used by the runner, not numeric thresholds from
+the specification.
+
+This is nominal TT evidence at 1.80 V and 27 °C. It does not establish PVT
+robustness, maximum frequency, or post-layout behavior. No row-decoder layout
+is present yet; Magic layout, DRC, extraction, and LVS remain to be completed.
 
 The runner overrides Xschem's symbol search path for this headless invocation
 to resolve standard `devices/*`, SKY130A, and local decoder symbols. It does not
