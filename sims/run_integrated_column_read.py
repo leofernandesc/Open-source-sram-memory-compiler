@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import re
 import subprocess
@@ -17,7 +18,7 @@ MODEL_LIB = "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice"
 NUMBER = r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
 MEASURE_RE = re.compile(
     rf"^\s*(?P<name>"
-    rf"bl_pre|blb_pre|t_wl50|t_dv|t_sclk50|t_res|"
+    rf"bl_pre|blb_pre|t_wl10|t_wl50|t_wl90|t_wl_fall90|t_wl_fall10|t_dv|t_sclk50|t_res|"
     rf"bl_sclk|blb_sclk|sa_eval|sab_eval|"
     rf"stored_low_peak|stored_high_min|q_final|qb_final|"
     rf"bl_recovery|blb_recovery|t_prech_on50|t_bl_recovery|t_blb_recovery"
@@ -239,6 +240,48 @@ def pex_leaf(
     return text + "\n" + wrapper
 
 
+def pex_source_paths(args: argparse.Namespace) -> dict[str, Path]:
+    root = args.root.resolve()
+    return {
+        "bitcell": root / "layout/bitcell_6t/pex/bitcell_6t_pex.spice",
+        "precharge": (
+            args.precharge_pex_netlist.resolve()
+            if args.precharge_pex_netlist is not None
+            else root / "layout/precharge/pex/precharge_pex.spice"
+        ),
+        "wl_driver": (
+            args.wl_driver_pex_netlist.resolve()
+            if args.wl_driver_pex_netlist is not None
+            else root / "layout/wl_driver/pex/wl_driver_pex.spice"
+        ),
+        "sense": (
+            args.sense_pex_netlist.resolve()
+            if args.sense_pex_netlist is not None
+            else root / "layout/sense_amp/pex/sense_amp_pex.spice"
+        ),
+    }
+
+
+def source_metadata(args: argparse.Namespace, key: str) -> tuple[str, str]:
+    if args.pex:
+        path = pex_source_paths(args)[key]
+    else:
+        path = (args.root / LEAFS[key][0]).resolve()
+    return str(path), hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def extracted_width_um(path: Path) -> float:
+    widths = [
+        float(value)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.startswith("X")
+        for value in re.findall(r"\bw=([0-9.eE+-]+)", line, flags=re.IGNORECASE)
+    ]
+    if not widths:
+        raise RuntimeError(f"no MOS widths found in {path}")
+    return max(widths)
+
+
 def override_precharge_width(subckt: str, width_um: float) -> str:
     """Override only the three precharge-device widths in an extracted leaf."""
     if width_um <= 0:
@@ -339,7 +382,11 @@ CBLB_EXTRA blb 0 {lumped_extra_ff:.6f}f
 .tran {args.tran_step_ps:g}p {stop_ns:.12g}n 0 {args.tran_step_ps:g}p uic
 .meas tran bl_pre find v(bl) at={args.precharge_release_ns - 0.05:.12g}n
 .meas tran blb_pre find v(blb) at={args.precharge_release_ns - 0.05:.12g}n
+.meas tran t_wl10 when v(wl)={0.1*vdd:.12g} rise=1
 .meas tran t_wl50 when v(wl)={vdd/2:.12g} rise=1
+.meas tran t_wl90 when v(wl)={0.9*vdd:.12g} rise=1
+.meas tran t_wl_fall90 when v(wl)={0.9*vdd:.12g} fall=1 td={args.wl_in_at_ns + args.wl_in_width_ns:.12g}n
+.meas tran t_wl_fall10 when v(wl)={0.1*vdd:.12g} fall=1 td={args.wl_in_at_ns + args.wl_in_width_ns:.12g}n
 .meas tran t_dv when par('{dv_expr}')={target_v:.12g} rise=1 td={args.wl_in_at_ns:g}n
 .meas tran t_sclk50 when v(sclk)={vdd/2:.12g} rise=1
 .meas tran bl_sclk find v(bl) when v(sclk)={vdd/2:.12g} rise=1
@@ -398,7 +445,8 @@ def run_case(
 
     m = {match.group("name"): float(match.group("value")) for match in MEASURE_RE.finditer(output)}
     required = {
-        "bl_pre", "blb_pre", "t_wl50", "t_dv", "t_sclk50", "t_res",
+        "bl_pre", "blb_pre", "t_wl10", "t_wl50", "t_wl90",
+        "t_wl_fall90", "t_wl_fall10", "t_dv", "t_sclk50", "t_res",
         "bl_sclk", "blb_sclk", "sa_eval", "sab_eval", "stored_low_peak",
         "stored_high_min", "q_final", "qb_final", "bl_recovery", "blb_recovery",
     }
@@ -406,6 +454,14 @@ def run_case(
     setup_ps = (
         (m["t_sclk50"] - m["t_dv"]) * 1e12
         if {"t_sclk50", "t_dv"} <= m.keys() else None
+    )
+    wl_rise_slew_ps = (
+        (m["t_wl90"] - m["t_wl10"]) * 1e12
+        if {"t_wl10", "t_wl90"} <= m.keys() else None
+    )
+    wl_fall_slew_ps = (
+        (m["t_wl_fall10"] - m["t_wl_fall90"]) * 1e12
+        if {"t_wl_fall90", "t_wl_fall10"} <= m.keys() else None
     )
     t_dv_from_wl_ns = (
         (m["t_dv"] - m["t_wl50"]) * 1e9
@@ -450,6 +506,27 @@ def run_case(
         and m["bl_recovery"] >= vdd - 0.1
         and m["blb_recovery"] >= vdd - 0.1
     )
+    if args.pex:
+        wpre_um = extracted_width_um(pex_source_paths(args)["precharge"])
+        explicit_leaf_ceff_ff = (
+            args.pex_cell_access_ceff_ff
+            + args.pex_precharge_ceff_ff
+            + args.pex_sense_ceff_ff
+        )
+    else:
+        wpre_um = args.precharge_width_um
+        explicit_leaf_ceff_ff = (
+            args.cell_access_ceff_ff
+            + args.precharge_ceff_ff
+            + args.sense_ceff_ff
+        )
+    source_fields = {
+        "simulation_mode": "post_layout_pex" if args.pex else "schematic_screen"
+    }
+    for key in ("bitcell", "precharge", "wl_driver", "sense"):
+        source, digest = source_metadata(args, key)
+        source_fields[f"{key}_source"] = source
+        source_fields[f"{key}_source_sha256"] = digest
     return {
         "corner": corner,
         "vdd_v": vdd,
@@ -458,13 +535,20 @@ def run_case(
         "wpu_um": args.wpu,
         "wpd_um": args.wpd,
         "wacc_um": args.wacc,
-        "wpre_um": args.precharge_width_um,
+        "wpre_um": wpre_um,
         "cbl_total_ff": args.cbl_total_ff,
+        "pex_cell_access_ceff_ff": args.pex_cell_access_ceff_ff if args.pex else args.cell_access_ceff_ff,
+        "pex_precharge_ceff_ff": args.pex_precharge_ceff_ff if args.pex else args.precharge_ceff_ff,
+        "pex_sense_ceff_ff": args.pex_sense_ceff_ff if args.pex else args.sense_ceff_ff,
+        "explicit_leaf_ceff_sum_ff": explicit_leaf_ceff_ff,
+        "lumped_bitline_remainder_ff": args.cbl_total_ff - explicit_leaf_ceff_ff,
         "wl_extra_ff": args.wl_extra_ff,
         "delta_target_mv": args.delta_target_mv,
         "setup_min_ps": args.setup_min_ps,
         "eval_max_ns": args.eval_max_ns,
         "t_wl50_ns": "" if "t_wl50" not in m else m["t_wl50"] * 1e9,
+        "wl_rise_slew_10_90_ps": "" if wl_rise_slew_ps is None else wl_rise_slew_ps,
+        "wl_fall_slew_90_10_ps": "" if wl_fall_slew_ps is None else wl_fall_slew_ps,
         "t_delta_from_wl50_ns": "" if t_dv_from_wl_ns is None else t_dv_from_wl_ns,
         "setup_to_sclk50_ps": "" if setup_ps is None else setup_ps,
         "delta_at_sclk_v": "" if delta_sclk_v is None else delta_sclk_v,
@@ -482,6 +566,7 @@ def run_case(
         "status": "PASS" if passed else "FAIL",
         "returncode": rc,
         "error": "" if rc == 0 else output[-800:].replace("\n", " | "),
+        **source_fields,
     }
 
 

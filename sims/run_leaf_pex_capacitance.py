@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import re
 import subprocess
@@ -14,13 +15,17 @@ from pathlib import Path
 from run_cbl_device_capacitance import MODEL_LIB, run_deck
 
 
-def pex_text(root: Path, leaf: str) -> tuple[str, str]:
-    path = root / "layout" / leaf / "pex" / f"{leaf}_pex.spice"
+def pex_text(root: Path, leaf: str, override: Path | None = None) -> tuple[str, str, Path]:
+    path = (
+        override.resolve()
+        if override is not None
+        else root / "layout" / leaf / "pex" / f"{leaf}_pex.spice"
+    )
     text = path.read_text(encoding="utf-8")
     match = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
     if not match:
         raise RuntimeError(f"missing subcircuit in {path}")
-    return text, match.group(1)
+    return text, match.group(1), path
 
 
 def bitcell_deck(
@@ -81,27 +86,33 @@ def main() -> int:
     p.add_argument("--frequency-hz", type=float, default=1.0e6)
     p.add_argument("--timeout-s", type=float, default=45.0)
     p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--blocks", nargs="+", choices=("bitcell", "precharge"), default=("bitcell", "precharge"))
+    p.add_argument("--precharge-pex-netlist", type=Path, default=None)
     p.add_argument("--output", type=Path, default=root / "sims" / "leaf_pex_capacitance_pvt.csv")
     args = p.parse_args()
     if args.workers < 1 or args.frequency_hz <= 0 or any(not 0 < v <= 1.8 for v in args.vdd_values):
         p.error("invalid workers/frequency/VDD")
 
-    cell_text, cell_name = pex_text(root, "bitcell_6t")
-    pre_text, pre_name = pex_text(root, "precharge")
+    cell_text, cell_name, cell_path = pex_text(root, "bitcell_6t")
+    pre_text, pre_name, pre_path = pex_text(
+        root, "precharge", args.precharge_pex_netlist
+    )
     cases: list[tuple[str, str, str, str, str]] = []
     for corner, vdd, temp_c in itertools.product(args.corners, args.vdd_values, args.temps_c):
-        for state, probe in itertools.product((0, 1), ("BL", "BLB")):
-            deck = bitcell_deck(
-                text=cell_text, name=cell_name, corner=corner, vdd=vdd,
-                temp_c=temp_c, state=state, probe=probe, frequency_hz=args.frequency_hz,
-            )
-            cases.append(("bitcell", corner, str(vdd), str(temp_c), f"q{state}:{probe}", deck))
-        for probe in ("BL", "BLB"):
-            deck = precharge_deck(
-                text=pre_text, name=pre_name, corner=corner, vdd=vdd,
-                temp_c=temp_c, probe=probe, frequency_hz=args.frequency_hz,
-            )
-            cases.append(("precharge", corner, str(vdd), str(temp_c), probe, deck))
+        if "bitcell" in args.blocks:
+            for state, probe in itertools.product((0, 1), ("BL", "BLB")):
+                deck = bitcell_deck(
+                    text=cell_text, name=cell_name, corner=corner, vdd=vdd,
+                    temp_c=temp_c, state=state, probe=probe, frequency_hz=args.frequency_hz,
+                )
+                cases.append(("bitcell", corner, str(vdd), str(temp_c), f"q{state}:{probe}", deck))
+        if "precharge" in args.blocks:
+            for probe in ("BL", "BLB"):
+                deck = precharge_deck(
+                    text=pre_text, name=pre_name, corner=corner, vdd=vdd,
+                    temp_c=temp_c, probe=probe, frequency_hz=args.frequency_hz,
+                )
+                cases.append(("precharge", corner, str(vdd), str(temp_c), probe, deck))
 
     def execute(case: tuple[str, str, str, str, str, str]) -> dict[str, object]:
         block, corner, vdd, temp_c, scenario, deck = case
@@ -109,6 +120,10 @@ def main() -> int:
             "block": block, "corner": corner, "vdd_v": vdd, "temp_c": temp_c,
             "scenario": scenario, "frequency_hz": args.frequency_hz,
             "ceff_ff": "", "status": "ERROR", "error": "",
+            "precharge_pex_path": str(pre_path),
+            "precharge_pex_sha256": hashlib.sha256(pre_path.read_bytes()).hexdigest(),
+            "bitcell_pex_path": str(cell_path),
+            "bitcell_pex_sha256": hashlib.sha256(cell_path.read_bytes()).hexdigest(),
         }
         try:
             ceff_ff, _ = run_deck("ngspice", deck, args.timeout_s)

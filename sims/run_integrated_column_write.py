@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import re
 import subprocess
@@ -320,6 +321,48 @@ def pex_leaf(
     return text + "\n" + wrapper
 
 
+def pex_source_paths(args: argparse.Namespace) -> dict[str, Path]:
+    root = args.root.resolve()
+    return {
+        "bitcell": root / "layout/bitcell_6t/pex/bitcell_6t_pex.spice",
+        "precharge": (
+            args.precharge_pex_netlist.resolve()
+            if args.precharge_pex_netlist is not None
+            else root / "layout/precharge/pex/precharge_pex.spice"
+        ),
+        "wl_driver": (
+            args.wl_driver_pex_netlist.resolve()
+            if args.wl_driver_pex_netlist is not None
+            else root / "layout/wl_driver/pex/wl_driver_pex.spice"
+        ),
+        "write_driver": (
+            args.write_pex_netlist.resolve()
+            if args.write_pex_netlist is not None
+            else root / "layout/write_driver/pex/write_driver_pex.spice"
+        ),
+    }
+
+
+def source_metadata(args: argparse.Namespace, key: str) -> tuple[str, str]:
+    if args.pex:
+        path = pex_source_paths(args)[key]
+    else:
+        path = (args.root / LEAFS[key][0]).resolve()
+    return str(path), hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def extracted_width_um(path: Path) -> float:
+    widths = [
+        float(value)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.startswith("X")
+        for value in re.findall(r"\bw=([0-9.eE+-]+)", line, flags=re.IGNORECASE)
+    ]
+    if not widths:
+        raise RuntimeError(f"no MOS widths found in {path}")
+    return max(widths)
+
+
 def make_deck(
     *, args: argparse.Namespace, leafs: dict[str, str], corner: str,
     vdd: float, temp_c: float, old_q: int,
@@ -520,6 +563,31 @@ def run_case(
         and full_flip_ns >= 0.0 and margin_ns is not None and margin_ns >= 0.0
         and final_ok and recovered
     )
+    if args.pex:
+        pex_paths = pex_source_paths(args)
+        wpre_um = extracted_width_um(pex_paths["precharge"])
+        wwrite_out_um = extracted_width_um(pex_paths["write_driver"])
+        explicit_leaf_ceff_ff = (
+            args.pex_cell_access_ceff_ff
+            + args.pex_precharge_ceff_ff
+            + args.pex_write_ceff_ff
+        )
+    else:
+        pex_paths = {}
+        wpre_um = args.precharge_width_um
+        wwrite_out_um = args.write_output_width_um
+        explicit_leaf_ceff_ff = (
+            args.cell_access_ceff_ff
+            + args.precharge_ceff_ff
+            + args.write_ceff_ff
+        )
+    source_fields = {
+        "simulation_mode": "post_layout_pex" if args.pex else "schematic_screen"
+    }
+    for key in ("bitcell", "precharge", "wl_driver", "write_driver"):
+        source, digest = source_metadata(args, key)
+        source_fields[f"{key}_source"] = source
+        source_fields[f"{key}_source_sha256"] = digest
     return {
         "corner": corner,
         "vdd_v": vdd,
@@ -529,9 +597,14 @@ def run_case(
         "wpu_um": args.wpu,
         "wpd_um": args.wpd,
         "wacc_um": args.wacc,
-        "wpre_um": args.precharge_width_um,
-        "wwrite_out_um": args.write_output_width_um,
+        "wpre_um": wpre_um,
+        "wwrite_out_um": wwrite_out_um,
         "cbl_total_ff": args.cbl_total_ff,
+        "pex_cell_access_ceff_ff": args.pex_cell_access_ceff_ff if args.pex else args.cell_access_ceff_ff,
+        "pex_precharge_ceff_ff": args.pex_precharge_ceff_ff if args.pex else args.precharge_ceff_ff,
+        "pex_write_ceff_ff": args.pex_write_ceff_ff if args.pex else args.write_ceff_ff,
+        "explicit_leaf_ceff_sum_ff": explicit_leaf_ceff_ff,
+        "lumped_bitline_remainder_ff": args.cbl_total_ff - explicit_leaf_ceff_ff,
         "wl_extra_ff": args.wl_extra_ff,
         "wl_in_width_ns": args.wl_in_width_ns,
         "actual_wl_high_ns": "" if wl_high_ns is None else wl_high_ns,
@@ -550,6 +623,7 @@ def run_case(
         "status": "PASS" if passed else "FAIL",
         "returncode": rc,
         "error": "" if rc == 0 else output[-800:].replace("\n", " | "),
+        **source_fields,
     }
 
 
