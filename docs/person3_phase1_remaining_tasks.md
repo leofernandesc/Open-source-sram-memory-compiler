@@ -44,12 +44,12 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 |---|---|---|---|---|
 | P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Complete.** B7 source and declared pre-layout qualification retained. | Source hashes and bounded electrical evidence in the characterization report. |
 | P3-2 | Establish captured-address/PCLK timing budget | P3-1; control interface coordination | **Provisional budget measured; integration open.** Use 1.50 ns as the tested pre-layout target, then agree and characterize the actual PCLK source and captured-address fanout. | 72/72 selected-point cases pass; 431.2 ps worst literal lead with 250 ps experimental guard. No external setup/hold or Fmax claim. |
-| P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Pending; next.** Route nine named ports, regenerated literals, four distinct stack nodes, body ties and isolated EVAL_GND. | Saved Magic source and reviewed interface/rail connectivity. |
-| P3-4 | Close decoder DRC | P3-3 | **Pending.** | Saved Magic/rule-deck versions and zero-error report, including hierarchy checks. |
-| P3-5 | Extract and close decoder LVS | P3-4 | **Pending.** | Unique Netgen match to retained schematic, all 29 devices, dimensions, supplies and body pins. |
-| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Pending.** | PEX hashes plus logic, false-row, precharge, terminal, delay and energy comparisons; rerun DRC/LVS after changes. |
-| P3-7 | Review row loads and WL behavior with physical row | P3-6; Danilo's bitcell interface | **Pending.** Test decoder → four WL buffers → row for every address; include coupling and 50 fF stress. Replace 17.4 fF estimate with extracted data. | Output levels, slew, delay and coupling from physical row extraction. |
-| P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending.** Preserve other owners' source; integrate when leaves are ready. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
+| P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; first routed layout.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
+| P3-4 | Close decoder DRC | P3-3 | **Complete for this layout revision.** Magic reports zero errors on the routed hierarchy and flattened layout. | `reports/route.txt`, `reports/drc_flat.txt`; Magic 8.3.589 and SKY130A tech 1.0.493. |
+| P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for this layout revision.** Extracted topology matches the retained schematic uniquely. | `reports/lvs_recheck.txt`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
+| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Paused before detailed resistive extraction.** Capacitive extraction exists, but no distributed resistors or post-layout electrical comparison is accepted yet. The legacy Magic command was corrected in the script, but that correction has not been exercised; detailed extraction awaits a faster machine. | Full R-C netlist with resistance and capacitance elements, provenance/hashes, then functional, precharge, terminal, delay and energy comparisons; rerun DRC/LVS after any layout changes. |
+| P3-7 | Review row loads and WL behavior with physical row | P3-6; Danilo's bitcell interface | **Blocked by missing physical input.** No `layout/bitcell_6t/` layout is present on this branch. | After Danilo supplies/reviews the physical bitcell: decoder → four WL buffers → row for every address, coupling and 50 fF stress; replace the 17.4 fF estimate with extracted data. |
+| P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
 | P3-10 | Package Person 3 Phase 1 delivery | P3-4 through P3-9, or documented blocker | **Pending.** | Schematics/symbols, benches, layouts, extraction/DRC/LVS, selected CSVs, reports, dimensions, reproducible environment and limitations. |
 
@@ -68,12 +68,13 @@ not silently become the decoder's statistical acceptance criterion.
 ## Coordination and known integration dependency
 
 The last recorded integrated-read attempt failed while netlisting the
-precharge leaf, before ngspice. Recheck the owner's latest source when it is
-ready. This historical blocker is not proof that the current remote version
-still fails. Andre owns that correction; Leonardo's decoder work must not
-silently repair or change it. Preserve Danilo's bitcell sizes, testbenches,
-reports and layouts while consuming their approved interfaces and capacitance
-data.
+precharge leaf, before ngspice. Recheck the owner's latest source during the
+interface review; this historical blocker is not proof that the current remote
+version still fails. André owns that block. No physical bitcell layout was
+found under `layout/` on this branch, so extracted row loading cannot be
+completed yet. Do not silently modify either owner's source. Preserve Danilo's
+bitcell sizes, testbenches, reports and layouts while consuming approved
+interfaces and capacitance data.
 
 ## Proposed dates
 

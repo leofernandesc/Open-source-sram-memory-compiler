@@ -415,3 +415,55 @@ Reproduce the archived campaigns using new output directories:
 Summaries, detailed checks, terminal measurements, exact executed scripts,
 PDK/library/tool hashes, and per-case decks/logs are archived in
 [`sims/row_decoder/results/`](../sims/row_decoder/results/).
+
+
+## 2026-10-07: dynamic row decoder layout, DRC and LVS
+
+The B7 dynamic 2-to-4 decoder was imported from the canonical Xschem netlist
+and routed in Magic under [`layout/row_decoder/`](../layout/row_decoder/).
+The generated layout contains 29 MOS devices, four distinct evaluation stacks,
+four precharge PMOS devices, four output inverters, two address-complement
+inverters, a shared PCLK-controlled evaluation footer, separate VDD/VSS body
+connections and an isolated `EVAL_GND` node. The external interface retains
+`VDD`, `PCLK`, `A0`, `A1`, `DEC0`–`DEC3` and `VSS`; the physical port ordering
+is checked against the Xschem-generated netlist by the layout builder.
+
+Magic 8.3.589 with SKY130A technology 1.0.493 reports **0 DRC errors** on the
+routed hierarchy and **0 DRC errors** on the flattened view. The reports are
+[`route.txt`](../layout/row_decoder/reports/route.txt) and
+[`drc_flat.txt`](../layout/row_decoder/reports/drc_flat.txt). The flattened
+Magic extraction was compared with the retained schematic through Netgen
+1.5.293: the result is a unique match with 29 devices (17 NFET, 12 PFET) and
+22 nets; the external pins and device body connections match. The comparison
+was repeated after recording the result; see
+[`lvs_recheck.txt`](../layout/row_decoder/reports/lvs_recheck.txt), alongside
+the original [`lvs.txt`](../layout/row_decoder/reports/lvs.txt). These results close DRC and
+LVS for this generated layout revision; they do not establish extracted timing
+or physical-row behavior.
+
+The first extraction attempt produced 231 coupling/substrate capacitance
+elements, but **zero distributed route resistors**. Therefore the file from
+that attempt is not a completed R-C PEX result and has not been used for
+post-layout simulation. The cap-only SPICE file is retained under the explicit
+name [`row_decoder_cap_only_unqualified.spice`](../layout/row_decoder/reports/row_decoder_cap_only_unqualified.spice).
+Inspection of the failed Magic transcript
+[`extract_attempt.txt`](../layout/row_decoder/reports/extract_attempt.txt) showed that the
+legacy command had created `run.sim`/`run.nodes` instead of the required
+cell-named files, so the builder now runs `ext2sim` on the loaded flattened
+cell before `extresist`. The script has been corrected to call `ext2sim` with
+no root argument, which targets the loaded cell; this correction has not yet
+been exercised. Magic 8.3.589 predates the integrated full-resistance option
+added in 8.3.597; the legacy flow depends on the `.sim` and `.nodes` files.
+The detailed resistance extraction is paused until it can be run on a faster
+machine, as it was already slow on the current laptop. The next command to
+run, once that machine is ready, is:
+
+```bash
+./tools/sram-eda python3 layout/row_decoder/build_layout.py \
+  --skip-import --extract
+```
+
+The runner checks for both R and C elements and stops if either is missing.
+Do not treat a capacitance-only netlist as PEX. The Magic command sequence is
+described in the [official Magic extraction reference](https://github.com/RTimothyEdwards/magic/blob/master/doc/html/extract.html)
+and [extresist reference](https://github.com/RTimothyEdwards/magic/blob/master/doc/html/extresist.html).
