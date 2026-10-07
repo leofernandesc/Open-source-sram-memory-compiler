@@ -224,3 +224,20 @@ polarity briefly; these extrema are retained rather than relabeled as a full
 model-domain PASS. The circuit still needs the remaining address-history,
 captured-address setup, asymmetric edge, phase-duration, noise, actual-clock
 driver and post-layout tests in [the sizing campaign](row_decoder_sizing_plan.md).
+
+
+## 2026-10-07: expanded address-history qualification supersedes the sizing inference
+
+The earlier B6 results remain measurements for their archived stimulus. They
+do not qualify every address history: simultaneous two-bit changes with
+Gear 1 ps and CHGTOL=1e-18 C expose an M2 VDS maximum of **1.974458 V**
+at SS/1.8 V/-40 C. B6 remains the source schematic, not a final robust sizing.
+
+Leonardo selected greater electrical margin and robustness as the decoder
+selection priority. The implemented contract executor now measures all ordered
+histories, address arrival, phase lengths, finite retention, edge asymmetry,
+charge perturbations, signed external MOS terminal extrema and family
+interactions. Failed comparisons are retained. The new
+[characterization record](row_decoder_contract_characterization.md) contains
+the current evidence, numerical-breakpoint investigation and reproducible
+commands. Physical closure and full signed model-domain review remain open.

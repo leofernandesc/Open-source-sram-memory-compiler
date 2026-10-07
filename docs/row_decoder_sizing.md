@@ -280,3 +280,20 @@ address-history, family/interactions, load, PVT and extracted-netlist campaign
 in the linked review. At the historical B5 sizes, 250 ps clock edges pass the
 tested upper-VGS screen while 50 ps edges do not; this diagnostic does not
 approve a new macro clock-slew limit.
+
+
+## 2026-10-07: expanded address-history qualification supersedes the sizing inference
+
+The earlier B6 results remain measurements for their archived stimulus. They
+do not qualify every address history: simultaneous two-bit changes with
+Gear 1 ps and CHGTOL=1e-18 C expose an M2 VDS maximum of **1.974458 V**
+at SS/1.8 V/-40 C. B6 remains the source schematic, not a final robust sizing.
+
+Leonardo selected greater electrical margin and robustness as the decoder
+selection priority. The implemented contract executor now measures all ordered
+histories, address arrival, phase lengths, finite retention, edge asymmetry,
+charge perturbations, signed external MOS terminal extrema and family
+interactions. Failed comparisons are retained. The new
+[characterization record](row_decoder_contract_characterization.md) contains
+the current evidence, numerical-breakpoint investigation and reproducible
+commands. Physical closure and full signed model-domain review remain open.

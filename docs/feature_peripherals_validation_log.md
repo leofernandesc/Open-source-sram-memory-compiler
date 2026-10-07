@@ -257,3 +257,38 @@ and a waveform figure are in [the feedthrough report](row_decoder_feedthrough_fi
 The standard runner now checks address-inverter VDS during precharge as well as
 dynamic-node upper VGS during the entire transient. Existing bitcell, WL driver,
 write driver and other owners' schematics/layouts were preserved.
+
+
+## 2026-10-07: address-history and robustness characterization
+
+Leonardo chose electrical margin and robustness as the decoder sizing priority.
+The new contract executor preserves the canonical B6 schematic while testing
+disposable input waveforms and dimensions. Completed matrices include 144
+address/load histories, an 810-point arrival/phase/retention/edge/noise suite,
+152 nominal family runs, 80 shortlisted corner cases, 132 refined interactions,
+80 stack runs and 96 capacitance interactions. Twenty-four DC inverter curves
+provide measured trip references. Their CSVs, manifests and executed script
+snapshots are archived under `sims/row_decoder/results/`.
+
+Expanded simultaneous address changes and CHGTOL=1e-18 C expose B6 M2 VDS
+up to 1.974458 V. Thus the earlier schedule-specific B6 PASS is insufficient
+for final sizing. All first shortlisted candidates fail at least one screen;
+several larger-capacitance alternatives pass limited matrices with less than
+0.23 mV voltage headroom and remain unfrozen. Exploratory rejected points and
+invalid-address negative controls are retained, not counted as legal passes.
+
+The executor rejects ngspice error logs, incomplete and nonfinite waveforms
+even when `.control quit 0` returns zero. Checkpoints are written atomically
+before raw cleanup; reuse requires matching input/script, recursive model
+includes, helpers and tool versions. Numerical retries record MINBREAK and
+CHGTOL without adding artificial circuit shunts. Current regressions include
+narrow wrong-row pulses, incomplete precharge, bulk/rail/connectivity faults,
+voltage-only exit failures, model fingerprint changes and buffered-address
+diagnostic structure. Twenty-eight checker regressions pass.
+
+Candidate interaction and buffered-address comparisons are continuing.
+[The characterization report](row_decoder_contract_characterization.md) and
+its exported PNG/PDF chart document the measurements and their limits.
+Canonical decoder, WL/write driver, bitcell, root Xschem configuration and
+other-owner source/layout work remain untouched by this campaign. No decoder
+DRC, LVS, mismatch or full signed-model/reliability closure is claimed.
