@@ -589,11 +589,18 @@ The current artifact was generated with Magic 8.3.589. The builder now reports
 negative capacitor entries and returns a nonzero status after completing LVS;
 the matched PEX simulation runner rejects them before invoking Xschem or
 ngspice. The [Magic download page](https://opencircuitdesign.com/magic/download.html)
-lists version 8.3.684 dated 2026-09-18. The next implementation step is to
-regenerate this same flattened layout's PEX with a newer Magic release, audit
-the resulting capacitor values, and only then resume the one-case smoke and
-13-case comparison. Do not delete the four entries from the published PEX by
-hand: that would alter the extracted model without a justified capacitance
+lists version 8.3.684 dated 2026-09-18. The earlier PowerShell extraction
+command reused the existing `sram-xschem` container, so it continued to select
+Magic 8.3.589; rerunning that command alone would not change the tool version.
+The repository now includes
+[`install_magic_8_3_684.sh`](../tools/install_magic_8_3_684.sh) and explicit
+version-selection commands in the
+[`row decoder layout guide`](../layout/row_decoder/README.md). Magic 8.3.684 is
+a candidate to evaluate, not a confirmed fix. Regenerate this same flattened
+layout's PEX with that exact executable, record its version and hash, audit the
+resulting capacitor values, and only then resume the one-case smoke and 13-case
+comparison. Do not delete the four entries from the published PEX by hand:
+that would alter the extracted model without a justified capacitance
 redistribution.
 
 The two earlier 180-second pilot timeouts remain inconclusive. The negative
