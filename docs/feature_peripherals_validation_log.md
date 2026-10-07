@@ -503,3 +503,76 @@ Reproduce the pre-PEX checks from the repository root:
 Detailed distributed R-C extraction and post-layout simulation remain pending
 for the faster machine. The earlier cap-only artifact remains explicitly
 unqualified.
+
+## 2026-10-07: distributed decoder R-C extraction completed; electrical simulation pending
+
+The previous entry records the state before the current extraction run and is
+superseded for extraction status by this entry. The WSL 2 / Docker Desktop setup
+was completed on the Windows host: WSL 2.7.13.0 with kernel 6.1.33.2,
+Docker Desktop 4.94, and Docker CLI/server 29.8.2. The project container is
+`isaiassh/unic-cass-tools:1.0.7`, mounted at `/work`; tools used were Xschem
+3.4.6, Magic 8.3.589, SKY130A technology 1.0.493
+(`open_pdks` commit `0fe599b2afb6708d281543108caf8310912f54af`), Netgen
+1.5.293, and ngspice 44.2. The container image and PDK versions were checked
+from the installed tools and files rather than inferred from the image tag.
+
+The standard `tools/sram-eda --check` launcher could not validate its bind mount
+from this Windows checkout because Docker reports the mount source as a Windows
+drive path while the launcher resolves the checkout through the shell's POSIX
+path. The EDA command was therefore run directly in the already configured
+container with `PDK_ROOT=/opt/pdks`, `PDK=sky130A`, and the installed `/opt`
+tool directories added to `PATH`:
+
+```powershell
+docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/ngspice/*/bin /opt/magic/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do if [ -d "$tool_dir" ]; then PATH="$tool_dir:$PATH"; fi; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-import --extract'
+```
+
+This command rebuilt routing, waited for Magic DRC on the routed and flattened
+views, performed detailed extraction, and ran Netgen LVS. Both DRC reports
+contain zero errors. The extracted netlist
+[`row_decoder_pex.spice`](../layout/row_decoder/pex/row_decoder_pex.spice)
+contains 29 MOS devices, 769 resistors, and 494 capacitors, and preserves the
+external pin order `VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`. Its SHA-256 is
+`cb22575eba88efbd7f40412cb18870cb3854fa4873c24db76f07f4f25df9b737`.
+Netgen reports “Circuits match uniquely,” with 29 devices (17 NFET, 12 PFET)
+and 22 nets. The extraction, DRC, and LVS logs are retained in
+[`layout/row_decoder/reports/`](../layout/row_decoder/reports/); the earlier
+231-capacitor, zero-resistor artifact remains explicitly unqualified.
+
+The schematic-to-PEX electrical comparison has not completed. Two one-case
+TT/00-to-00 pilots used 17.4 fF WL loads, 50 ps clock/address edges, Gear
+integration, and maximum steps of 1 ps and 5 ps. The schematic baseline passed
+with zero failed checks in both runs. At 1 ps its measured DEC/WL 90% delays
+were 115.59/459.74 ps, DEC/WL precharge-to-10% delays were 245.66/418.65 ps,
+and the terminal-magnitude maximum was 1.9033 V. At 5 ps the corresponding
+values were 115.97/459.94 ps, 245.98/418.73 ps, and 1.8998 V. These are
+pre-layout pilot results only. In both runs, ngspice 44.2 exceeded its
+180-second per-case limit on the R-C PEX case; no PEX waveform, PEX measurements,
+or paired comparison was produced. The manifests and baseline outputs are
+retained in
+[`row_decoder_pex_smoke_20261007`](../sims/row_decoder/results/row_decoder_pex_smoke_20261007/pex/manifest.json)
+and
+[`row_decoder_pex_smoke_5ps_20261007`](../sims/row_decoder/results/row_decoder_pex_smoke_5ps_20261007/pex/manifest.json).
+The timeout does not establish either a functional failure or a successful PEX
+simulation.
+
+The new PEX runner
+[`run_row_decoder_pex_contract.py`](../sims/row_decoder/run_row_decoder_pex_contract.py)
+prepares a matched 13-case matrix: nine TT transitions and four SS/-40 C
+diagonal transitions. It checks functional outputs, precharge, all distributed
+dynamic-node segments, terminal magnitudes, delay, slew, and energy. Its
+per-case ngspice timeout is configurable; on the faster workstation, start
+with a one-case smoke using a 900-second limit, then run the full matrix:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+  --limit 1 --workers 1 --timeout-s 900
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+  --workers 2 --timeout-s 900
+```
+
+Do not report post-layout electrical validation until the PEX cases complete
+and the matched checks pass. The decoder PEX includes the extracted decoder
+only; the four WL buffers remain schematic devices and the row load remains the
+17.4 fF estimate. Physical-row loading and complete macro behavior are still
+outside this evidence.

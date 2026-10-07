@@ -479,7 +479,7 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
     return result, checks, extrema
 
 
-def simulate(case, netlist, folder, keep, checkpoints=None, environment_hash=None, timeout_s=180):
+def simulate(case, netlist, folder, keep, checkpoints=None, environment_hash=None):
     target = folder / case["label"]
     target.mkdir(parents=True, exist_ok=True)
     model = Path(os.environ.get("PDK_ROOT", "/opt/pdks")) / "sky130A/libs.tech/combined/continuous/sky130.lib.spice"
@@ -511,7 +511,7 @@ def simulate(case, netlist, folder, keep, checkpoints=None, environment_hash=Non
             deck_path.write_text(deck)
             (target / "waveform.raw").unlink(missing_ok=True)
             process = subprocess.run(["ngspice", "-n", "-b", str(deck_path)], cwd=target,
-                                     capture_output=True, text=True, timeout=timeout_s)
+                                     capture_output=True, text=True, timeout=180)
             log = process.stdout + process.stderr
             log_path.write_text(log)
             successful = process.returncode == 0 and not re.search(r"Error:|failed!|aborted", log, re.I)
@@ -548,10 +548,7 @@ def main():
     parser.add_argument("--artifacts-dir", type=Path)
     parser.add_argument("--resume", action="store_true", help="Resume an incomplete campaign from verified raw files/checkpoints")
     parser.add_argument("--workers", type=int, choices=(1, 2, 4), default=2)
-    parser.add_argument("--timeout-s", type=int, default=180,
-                        help="Maximum seconds per ngspice case (default: 180)")
     args = parser.parse_args()
-    screen.require(args.timeout_s > 0, "--timeout-s must be a positive integer")
     screen.require((args.campaign == "selected") == (args.case_file is not None),
                    "--campaign selected requires --case-file; other campaigns use their declared matrices")
     screen.require(args.resume or not args.output_dir.exists(), "Use a new output directory or --resume")
@@ -603,7 +600,7 @@ def main():
                         helper_sha256=helpers, model_dependencies_sha256=dependencies,
                         environment_sha256=environment_hash,
                         model_sha256=hashlib.sha256(model.read_bytes()).hexdigest(), model_hash_scope="recursive .include closure, all library sections",
-                        tools=versions, ngspice_timeout_s=args.timeout_s,
+                        tools=versions,
                         note="Experimental 10%/90% logic criteria; signed external VGS/VGD/VDS/VBS retained. Magnitude screen is not full signed model-domain or reliability closure. Internal address lead, not SRAM register setup; no Fmax claim.")
         (args.output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2)+"\n")
         checkpoints = args.output_dir / "checkpoints"
@@ -613,8 +610,7 @@ def main():
         errors = []
         def execute(case):
             try:
-                return simulate(case, netlist, folder, args.artifacts_dir is not None,
-                                checkpoints, environment_hash, args.timeout_s), None
+                return simulate(case, netlist, folder, args.artifacts_dir is not None, checkpoints, environment_hash), None
             except Exception as error:
                 errors_dir.mkdir(exist_ok=True)
                 for filename in ("case.spice", "ngspice.log"):

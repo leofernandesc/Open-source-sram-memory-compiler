@@ -445,7 +445,9 @@ def run_extraction_and_lvs() -> tuple[str, str]:
     (LAYOUT / "pex").mkdir(exist_ok=True)
     extraction_script()
     magic("extract_layout.tcl", "extract.log")
-    spice = (LAYOUT / "row_decoder_flat_extracted.spice").read_text(encoding="utf-8")
+    connectivity_path = LAYOUT / "row_decoder_flat_extracted.spice"
+    spice = connectivity_path.read_text(encoding="utf-8").rstrip() + "\n"
+    connectivity_path.write_text(spice, encoding="utf-8")
     devices = [line for line in spice.splitlines() if re.match(r"^X\S+\s", line)]
     if len(devices) != 29:
         raise RuntimeError(f"Magic extraction found {len(devices)} MOS devices; expected 29")
