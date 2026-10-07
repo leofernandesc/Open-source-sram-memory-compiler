@@ -94,9 +94,9 @@ The PEX builder checks for R and C elements, reports any negative capacitor
 values, and returns nonzero if they are present after running Netgen LVS. The
 matched simulation runner also refuses a PEX file containing negative
 capacitors before launching Xschem or ngspice. The current retained artifact
-fails this audit; regenerate it with a newer Magic release before using the
-simulation command below. The earlier cap-only file remains unqualified and
-must not be used as PEX.
+in the 8.3.589 run failed this audit; that file is superseded by the later
+8.3.684 extraction documented below. The earlier cap-only file remains
+unqualified and must not be used as PEX.
 
 ## Repeat matched electrical tests
 
@@ -116,3 +116,24 @@ The 1 ps and 5 ps single-case pilots and their failed PEX manifests are retained
 under `sims/row_decoder/results/row_decoder_pex_smoke*`. They show the timeout,
 not a functional PEX failure or a successful post-layout simulation. Record
 the matched comparison before making electrical post-layout claims.
+
+## 2026-10-08 UTC: current R-C extraction and simulation status
+
+The later extraction with Magic 8.3.684 supersedes the negative-capacitance
+artifact described above. Current routed and flattened DRC are both zero;
+Netgen LVS is a unique match. The current PEX contains 29 MOS, 393 resistors and
+226 capacitors, preserves the external pins, and contains no negative
+capacitance. Its SHA-256 is
+`c3e39efae880fd46fddd0d610f9dd789a3beeee847c62ba2fbdaa1bf88419128`.
+
+The full matched simulation is in
+[`row_decoder_pex_output_pfets_3um_20261008`](../../sims/row_decoder/results/row_decoder_pex_output_pfets_3um_20261008/).
+All 13 pre-layout cases pass their functional/settling checks. The extracted
+PEX completed all 13 cases: nine pass and four SS/-40 C diagonal cases fail the
+selected-wordline 1 ns level check (1.201–1.328 V versus a 1.458 V minimum).
+The PEX's signed model upper screen passes, while five cases exceed the
+experimental 1.95 V magnitude screen. Thus R-C extraction, DRC and LVS are
+closed; full post-layout electrical closure remains open. The decoder-only PEX
+still uses schematic WL buffers and the estimated 17.4 fF row load. See the
+dated entry in the validation log for tool versions, commands, measurements
+and limitations.

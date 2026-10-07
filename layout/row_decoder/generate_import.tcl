@@ -8,6 +8,8 @@ foreach child $physical_children { load $child; save $child }
 load $physical_top
 save row_decoder_import
 select top cell
+drc style drc(full)
 drc check
+drc catchup
 drc count total
 quit -noprompt
