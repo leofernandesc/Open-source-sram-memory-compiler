@@ -1,5 +1,13 @@
 # Dynamic row decoder review and sizing campaign
 
+Current-source update (2026-10-07): **B7 is now retained** after a complete
+264-case qualification and finer numerical comparisons. The B0--B6 tables
+below remain historical experiments. Use the
+[current characterization record](row_decoder_contract_characterization.md)
+for the 29-MOS buffered source, measured costs and remaining limits, and the
+[Person 3 Phase 1 plan](person3_phase1_remaining_tasks.md) for subsequent work.
+
+
 Status: proposed pre-layout campaign for the existing 2-to-4 dynamic decoder.
 This document plans experiments; it does not freeze transistor sizes, clock
 limits, nominal characterization temperature, or the project's optimization

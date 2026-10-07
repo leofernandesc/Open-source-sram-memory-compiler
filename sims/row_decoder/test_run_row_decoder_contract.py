@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import run_row_decoder_contract as contract
 import run_row_decoder_tt as screen
+from generate_buffered_decoder_schematic import generate
 
 
 class ContractWaveformRegression(unittest.TestCase):
@@ -115,6 +116,14 @@ class ContractWaveformRegression(unittest.TestCase):
         self.assertEqual(devices['M26']['W'],.75)
         self.assertIn('v(x1.a0t)',deck)
         self.assertEqual(set(nodes),set(self.nodes))
+        # A fresh netlist from a saved 29-MOS schematic receives the same audit
+        # and must not acquire duplicate diagnostic buffers.
+        inspected_nodes, inspected = screen.inspect_netlist(deck, True)
+        self.assertEqual(len(inspected),29)
+        self.assertEqual(inspected['M26']['nodes'],devices['M26']['nodes'])
+        again, _, repeated, repeated_terminals, _ = contract.make_deck(deck, case, Path('/models/lib.spice'))
+        self.assertEqual(len(repeated),29)
+        self.assertEqual(len(repeated_terminals),45)
 
     def test_matching_checkpoint_reuses_analysis_without_ngspice(self):
         import hashlib
@@ -149,6 +158,20 @@ class ContractWaveformRegression(unittest.TestCase):
             with patch.object(contract.subprocess, 'run', side_effect=RuntimeError('new simulation requested')):
                 with self.assertRaisesRegex(RuntimeError, 'new simulation requested'):
                     contract.simulate(self.case, self.netlist, root/'work', False, checkpoints, 'new-models')
+
+    def test_schematic_generator_reproduces_the_retained_candidate(self):
+        folder = Path(__file__).parent/'results/buffered_b7_candidate'
+        original = (folder/'original_b6.sch').read_text()
+        result = generate(original)
+        self.assertEqual(result, (folder/'row_decoder.sch').read_text())
+        self.assertIn('{name=M26\nW=2', result)
+        self.assertIn('name=p3 lab=A0', result)
+        self.assertIn('name=p8 lab=A1', result)
+
+    def test_generator_rejects_an_already_buffered_source(self):
+        folder = Path(__file__).parent/'results/buffered_b7_candidate'
+        with self.assertRaisesRegex(ValueError, '25-MOS'):
+            generate((folder/'row_decoder.sch').read_text())
 
 
 if __name__ == "__main__":

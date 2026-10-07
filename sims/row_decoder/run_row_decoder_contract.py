@@ -29,6 +29,8 @@ PROFILES = {"tt": ("tt", 1.8, 27), "slow": ("ss", 1.62, -40),
             "fast": ("ff", 1.8, 125), "ss_cold": ("ss", 1.8, -40)}
 SCRIPT_TEXT = Path(__file__).read_text()
 SCRIPT_HASH = hashlib.sha256(SCRIPT_TEXT.encode()).hexdigest()
+HELPER_CONTENTS = {Path(p).name: Path(p).read_bytes()
+                   for p in (screen.__file__, Path(__file__).with_name('plot_row_decoder_review.py'))}
 
 
 def model_dependencies(model):
@@ -240,6 +242,8 @@ def make_deck(netlist, case, model):
     families = {"footer_um": (8,), "stack_um": (6, 7, 12, 13, 17, 18, 22, 23),
                 "precharge_um": (5, 11, 16, 21), "out_p_um": (9, 14, 19, 24),
                 "out_n_um": (10, 15, 20, 25), "addr_p_um": (1, 3), "addr_n_um": (2, 4)}
+    if re.search(r'(?im)^XM26\s', netlist):
+        families['true_buffer_um'] = (26,27,28,29)
     for family, devices4 in families.items():
         if family in case:
             for device in devices4:
@@ -252,7 +256,9 @@ def make_deck(netlist, case, model):
                                      rf"\g<1>{case['addr_l_um']:g}", netlist)
             screen.require(count == 1, f"Expected one XM{device} address length")
     nodes, devices = screen.inspect_netlist(netlist, True)
-    if case.get('buffer_addresses', False):
+    screen.require(case.get('buffer_addresses', True) or len(devices)==25,
+                   'An unbuffered case requires a 25-MOS archived input netlist')
+    if case.get('buffer_addresses', False) and len(devices)==25:
         netlist, devices = buffered_addresses(netlist, devices, case.get('true_buffer_um', .42))
     pins, _ = screen.subcircuit(netlist, "row_decoder")
     top = next(line.split() for line in netlist.splitlines() if line.startswith("x1 "))
@@ -442,13 +448,13 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
                   noise_node=case.get("noise_node", ""), charge_fc=case.get("charge_fc", 0),
                   method=case.get("method", "gear"), result=status,
                   minbreak_fs=case.get("minbreak_fs", "default"), chgtol_c=case.get("chgtol_c", "default"),
-                  candidate=case.get("candidate", "B6"),
+                  candidate=case.get("candidate", "current"),
                   footer_um=devices["M8"]["W"], stack_um=devices["M6"]["W"],
                   precharge_um=devices["M5"]["W"], out_n_um=devices["M10"]["W"], out_p_um=devices["M9"]["W"],
                   addr_n_um=devices["M2"]["W"], addr_p_um=devices["M1"]["W"],
                   addr_l_um=devices["M1"]["L"],
-                  buffer_addresses=case.get('buffer_addresses', False),
-                  true_buffer_um=case.get('true_buffer_um', .42) if case.get('buffer_addresses', False) else '',
+                  buffer_addresses=len(devices)==29,
+                  true_buffer_um=devices['M26']['W'] if len(devices)==29 else '',
                   channel_area_proxy_um2=sum(d["W"]*d["L"] for d in devices.values()),
                   corner=condition(case)[0], vdd_v=vdd,
                   temperature_c=condition(case)[2],
@@ -561,6 +567,8 @@ def main():
         folder.mkdir(parents=True, exist_ok=True)
         netlist = args.netlist.read_text() if args.netlist else netlist_current(folder)
         _, devices = screen.inspect_netlist(netlist, True)
+        screen.require(args.campaign != 'sizing' or len(devices)==25,
+                       'The original B6 family matrix requires --netlist with its archived 25-MOS input; use selected cases for buffered sizing')
         (args.output_dir / "input_netlist.spice").write_text(netlist)
         campaigns = ("timing", "negative", "low_phase", "high_phase", "retention", "edges", "address_edges", "charge") if args.campaign == "suite" else (args.campaign,)
         cases = json.loads(args.case_file.read_text()) if args.case_file else [case for campaign in campaigns for case in matrix(campaign, args.profiles)]
@@ -571,8 +579,11 @@ def main():
             screen.require(previous["netlist_sha256"] == hashlib.sha256(netlist.encode()).hexdigest()
                            and previous["cases"] == cases, "Resume requires the same netlist and declared cases")
         model = Path(os.environ.get("PDK_ROOT", "/opt/pdks")) / "sky130A/libs.tech/combined/continuous/sky130.lib.spice"
-        helpers = {Path(p).name: hashlib.sha256(Path(p).read_bytes()).hexdigest()
-                   for p in (screen.__file__, Path(__file__).with_name('plot_row_decoder_review.py'))}
+        helpers = {name: hashlib.sha256(content).hexdigest() for name,content in HELPER_CONTENTS.items()}
+        helper_folder = args.output_dir/'helper_snapshots'
+        helper_folder.mkdir(exist_ok=True)
+        for name,content in HELPER_CONTENTS.items():
+            (helper_folder/name).write_bytes(content)
         dependencies = model_dependencies(model)
         versions = {"ngspice": screen.tool_version("ngspice"), "xschem": screen.tool_version("xschem")}
         environment_hash = hashlib.sha256(json.dumps(dict(helpers=helpers, models=dependencies,

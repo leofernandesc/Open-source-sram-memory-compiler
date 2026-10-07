@@ -63,7 +63,7 @@ def main():
     points.reverse()
     values=[float(r['diagnostic_headroom_mv']) for r in points]
     ax.barh(range(len(points)), values, color=['#238b45' if r['eligible']=='True' else '#cb181d' for r in points])
-    ax.set_yticks(range(len(points)), [r['candidate'] for r in points], fontsize=8)
+    ax.set_yticks(range(len(points)), [r['candidate']+f" ({r['cases']} cases)" for r in points], fontsize=8)
     ax.axvline(0,color='black',lw=.8)
     ax.set(xlabel='1.95 V minus largest terminal magnitude (mV)', title='Refined candidate screens: differing declared case sets')
     for a in axes.flat:

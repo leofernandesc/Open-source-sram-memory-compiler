@@ -1,5 +1,13 @@
 # Dynamic decoder feedthrough investigation and corrective sizing
 
+Current-source update (2026-10-07): **B7 is now retained** after a complete
+264-case qualification and finer numerical comparisons. The B0--B6 tables
+below remain historical experiments. Use the
+[current characterization record](row_decoder_contract_characterization.md)
+for the 29-MOS buffered source, measured costs and remaining limits, and the
+[Person 3 Phase 1 plan](person3_phase1_remaining_tasks.md) for subsequent work.
+
+
 Status: pre-layout corrective candidate B6, retaining the specified dynamic
 2-to-4 NAND architecture and the nine-pin interface. This is a measured
 correction of the upper-voltage excursions, not the final sizing freeze.

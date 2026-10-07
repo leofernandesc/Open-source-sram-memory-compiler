@@ -292,3 +292,42 @@ its exported PNG/PDF chart document the measurements and their limits.
 Canonical decoder, WL/write driver, bitcell, root Xschem configuration and
 other-owner source/layout work remain untouched by this campaign. No decoder
 DRC, LVS, mismatch or full signed-model/reliability closure is claimed.
+
+
+## 2026-10-07: retained buffered decoder B7 and Phase 1 handoff plan
+
+B7 preserves the dynamic NAND architecture and all nine external pins. Four
+additional static MOS regenerate A0T/A1T after the existing complement
+inverters. M26--M29 use W=2 um; precharge uses 0.5 um, footer 1.5 um, output
+inverters 2 um and evaluation stacks 1 um; original address inverters remain
+0.42 um. All L=0.15 um, nf=1. The canonical schematic and SVG are updated.
+
+The complete 264-case PVT/edge study passes all declared logical, settling
+and terminal diagnostics. The worst magnitude is 1.924359 V in an unchanged
+WL-buffer NMOS. Fifteen finer numerical comparisons pass; their largest
+value is 1.925134 V with 0.25 ps Gear. The freshly netlisted canonical source
+reproduces the qualified limiting-corner result exactly. Its original TT
+loaded bench passes 72 output samples, 252 non-model checks and all upper
+voltage diagnostics. Thirty checker/generator regressions pass.
+
+The 204-case B7 contract campaign is also complete: 168 PASS, 24 detected
+invalid-address controls, eight rejected 0.5 ns slow-phase samples, and four
+rejected 8 fC perturbations. All ordered histories and sampled arrival leads
+250/500/1000 ps pass at both declared profiles. All finite 10/1000 ns holds
+pass. Invalid-address voltage findings are retained. These sampled phase,
+arrival, retention and charge limits are not external setup, macro Fmax,
+a noise budget or statistical/reliability qualification.
+
+The comparison records actual costs: in four matched SS-cold/FF-hot 50 ps
+cases, VDD cycle energy rises from 136.35 to 200.13 fJ and decoder channel-area
+proxy from 2.979 to 5.577 um2. W=3 true buffers slightly worsen the observed
+peak and add costs versus W=2. No global mathematical optimum is claimed.
+
+All source/evidence hashes, source-to-derived netlist equivalence, selected
+waveform samples and PNG/PDF views are in
+[the characterization record](row_decoder_contract_characterization.md).
+[The remaining Person 3 tasks](person3_phase1_remaining_tasks.md) now cover
+real capture/PCLK timing, decoder layout, DRC/LVS, PEX repetition, row/write
+integration and delivery through 13 October. No physical implementation was
+started in this task. Existing WL/write layouts and other owners' work remain
+unchanged. Local focused commits record the work; no publishing is implied.

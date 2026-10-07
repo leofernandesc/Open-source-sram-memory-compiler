@@ -1,6 +1,8 @@
 # Dynamic decoder: address contract, phase limits and robustness study
 
-Status: pre-layout characterization in progress. The architecture and nine-pin
+Status: buffered candidate B7 retained after the complete pre-layout
+voltage/temperature/edge qualification and completed internal contract study.
+Physical closure remains pending. The architecture and nine-pin
 interface remain the specified dynamic 2-to-4 NAND decoder. Experimental screens
 below are not a macro operating specification, external setup time, Fmax,
 foundry reliability clearance, or decoder DRC/LVS result.
@@ -160,7 +162,8 @@ fails at least one voltage or excursion check; none is adopted from its TT
 performance alone. Larger footers also worsen negative DEC excursions in
 some SS cases. Therefore robustness refinement includes address length/ratio,
 footer/output interactions and evaluation-stack capacitance with the tighter
-numeric settings. No candidate is labeled final merely because its logic passes.
+numeric settings. No candidate is labeled final merely because its logic passes; B7 retention
+is supported by the complete broad matrix and finer comparisons below.
 
 ## Expanded interactions: measured screening results
 
@@ -200,6 +203,140 @@ accompany the exported chart. Its green bars mean only that a particular
 candidate's declared case set passes. Differing case sets are not a common
 qualification or a final ranking.
 
+## Buffered-address candidate B7
+
+The disposable buffered variant keeps A0B=~A0 and A1B=~A1. Two additional
+static inverters regenerate A0T=~A0B and A1T=~A1B for the true-literal NAND
+gates. The four evaluation paths use (A1B,A0B), (A1B,A0T), (A1T,A0B) and
+(A1T,A0T). The dynamic NAND core and external nine-pin interface remain
+unchanged; the decoder contains 29 MOS rather than 25. It has no internal
+clock generator, state machine or added external signal.
+
+The additional gates load each original complement inverter, and the true
+literal's driver isolates the evaluation gates from the ideal address source.
+This changes capacitive feedthrough and adds literal-path delay; capture-to-
+evaluation timing must include both paths. Four new MOS are real circuit
+costs, not artificial shunts used only to make a simulator converge.
+
+| Device family | B7 W (um) | L (um) | nf |
+|---|---:|---:|---:|
+| M1--M4, original complement inverters | 0.42 | 0.15 | 1 |
+| M26--M29, regenerated true literals | 2.00 | 0.15 | 1 |
+| Four precharge PMOS | 0.50 | 0.15 | 1 |
+| Eight evaluation-stack NMOS | 1.00 | 0.15 | 1 |
+| M8, shared footer | 1.50 | 0.15 | 1 |
+| Eight DEC output-inverter MOS | 2.00 | 0.15 | 1 |
+
+The four WL buffers stay at their existing 0.42/0.84 um stage widths. Their
+16 MOS are included in terminal checks, giving 45 devices in the loaded bench.
+
+[32 buffered sizing cases](../sims/row_decoder/results/decoder_buffered_sizing/summary.csv)
+compare true-buffer W=0.75/1/2/3 with simultaneous two-bit changes at 25/50 ps
+edges in SS-cold and FF-hot. All pass their logic and voltage screens. Maximum
+terminal magnitudes are respectively 1.926971, 1.922934, 1.920627 and 1.920730 V.
+W=2 has the largest measured headroom in this finite grid; W=3 adds area and
+energy while slightly worsening the measured peak. This is a defensible retained
+candidate, not a proof of a global mathematical sizing optimum.
+
+The [matched comparison](../sims/row_decoder/results/buffered_b7_candidate/matched_comparison.json)
+uses the same four ordered transitions/profiles, 50 ps edges, 17.4 fF, phase
+lengths and refined numerical settings:
+
+| Matched four-case comparison | B6 | Buffered B7 |
+|---|---:|---:|
+| Largest terminal magnitude | 1.974458 V | 1.920627 V |
+| Largest WL 90% delay | 590.08 ps | 550.95 ps |
+| Mean VDD cycle energy, decoder plus four buffers | 136.35 fJ | 200.13 fJ |
+| Decoder sum(W*L), channel-area proxy | 2.979 um2 | 5.577 um2 |
+
+The energy and proxy-area costs are about +46.8% and +87.2% in that matched
+experiment. They are recorded explicitly under the chosen robustness priority.
+Neither is the power or physical area of a completed macro.
+
+A generated [candidate schematic](../sims/row_decoder/results/buffered_b7_candidate/row_decoder.sch)
+has a fresh Xschem netlist and an independent topology/dimension comparison
+against the derived test circuit. All 29 MOS D/G/S/B, models, W/L/NF and the
+WL connections match after normalizing anonymous stack names. The canonical `cells/row_decoder/row_decoder.sch` now contains the retained B7
+source after all 264 qualification cases passed. The symbol and external pin
+order are unchanged; its canonical SVG was regenerated. [The SVG](assets/row_decoder_b7.svg) is an inspectable circuit view;
+its appearance is not electrical evidence.
+
+The 5 ps Gear/trapezoidal numerical comparison still passes the voltage screens,
+but underestimates some peaks relative to 1 ps. The retained broad qualification
+therefore continues at 1 ps with MINBREAK=1 fs and CHGTOL=1e-18 C. Additional
+0.5 ps Gear/trapezoidal and 0.25 ps Gear measurements provide a finer reference.
+No failed B6 point is removed to obtain a passing B7 report.
+
+## Completed B7 broad qualification and source rerun
+
+The [264-case qualification](../sims/row_decoder/results/decoder_buffered_pvt/summary.csv)
+is complete: 18 TT/SS/FF x 1.62/1.8 V x -40/27/125 C conditions, plus four
+SF/FS diagnostics at 1.8 V and -40/125 C. Each condition exercises the four
+two-bit transitions with address/PCLK edges of 25, 50 and 250 ps. Loads are
+17.4 fF per WL, latest address completion leads evaluation by 2 ns, low/high
+phases are 10/5 ns, Gear maximum step is 1 ps, MINBREAK=1 fs and CHGTOL=1e-18 C.
+**264/264 pass logic, settling and both voltage diagnostics.** All 45 devices'
+signed external terminal extrema are archived.
+
+The largest measured magnitude is **1.924359 V**, x4.mn1 VDS, at FS/1.8 V/-40 C,
+50 ps, 11 to 00. Diagnostic headroom to 1.95 V is **25.641 mV**. The limiting
+device is in an unchanged WL buffer, not one of the new address MOS. The
+[15 finer comparisons](../sims/row_decoder/results/decoder_buffered_fine/summary.csv)
+all pass and reach 1.925134 V (24.866 mV headroom) at the 0.25 ps Gear FS-cold
+reference. These sampled margins do not establish an approved guardband or
+physical reliability.
+
+After adoption, the original loaded TT runner freshly netlists the canonical
+source. [Its result](../sims/row_decoder/results/b7_current_tt_samples.json) has
+Xschem/ngspice return code 0, 72/72 output samples, 252/252 non-model checks and
+no full-transient dynamic/address upper-screen findings. Its 50% DEC/WL delays
+are 90.65--93.99 / 267.81--271.31 ps; DEC/WL precharge-10% delays are
+243.74--247.40 / 416.78--420.56 ps. These are 50% evaluation measurements and
+must not be mixed with the comparison table's 90% WL delays.
+
+The source netlist auditor now checks both the original 25-MOS and explicit
+buffered 29-MOS topology, including four regenerated literal devices. The
+standard upper-voltage check includes M27/M29 as well as M2/M4. The broader
+contract runner remains the all-terminal reference. The source symbol, WL/write
+leaves, Danilo's bitcell and root Xschem configuration were preserved.
+
+![Fresh B7 source waveform review](assets/row_decoder_b7_waveforms.png)
+
+[The waveform PDF](assets/row_decoder_b7_waveforms.pdf) and its archived samples
+are generated from the freshly netlisted canonical source, including the
+limiting WL-buffer VDS during priming and regenerated literals during precharge.
+
+## Completed B7 internal-contract study
+
+The [204-case contract study](../sims/row_decoder/results/b7_contract_limits/summary.csv)
+is complete at SS/1.62 V/-40 C and FF/1.8 V/125 C, with 25 ps address/PCLK
+edges. It retains **168 PASS**, **24 detected invalid-address controls**,
+**8 rejected short-phase points**, and **4 rejected charge perturbations**.
+There are no unexpected logical/settling failures or tool errors. Voltage
+findings occur in nine deliberately invalid evaluation-time address controls;
+they are retained and cannot count as legal operation.
+
+- All 32 ordered/repeated histories pass at the 2 ns address lead.
+- All 72 arrival cases pass at tested leads of 250, 500 and 1000 ps across
+  twelve nonrepeat changes in both profiles. 250 ps is the earliest sampled
+  point, not an exact minimum, mixed-corner guarantee or external setup time.
+- All four repeated addresses pass sampled low/high phases of 1 and 2 ns in
+  the slow profile. Its 0.5 ns low and 0.5 ns high points are rejected. Fast
+  passes all three phase samples. This does not approve a macro clock period.
+- All 16 finite retention cases pass 10 and 1000 ns. The 1000 ns points use a
+  25 ps maximum step; the other points use 1 ps with the same tight charge
+  criterion. Long bitcell wordline assertion is a separate integration issue.
+- Both injected nodes pass 2 and 4 fC in both profiles; 8 fC produces the
+  predicted false-row failures. The experimental charge bracket improves from
+  coarse B6's 2--4 fC to B7's 4--8 fC for this particular 120 ps waveform.
+  No system noise budget or mismatch yield is inferred.
+- All 24 changes during evaluation expose false rows as expected: the address
+  must remain stable during evaluation. The new buffers do not remove this
+  fundamental dynamic-decoder contract.
+
+B6 and B7 boundary tables are kept separate so different source circuits are
+not pooled into a fictitious common timing result.
+
 ## Reproduction and remaining work
 
 Run from the checkout through `./tools/sram-eda`. Use new output directories
@@ -220,7 +357,9 @@ Exact executed script snapshots accompany historical tables.
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_contract.py \
   --campaign suite --output-dir /tmp/decoder-contract-review
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_contract.py \
-  --campaign sizing --profiles tt --output-dir /tmp/decoder-family-review
+  --campaign sizing --profiles tt \
+  --netlist sims/row_decoder/results/b6_contract_history/input_netlist.spice \
+  --output-dir /tmp/decoder-family-review
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_trip.py \
   --netlist sims/row_decoder/results/b6_contract_history/input_netlist.spice \
   --output-dir /tmp/decoder-trip-review
@@ -232,9 +371,16 @@ Exact executed script snapshots accompany historical tables.
   --output-dir /tmp/decoder-stack-review
 ```
 
-Remaining closure includes a retained candidate's full experimental PVT/edge
-matrix, address histories under refined numerical settings, margins after
-parasitic extraction, and real captured-address/PCLK driver timing. The leaf
+Remaining closure includes margins after parasitic extraction and real
+captured-address/PCLK driver timing. The ordered Phase 1 work is recorded in
+[the Person 3 task plan](person3_phase1_remaining_tasks.md). The leaf
 contains no CSb/OEb/WEb qualification; idle/disabled/invalid row suppression
 requires the integration control path. Decoder layout, DRC and LVS have not
 been executed by this characterization study.
+
+
+The archived `original_b6.sch` and generated candidate schematic preserve
+the original trailing spaces so their source hashes remain reproducible.
+`git diff --check` passes for current code/docs/source changes with only those
+two byte-preserved archive copies excluded; their whitespace diagnostics do
+not indicate an electrical or connectivity failure.
