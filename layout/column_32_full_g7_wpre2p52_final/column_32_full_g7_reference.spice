@@ -1,0 +1,86 @@
+* NGSPICE file created from bitcell_6t_flat.ext - technology: sky130A
+
+.subckt bitcell_6t_flat VDD BL BLB VSS WL
+X0 a_173_n1434# a_126_n1530# VDD VDD sky130_fd_pr__pfet_01v8 ad=0.1197 pd=1.41 as=0.1197 ps=1.41 w=0.42 l=0.15
+X1 a_126_n1530# a_173_n1434# VDD VDD sky130_fd_pr__pfet_01v8 ad=0.1197 pd=1.41 as=0.1197 ps=1.41 w=0.42 l=0.15
+X2 a_173_n1434# a_126_n1530# VSS VSS sky130_fd_pr__nfet_01v8 ad=0.3591 pd=3.09 as=0.3591 ps=3.09 w=1.26 l=0.15
+X3 BLB WL a_126_n1530# VSS sky130_fd_pr__nfet_01v8 ad=0.171 pd=1.77 as=0.171 ps=1.77 w=0.6 l=0.15
+X4 a_126_n1530# a_173_n1434# VSS VSS sky130_fd_pr__nfet_01v8 ad=0.3591 pd=3.09 as=0.3591 ps=3.09 w=1.26 l=0.15
+X5 BL WL a_173_n1434# VSS sky130_fd_pr__nfet_01v8 ad=0.171 pd=1.77 as=0.171 ps=1.77 w=0.6 l=0.15
+.ends
+
+* NGSPICE file created from precharge_w2p52_flat.ext - technology: sky130A
+
+.subckt precharge_w2p52_flat VDD BL BLB PRECH VSS
+X0 BLB PRECH BL VDD sky130_fd_pr__pfet_01v8 ad=0.7308 pd=5.62 as=0.7308 ps=5.62 w=2.52 l=0.15
+X1 VDD PRECH BL VDD sky130_fd_pr__pfet_01v8 ad=0.7308 pd=5.62 as=0.7308 ps=5.62 w=2.52 l=0.15
+X2 VDD PRECH BLB VDD sky130_fd_pr__pfet_01v8 ad=0.7308 pd=5.62 as=0.7308 ps=5.62 w=2.52 l=0.15
+.ends
+
+* NGSPICE file created from sense_amp_scale1p5_flat.ext - technology: sky130A
+
+.subckt sense_amp_scale1p5_flat VDD VSS BL BLB SCLK SA_OUT SA_OUTB
+X0 a_615_n3098# SA_OUT SA_OUTB VSS sky130_fd_pr__nfet_01v8 ad=0.2842 pd=2.54 as=0.2842 ps=2.54 w=0.98 l=0.15
+X1 a_615_n3098# SA_OUTB SA_OUT VSS sky130_fd_pr__nfet_01v8 ad=0.2842 pd=2.54 as=0.2842 ps=2.54 w=0.98 l=0.15
+X2 BLB SCLK SA_OUTB VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X3 VSS SCLK a_615_n3098# VSS sky130_fd_pr__nfet_01v8 ad=0.2842 pd=2.54 as=0.2842 ps=2.54 w=0.98 l=0.15
+X4 VDD SA_OUTB SA_OUT VDD sky130_fd_pr__pfet_01v8 ad=0.5481 pd=4.36 as=0.5481 ps=4.36 w=1.89 l=0.15
+X5 VDD SA_OUT SA_OUTB VDD sky130_fd_pr__pfet_01v8 ad=0.5481 pd=4.36 as=0.5481 ps=4.36 w=1.89 l=0.15
+X6 SA_OUT SCLK BL VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+.ends
+
+* NGSPICE file created from write_driver_w5p04_flat.ext - technology: sky130A
+
+.subckt write_driver_w5p04_flat DATA DATA_B WE BL BLB VDD VSS
+X0 VSS WE a_1415_n5504# VSS sky130_fd_pr__nfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X1 VDD WE a_227_n1084# VDD sky130_fd_pr__pfet_01v8 ad=0.2436 pd=2.26 as=0.2436 ps=2.26 w=0.84 l=0.15
+X2 VDD a_227_n1084# a_1027_n1504# VDD sky130_fd_pr__pfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X3 a_3015_n5504# DATA BLB VSS sky130_fd_pr__nfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X4 a_1027_n1504# DATA_B BL VDD sky130_fd_pr__pfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X5 VSS WE a_3015_n5504# VSS sky130_fd_pr__nfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X6 VDD a_227_n1084# a_2627_n1504# VDD sky130_fd_pr__pfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X7 a_2627_n1504# DATA BLB VDD sky130_fd_pr__pfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X8 VSS WE a_227_n1084# VSS sky130_fd_pr__nfet_01v8 ad=0.2436 pd=2.26 as=0.2436 ps=2.26 w=0.84 l=0.15
+X9 a_1415_n5504# DATA_B BL VSS sky130_fd_pr__nfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+.ends
+
+* Structural LVS reference for the 32-row physical column.
+* Leaf subcircuits are prepended by scripts/run_column_32_full_lvs.sh.
+
+.subckt column_32_full_g7_wpre2p52_reference BL BLB VSS VDD WLOFF PRECH SCLK WE DATA_B DATA
+XBC00 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC01 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC02 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC03 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC04 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC05 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC06 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC07 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC08 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC09 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC10 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC11 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC12 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC13 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC14 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC15 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC16 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC17 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC18 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC19 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC20 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC21 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC22 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC23 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC24 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC25 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC26 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC27 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC28 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC29 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC30 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC31 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XPRE VDD BL BLB PRECH VSS precharge_w2p52_flat
+XSA VDD VSS BL BLB SCLK SA_OUT SA_OUTB sense_amp_scale1p5_flat
+XWRITE DATA DATA_B WE BL BLB VDD VSS write_driver_w5p04_flat
+.ends column_32_full_g7_wpre2p52_reference
