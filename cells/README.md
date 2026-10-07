@@ -5,10 +5,10 @@ Contrato de nomes para a etapa 2:
 | Célula | Pinos externos | Controle | Estado |
 |---|---|---|---|
 | `bitcell_6t.sch` | `BL`, `BLB`, `WL`, `VDD`, `VSS` | `WL` | captura canônica da bitcell |
-| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores; G2/G4 fechados para screening pré-layout |
-| `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | conectividade/capacitância verificadas e exercitado na integração PVT; topologia congelada pré-layout |
-| `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois inversores; sizing atual exercitado em G2/G3/G4 e congelado pré-layout |
-| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | integração PVT e G4 mismatch fechados; sizing atual congelado pré-layout |
+| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores; G2/G4 screening e variante física 1,5× qualificada em G7 com PEX, leitura `60/60` |
+| `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | captura/topologia de freeze; leaf física final `Wpre=2,52 µm` com DRC/LVS/PEX e Ceff PVT `60/60` |
+| `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois inversores; variante física integrada reforçada com PEX e slews/timing qualificados nas matrizes G7 |
+| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | esquema congelado; variante física `Wout=5,04 µm` com DRC/LVS/PEX e escrita integrada G7 `60/60` |
 | `vsource_drive.sym` | `p`, `m` | `p` como saída | fonte de estímulo do testbench hierárquico |
 
 `sram_6t.sch` permanece como captura legada para comparação. Gerar símbolos
@@ -33,8 +33,9 @@ deriva de apenas `3,391/1,459 mV` em 3 ns. Um sweep integrado com a bitcell em
 `0,148–0,212 ns` após a subida de `WL`.
 
 Os testes posteriores em 65 fF + 17 fF de WL fecharam G3 e G4 com o driver
-real. `Wdriver=0,84 µm` é o sizing congelado para o schematic freeze pré-layout;
-PEX pode reabrir esse sizing caso a carga extraída viole os gates.
+real. `Wdriver=0,84 µm` permanece o sizing do schematic freeze pré-layout;
+para G7 foi usada a variante física reforçada `Wout=5,04 µm`, integrada com o
+precharge final e qualificada `60/60` com carga PEX acima do teto oficial.
 
 ## Testbench hierárquico de leitura
 

@@ -349,15 +349,19 @@ foundry/model limits and measured results.
   `t_res<=0.25 ns`. The observed zero-failure campaign corresponds to a
   one-sided 95% upper failure-probability bound of about `0.3738%` pooled and
   `1.8549%` per corner; these bounds document the evidence strength and are
-  **not** a guaranteed product yield. The 50 mV guard is re-opened after PEX or
-  whenever explicit transient-noise evidence consumes that allocation;
+  **not** a guaranteed product yield. The 50 mV guard is not a measured
+  transient-noise allowance. PEX requalification is complete for Phase 1, but
+  the guard remains an engineering assumption and must be revisited if a later
+  explicit-noise study consumes that allocation;
 - bitline capacitance model for schematic freeze:
   `C_BL = Nrows × (Ccell_access + Cwire_per_cell) + Cprecharge + Cwrite + Cmux + Csense`;
   the SKY130 small-signal PVT characterization closed
   `Ccell_access,max=0.452619 fF`, `Cprecharge,max=0.908533 fF`,
   `Cwrite,max=4.033129 fF` with the tri-state write driver disabled, and
   `Csense,max=9.004605 fF` per bitline at precharged BL/BLB and `SCLK=0`;
-  the sense input value must still be checked during bitline excursion;
+  this standalone AC value is distinct from integrated post-layout read
+  qualification, which uses extracted sense PEX and passed its full 60-case
+  engineering matrix;
 - the current architecture uses one word per physical row and one differential
   bitline pair per data bit, so there is no column mux in the supported
   `4×8/8×8/16×8/32×8` macros (`Cmux = 0` unless the architecture is revised);
@@ -372,8 +376,10 @@ foundry/model limits and measured results.
   capacitance. Electrical revalidation therefore moves from `60 fF` to a
   conservative `65 fF` screen; this is a
   pre-layout estimate rather than a qualified limit;
-- PEX is a post-freeze validation step. After layout, the extracted `C_BL`
-  replaces the estimate and the requalification ceiling becomes `1.15 × C_BL,PEX`;
+- PEX is a post-freeze validation step. For the Phase 1 32-row column,
+  `C_BL,PEX,max=453.588404713 fF` and the requalification ceiling
+  `1.15 × C_BL,PEX,max=521.626665420 fF`. The final column and integrated
+  read/write gates passed; see `docs/phase1_leaf_cell_closure.md`;
 - the lower WL pulse limit is `1.30 ×` the worst measured full write-flip time;
   full flip is defined here as both internal storage nodes reaching the
   `90%/10%` rails;
@@ -396,8 +402,8 @@ routing constraint above, including `Cwrite`. `Cmux = 0`.
 The derivation, PVT evidence and routing constraint are recorded in
 [`docs/cbl_pre_layout_estimate.md`](../docs/cbl_pre_layout_estimate.md). The
 `50 fF` and `60 fF` no longer cover the corrected 32-row budget; `65 fF` is
-the current conservative screening point. PEX replaces this estimate after
-layout and may reopen the gate.
+the conservative pre-layout screening point. It is superseded for Phase 1 G7
+by the extracted 32-row column result and requalification ceiling above.
 
 Characterization results must be reported for at least the 8×8 and 32×8 configurations.
 

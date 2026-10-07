@@ -1,6 +1,6 @@
 # Avaliação pré-layout de C_BL
 
-Status em 07/10/2026: **baseline pré-layout preservada; G6 físico concluído; coluna G7 reforçada extraída e requalificação integrada concluída, com G7 aberto por quatro falhas de recuperação de escrita**.
+Status em 07/10/2026: **baseline pré-layout preservada; G6 físico e G7 pós-layout concluídos no escopo de qualificação de engenharia**. A coluna final mede `C_BL,PEX,max=453,588405 fF`, teto G7 `521,626665 fF`; leitura e escrita integradas passaram `60/60` cada.
 As cinco leaf cells já possuem layout com Magic DRC `0` e Netgen LVS único.
 Os valores deste documento continuam sendo o orçamento histórico usado para o
 schematic freeze e para os screenings de 65 fF; eles **não** são PEX. A coluna
@@ -10,9 +10,10 @@ As capacitâncias de terminal da bitcell, precharge e entrada do sense
 amplifier foram caracterizadas com o modelo SKY130A em PVT. A entrada do novo
 `cells/sense_amp.sch` é maior que a da topologia anterior; o orçamento antigo
 de `49,696512 fF` não é mais válido. `Cwire_cell` foi uma hipótese física
-pré-layout. Agora que o layout existe, o próximo passo é substituí-la pela
-extração parasitária, sem rebatizar os bounds abaixo como valores medidos de
-PEX.
+pré-layout. A extração parasitária já substituiu esse orçamento como referência
+do G7: a coluna física final mede `C_BL,PEX,max=453,588405 fF`, com teto
+`521,626665 fF`. Os bounds e screenings abaixo permanecem históricos e não
+devem ser confundidos com esses valores medidos de PEX.
 
 ## Modelo e convenções
 
@@ -116,23 +117,25 @@ layout exigir segmento maior que `5,0 µm/linha`, outra camada ou uma
 vizinhança que aumente a capacitância além desse bound, o gate deve ser
 reaberto.
 
-## Evidência por parcela e dado que falta
+## Evidência por parcela e limites do orçamento pré-layout
 
 | Parcela | Evidência no checkout | Estado e dado necessário |
 |---|---|---|
 | `Nrows` | `specs/technical_specification.md` define 4/8/16/32 linhas; `memory/memory-ip/run_state.md` registra uma palavra por linha física. | Resolvido para as quatro configurações. |
-| Terminal da célula | `sims/cbl_device_capacitance_pvt.csv`, `270/270 PASS`. | Fechado em `0,452619 fF/célula` como máximo do sweep esquemático PVT; será substituído/confirmado por PEX pós-layout. |
-| `Cwire_cell` | Corner máximo do extractor Magic + constraint `metal2`, `0,14 µm`, `<=5,0 µm/linha`, dois vizinhos e +20%. | Orçamento pré-layout `<=1,061862 fF/célula`; validar a geometria no layout e substituir por PEX. |
-| `Cprecharge` | Netlist corrigido de `cells/precharge.sch` e sweep PVT de pequena-sinal. | Fechado em `0,908533 fF` como máximo esquemático PVT por bitline; função/timing do precharge continua sendo gate separado. |
+| Terminal da célula | `sims/cbl_device_capacitance_pvt.csv`, `270/270 PASS`. | Fechado em `0,452619 fF/célula` como máximo do sweep esquemático PVT. O G7 também requalificou a coluna completa com PEX; esse valor permanece contribuição standalone, não substitui o CBL extraído. |
+| `Cwire_cell` | Corner máximo do extractor Magic + constraint `metal2`, `0,14 µm`, `<=5,0 µm/linha`, dois vizinhos e +20%. | Orçamento pré-layout `<=1,061862 fF/célula`; geometria e capacitâncias distribuídas da coluna foram incluídas no PEX final de G7. O total físico medido é a referência corrente. |
+| `Cprecharge` | Netlist corrigido de `cells/precharge.sch` e sweep PVT de pequena-sinal. | `0,908533 fF` é o máximo esquemático histórico. A variante física `Wpre=2,52 µm` passou DRC/LVS/PEX, Ceff PVT `60/60` e a qualificação integrada G7. |
 | `Cwrite` | `sims/write_driver_capacitance_pvt.csv`, `120/120 PASS`, usando o netlist extraído de `cells/write_driver.sch` com `WE=0`, ambos os dados e BL/BLB. | Máximo observado `4,033129 fF` por bitline; deve permanecer no orçamento enquanto o write driver estiver conectado diretamente à coluna. |
-| `Csense` | `sims/sense_input_capacitance_pvt.csv`, `60/60 PASS`, usando o netlist do `cells/sense_amp.sch`. | Máximo observado `9,004605 fF` em BL/BLB pré-carregadas; verificar dependência do ponto de operação e offset/timing. |
+| `Csense` | `sims/sense_input_capacitance_pvt.csv`, `60/60 PASS`, usando o netlist do `cells/sense_amp.sch`. | `9,004605 fF` é a medição AC standalone com BL/BLB pré-carregadas. A variante física 1,5× foi requalificada em leitura integrada com PEX `60/60`; isso não representa análise estatística completa de ruído/yield. |
 | `Cmux` | Arquitetura de uma palavra por linha e sem mux de coluna na especificação atual. | `0 fF` enquanto a arquitetura não mudar. |
 
 ## Screening não usado como bound
 
 `50 fF` e `60 fF` permanecem apenas como resultados históricos de screening.
-O próximo screening usa `65 fF` para 32 linhas. O bound pré-layout depende da validade
-do orçamento de fio e do máximo de `Csense` ao longo da excursão de leitura.
+O screening de `65 fF` para 32 linhas também é histórico. A referência corrente
+de G7 é a coluna física extraída e a requalificação feita no teto de
+`521,626665 fF` ou acima dele. As parcelas do modelo lumped pré-layout ajudam
+na interpretação, mas não substituem o total RC medido.
 
 ## Transição para o G7 pós-layout
 
@@ -140,20 +143,19 @@ O screening pré-layout em `65 fF` e o bound `62,409659 fF` ficam preservados
 como baseline de engenharia que sustentou o freeze. A coluna física original
 `layout/column_32_full` mediu `422,651867 fF`, com teto `486,049647 fF`; esses
 valores foram substituídos após o reforço dos periféricos. A coluna
-`layout/column_32_full_g7`, integrada com sense 1,5×, precharge `W=2,10 µm` e
-write `Wout=5,04 µm`, passou DRC hierárquico/flat, LVS único e PEX. Sua
-varredura PVT passou `120/120`, com `C_BL,PEX,max=452,580954 fF` em
-`ss/1,62 V/125 °C`, Q=1, BL. O teto corrente é `1,15 × C_BL,PEX = 520,468097 fF`.
+`layout/column_32_full_g7_wpre2p52_final`, integrada com sense 1,5×, precharge
+`W=2,52 µm` e write `Wout=5,04 µm`, passou DRC hierárquico/flat, LVS único e
+PEX. Sua varredura PVT passou `120/120`, com `C_BL,PEX,max=453,588404713 fF`
+em `ss/1,62 V/125 °C`, Q=1, BL. O teto corrente é
+`1,15 × C_BL,PEX = 521,626665420 fF`.
 
-Resultado da matriz integrada em 06/10/2026: leitura `60/60 PASS`; escrita
-`56/60 PASS`, `4/60 FAIL`. As falhas ocorrem em `sf` e `ss`, 1,62 V/−40 °C,
-nos dois sentidos: o flip completa, mas BL/BLB ficam abaixo de `VDD−0,1 V` ao
-fim da janela de recuperação de 4 ns. A repetição focal com 30 ns passou
-`4/4`; o cruzamento medido foi `4,031–4,186 ns`, confirmando recuperação tardia.
-G7 segue aberto porque esse tempo excede a janela de 4 ns. O diagnóstico focal
-de 5 ns concluiu `4/4 PASS`, com os mesmos cruzamentos entre `4,03137` e
-`4,18573 ns`. Ele confirma recuperação após o limite, sem alterar o critério
-original nem promover os casos a PASS do gate.
+As matrizes integradas pós-layout passaram `60/60` em leitura e `60/60` em
+escrita. O pior `t_res` de leitura foi `0,23209 ns`; o read-disturb máximo foi
+`0,1796454 V`. A escrita recuperou BL/BLB em até `3,49470 ns`, dentro da janela
+de 4 ns. A qualificação de escrita aplicou carga equivalente entre
+`525,653715` e `527,110428 fF`, acima do teto oficial; a de leitura, entre
+`521,626665` e `523,083379 fF`. Ambas incluem PEX explícito e hash de cada
+netlist no CSV. O critério de 4 ns foi preservado.
 
 ### Evidência histórica de leaf PEX e surrogate
 
@@ -183,10 +185,10 @@ C_BL,surrogate(32)
 ```
 
 Os valores de stress usam o termo de fio antes do arredondamento exibido na
-tabela pré-layout. Esse `425,829423 fF` é somente histórico; o teto atual é
-`520,468097 fF`. No canto `ss/1,62 V/125 °C`, o sense físico 1,5× passa ambos
-os estados com `t_res=0,22060/0,23257 ns`, e a escrita física passa ambos os
-sentidos, com recuperação de bitline dentro do limite. A matriz completa
-encontrou quatro falhas de recuperação em `sf/ss`, 1,62 V/−40 °C; a repetição
-focal confirmou cruzamento entre `4,031–4,186 ns`, fora da janela original de
-4 ns. G7 permanece aberto até fechar a recuperação dentro do contrato vigente.
+tabela pré-layout. Esse `425,829423 fF` é somente histórico; as extrações
+posteriores `486,049647 fF` e `520,468097 fF` também foram substituídas pela
+coluna final, cujo teto é `521,626665 fF`. Na matriz final, o sense passou os
+dois estados no pior canto medido com `t_res,max=0,23209 ns`; leitura e escrita
+passaram `60/60`. A recuperação máxima da escrita foi `3,49470 ns`, dentro de
+4 ns. Os resultados anteriores de `56/60` e dos diagnósticos de 30/5 ns são
+históricos e foram supersedidos pela requalificação final.

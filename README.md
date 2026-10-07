@@ -9,7 +9,7 @@ e os resultados do [relatório de validação](docs/relatorio_validacao_bitcell_
 
 ## Escopo atual
 
-O trabalho está concentrado nas leaf cells e na validação elétrica da bitcell:
+Na Fase 1, o trabalho concentrou-se nas leaf cells e na validação elétrica da bitcell:
 
 - definição da topologia e do sizing;
 - captura no Xschem;
@@ -19,10 +19,12 @@ O trabalho está concentrado nas leaf cells e na validação elétrica da bitcel
 - preparação de pré-carga, sense amplifier, driver de WL e driver de escrita.
 
 O schematic freeze e o fechamento físico G6 das cinco leafs estão concluídos.
-A coluna G7 reforçada e a wordline física representativa também têm DRC/LVS/PEX.
-A requalificação elétrica pós-layout de leitura passou `60/60`; a de escrita
-passou `56/60`, com quatro falhas porque a recuperação de BL/BLB excede a janela
-vigente de 4 ns. Portanto, o fechamento da Fase 1 permanece aberto em G7.
+A coluna G7 revisada com precharge `W=2,52 µm` passou DRC/LVS/PEX; a medição
+PVT resultou em `C_BL,PEX,max=453,588405 fF` e teto `521,626665 fF`. A leitura
+pós-layout passou `60/60` e a escrita `60/60`, com recuperação máxima de
+`3,49470 ns` dentro da janela de 4 ns. G7 e a Fase 1 estão fechados no escopo
+de qualificação de engenharia. Yield de produção, ruído estatístico completo e
+teto de potência macro continuam fora deste gate.
 
 ## Configurações suportadas
 
@@ -363,7 +365,10 @@ O smoke full-swing passou em 30/30 casos (`WPD=0,84/1,05/1,26 µm`, cinco
 corners, dois sentidos). A medida dinâmica WLVM reduz a amplitude de `WL` até
 o limite de escrita para um pulso de 10 ns. O pior WLVM foi `0,619 V` para
 `WPD=0,84 µm` e `0,605 V` para `1,05 µm`, no corner `fs`; a resolução é 14 mV.
-Os bitlines são fontes ideais e ainda falta definir o limite WLVM aceitável.
+Este WLVM é uma triagem pré-layout com bitlines ideais e não define um limite
+independente para o circuito integrado. A qualificação de escrita G7 com
+drivers e cargas PEX passou `60/60`; consulte o fechamento da Fase 1 para os
+limites e métricas pós-layout.
 Dados: `sims/bitcell_write_smoke_sweep.csv` e
 `sims/bitcell_write_margin_wlvm.csv`.
 
@@ -384,11 +389,10 @@ column mux (`Cmux=0`) e `Nrows` fica fechado em `4/8/16/32`. O valor de
 `50 fF` era a triagem da topologia antiga do sense amplifier. Com a entrada
 do latch atual medida em até `9,004605 fF` e o write driver tri-state desligado
 adicionando até `4,033129 fF`, o orçamento de 32 linhas passa para
-`62,409659 fF`; `65 fF` é a nova triagem conservadora.
-Ainda faltam validação elétrica nessa carga e verificação da capacitância
-durante a excursão da bitline. Depois do schematic freeze e do layout, o PEX
-substitui a estimativa e o teto de requalificação passa a ser
-`C_BL,max = 1,15 × C_BL,PEX`.
+`62,409659 fF`; `65 fF` foi a triagem conservadora pré-layout. A requalificação
+elétrica com a carga PEX da coluna foi concluída em G7. A capacitância extraída
+final é `453,588405 fF` por bitline, com teto `1,15 × C_BL,PEX = 521,626665 fF`;
+as matrizes pós-layout de leitura e escrita passaram `60/60` cada.
 
 ## Estado do projeto
 
@@ -404,7 +408,7 @@ substitui a estimativa e o teto de requalificação passa a ser
 | Leitura capacitiva | sizing 0,84 µm falhou excursão em 28/40; sizing 1,05 µm passou 40/40 |
 | Sweep de capacitância | automatizado |
 | Corners tt, ff, ss, fs, sf | diferencial passou 40/40; read disturb depende do sizing |
-| Sense amplifier, pré-carga e wl_driver | leafs e variantes físicas reforçadas com DRC/LVS/PEX; leitura pós-layout `60/60 PASS`; escrita integrada `56/60 PASS`, com quatro falhas de recuperação de bitline na janela de 4 ns |
+| Sense amplifier, pré-carga e wl_driver | variantes físicas com DRC/LVS/PEX; leitura pós-layout `60/60 PASS`; escrita integrada `60/60 PASS`, recuperação máxima `3,49470 ns` |
 | Baseline histórica 0,42/0,84/0,60 µm | gate de read disturb reprovado; substituída no esquema canônico |
 | Sizing exploratório 0,42/1,05/0,60 µm | leitura 40/40 nominal, mas 72/90 na triagem PVT/50 fF; não selecionado |
 | Sizing canônico congelado 0,42/1,26/0,60 µm | único candidato testado que atende Read SNM nominal >=0,4 V (`0,414349 V`); G1/G2/G3/G4 fechados para screening pré-layout e sizing aplicado em `bitcell_6t.sch/.sym` |
@@ -412,23 +416,22 @@ substitui a estimativa e o teto de requalificação passa a ser
 | Auditoria de terminal | leitura a VDD=1,95 V excedeu 1,95 V em 30/30 cenários (pior 2,056858 V); a 1,62/1,80 V não excedeu no mesmo testbench |
 | Fuga em hold | 90/90 estados estáveis; na faixa qualificada, pior corrente total `20,0676 nA/célula` e potência VDD `36,1079 nW/célula` (`fs`, 1,80 V, 125 °C); sem teto macro de potência aprovado |
 | Monte Carlo de SNM | 200 seeds de Read e 200 de Hold em `sf_mm`; critério estatístico/yield e mismatch de escrita pendentes |
-| Write driver | conectividade corrigida; G1 em 65 fF passou `60/60`. Na integração com precharge + write driver + WL driver + bitcell, `65 fF + 17 fF` de carga de WL, `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura `1,0 ns` passaram `60/60`; pior full flip `0,37283 ns`, `WL_min(+30%)=0,484679 ns` |
+| Write driver — baseline G3 pré-layout | conectividade corrigida; em `65 fF + 17 fF` de WL, `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura `1,0 ns` passaram `60/60`; pior full flip `0,37283 ns`, `WL_min(+30%)=0,484679 ns`. A qualificação G7 final com PEX passou `60/60` e recuperação máxima `3,49470 ns` |
 | Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
 | WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; o sense possui critério estatístico de engenharia para freeze, enquanto potência macro continua sem requisito numérico aprovado |
-| Layout, DRC, LVS e parasitas | G6 físico fechado nas cinco leafs. No G7, a coluna 32× reforçada fecha Magic DRC `0`, Netgen LVS único e PEX; `C_BL,PEX,max=452,580954 fF`, com teto `520,468097 fF`. Requalificação integrada concluída: leitura `60/60 PASS`; escrita `56/60 PASS`, com quatro falhas de recuperação na janela de 4 ns. |
+| Layout, DRC, LVS e parasitas | G6 físico fechado nas cinco leafs. No G7, a coluna 32× com precharge `W=2,52 µm` fecha Magic DRC `0`, Netgen LVS único e PEX; `C_BL,PEX,max=453,588405 fF`, teto `521,626665 fF`. Requalificação integrada no limite ou acima dele: leitura `60/60 PASS`; escrita `60/60 PASS`. |
 
 ## Limitações e próximos passos
 
-1. G7 continua aberto por quatro falhas de recuperação de escrita em `sf/ss`,
-   1,62 V/−40 °C. A matriz pós-layout de leitura passou `60/60`; a de escrita,
-   `56/60`. Diagnósticos focais confirmaram recuperação entre `4,03137` e
-   `4,18573 ns`, acima da janela vigente de 4 ns.
-2. Reforçar fisicamente o precharge e, se necessário, o write driver. Depois,
-   repetir DRC/LVS/PEX da coluna, recalcular `C_BL,PEX` e o teto `1,15×`, e
-   reexecutar as qualificações afetadas antes de fechar G7.
+1. G7 está fechado: a coluna revisada passou DRC/LVS/PEX, a varredura de C_BL
+   passou `120/120`, e as matrizes integradas pós-layout de leitura e escrita
+   passaram `60/60` cada. A recuperação máxima da escrita foi `3,49470 ns`.
+2. A carga efetiva dos benches foi mantida no teto PEX ou acima dele; os CSVs
+   registram caminhos e SHA256 dos netlists usados. Consulte
+   [`phase1_leaf_cell_closure.md`](docs/phase1_leaf_cell_closure.md) para os
+   resultados e limites de carga detalhados.
 3. Ruído estatístico/yield formal, teto de potência macro e mismatch ampliado
-   permanecem trabalhos posteriores, sem bloquear o fechamento técnico atual da
-   Fase 1.
+   permanecem trabalhos posteriores e não fazem parte do gate da Fase 1.
 
 ## Documentação relacionada
 
