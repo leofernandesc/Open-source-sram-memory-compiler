@@ -1,0 +1,13 @@
+* Experimental G7 differential write driver candidate.
+.subckt write_driver_w5p04_sram6t DATA DATA_B WE BL BLB VDD VSS
+XMPWEB   WE_B WE     VDD  VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.84 nf=1
+XMNWEB   WE_B WE     VSS  VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.84 nf=1
+XMPENBL  net1 WE_B   VDD  VDD sky130_fd_pr__pfet_01v8 l=0.15 w=5.04 nf=1
+XMPDBL   BL   DATA_B net1 VDD sky130_fd_pr__pfet_01v8 l=0.15 w=5.04 nf=1
+XMNDBL   BL   DATA_B net2 VSS sky130_fd_pr__nfet_01v8 l=0.15 w=5.04 nf=1
+XMNENBL  net2 WE     VSS  VSS sky130_fd_pr__nfet_01v8 l=0.15 w=5.04 nf=1
+XMPENBLB net3 WE_B   VDD  VDD sky130_fd_pr__pfet_01v8 l=0.15 w=5.04 nf=1
+XMPDBLB  BLB  DATA   net3 VDD sky130_fd_pr__pfet_01v8 l=0.15 w=5.04 nf=1
+XMNDBLB  BLB  DATA   net4 VSS sky130_fd_pr__nfet_01v8 l=0.15 w=5.04 nf=1
+XMNENBLB net4 WE     VSS  VSS sky130_fd_pr__nfet_01v8 l=0.15 w=5.04 nf=1
+.ends write_driver_w5p04_sram6t

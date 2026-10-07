@@ -1,0 +1,10 @@
+* Experimental physical sense amplifier: 1.5x regenerative latch/tail sizing.
+.subckt sense_amp_scale1p5_sram6t VDD VSS BL BLB SCLK SA_OUT SA_OUTB
+XMP1      SA_OUT  SA_OUTB VDD    VDD sky130_fd_pr__pfet_01v8 l=0.15 w=1.89 nf=1
+XMN1      SA_OUT  SA_OUTB NTAIL  VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.975 nf=1
+XMP2      SA_OUTB SA_OUT  VDD    VDD sky130_fd_pr__pfet_01v8 l=0.15 w=1.89 nf=1
+XMN2      SA_OUTB SA_OUT  NTAIL  VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.975 nf=1
+XMSAMPBL  BL      SCLK    SA_OUT VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.00 nf=1
+XMSAMPBLB SA_OUTB SCLK    BLB    VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.00 nf=1
+XMTAIL    NTAIL   SCLK    VSS    VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.975 nf=1
+.ends sense_amp_scale1p5_sram6t

@@ -1,0 +1,6 @@
+* Experimental G7 precharge/equalization candidate.
+.subckt precharge_w2p10_sram6t VDD BL BLB PRECH VSS
+XMPBL  BL  PRECH VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.10 nf=1
+XMPBLB BLB PRECH VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.10 nf=1
+XMEQ   BL  PRECH BLB VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.10 nf=1
+.ends precharge_w2p10_sram6t

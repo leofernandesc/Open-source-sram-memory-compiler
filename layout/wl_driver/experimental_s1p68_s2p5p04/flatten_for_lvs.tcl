@@ -1,0 +1,8 @@
+load wl_driver_s1p68_s2p5p04_layout
+save wl_driver_s1p68_s2p5p04_routed_hier
+flatten wl_driver_s1p68_s2p5p04_flat
+load wl_driver_s1p68_s2p5p04_flat
+drc check
+drc count total
+save wl_driver_s1p68_s2p5p04_flat
+quit -noprompt

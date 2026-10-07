@@ -1,0 +1,22 @@
+* NGSPICE file created from bitcell_6t_flat.ext - technology: sky130A
+
+.subckt bitcell_6t_flat VDD BL BLB VSS WL
+X0 a_173_n1434# a_126_n1530# VDD VDD sky130_fd_pr__pfet_01v8 ad=0.1197 pd=1.41 as=0.1197 ps=1.41 w=0.42 l=0.15
+X1 a_126_n1530# a_173_n1434# VDD VDD sky130_fd_pr__pfet_01v8 ad=0.1197 pd=1.41 as=0.1197 ps=1.41 w=0.42 l=0.15
+X2 a_173_n1434# a_126_n1530# VSS VSS sky130_fd_pr__nfet_01v8 ad=0.3591 pd=3.09 as=0.3591 ps=3.09 w=1.26 l=0.15
+X3 BLB WL a_126_n1530# VSS sky130_fd_pr__nfet_01v8 ad=0.171 pd=1.77 as=0.171 ps=1.77 w=0.6 l=0.15
+X4 a_126_n1530# a_173_n1434# VSS VSS sky130_fd_pr__nfet_01v8 ad=0.3591 pd=3.09 as=0.3591 ps=3.09 w=1.26 l=0.15
+X5 BL WL a_173_n1434# VSS sky130_fd_pr__nfet_01v8 ad=0.171 pd=1.77 as=0.171 ps=1.77 w=0.6 l=0.15
+.ends
+
+* Structural LVS reference for one physical 8-bit SRAM row.
+.subckt row_8_wl_reference VDD VSS WL BL0 BLB0 BL1 BLB1 BL2 BLB2 BL3 BLB3 BL4 BLB4 BL5 BLB5 BL6 BLB6 BL7 BLB7
+XBC0 VDD BL0 BLB0 VSS WL bitcell_6t_flat
+XBC1 VDD BL1 BLB1 VSS WL bitcell_6t_flat
+XBC2 VDD BL2 BLB2 VSS WL bitcell_6t_flat
+XBC3 VDD BL3 BLB3 VSS WL bitcell_6t_flat
+XBC4 VDD BL4 BLB4 VSS WL bitcell_6t_flat
+XBC5 VDD BL5 BLB5 VSS WL bitcell_6t_flat
+XBC6 VDD BL6 BLB6 VSS WL bitcell_6t_flat
+XBC7 VDD BL7 BLB7 VSS WL bitcell_6t_flat
+.ends row_8_wl_reference
