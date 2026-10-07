@@ -419,6 +419,11 @@ PDK/library/tool hashes, and per-case decks/logs are archived in
 
 ## 2026-10-07: dynamic row decoder layout, DRC and LVS
 
+Correction: the initial zero-DRC counts recorded below were premature. The
+Magic background checker had not been awaited, so those counts did not establish
+DRC closure. A subsequent `drc catchup` found layout errors; the corrected
+result is recorded in the next entry.
+
 The B7 dynamic 2-to-4 decoder was imported from the canonical Xschem netlist
 and routed in Magic under [`layout/row_decoder/`](../layout/row_decoder/).
 The generated layout contains 29 MOS devices, four distinct evaluation stacks,
@@ -428,18 +433,12 @@ connections and an isolated `EVAL_GND` node. The external interface retains
 `VDD`, `PCLK`, `A0`, `A1`, `DEC0`–`DEC3` and `VSS`; the physical port ordering
 is checked against the Xschem-generated netlist by the layout builder.
 
-Magic 8.3.589 with SKY130A technology 1.0.493 reports **0 DRC errors** on the
-routed hierarchy and **0 DRC errors** on the flattened view. The reports are
-[`route.txt`](../layout/row_decoder/reports/route.txt) and
-[`drc_flat.txt`](../layout/row_decoder/reports/drc_flat.txt). The flattened
-Magic extraction was compared with the retained schematic through Netgen
-1.5.293: the result is a unique match with 29 devices (17 NFET, 12 PFET) and
-22 nets; the external pins and device body connections match. The comparison
-was repeated after recording the result; see
-[`lvs_recheck.txt`](../layout/row_decoder/reports/lvs_recheck.txt), alongside
-the original [`lvs.txt`](../layout/row_decoder/reports/lvs.txt). These results close DRC and
-LVS for this generated layout revision; they do not establish extracted timing
-or physical-row behavior.
+The original DRC log recorded zero errors on the routed hierarchy and flattened
+view, but the check had not finished. After waiting for it, Magic reported
+1,745 error tiles on the flattened layout. The old zero counts therefore do not
+prove DRC closure. The original Netgen comparison reported a unique match with
+29 devices (17 NFET, 12 PFET) and 22 nets; a fresh comparison after the routing
+correction is recorded below.
 
 The first extraction attempt produced 231 coupling/substrate capacitance
 elements, but **zero distributed route resistors**. Therefore the file from
@@ -454,9 +453,9 @@ cell before `extresist`. The script has been corrected to call `ext2sim` with
 no root argument, which targets the loaded cell; this correction has not yet
 been exercised. Magic 8.3.589 predates the integrated full-resistance option
 added in 8.3.597; the legacy flow depends on the `.sim` and `.nodes` files.
-The detailed resistance extraction is paused until it can be run on a faster
-machine, as it was already slow on the current laptop. The next command to
-run, once that machine is ready, is:
+The detailed resistance extraction was paused until it can be run on a faster
+machine. The RC extraction flow described in this initial entry has not been
+run or qualified. The next command, once that machine is ready, is:
 
 ```bash
 ./tools/sram-eda python3 layout/row_decoder/build_layout.py \
@@ -467,3 +466,40 @@ The runner checks for both R and C elements and stops if either is missing.
 Do not treat a capacitance-only netlist as PEX. The Magic command sequence is
 described in the [official Magic extraction reference](https://github.com/RTimothyEdwards/magic/blob/master/doc/html/extract.html)
 and [extresist reference](https://github.com/RTimothyEdwards/magic/blob/master/doc/html/extresist.html).
+
+## 2026-10-07: row decoder DRC/LVS correction before parasitic extraction
+
+The 1,745-error result came from the first routed geometry. The causes were
+undersized via landing enclosures and only one of the two Magic MOS gate
+contacts being routed. The layout generator now routes both gate contacts to
+their schematic net and sizes the M1/M2/M3 landing regions to satisfy the
+SKY130A contact rules. It also runs `drc catchup` before reading either DRC
+count; Magic documents this command as waiting for the background checker to
+finish ([DRC command reference](https://opencircuitdesign.com/magic/commandref/drc.html)).
+
+After rebuilding from the retained B7 Xschem schematic, Magic 8.3.589 with
+SKY130A technology 1.0.493 (`drc(full)`) reports **0 errors** on both the
+routed top cell and the flattened layout. Updated reports are
+[`route.txt`](../layout/row_decoder/reports/route.txt) and
+[`drc_flat.txt`](../layout/row_decoder/reports/drc_flat.txt).
+
+The new `--lvs-only` mode runs Magic connectivity extraction and Netgen without
+calling `extresist` or generating an R-C PEX file. Netgen 1.5.293 reports a
+unique match: 29 MOS devices (17 NFET, 12 PFET), 22 nets, and matching external
+pins. The current LVS report is
+[`lvs_recheck.txt`](../layout/row_decoder/reports/lvs_recheck.txt); the
+connectivity netlist is [`row_decoder_flat_extracted.spice`](../layout/row_decoder/row_decoder_flat_extracted.spice).
+That SPICE file contains no resistor or capacitor elements. This confirms
+layout connectivity only; no parasitic timing simulation has been run.
+
+Reproduce the pre-PEX checks from the repository root:
+
+```bash
+./tools/sram-eda python3 layout/row_decoder/build_layout.py --skip-import
+./tools/sram-eda python3 layout/row_decoder/build_layout.py \
+  --skip-import --lvs-only
+```
+
+Detailed distributed R-C extraction and post-layout simulation remain pending
+for the faster machine. The earlier cap-only artifact remains explicitly
+unqualified.

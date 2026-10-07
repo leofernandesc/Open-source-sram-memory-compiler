@@ -40,8 +40,7 @@ class Device:
 class Geometry:
     drain_x: int
     drain_y: int
-    gate_x: int
-    gate_y: int
+    gate_contacts: tuple[tuple[int, int], ...]
     source_x: int
     source_y: int
     bulk_x: int
@@ -147,9 +146,9 @@ def device_geometry(child: Path, is_pfet: bool) -> Geometry:
     drain = min(diffusion, key=lambda xy: xy[0])
     source = max(diffusion, key=lambda xy: xy[0])
     gate_rects = sections.get("polycont", [])
-    if not gate_rects:
-        raise RuntimeError(f"Missing poly contacts in {child}")
-    gate = center(max(gate_rects, key=lambda r: center(r)[1]))
+    if len(gate_rects) != 2:
+        raise RuntimeError(f"Expected two gate contacts in {child}")
+    gates = tuple(sorted((center(rect) for rect in gate_rects), key=lambda xy: xy[1], reverse=True))
     body_layer = "nsubdiffcont" if is_pfet else "psubdiffcont"
     body_rects = sections.get(body_layer, [])
     body_candidates = [center(rect) for rect in body_rects]
@@ -157,7 +156,7 @@ def device_geometry(child: Path, is_pfet: bool) -> Geometry:
     if not body_candidates:
         raise RuntimeError(f"Missing centered upper body contact {body_layer} in {child}")
     bulk = max(body_candidates, key=lambda xy: xy[1])
-    return Geometry(drain[0], drain[1], gate[0], gate[1],
+    return Geometry(drain[0], drain[1], gates,
                     source[0], source[1], bulk[0], bulk[1])
 
 
@@ -239,7 +238,7 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "    paint metal3",
         "}",
         "",
-        "proc terminal_to_m3 {tx ty vx track} {",
+        "proc terminal_to_m3 {tx ty vx track {create_m3_via 1}} {",
         "    set xlo [expr {min($tx, $vx) - 20}]",
         "    set xhi [expr {max($tx, $vx) + 20}]",
         "    box values $xlo [expr {$ty - 20}] $xhi [expr {$ty + 20}]",
@@ -248,18 +247,23 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "    set vxhi [expr {$vx + 30}]",
         "    set tylo [expr {$ty - 30}]",
         "    set tyhi [expr {$ty + 30}]",
-        "    box values $vxlo $tylo $vxhi $tyhi",
+        "    box values [expr {$vx - 40}] [expr {$ty - 40}] [expr {$vx + 40}] [expr {$ty + 40}]",
         "    paint metal1",
         "    paint metal2",
+        "    box values $vxlo $tylo $vxhi $tyhi",
         "    contact m2contact",
         "    set ylo [expr {min($ty, $track) - 30}]",
         "    set yhi [expr {max($ty, $track) + 30}]",
         "    box values $vxlo $ylo $vxhi $yhi",
         "    paint metal2",
-        "    box values $vxlo [expr {$track - 30}] $vxhi [expr {$track + 30}]",
-        "    paint metal2",
-        "    paint metal3",
-        "    contact m3contact",
+        "    if {$create_m3_via} {",
+        "        box values $vxlo [expr {$track - 30}] $vxhi [expr {$track + 30}]",
+        "        contact m3contact",
+        "        box values [expr {$vx - 42}] [expr {$track - 42}] [expr {$vx + 42}] [expr {$track + 42}]",
+        "        paint metal2",
+        "        box values [expr {$vx - 36}] [expr {$track - 36}] [expr {$vx + 36}] [expr {$track + 36}]",
+        "        paint metal3",
+        "    }",
         "}",
         "",
         "proc body_to_m3 {gx gy mx vx track} {",
@@ -271,7 +275,9 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "    set mxhi [expr {$mx + 30}]",
         "    box values $mxlo [expr {$gy - 30}] $mxhi [expr {$gy + 30}]",
         "    paint locali",
+        "    box values [expr {$mx - 50}] [expr {$gy - 50}] [expr {$mx + 50}] [expr {$gy + 50}]",
         "    paint metal1",
+        "    box values $mxlo [expr {$gy - 30}] $mxhi [expr {$gy + 30}]",
         "    contact mcon",
         "    terminal_to_m3 $mx $gy $vx $track",
         "}",
@@ -292,7 +298,15 @@ def generate_route_tcl(devices: list[Device]) -> None:
         tracks = track_y
         rows.append(f"# {name}: D={device.drain}, G={device.gate}, S={device.source}, B={device.bulk}")
         rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x - 300} {tracks[device.drain]}")
-        rows.append(f"terminal_to_m3 {x + geometry.gate_x} {y + geometry.gate_y} {x + 100} {tracks[device.gate]}")
+        # The SKY130 Magic MOS PCell exposes gate contacts on both sides. Route
+        # both to the same gate net so no small floating metal landing remains.
+        # Keep the M1-to-M2 landing beyond the adjacent diffusion contacts.
+        for gate_index, (gate_x, gate_y) in enumerate(geometry.gate_contacts):
+            make_m3_via = 1 if gate_index == 0 else 0
+            rows.append(
+                f"terminal_to_m3 {x + gate_x} {y + gate_y} {x + 150} "
+                f"{tracks[device.gate]} {make_m3_via}"
+            )
         rows.append(f"terminal_to_m3 {x + geometry.source_x} {y + geometry.source_y} {x + 300} {tracks[device.source]}")
         # Keep the mcon outside the PCell's substrate/well tap footprint; the
         # LI route joins the tap to this offset via, as in the peripheral flows.
@@ -322,7 +336,9 @@ def generate_route_tcl(devices: list[Device]) -> None:
     rows += [
         "",
         "select top cell",
+        "drc style drc(full)",
         "drc check",
+        "drc catchup",
         "drc count total",
         "save row_decoder_layout",
         "quit -noprompt",
@@ -346,7 +362,9 @@ def flatten_script() -> None:
         "flatten row_decoder_flat",
         "load row_decoder_flat",
         "select top cell",
+        "drc style drc(full)",
         "drc check",
+        "drc catchup",
         "drc count total",
         "save row_decoder_flat",
         "quit -noprompt",
@@ -378,6 +396,51 @@ def extraction_script() -> None:
     ]), encoding="utf-8")
 
 
+def run_netgen_lvs() -> str:
+    command = [
+        "netgen", "-batch", "lvs",
+        "layout/row_decoder/row_decoder_flat_extracted.spice row_decoder_flat",
+        "layout/row_decoder/row_decoder_import.spice row_decoder_sram6t",
+        "/opt/pdks/sky130A/libs.tech/netgen/setup.tcl",
+        "layout/row_decoder/reports/lvs.out",
+    ]
+    lvs_log = run_checked(command, cwd=ROOT, log=LAYOUT / "reports" / "lvs.log")
+    report = (LAYOUT / "reports" / "lvs.out").read_text(encoding="utf-8")
+    if "Circuits match uniquely" not in lvs_log + report:
+        raise RuntimeError("Netgen LVS did not report a unique match; inspect reports/lvs.log and lvs.out")
+    return lvs_log
+
+
+def run_lvs_only() -> str:
+    """Extract connectivity from the current flat layout and run LVS, without RC PEX."""
+    script = "\n".join([
+        "load row_decoder_flat",
+        "select top cell",
+        "extract do local",
+        "extract all",
+        "ext2spice lvs",
+        "ext2spice -o row_decoder_flat_extracted.spice",
+        "quit -noprompt",
+        "",
+    ])
+    run_checked(
+        ["magic", "-dnull", "-noconsole", "-rcfile", str(MAGIC_RC)],
+        cwd=LAYOUT, log=LAYOUT / "reports" / "lvs_extract.log", input_text=script,
+    )
+    extracted_path = LAYOUT / "row_decoder_flat_extracted.spice"
+    spice = extracted_path.read_text(encoding="utf-8").rstrip() + "\n"
+    extracted_path.write_text(spice, encoding="utf-8")
+    devices = [line for line in spice.splitlines() if re.match(r"^X\S+\s", line)]
+    if len(devices) != 29:
+        raise RuntimeError(f"Magic connectivity extraction found {len(devices)} MOS devices; expected 29")
+    if re.search(r"(?m)^[RC]\S+\s", spice):
+        raise RuntimeError("LVS-only extraction unexpectedly contains parasitic R or C elements")
+    header = re.search(r"(?m)^\.subckt\s+row_decoder_flat\s+(.+)$", spice)
+    if not header or tuple(header.group(1).split()) != EXPECTED_PINS:
+        raise RuntimeError("Magic LVS extraction changed the decoder external pin order")
+    return run_netgen_lvs()
+
+
 def run_extraction_and_lvs() -> tuple[str, str]:
     (LAYOUT / "pex").mkdir(exist_ok=True)
     extraction_script()
@@ -393,17 +456,7 @@ def run_extraction_and_lvs() -> tuple[str, str]:
         raise RuntimeError("PEX subcircuit does not preserve the Xschem external pin order")
     if not re.search(r"(?m)^R\d+\s", pex) or not re.search(r"(?m)^C\d+\s", pex):
         raise RuntimeError("Magic PEX netlist is missing extracted R or C elements")
-    command = [
-        "netgen", "-batch", "lvs",
-        "layout/row_decoder/row_decoder_flat_extracted.spice row_decoder_flat",
-        "layout/row_decoder/row_decoder_import.spice row_decoder_sram6t",
-        "/opt/pdks/sky130A/libs.tech/netgen/setup.tcl",
-        "layout/row_decoder/reports/lvs.out",
-    ]
-    lvs_log = run_checked(command, cwd=ROOT, log=LAYOUT / "reports" / "lvs.log")
-    report = (LAYOUT / "reports" / "lvs.out").read_text(encoding="utf-8")
-    if "Circuits match uniquely" not in lvs_log + report:
-        raise RuntimeError("Netgen LVS did not report a unique match; inspect reports/lvs.log and lvs.out")
+    lvs_log = run_netgen_lvs()
     return lvs_log, pex
 
 
@@ -422,7 +475,13 @@ def main() -> int:
                         help="Only regenerate the Xschem netlist and Magic import.")
     parser.add_argument("--extract", action="store_true",
                         help="After zero-error DRC, extract RC and run Netgen LVS.")
+    parser.add_argument("--lvs-only", action="store_true",
+                        help="After zero-error DRC, extract connectivity and run Netgen LVS without RC PEX.")
     args = parser.parse_args()
+    if args.extract and args.lvs_only:
+        parser.error("--extract and --lvs-only are mutually exclusive")
+    if args.skip_route and (args.extract or args.lvs_only):
+        parser.error("--extract and --lvs-only require the routed layout and DRC checks")
     LAYOUT.mkdir(parents=True, exist_ok=True)
     netlist_path, devices = xschem_netlist()
     write_import_alias(netlist_path)
@@ -438,7 +497,9 @@ def main() -> int:
             "load $physical_top",
             "save row_decoder_import",
             "select top cell",
+            "drc style drc(full)",
             "drc check",
+            "drc catchup",
             "drc count total",
             "quit -noprompt",
             "",
@@ -462,6 +523,14 @@ def main() -> int:
         print("DRC is not closed; inspect reports and fix routing before extraction.")
         return 2
     print("DRC PASS")
+    if args.lvs_only:
+        lvs_log = run_lvs_only()
+        spice = (LAYOUT / "row_decoder_flat_extracted.spice").read_text(encoding="utf-8")
+        devices = [line for line in spice.splitlines() if re.match(r"^X\S+\s", line)]
+        print(f"Magic connectivity extraction: {len(devices)} MOS devices; no RC PEX requested")
+        print("Netgen LVS: Circuits match uniquely")
+        print(f"Logs: {LAYOUT / 'reports' / 'lvs_extract.log'} and {LAYOUT / 'reports' / 'lvs.log'}")
+        return 0
     if args.extract:
         lvs_log, pex = run_extraction_and_lvs()
         resistor_count = sum(1 for line in pex.splitlines() if re.match(r"^R\d+\s", line))
@@ -470,7 +539,7 @@ def main() -> int:
         print("Netgen LVS: Circuits match uniquely")
         print(f"PEX: {LAYOUT / 'pex/row_decoder_pex.spice'}")
     else:
-        print("Run again with --extract for Magic RC extraction and Netgen LVS.")
+        print("Run with --lvs-only to recheck connectivity without RC PEX, or --extract for RC PEX and LVS.")
     return 0
 
 

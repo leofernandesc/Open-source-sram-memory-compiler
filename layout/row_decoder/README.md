@@ -8,12 +8,15 @@ Magic views without editing the schematic.
 
 ## Current evidence
 
-- Magic 8.3.589 / SKY130A technology 1.0.493: 0 DRC errors on the routed
-  hierarchy and 0 on the flattened view (`reports/route.txt`,
-  `reports/drc_flat.txt`).
-- Netgen 1.5.293: unique LVS match between the flattened Magic extraction and
-  the retained Xschem topology; 29 MOS devices and 22 nets
+- Magic 8.3.589 / SKY130A technology 1.0.493, `drc(full)`: 0 DRC errors on
+  the routed top cell and the flattened view after `drc catchup`
+  (`reports/route.txt`, `reports/drc_flat.txt`).
+- Netgen 1.5.293: unique LVS match against the retained Xschem topology;
+  29 MOS devices (17 NFET, 12 PFET) and 22 nets
   (`reports/lvs_recheck.txt`).
+- The Magic LVS netlist is connectivity-only. It contains no extracted R or C
+  elements; detailed parasitic extraction and post-layout simulation remain
+  pending.
 - Bulk terminals are tied to the appropriate supply rails; `EVAL_GND` remains
   a separate internal node connected to VSS through the decoder footer.
 - A preliminary capacitance extraction exists, but no qualified distributed
@@ -29,36 +32,31 @@ the complete SRAM macro.
 
 ## Reproduce layout, DRC, and LVS
 
-From the repository root, in the configured project container:
+From the repository root, in the configured project container, rerun layout
+generation and DRC with:
 
 ```bash
-./tools/sram-eda python3 layout/row_decoder/build_layout.py
+./tools/sram-eda python3 layout/row_decoder/build_layout.py --skip-import
 ```
 
-This regenerates the Xschem netlist, Magic import, placement, routing, and both
-DRC checks. `build_layout.py --skip-import` reuses the existing imported
-transistor cells. To repeat LVS against the saved extracted topology without
-starting detailed resistance extraction, run:
+The DRC scripts wait for Magic's background checker before reading the count.
+To repeat DRC and then regenerate the connectivity netlist and run LVS without
+starting RC PEX, run:
 
 ```bash
-./tools/sram-eda netgen -batch lvs \
-  'layout/row_decoder/row_decoder_flat_extracted.spice row_decoder_flat' \
-  'layout/row_decoder/row_decoder_import.spice row_decoder_sram6t' \
-  /opt/pdks/sky130A/libs.tech/netgen/setup.tcl \
-  layout/row_decoder/reports/lvs_recheck.out
+./tools/sram-eda python3 layout/row_decoder/build_layout.py \
+  --skip-import --lvs-only
 ```
 
-The full extraction script regenerates the extracted netlist and then runs
-Netgen LVS, but it also starts the deferred detailed R-C extraction described
-below.
+`--lvs-only` runs Magic connectivity extraction and Netgen LVS. It does not run
+`extresist` or create an R-C PEX netlist.
 
 ## Deferred detailed R-C extraction
 
-The current host was slow during detailed route-resistance extraction. The
-builder's legacy Magic 8.3.589 sequence has been corrected to call `ext2sim`
-without a root argument on the loaded cell before invoking `extresist`. This
-correction has not yet been exercised. Wait until a faster machine is available
-before running:
+The builder's legacy Magic 8.3.589 sequence calls `ext2sim` on the loaded cell
+before `extresist`. The detailed R-C path has not been exercised on the current
+layout revision. Run it on the faster machine before post-layout electrical
+tests:
 
 ```bash
 ./tools/sram-eda python3 layout/row_decoder/build_layout.py \
