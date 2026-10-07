@@ -55,8 +55,8 @@
     button:hover { border-color:var(--accent); }
     #count { min-width:68px; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; }
     .source { margin-top:auto; padding-top:18px; font-size:.82rem; color:var(--muted); }
-    @media (max-width:700px) { body{font-size:16px}.grid,.grid.three,.evidence-grid{grid-template-columns:1fr}.slide{min-height:calc(100vh - 110px);padding:27px 22px;border-radius:16px}main{padding:16px 12px 104px}table{font-size:.82rem}th,td{padding:8px 6px}figure.evidence img{max-height:210px}nav{gap:6px;flex-wrap:wrap;padding:8px}button{padding:7px 10px}dialog.image-viewer{width:98vw;max-height:96vh;padding:42px 10px 12px;border-radius:10px}.viewer-image{max-height:calc(96vh - 120px)}.viewer-caption{font-size:.75rem} }
-    @media print { @page{size:A4 landscape;margin:8mm} body{background:white;color:#172033;font-size:14px} main{display:block;padding:0} .slide,.slide.active{display:flex!important;min-height:0;page-break-after:always;break-after:page;border:1px solid #9ca9b8;border-radius:0;background:white;color:#172033;box-shadow:none;overflow:visible} main>.slide:last-child{page-break-after:auto;break-after:auto} p,ul,.label,.source,figure.evidence figcaption{color:#37465a}.card,.flow span,figure.evidence{background:#f4f7fa;border-color:#b8c2cf;color:#172033} figure.evidence img{max-height:220px;background:white} .metric,.eyebrow,th,a{color:#087c68} nav,dialog{display:none!important} }
+    @media (max-width:700px) { body{font-size:16px}.grid,.grid.three,.evidence-grid{grid-template-columns:1fr}.slide{min-height:calc(100vh - 110px);padding:27px 22px;border-radius:16px}main{padding:16px 12px 78px}table{font-size:.82rem}th,td{padding:8px 6px}figure.evidence img{max-height:210px}dialog.image-viewer{width:98vw;max-height:96vh;padding:42px 10px 12px;border-radius:10px}.viewer-image{max-height:calc(96vh - 120px)}.viewer-caption{font-size:.75rem} }
+    @media print { body{background:white;color:#172033;font-size:14px} main{display:block;padding:0} .slide,.slide.active{display:flex!important;min-height:0;page-break-after:always;border:1px solid #9ca9b8;border-radius:0;background:white;color:#172033;box-shadow:none;overflow:visible} p,ul,.label,.source,figure.evidence figcaption{color:#37465a}.card,.flow span,figure.evidence{background:#f4f7fa;border-color:#b8c2cf;color:#172033} figure.evidence img{max-height:220px;background:white} .metric,.eyebrow,th,a{color:#087c68} nav{display:none} }
   </style>
 </head>
 <body>
@@ -190,7 +190,6 @@
   <button id="prev" type="button" aria-label="Slide anterior">← Anterior</button>
   <span id="count" aria-live="polite">1 / 8</span>
   <button id="next" type="button" aria-label="Próximo slide">Próximo →</button>
-  <button id="export-pdf" type="button" title="Abrir a janela de impressão para salvar a apresentação em PDF">Exportar PDF</button>
 </nav>
 <dialog class="image-viewer" id="image-viewer" aria-labelledby="viewer-title" aria-describedby="viewer-caption">
   <button class="viewer-close" id="viewer-close" type="button" aria-label="Fechar imagem ampliada">Fechar ✕</button>
@@ -212,7 +211,6 @@
   }
   document.querySelector('#prev').addEventListener('click', () => show(current - 1));
   document.querySelector('#next').addEventListener('click', () => show(current + 1));
-  document.querySelector('#export-pdf').addEventListener('click', () => window.print());
   document.querySelectorAll('figure.evidence > a').forEach(link => {
     const image = link.querySelector('img');
     if (!image) return;
