@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101827">
-  <title>Meu trabalho na Fase 1 — SRAM SKY130A</title>
+  <title>Fase 1 — SRAM SKY130A</title>
   <style>
     :root { color-scheme: dark; --ink:#f2f5f9; --muted:#b7c3d2; --line:#334258; --panel:#172337; --accent:#62e0c1; --gold:#ffcf70; --red:#ff8e8e; }
     * { box-sizing:border-box; }
@@ -52,130 +52,130 @@
   </style>
 </head>
 <body>
-<main aria-label="Minha apresentação de andamento da Fase 1">
+<main aria-label="Apresentação de andamento da Fase 1">
   <section class="slide active">
     <div class="eyebrow">Open-Source SRAM Memory Compiler · SKY130A</div>
-    <h1>Meu trabalho<br>na Fase 1</h1>
-    <p class="lead">Eu desenvolvo o decoder de linha dinâmico, o wordline driver e o write driver. Reuni nesta apresentação os esquemas e resultados que medi na branch <strong>feature/peripherals</strong>.</p>
-    <div><span class="tag">Resumo de 7 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
-    <p class="source">Apresento resultados medidos, arquivos de origem e pendências com base nos artefatos versionados no repositório.</p>
+    <h1>Andamento<br>da Fase 1</h1>
+    <p class="lead">Decoder dinâmico de linha, wordline driver e write driver. Este resumo reúne esquemas, resultados medidos e próximos passos da branch <strong>feature/peripherals</strong>.</p>
+    <div><span class="tag">Atualizado em 7 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
+    <p class="source">Os resultados e as pendências têm links para os esquemas, relatórios e dados de origem no repositório.</p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">01 · Escopo</div>
-    <h2>Meu escopo</h2>
-    <p>Na primeira SRAM 4×8, os endereços capturados selecionam uma das quatro linhas. Eu trabalho nos três blocos que conectam essa seleção à operação física: decoder dinâmico, buffer de wordline e write driver diferencial.</p>
+    <h2>Escopo</h2>
+    <p>Na SRAM inicial 4×8, os endereços capturados selecionam uma das quatro linhas. Este trabalho cobre o decoder dinâmico, o buffer de wordline e o write driver diferencial.</p>
     <div class="flow"><span>CLK + endereço capturado</span><b>→</b><span>Decoder 2→4 dinâmico</span><b>→</b><span>WL driver</span><b>→</b><span>linha de bitcells</span></div>
     <div class="grid three">
-      <div class="card"><h3>Row decoder</h3><p>Implementei a lógica dinâmica de pré-carga e avaliação com uma saída DEC selecionada por endereço.</p></div>
-      <div class="card"><h3>Wordline driver</h3><p>Modelei um buffer CMOS não inversor entre DEC e a capacitância da linha.</p></div>
-      <div class="card"><h3>Write driver</h3><p>Modelei o acionamento complementar de BL e BLB conforme DATA e WE.</p></div>
+      <div class="card"><h3>Row decoder</h3><p>Lógica dinâmica de pré-carga e avaliação, com uma saída DEC selecionada por endereço.</p></div>
+      <div class="card"><h3>Wordline driver</h3><p>Buffer CMOS não inversor entre DEC e a capacitância da linha.</p></div>
+      <div class="card"><h3>Write driver</h3><p>Acionamento complementar de BL e BLB conforme DATA e WE.</p></div>
     </div>
     <p class="source">A especificação determina o decoder dinâmico; a estratégia para decoders maiores continua como decisão futura da equipe.</p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">02 · Wordline driver</div>
-    <h2>Modelei e medi o wordline driver</h2>
-    <p>Modelei um buffer CMOS não inversor de dois estágios, com larguras de 0,42 µm e 0,84 µm e L=0,15 µm. Medi a resposta com a carga estimada da linha e com uma carga de stress.</p>
+    <h2>Wordline driver — simulação e layout</h2>
+    <p>Buffer CMOS não inversor de dois estágios, com larguras de 0,42 µm e 0,84 µm e L=0,15 µm. A resposta foi simulada com a carga estimada da linha e com uma carga de stress.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">36/36</div><div class="label">casos em que confirmei a resposta do esquemático</div></div>
-      <div class="card"><div class="metric">36/36</div><div class="label">casos em que confirmei a resposta com o PEX existente</div></div>
+      <div class="card"><div class="metric">36/36</div><div class="label">casos aprovados no esquemático</div></div>
+      <div class="card"><div class="metric">36/36</div><div class="label">casos aprovados com o PEX existente</div></div>
       <div class="card"><div class="metric">0</div><div class="label">violações DRC na folha</div></div>
     </div>
     <table><thead><tr><th>Carga</th><th>Atraso máximo esquemático</th><th>Atraso máximo PEX</th><th>Canto limitante</th></tr></thead><tbody>
       <tr><td>17,4 fF estimados</td><td>0,291 ns</td><td>0,386 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
       <tr><td>50 fF stress</td><td>0,665 ns</td><td>0,760 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
     </tbody></table>
-    <figure class="evidence"><a href="assets/wl_driver_schematic.svg"><img src="assets/wl_driver_schematic.svg" alt="Esquemático Xschem do buffer CMOS de dois estágios do wordline driver"></a><figcaption>Esquemático que eu simulei, exportado do Xschem com a configuração SKY130A. <a href="../cells/wordline_driver/wl_driver.sch">Abrir fonte</a>.</figcaption></figure>
-    <p><strong class="ok">LVS:</strong> obtive um match único, com 4 MOS e 5 redes. Meu PEX atual representa a folha e não inclui a linha física completa.</p>
+    <figure class="evidence"><a href="assets/wl_driver_schematic.svg"><img src="assets/wl_driver_schematic.svg" alt="Esquemático Xschem do buffer CMOS de dois estágios do wordline driver"></a><figcaption>Esquemático exportado do Xschem com a configuração SKY130A. <a href="../cells/wordline_driver/wl_driver.sch">Abrir fonte</a>.</figcaption></figure>
+    <p><strong class="ok">LVS:</strong> match único, com 4 MOS e 5 redes. O PEX atual representa a folha e não inclui a linha física completa.</p>
     <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#wordline-driver">registro de validação</a> · <a href="../sims/wl_driver_smoke_3corner_pvt.csv">CSV PVT</a></p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">03 · Write driver</div>
-    <h2>Medi a operação complementar</h2>
+    <h2>Write driver — operação complementar</h2>
     <div class="grid">
-      <div class="card"><h3>Write 0 · 3 ns</h3><div class="metric">BL ≈ 0 V</div><p>Medi BLB em 1,800297 V.</p></div>
-      <div class="card"><h3>Write 1 · 12 ns</h3><div class="metric">BL ≈ 1,78 V</div><p>Medi BLB em aproximadamente 0 V.</p></div>
+      <div class="card"><h3>Write 0 · 3 ns</h3><div class="metric">BL ≈ 0 V</div><p>BLB: 1,800297 V.</p></div>
+      <div class="card"><h3>Write 1 · 12 ns</h3><div class="metric">BL ≈ 1,78 V</div><p>BLB: aproximadamente 0 V.</p></div>
     </div>
-    <p>Medi drift de 3,39 mV em BL e 1,46 mV em BLB durante o intervalo desabilitado. Meu deck ainda não define um limite de aceitação para esse drift.</p>
+    <p>Durante o intervalo desabilitado, o drift medido foi de 3,39 mV em BL e 1,46 mV em BLB. O deck não define um limite de aceitação para esse valor.</p>
     <div class="grid three">
       <div class="card"><div class="metric">72/72</div><div class="label">medições AC da folha</div></div>
       <div class="card"><div class="metric">72/72</div><div class="label">medições AC usando PEX existente</div></div>
       <div class="card"><div class="metric">0</div><div class="label">violações DRC na folha</div></div>
     </div>
-    <figure class="evidence"><a href="assets/write_driver_schematic.svg"><img src="assets/write_driver_schematic.svg" alt="Esquemático Xschem do write driver diferencial com sinais DATA, DATA_B, WE, BL e BLB"></a><figcaption>Esquemático que usei nas medições nominais. <a href="../cells/write_driver/write_driver.sch">Abrir fonte</a>.</figcaption></figure>
-    <p><strong class="ok">LVS:</strong> obtive um match único, com 10 MOS e 12 redes. Medi a capacitância efetiva; a especificação ainda não define um limite máximo para ela.</p>
-    <p>Medi Ceff desligada de 1,02–4,03 fF na folha e 14,11–26,72 fF no PEX existente. Ainda preciso verificar o write driver integrado com bitcell e precharge.</p>
+    <figure class="evidence"><a href="assets/write_driver_schematic.svg"><img src="assets/write_driver_schematic.svg" alt="Esquemático Xschem do write driver diferencial com sinais DATA, DATA_B, WE, BL e BLB"></a><figcaption>Esquemático usado nas medições nominais. <a href="../cells/write_driver/write_driver.sch">Abrir fonte</a>.</figcaption></figure>
+    <p><strong class="ok">LVS:</strong> match único, com 10 MOS e 12 redes. A especificação ainda não define um limite máximo para a capacitância efetiva.</p>
+    <p>Ceff no estado desligado: 1,02–4,03 fF na folha e 14,11–26,72 fF no PEX existente. A verificação integrada com bitcell e precharge ainda está pendente.</p>
     <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#write-driver">registro de validação</a> · <a href="../sims/write_driver_capacitance_local_3corner_pvt.csv">CSV PVT</a></p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">04 · Decoder dinâmico</div>
-    <h2>Retive o candidato B7 para a próxima etapa</h2>
-    <p>Eu pré-decodifico o endereço com inversores, pré-carrego os nós dinâmicos e depois avalio uma linha. No B7, acrescentei buffers estáticos para regenerar os literais de endereço e reduzir as excursões elétricas observadas nos candidatos anteriores.</p>
+    <h2>Decoder dinâmico — candidato B7</h2>
+    <p>O endereço é pré-decodificado por inversores; os nós dinâmicos são pré-carregados e depois avaliados. O B7 acrescenta buffers estáticos para regenerar os literais e reduzir as excursões elétricas observadas nos candidatos anteriores.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">264/264</div><div class="label">casos B7 que passaram nos critérios elétricos executados</div></div>
-      <div class="card"><div class="metric">204</div><div class="label">casos de contrato; encontrei os 36 controles negativos</div></div>
-      <div class="card"><div class="metric">1,925 V</div><div class="label">maior magnitude que medi na comparação numérica fina</div></div>
+      <div class="card"><div class="metric">264/264</div><div class="label">casos B7 aprovados nos critérios elétricos executados</div></div>
+      <div class="card"><div class="metric">204</div><div class="label">casos de contrato, incluindo 36 controles negativos detectados</div></div>
+      <div class="card"><div class="metric">1,925 V</div><div class="label">maior magnitude na comparação numérica fina</div></div>
     </div>
     <ul>
-      <li>Mantive a arquitetura dinâmica 2→4 e a interface de nove pinos.</li>
-      <li>Contei 29 MOS no decoder B7; os quatro buffers WL acrescentam 16 MOS.</li>
-      <li>Substituí o estudo de lead ideal por uma campanha que modela clock-to-Q do registrador com tabelas Liberty.</li>
+      <li>Arquitetura dinâmica 2→4 e interface de nove pinos.</li>
+      <li>29 MOS no decoder B7; quatro buffers WL acrescentam 16 MOS.</li>
+      <li>Os testes consideram o clock-to-Q do registrador pelas tabelas Liberty SKY130, sem assumir chegada instantânea do endereço.</li>
     </ul>
-    <p>Usei no B7: M26–M29 regeneradores com W=2 µm; pré-carga 0,5 µm; footer 1,5 µm; inversores de saída 2 µm; stacks 1 µm; inversores de endereço 0,42 µm; L=0,15 µm.</p>
+    <p>Dimensões B7: regeneradores M26–M29 com W=2 µm; pré-carga 0,5 µm; footer 1,5 µm; inversores de saída 2 µm; stacks 1 µm; inversores de endereço 0,42 µm; L=0,15 µm.</p>
     <div class="evidence-grid">
-      <figure class="evidence"><a href="assets/row_decoder_b7.svg"><img src="assets/row_decoder_b7.svg" alt="Esquemático Xschem do decoder dinâmico B7 com buffers de endereço e quatro saídas"></a><figcaption>Esquemático B7 que usei nas simulações. <a href="../cells/row_decoder/row_decoder.sch">Abrir fonte</a>.</figcaption></figure>
-      <figure class="evidence"><a href="assets/row_decoder_b7_waveforms.png"><img src="assets/row_decoder_b7_waveforms.png" alt="Formas de onda do decoder B7 durante pré-carga e avaliação"></a><figcaption>Formas de onda B7 da revisão pré-layout. Elas mostram o contrato dinâmico e a WL, sem representar o teste captura→PCLK. <a href="row_decoder_contract_characterization.md#completed-b7-broad-qualification-and-source-rerun">Abrir dados</a>.</figcaption></figure>
-      <figure class="evidence"><a href="assets/row_decoder_feedthrough_fix.png"><img src="assets/row_decoder_feedthrough_fix.png" alt="Comparação de formas de onda durante a investigação de feedthrough do decoder"></a><figcaption>Usei esta comparação da investigação B6 para localizar o feedthrough que motivou mudanças de sizing; ela não é resultado do B7 final. <a href="row_decoder_feedthrough_fix.md">Abrir relatório</a>.</figcaption></figure>
+      <figure class="evidence"><a href="assets/row_decoder_b7.svg"><img src="assets/row_decoder_b7.svg" alt="Esquemático Xschem do decoder dinâmico B7 com buffers de endereço e quatro saídas"></a><figcaption>Esquemático B7 usado nas simulações. <a href="../cells/row_decoder/row_decoder.sch">Abrir fonte</a>.</figcaption></figure>
+      <figure class="evidence"><a href="assets/row_decoder_b7_waveforms.png"><img src="assets/row_decoder_b7_waveforms.png" alt="Formas de onda do decoder B7 durante pré-carga e avaliação"></a><figcaption>Formas de onda da caracterização B7 pré-layout; mostram o contrato dinâmico e a WL, não o teste captura→PCLK. <a href="row_decoder_contract_characterization.md#completed-b7-broad-qualification-and-source-rerun">Abrir dados</a>.</figcaption></figure>
+      <figure class="evidence"><a href="assets/row_decoder_feedthrough_fix.png"><img src="assets/row_decoder_feedthrough_fix.png" alt="Comparação de formas de onda durante a investigação de feedthrough do decoder"></a><figcaption>Investigação B6 que localizou o feedthrough e motivou mudanças de sizing; não representa o B7 final. <a href="row_decoder_feedthrough_fix.md">Abrir relatório</a>.</figcaption></figure>
     </div>
     <p class="source">Fonte: <a href="row_decoder_contract_characterization.md#buffered-address-candidate-b7">caracterização B7</a> · <a href="row_decoder_feedthrough_fix.md">correção de feedthrough</a></p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">05 · Captura → PCLK</div>
-    <h2>Eu medi o orçamento captura → PCLK</h2>
-    <p>Usei clock-to-Q e tempos de transição do flip-flop <code>dfxtp_1</code> da Liberty SKY130 para gerar rampas PWL de endereço. Simulei o decoder B7 com modelos MOS contínuos, variando o atraso entre a captura e PCLK.</p>
+    <h2>Captura → PCLK — margem de estabilização</h2>
+    <p>Clock-to-Q e tempos de transição do flip-flop <code>dfxtp_1</code> da Liberty SKY130 foram usados para gerar rampas PWL de endereço. A simulação do decoder B7 com modelos MOS contínuos avaliou diferentes atrasos entre a captura e PCLK.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">1,50 ns</div><div class="label">fase que selecionei para continuar a validação</div></div>
-      <div class="card"><div class="metric">431 ps</div><div class="label">menor lead interno que medi em SS, com carga stress</div></div>
-      <div class="card"><div class="metric">72/72</div><div class="label">casos que passaram no conjunto TT/SS/FF e duas cargas Liberty</div></div>
+      <div class="card"><div class="metric">1,50 ns</div><div class="label">fase selecionada para continuar a validação</div></div>
+      <div class="card"><div class="metric">431 ps</div><div class="label">menor lead interno em SS, com carga stress</div></div>
+      <div class="card"><div class="metric">72/72</div><div class="label">casos aprovados em TT/SS/FF e duas cargas Liberty</div></div>
     </div>
     <table><thead><tr><th>Fase de PCLK</th><th>Lead interno mínimo</th><th>Guard de 250 ps</th><th>Resultado</th></tr></thead><tbody>
       <tr><td>1,25 ns</td><td>181 ps</td><td>Não: 5/12 passam</td><td class="warn">Margem insuficiente</td></tr>
       <tr><td>1,50 ns</td><td>431 ps</td><td>Sim: 12/12 passam</td><td class="ok">Recomendado</td></tr>
     </tbody></table>
-    <figure class="evidence"><a href="assets/capture_to_pclk_margin.svg"><img src="assets/capture_to_pclk_margin.png" alt="Gráfico das margens medidas até PCLK para 96 casos no perfil SS frio e carga stress"></a><figcaption>Gerei este gráfico das 96 linhas da grade lenta; cada fase inclui 12 transições. A linha dourada marca o guard experimental de 250 ps. <a href="assets/capture_to_pclk_margin.svg">Abrir versão vetorial</a> · <a href="../sims/row_decoder/results/capture_to_pclk_slow_coarse/summary.csv">CSV de origem</a> · <a href="../sims/row_decoder/plot_capture_to_pclk_margin.py">Script do gráfico</a>.</figcaption></figure>
-    <p>Com captura em 15 ns e queda de CLK em 20 ns, medi fase alta de PCLK de 3,5 ns e atraso máximo de 675,44 ps até WL atingir 90%. Mantive a carga WL em 17,4 fF; 3,43 fF e 9,00 fF são cargas Liberty na saída Q do registrador.</p>
-    <p class="source">O guard é um critério experimental. Modelei Q com rampas baseadas em Liberty e mantive PCLK ideal. Ainda não fechei setup/hold externo, metastabilidade, gerador real de PCLK, carga Q extraída, carga WL de 50 fF nem Fmax. Também consultei os resultados <a href="../sims/row_decoder/results/capture_to_pclk_selected_1500ps/summary.csv">TT/FF a 1,50 ns</a> e <a href="../sims/row_decoder/results/capture_to_pclk_slow_nominal_1500ps/summary.csv">SS nominal a 1,50 ns</a>.</p>
+    <figure class="evidence"><a href="assets/capture_to_pclk_margin.svg"><img src="assets/capture_to_pclk_margin.png" alt="Gráfico das margens medidas até PCLK para 96 casos no perfil SS frio e carga stress"></a><figcaption>Grade lenta com 96 casos e 12 transições por fase. A linha dourada indica o guard experimental de 250 ps. <a href="assets/capture_to_pclk_margin.svg">Versão vetorial</a> · <a href="../sims/row_decoder/results/capture_to_pclk_slow_coarse/summary.csv">CSV de origem</a> · <a href="../sims/row_decoder/plot_capture_to_pclk_margin.py">Script do gráfico</a>.</figcaption></figure>
+    <p>Com captura em 15 ns e queda de CLK em 20 ns, a fase alta de PCLK é 3,5 ns; o atraso máximo até WL atingir 90% foi 675,44 ps. A carga WL ficou em 17,4 fF; 3,43 fF e 9,00 fF são cargas Liberty na saída Q do registrador.</p>
+    <p class="source">O guard é um critério experimental. Q foi modelado com rampas baseadas em Liberty e PCLK permaneceu ideal. Setup/hold externo, metastabilidade, gerador real de PCLK, carga Q extraída, carga WL de 50 fF e Fmax ainda não foram fechados. Resultados adicionais: <a href="../sims/row_decoder/results/capture_to_pclk_selected_1500ps/summary.csv">TT/FF a 1,50 ns</a> e <a href="../sims/row_decoder/results/capture_to_pclk_slow_nominal_1500ps/summary.csv">SS nominal a 1,50 ns</a>.</p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">06 · Estado físico e integração</div>
-    <h2>Fechei as folhas WL/write; ainda preciso fechar o decoder</h2>
+    <h2>O que está concluído e o que falta</h2>
     <div class="grid">
-      <div class="card"><h3 class="ok">O que já verifiquei</h3><ul><li>Simulei as folhas WL/write em schematic e com PEX existente.</li><li>Obtive DRC sem violações e LVS com match único nas duas folhas.</li><li>Reproduzi as ferramentas SKY130A por <code>tools/sram-eda</code>.</li></ul></div>
-      <div class="card"><h3 class="warn">O que ainda vou fechar</h3><ul><li>Layout Magic, DRC, LVS e PEX do decoder B7.</li><li>Repetir timing e excursões com parasitas do decoder.</li><li>Conectar decoder, quatro WL drivers e a linha física.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
+      <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
+      <div class="card"><h3 class="warn">Pendente no decoder e na integração</h3><ul><li>Layout Magic, DRC, LVS e PEX do decoder B7.</li><li>Repetir timing e excursões com parasitas extraídos.</li><li>Conectar decoder, quatro WL drivers e a linha física.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
     </div>
-    <p class="bad"><strong>Bloqueio da integração:</strong> minha tentativa de leitura integrada parou na geração do netlist do precharge, antes do ngspice. Preciso coordenar com André uma versão que gere netlist válida e então repetir a integração.</p>
-    <p class="source">Registrei <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> e a <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">tentativa de integração</a>.</p>
+    <p class="bad"><strong>Integração:</strong> a tentativa de leitura parou durante a geração do netlist do precharge, antes do ngspice. A retomada depende de uma versão que gere netlist válida e de uma nova execução integrada com André.</p>
+    <p class="source">Evidências de <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> e da <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">tentativa de integração</a>.</p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">07 · Próximas tarefas até 13/10</div>
-    <h2>Meu plano de fechamento até 13/10</h2>
+    <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
-      <tr><td>08/10</td><td>Vou revisar a interface PCLK e desenhar o layout do decoder</td><td>Layout Magic com rails, nós dinâmicos e EVAL_GND roteados</td></tr>
-      <tr><td>09/10</td><td>Vou fechar DRC e LVS do decoder</td><td>DRC sem violações; match Netgen único contra os 29 MOS</td></tr>
-      <tr><td>10/10</td><td>Vou extrair parasitas e repetir os testes críticos</td><td>Waveforms, margens, atraso e energia pós-layout</td></tr>
-      <tr><td>11/10</td><td>Vou validar a carga física da linha e a escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
-      <tr><td>12/10</td><td>Vou revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
-      <tr><td>13/10</td><td>Vou organizar minha entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>
+      <tr><td>08/10</td><td>Revisar a interface PCLK e desenhar o layout do decoder</td><td>Layout Magic com rails, nós dinâmicos e EVAL_GND roteados</td></tr>
+      <tr><td>09/10</td><td>Fechar DRC e LVS do decoder</td><td>DRC sem violações; match Netgen único contra os 29 MOS</td></tr>
+      <tr><td>10/10</td><td>Extrair parasitas e repetir os testes críticos</td><td>Waveforms, margens, atraso e energia pós-layout</td></tr>
+      <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
+      <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
+      <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>
     </tbody></table>
-    <p class="warn"><strong>O que preciso coordenar:</strong> definição da origem de PCLK; uma versão válida do precharge do André; e a interface e carga física do bitcell do Danilo.</p>
-    <p class="source">Meu plano detalhado está em <a href="person3_phase1_remaining_tasks.md">tarefas restantes</a>. Use ←/→ ou os botões para navegar; a impressão gera uma página por slide.</p>
+    <p class="warn"><strong>Dependências:</strong> definição da origem de PCLK; versão válida do precharge com André; interface e carga física do bitcell com Danilo.</p>
+    <p class="source">Plano detalhado: <a href="person3_phase1_remaining_tasks.md">tarefas restantes</a>. Use ←/→ ou os botões para navegar; a impressão gera uma página por slide.</p>
   </section>
 </main>
 <nav aria-label="Controles da apresentação">
