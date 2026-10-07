@@ -561,8 +561,47 @@ The new PEX runner
 prepares a matched 13-case matrix: nine TT transitions and four SS/-40 C
 diagonal transitions. It checks functional outputs, precharge, all distributed
 dynamic-node segments, terminal magnitudes, delay, slew, and energy. Its
-per-case ngspice timeout is configurable; on the faster workstation, start
-with a one-case smoke using a 900-second limit, then run the full matrix:
+per-case ngspice timeout is configurable. A static audit performed after this
+entry found a capacitance issue in the current PEX, so do not run this matrix
+against the retained netlist yet. The audit and next action are recorded below.
+
+## 2026-10-07: decoder PEX capacitance audit
+
+The extracted file has 494 capacitor elements, of which four are negative
+capacitors to `VSS` on distributed nodes:
+
+| Element | Node | Extracted value |
+| --- | --- | ---: |
+| `C236` | `DEC0.n0` | −3.02859 fF |
+| `C275` | `N3.n0` | −9.29966 fF |
+| `C302` | `net4.n0` | −16.2877 fF |
+| `C489` | `N2.n0` | −1.3128 fF |
+
+The extracted capacitor matrix has four negative eigenvalues, equal to those
+four isolated shunt values. This is a static audit of the SPICE capacitor
+network, not a transient simulation result. The extracted netlist is therefore
+not accepted for electrical characterization in its current form. The Magic
+maintainer has documented negative parasitic capacitances as an extraction
+bookkeeping problem and noted that they can remain in some R-C extractions
+([Magic discussion #229](https://github.com/RTimothyEdwards/magic/discussions/229)).
+
+The current artifact was generated with Magic 8.3.589. The builder now reports
+negative capacitor entries and returns a nonzero status after completing LVS;
+the matched PEX simulation runner rejects them before invoking Xschem or
+ngspice. The [Magic download page](https://opencircuitdesign.com/magic/download.html)
+lists version 8.3.684 dated 2026-09-18. The next implementation step is to
+regenerate this same flattened layout's PEX with a newer Magic release, audit
+the resulting capacitor values, and only then resume the one-case smoke and
+13-case comparison. Do not delete the four entries from the published PEX by
+hand: that would alter the extracted model without a justified capacitance
+redistribution.
+
+The two earlier 180-second pilot timeouts remain inconclusive. The negative
+capacitors may contribute to slow convergence, but the available runs do not
+prove that they caused the timeout.
+
+After the PEX passes the capacitance audit, start with a one-case smoke using a
+900-second limit, then run the full matrix:
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \

@@ -441,7 +441,7 @@ def run_lvs_only() -> str:
     return run_netgen_lvs()
 
 
-def run_extraction_and_lvs() -> tuple[str, str]:
+def run_extraction_and_lvs() -> tuple[str, str, list[str]]:
     (LAYOUT / "pex").mkdir(exist_ok=True)
     extraction_script()
     magic("extract_layout.tcl", "extract.log")
@@ -458,8 +458,29 @@ def run_extraction_and_lvs() -> tuple[str, str]:
         raise RuntimeError("PEX subcircuit does not preserve the Xschem external pin order")
     if not re.search(r"(?m)^R\d+\s", pex) or not re.search(r"(?m)^C\d+\s", pex):
         raise RuntimeError("Magic PEX netlist is missing extracted R or C elements")
+    negative_caps = negative_capacitance_lines(pex)
     lvs_log = run_netgen_lvs()
-    return lvs_log, pex
+    return lvs_log, pex, negative_caps
+
+
+def negative_capacitance_lines(spice: str) -> list[str]:
+    """Return extracted capacitor elements whose numeric value is negative."""
+    value_pattern = re.compile(
+        r"^C\S+\s+\S+\s+\S+\s+"
+        r"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)[a-zA-Z]*\b",
+        re.I,
+    )
+    negative = []
+    for line in spice.splitlines():
+        stripped = line.strip()
+        if not re.match(r"^C\S+\s", stripped, re.I):
+            continue
+        match = value_pattern.match(stripped)
+        if not match:
+            raise RuntimeError(f"Cannot parse extracted capacitor value: {line}")
+        if float(match.group(1)) < 0:
+            negative.append(stripped)
+    return negative
 
 
 def drc_count(log: str) -> int:
@@ -534,12 +555,19 @@ def main() -> int:
         print(f"Logs: {LAYOUT / 'reports' / 'lvs_extract.log'} and {LAYOUT / 'reports' / 'lvs.log'}")
         return 0
     if args.extract:
-        lvs_log, pex = run_extraction_and_lvs()
+        lvs_log, pex, negative_caps = run_extraction_and_lvs()
         resistor_count = sum(1 for line in pex.splitlines() if re.match(r"^R\d+\s", line))
         capacitor_count = sum(1 for line in pex.splitlines() if re.match(r"^C\d+\s", line))
         print(f"Magic extraction: 29 devices; {resistor_count} resistors; {capacitor_count} capacitors")
         print("Netgen LVS: Circuits match uniquely")
         print(f"PEX: {LAYOUT / 'pex/row_decoder_pex.spice'}")
+        if negative_caps:
+            print(f"PEX capacitance audit: FAIL ({len(negative_caps)} negative capacitor values)")
+            for line in negative_caps:
+                print(f"  {line}")
+            print("Do not use this PEX for electrical characterization; review the extraction result.")
+            return 3
+        print("PEX capacitance audit: PASS (all extracted capacitor values are nonnegative)")
     else:
         print("Run with --lvs-only to recheck connectivity without RC PEX, or --extract for RC PEX and LVS.")
     return 0

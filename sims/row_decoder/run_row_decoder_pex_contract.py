@@ -18,23 +18,38 @@ import shutil
 import sys
 from pathlib import Path
 
-import numpy as np
-import run_row_decoder_contract as contract
-import run_row_decoder_tt as screen
-
-ROOT = screen.ROOT
+np = None
+contract = None
+screen = None
+ROOT = Path(__file__).resolve().parents[2]
 PEX_PATH = ROOT / "layout/row_decoder/pex/row_decoder_pex.spice"
-ORIGINAL_INSPECT = screen.inspect_netlist
-ORIGINAL_MOS_INSTANCES = contract.mos_instances
-ORIGINAL_READ_RAW = contract.read_raw
-ORIGINAL_MAKE_DECK = contract.make_deck
-ORIGINAL_ANALYZE = contract.analyze
+ORIGINAL_INSPECT = None
+ORIGINAL_MOS_INSTANCES = None
+ORIGINAL_READ_RAW = None
+ORIGINAL_MAKE_DECK = None
+ORIGINAL_ANALYZE = None
 SOURCE_NETLIST = ""
 SOURCE_NODES = {}
 SOURCE_DEVICES = {}
 PEX_DYNAMIC_NODES = {}
 PEX_DYNAMIC_SEGMENTS = {}
 PEX_COUNTS = {}
+
+
+def load_simulation_dependencies() -> None:
+    """Load heavy simulation modules only after the PEX static audit passes."""
+    global np, contract, screen
+    global ORIGINAL_INSPECT, ORIGINAL_MOS_INSTANCES, ORIGINAL_READ_RAW
+    global ORIGINAL_MAKE_DECK, ORIGINAL_ANALYZE
+    import numpy as numpy_module
+    import run_row_decoder_contract as contract_module
+    import run_row_decoder_tt as screen_module
+    np, contract, screen = numpy_module, contract_module, screen_module
+    ORIGINAL_INSPECT = screen.inspect_netlist
+    ORIGINAL_MOS_INSTANCES = contract.mos_instances
+    ORIGINAL_READ_RAW = contract.read_raw
+    ORIGINAL_MAKE_DECK = contract.make_deck
+    ORIGINAL_ANALYZE = contract.analyze
 
 
 def require(condition: bool, message: str) -> None:
@@ -61,6 +76,24 @@ def pex_body_is_present(netlist: str) -> bool:
             and any(re.match(r"^X\d+\s", line, re.I) for line in lines))
 
 
+def negative_capacitor_lines(text: str) -> list[str]:
+    value_pattern = re.compile(
+        r"^C\S+\s+\S+\s+\S+\s+"
+        r"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)[a-zA-Z]*\b",
+        re.I,
+    )
+    negative = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not re.match(r"^C\S+\s", stripped, re.I):
+            continue
+        match = value_pattern.match(stripped)
+        require(match is not None, f"Cannot parse extracted capacitor value: {line}")
+        if float(match.group(1)) < 0:
+            negative.append(stripped)
+    return negative
+
+
 def pex_components(text: str):
     pins_match = subckt_match(text, "row_decoder_flat")
     pins = pins_match[1].split()
@@ -73,6 +106,10 @@ def pex_components(text: str):
     require(len(mos) == 29, f"PEX has {len(mos)} MOS devices; expected 29")
     require(resistors and capacitors,
             f"PEX needs R and C; found {len(resistors)} R and {len(capacitors)} C")
+    negative_caps = negative_capacitor_lines("\n".join(capacitors))
+    require(not negative_caps,
+            "Refusing electrical simulation: PEX contains negative capacitor values: "
+            + "; ".join(negative_caps))
 
     dynamic_segments = {i: set() for i in range(4)}
     for line in lines:
@@ -358,6 +395,12 @@ def main() -> int:
                         help="Run the first N matched cases, for a small smoke check.")
     args = parser.parse_args()
     require(args.timeout_s > 0, "--timeout-s must be a positive integer")
+    pex_text = PEX_PATH.read_text(encoding="utf-8")
+    negative_caps = negative_capacitor_lines(pex_text)
+    require(not negative_caps,
+            "Refusing electrical simulation: PEX contains negative capacitor values: "
+            + "; ".join(negative_caps))
+    load_simulation_dependencies()
     root = args.output_root.resolve()
     require(not root.exists() or not any(root.iterdir()), f"Output directory is not empty: {root}")
     root.mkdir(parents=True, exist_ok=True)
@@ -368,7 +411,6 @@ def main() -> int:
     SOURCE_NETLIST = baseline
     SOURCE_NODES, SOURCE_DEVICES = ORIGINAL_INSPECT(baseline, True)
     SOURCE_DEVICES["__pins__"] = screen.subcircuit(baseline, "row_decoder")[0]
-    pex_text = PEX_PATH.read_text(encoding="utf-8")
     pex_netlist, counts, gate_nodes, dynamic_segments = inject_pex(baseline, pex_text)
     global PEX_COUNTS, PEX_DYNAMIC_NODES, PEX_DYNAMIC_SEGMENTS
     PEX_COUNTS, PEX_DYNAMIC_NODES, PEX_DYNAMIC_SEGMENTS = counts, gate_nodes, dynamic_segments

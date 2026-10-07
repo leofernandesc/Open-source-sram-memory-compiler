@@ -14,18 +14,30 @@ Magic views without editing the schematic.
 - Netgen 1.5.293: unique LVS match against the retained Xschem topology;
   29 MOS devices (17 NFET, 12 PFET) and 22 nets
   (`reports/lvs_recheck.txt`).
-- Detailed Magic 8.3.589 extraction now produces 769 distributed resistors
-  and 494 capacitors for the 29-MOS decoder. The extracted subcircuit preserves
+- Detailed Magic 8.3.589 extraction produced 769 distributed resistors and
+  494 capacitors for the 29-MOS decoder. The extracted subcircuit preserves
   the Xschem pin order. Netgen reports a unique match on the separate
   connectivity-only extraction. The PEX SHA-256 is
   `cb22575eba88efbd7f40412cb18870cb3854fa4873c24db76f07f4f25df9b737`;
   see [`pex/row_decoder_pex.spice`](pex/row_decoder_pex.spice),
   `reports/extract.log`, and `reports/lvs.log`.
-- Electrical post-layout validation remains pending. On the current host,
-  ngspice 44.2 exceeded the 180-second timeout for one matched TT case at both
-  1 ps and 5 ps maximum steps. The corresponding schematic baselines passed;
-  no PEX waveform or baseline-to-PEX comparison was produced. Do not treat the
-  PEX as electrically qualified until the matched campaign completes.
+- A static audit found four negative capacitors to VSS in that PEX:
+  `DEC0.n0` (−3.02859 fF), `N3.n0` (−9.29966 fF), `net4.n0` (−16.2877 fF),
+  and `N2.n0` (−1.3128 fF). The resulting capacitor matrix has four negative
+  eigenvalues, so this extracted file is not accepted for electrical
+  characterization. The layout's DRC/LVS status remains valid; the PEX needs
+  regeneration and another static audit. Magic's official download page lists
+  version 8.3.684 dated 2026-09-18; re-extract with a newer release and repeat
+  the audit before simulation.
+- Two earlier one-case TT pilots at 1 ps and 5 ps exceeded the 180-second
+  timeout on the R-C PEX case. Their schematic baselines passed, but they
+  produced no PEX waveform or paired comparison. The negative capacitors may
+  contribute to slow convergence; the timeouts do not prove causation.
+- The builder now reports negative capacitors and returns nonzero after LVS;
+  the matched PEX runner refuses a netlist containing them before simulation.
+  Do not remove those entries manually. Magic's maintainer has documented
+  negative parasitic capacitances as an extraction bookkeeping issue
+  ([discussion #229](https://github.com/RTimothyEdwards/magic/discussions/229)).
 - Bulk terminals are tied to the appropriate supply rails; `EVAL_GND` remains
   a separate internal node connected to VSS through the decoder footer.
 - An earlier cap-only extraction remains unqualified. Do not use it for
@@ -34,10 +46,10 @@ Magic views without editing the schematic.
   resistors). See the dated entry in
   [`docs/feature_peripherals_validation_log.md`](../../docs/feature_peripherals_validation_log.md).
 
-These checks qualify the current generated layout revision for DRC, LVS, and
-the presence of distributed R-C extraction. They do not qualify post-layout
-electrical behavior, physical-row loading, area optimization, or the complete
-SRAM macro.
+The current layout revision has DRC and LVS evidence, and a distributed R-C
+file was generated. The current R-C file has not passed the capacitance audit,
+so it is not ready for post-layout simulation. Physical-row loading, area
+optimization, and complete SRAM macro behavior also remain unqualified.
 
 ## Reproduce layout, DRC, and LVS
 
@@ -78,9 +90,13 @@ PowerShell command was:
 docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/ngspice/*/bin /opt/magic/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do if [ -d "$tool_dir" ]; then PATH="$tool_dir:$PATH"; fi; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-import --extract'
 ```
 
-The PEX builder rejects a result without both R and C elements and then runs
-Netgen LVS. The earlier cap-only file remains unqualified and must not be used
-as PEX.
+The PEX builder checks for R and C elements, reports any negative capacitor
+values, and returns nonzero if they are present after running Netgen LVS. The
+matched simulation runner also refuses a PEX file containing negative
+capacitors before launching Xschem or ngspice. The current retained artifact
+fails this audit; regenerate it with a newer Magic release before using the
+simulation command below. The earlier cap-only file remains unqualified and
+must not be used as PEX.
 
 ## Repeat matched electrical tests
 
