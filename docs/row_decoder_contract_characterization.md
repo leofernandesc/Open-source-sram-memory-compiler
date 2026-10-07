@@ -1,8 +1,16 @@
 # Dynamic decoder: address contract, phase limits and robustness study
 
-Status: buffered candidate B7 retained after the complete pre-layout
+> Current-source update (2026-10-07 UTC): decoder layout closure changed the
+> address inverters to W=0.84 um, precharge PFETs to W=1.25 um, evaluation
+> stacks to W=2 um and output PFETs to W=3 um. The selected 13-case
+> schematic/PEX matrix passes at 5 ps and 1 ps. Broad B7 and capture-budget
+> results below remain evidence for their archived source revisions and need
+> requalification for the current source. See the
+> [closure record](feature_peripherals_validation_log.md#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure).
+
+Historical status before layout closure: buffered candidate B7 retained after the complete pre-layout
 voltage/temperature/edge qualification and completed internal contract study.
-Physical closure remains pending. The architecture and nine-pin
+Physical closure was pending at that stage. The architecture and nine-pin
 interface remain the specified dynamic 2-to-4 NAND decoder. Experimental screens
 below are not a macro operating specification, external setup time, Fmax,
 foundry reliability clearance, or decoder DRC/LVS result.

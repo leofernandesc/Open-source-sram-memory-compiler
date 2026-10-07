@@ -11,10 +11,17 @@ visual handoff of completed work and remaining tasks.
 
 ## Current task and retained evidence
 
-**Completed:** decoder pre-layout correction and comparison, retained B7
-source, 264-case broad qualification, 204-case internal contract campaign,
-15 finer numerical comparisons, fresh source reruns and 30 checker regressions.
-The complete evidence remains scoped to the documented stimuli and diagnostics.
+**Current decoder closure:** the revised layout and sizing pass DRC/LVS and
+all 13 matched schematic/PEX cases at both 5 ps and 1 ps, with zero
+experimental voltage-screen findings. Detailed extraction covers all 22
+resistance networks (744 R / 392 C). There are 37 checker/runner regressions.
+
+**Historical evidence:** B7 pre-layout qualification (264 cases), the 204-case
+contract campaign, 15 numerical comparisons and the captured-address budget
+remain archived for their original source revisions. The current inverter,
+precharge and stack sizing differs; those broad results do not qualify it.
+Repeat the relevant PVT, noise/retention and captured-address/fanout campaigns
+before extending the selected decoder closure to those operating conditions.
 The [characterization record](row_decoder_contract_characterization.md)
 separates archived B6 schedule-specific results from new simultaneous-address,
 numeric-accuracy and buffered-address experiments. Leonardo chose electrical
@@ -33,7 +40,8 @@ cases pass the decoder logic/voltage checks and the experimental 250 ps
 internal-literal guard. The worst measured lead is 431.2 ps in SS/-40 C with
 the 9.00 fF Liberty DFF load; the tested WL row load is the 17.4 fF estimate.
 The DFF Q waveform comes from Liberty tables, PCLK is ideal, and the DFF load
-is not extracted. This gives a provisional pre-layout interface target; it
+is not extracted. This gave a provisional pre-layout interface target for that historical source;
+the current sizing requires the capture/fanout campaign to be repeated. It
 does not validate a physical clock-generation path or external setup/hold.
 Details and reproductions are in the [validation log](feature_peripherals_validation_log.md#2026-10-07-captured-address-to-pclk-timing-budget)
 and [decoder characterization](row_decoder_contract_characterization.md#captured-address-to-pclk-timing-budget).
@@ -42,12 +50,12 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 
 | ID | Task | Dependency | Status and next action | Completion evidence |
 |---|---|---|---|---|
-| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Complete.** B7 source and declared pre-layout qualification retained. | Source hashes and bounded electrical evidence in the characterization report. |
-| P3-2 | Establish captured-address/PCLK timing budget | P3-1; control interface coordination | **Provisional budget measured; integration open.** Use 1.50 ns as the tested pre-layout target, then agree and characterize the actual PCLK source and captured-address fanout. | 72/72 selected-point cases pass; 431.2 ps worst literal lead with 250 ps experimental guard. No external setup/hold or Fmax claim. |
+| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Selected current matrix complete; broad requalification pending.** Current sizing closes the matched 13-case matrix. Archived B7 evidence is historical. | Repeat broad PVT/noise/retention checks for the new source before adopting the historical qualification. |
+| P3-2 | Establish captured-address/PCLK timing budget | P3-1; control interface coordination | **Historical provisional budget; requalification pending.** Repeat capture/fanout tests with the current W=0.84 um address inverters and agree the physical PCLK source. | Archived 72/72 selected-point cases and 431.2 ps worst lead belong to their original schematic. No current setup/hold or Fmax claim. |
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
-| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Valid R-C PEX; matched matrix complete, electrical closure open.** Magic 8.3.684 produced a nonnegative 393 R/226 C PEX; DRC and unique LVS pass. The 13-case comparison completed: all 13 pre-layout cases pass functional/settling checks; PEX has 9 PASS and 4 slow-corner selected-WL settling failures at 1 ns. Continue decoder-only timing investigation without relaxing the threshold. | Current PEX hash and measurements are in `layout/row_decoder/pex/row_decoder_pex.spice` and `sims/row_decoder/results/row_decoder_pex_output_pfets_3um_20261008/`. WL is 1.201–1.328 V versus 1.458 V in the four failures. PEX terminal magnitude screen: 5 findings; signed model upper screen: 0 findings. WL buffers remain schematic and row load remains estimated at 17.4 fF; no full-macro or physical-row claim. |
+| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Complete for the selected decoder matrix.** 744 R / 392 C over all 22 networks; 29 MOS; nonnegative capacitance. All 13 baseline and all 13 PEX cases pass at 5 ps and 1 ps, including both experimental 1.95 V screens. Thresholds remain unchanged. | `pex/extraction_manifest.json`, `row_decoder_pex_verified_5ps/` and `row_decoder_pex_verified_1ps/`: worst slow WL 90% delay 943.617 ps and precharge 10% delay 899.474 ps. WL buffers remain schematic and row load estimated at 17.4 fF. Source energy has a separate convergence limitation; no physical-row, full-macro or reliability sign-off. |
 | P3-7 | Review row loads and WL behavior with physical row | P3-6; Danilo's bitcell interface | **Blocked by missing physical input.** No `layout/bitcell_6t/` layout is present on this branch. | After Danilo supplies/reviews the physical bitcell: decoder → four WL buffers → row for every address, coupling and 50 fF stress; replace the 17.4 fF estimate with extracted data. |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |

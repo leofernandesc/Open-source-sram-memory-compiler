@@ -11,6 +11,16 @@ from generate_buffered_decoder_schematic import generate
 
 
 class ContractWaveformRegression(unittest.TestCase):
+    def test_energy_window_interpolates_both_boundaries(self):
+        # P(t)=2t+1 has exact integral 4.8 from t=.2 to 1.8, even
+        # when neither boundary belongs to the simulator's output grid.
+        time = np.array([0., .5, 1., 1.5, 2.])
+        self.assertAlmostEqual(contract.integrate_power_window(time, 2*time+1, .2, 1.8), 4.8)
+
+    def test_energy_window_rejects_truncated_transient(self):
+        with self.assertRaisesRegex(ValueError, "contained"):
+            contract.integrate_power_window(np.array([0., 1.]), np.ones(2), .2, 1.2)
+
     @classmethod
     def setUpClass(cls):
         cls.netlist = (Path(__file__).parent / "results/feedthrough_b6_qualification/input_netlist.spice").read_text()

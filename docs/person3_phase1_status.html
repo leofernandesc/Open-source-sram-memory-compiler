@@ -95,7 +95,7 @@
       <tr><td>17,4 fF estimados</td><td>0,291 ns</td><td>0,386 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
       <tr><td>50 fF stress</td><td>0,665 ns</td><td>0,760 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
     </tbody></table>
-    <figure class="evidence"><a href="assets/wl_driver_schematic.svg"><img src="assets/wl_driver_schematic.svg" alt="Esquemático Xschem do buffer CMOS de dois estágios do wordline driver"></a><figcaption>Esquemático exportado do Xschem com a configuração SKY130A. <a href="../cells/wordline_driver/wl_driver.sch">Abrir fonte</a>.</figcaption></figure>
+    <figure class="evidence"><a href="assets/wl_driver_schematic.svg"><img src="assets/wl_driver_schematic.svg" alt="Esquemático Xschem do buffer CMOS de dois estágios do wordline driver"></a><figcaption>Esquemático exportado do Xschem com a configuração SKY130A. <a href="../cells/wordline_driver/wl_driver.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
     <p><strong class="ok">LVS:</strong> match único, com 4 MOS e 5 redes. O PEX atual representa a folha e não inclui a linha física completa.</p>
     <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#wordline-driver">registro de validação</a> · <a href="../sims/wl_driver_smoke_3corner_pvt.csv">CSV PVT</a></p>
   </section>
@@ -113,7 +113,7 @@
       <div class="card"><div class="metric">72/72</div><div class="label">medições AC usando PEX existente</div></div>
       <div class="card"><div class="metric">0</div><div class="label">violações DRC na folha</div></div>
     </div>
-    <figure class="evidence"><a href="assets/write_driver_schematic.svg"><img src="assets/write_driver_schematic.svg" alt="Esquemático Xschem do write driver diferencial com sinais DATA, DATA_B, WE, BL e BLB"></a><figcaption>Esquemático usado nas medições nominais. <a href="../cells/write_driver/write_driver.sch">Abrir fonte</a>.</figcaption></figure>
+    <figure class="evidence"><a href="assets/write_driver_schematic.svg"><img src="assets/write_driver_schematic.svg" alt="Esquemático Xschem do write driver diferencial com sinais DATA, DATA_B, WE, BL e BLB"></a><figcaption>Esquemático usado nas medições nominais. <a href="../cells/write_driver/write_driver.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
     <p><strong class="ok">LVS:</strong> match único, com 10 MOS e 12 redes. A especificação ainda não define um limite máximo para a capacitância efetiva.</p>
     <p>Ceff no estado desligado: 1,02–4,03 fF na folha e 14,11–26,72 fF no PEX existente. A verificação integrada com bitcell e precharge ainda está pendente.</p>
     <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#write-driver">registro de validação</a> · <a href="../sims/write_driver_capacitance_local_3corner_pvt.csv">CSV PVT</a></p>
@@ -121,7 +121,8 @@
 
   <section class="slide">
     <div class="eyebrow">04 · Decoder dinâmico</div>
-    <h2>Decoder dinâmico — candidato B7</h2>
+    <h2>Decoder B7 - evidencia historica</h2>
+    <p class="warn">O dimensionamento atual mudou durante o fechamento de layout. Os 264 casos e as imagens B7 abaixo pertencem ao fonte anterior; requerem requalificacao para o fonte atual.</p>
     <p>O endereço é pré-decodificado por inversores; os nós dinâmicos são pré-carregados e depois avaliados. O B7 acrescenta buffers estáticos para regenerar os literais e reduzir as excursões elétricas observadas nos candidatos anteriores.</p>
     <div class="grid three">
       <div class="card"><div class="metric">264/264</div><div class="label">casos B7 aprovados nos critérios elétricos executados</div></div>
@@ -135,7 +136,7 @@
     </ul>
     <p>Dimensões B7: regeneradores M26–M29 com W=2 µm; pré-carga 0,5 µm; footer 1,5 µm; inversores de saída 2 µm; stacks 1 µm; inversores de endereço 0,42 µm; L=0,15 µm.</p>
     <div class="evidence-grid">
-      <figure class="evidence"><a href="assets/row_decoder_b7.svg"><img src="assets/row_decoder_b7.svg" alt="Esquemático Xschem do decoder dinâmico B7 com buffers de endereço e quatro saídas"></a><figcaption>Esquemático B7 usado nas simulações. <a href="../cells/row_decoder/row_decoder.sch">Abrir fonte</a>.</figcaption></figure>
+      <figure class="evidence"><a href="assets/row_decoder_b7.svg"><img src="assets/row_decoder_b7.svg" alt="Esquemático Xschem do decoder dinâmico B7 com buffers de endereço e quatro saídas"></a><figcaption>Esquemático B7 usado nas simulações. <a href="../cells/row_decoder/row_decoder.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
       <figure class="evidence"><a href="assets/row_decoder_b7_waveforms.png"><img src="assets/row_decoder_b7_waveforms.png" alt="Formas de onda do decoder B7 durante pré-carga e avaliação"></a><figcaption>Formas de onda da caracterização B7 pré-layout; mostram o contrato dinâmico e a WL, não o teste captura→PCLK. <a href="row_decoder_contract_characterization.md#completed-b7-broad-qualification-and-source-rerun">Abrir dados</a>.</figcaption></figure>
       <figure class="evidence"><a href="assets/row_decoder_feedthrough_fix.png"><img src="assets/row_decoder_feedthrough_fix.png" alt="Comparação de formas de onda durante a investigação de feedthrough do decoder"></a><figcaption>Investigação B6 que localizou o feedthrough e motivou mudanças de sizing; não representa o B7 final. <a href="row_decoder_feedthrough_fix.md">Abrir relatório</a>.</figcaption></figure>
     </div>
@@ -143,7 +144,22 @@
   </section>
 
   <section class="slide">
+    <div class="eyebrow">Decoder - fechamento atual, 07/10/2026 UTC</div>
+    <h2>DRC/LVS e matriz critica fechados</h2>
+    <div class="grid three">
+      <div class="card"><div class="metric">0 / 0</div><div class="label">DRC roteado / achatado; LVS unico</div></div>
+      <div class="card"><div class="metric">744 R / 392 C</div><div class="label">29 MOS, resistencia nas 22 redes</div></div>
+      <div class="card"><div class="metric">13 / 13</div><div class="label">baseline e PEX passam a 5 ps e 1 ps</div></div>
+    </div>
+    <p>Roteamento agrupado, canal central e trilhas limitadas aos pontos de conexao. Inversores de endereco: 0,84 um; precharge: 1,25 um; stacks: 2 um; PFETs de saida: 3 um.</p>
+    <p>SS / 1,62 V / -40 C: pior WL a 90% em 943,617 ps e precharge a 10% em 899,474 ps. O limite de 1 ns permanece; zero alertas nos dois criterios experimentais de 1,95 V.</p>
+    <p class="warn">Escopo: nove casos TT e quatro SS, WL buffers esquematicos e carga estimada de 17,4 fF. Carga fisica, qualificacao ampla, captura/PCLK e confiabilidade permanecem pendentes. Energia de fontes ideais tem avaliacao numerica separada.</p>
+    <p class="source"><a href="../layout/row_decoder/README.md">Fluxo e reproducao</a> &middot; <a href="../sims/row_decoder/results/row_decoder_pex_verified_1ps/comparison.csv">Comparacao a 1 ps</a> &middot; <a href="feature_peripherals_validation_log.md#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure">Registro completo</a></p>
+  </section>
+
+  <section class="slide">
     <div class="eyebrow">05 · Captura → PCLK</div>
+    <p class="warn">Evidencia historica: repetir esta campanha de captura/fanout para o dimensionamento atual do decoder.</p>
     <h2>Captura → PCLK — margem de estabilização</h2>
     <p>Clock-to-Q e tempos de transição do flip-flop <code>dfxtp_1</code> da Liberty SKY130 foram usados para gerar rampas PWL de endereço. A simulação do decoder B7 com modelos MOS contínuos avaliou diferentes atrasos entre a captura e PCLK.</p>
     <div class="grid three">
@@ -165,7 +181,7 @@
     <h2>O que está concluído e o que falta</h2>
     <div class="grid">
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
-      <div class="card"><h3 class="warn">Pendente no decoder e na integração</h3><ul><li>Layout Magic, DRC, LVS e PEX do decoder B7.</li><li>Repetir timing e excursões com parasitas extraídos.</li><li>Conectar decoder, quatro WL drivers e a linha física.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
+      <div class="card"><h3 class="warn">Pendente na qualificacao e integracao</h3><ul><li>Repetir qualificacao ampla e captura/PCLK para o decoder atual.</li><li>Validar consumo com driver e fonte real de PCLK.</li><li>Conectar decoder, quatro WL drivers e a linha fisica.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
     </div>
     <p class="bad"><strong>Integração:</strong> a tentativa de leitura parou durante a geração do netlist do precharge, antes do ngspice. A retomada depende de uma versão que gere netlist válida e de uma nova execução integrada com André.</p>
     <p class="source">Evidências de <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> e da <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">tentativa de integração</a>.</p>
@@ -175,9 +191,9 @@
     <div class="eyebrow">07 · Próximas tarefas até 13/10</div>
     <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
-      <tr><td>08/10</td><td>Revisar a interface PCLK e desenhar o layout do decoder</td><td>Layout Magic com rails, nós dinâmicos e EVAL_GND roteados</td></tr>
-      <tr><td>09/10</td><td>Fechar DRC e LVS do decoder</td><td>DRC sem violações; match Netgen único contra os 29 MOS</td></tr>
-      <tr><td>10/10</td><td>Extrair parasitas e repetir os testes críticos</td><td>Waveforms, margens, atraso e energia pós-layout</td></tr>
+      <tr><td>08/10</td><td>Requalificar captura/fanout e a interface PCLK</td><td>Orcamento medido para o novo dimensionamento</td></tr>
+      <tr><td>09/10</td><td>Repetir qualificacao ampla, ruido e retencao</td><td>Fonte atual e limites explicitamente registrados</td></tr>
+      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>DRC/LVS e matriz critica PEX ja fechados; consumo e integracao pendentes</td></tr>
       <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>

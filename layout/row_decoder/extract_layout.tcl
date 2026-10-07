@@ -4,6 +4,12 @@ extract do local
 extract all
 ext2sim labels on
 ext2sim
+extresist threshold 0
+extresist mindelay 0
+extresist minres 100
+puts "ROWDEC_RC_THRESHOLD=[extresist threshold]"
+puts "ROWDEC_RC_MINRES=[extresist minres]"
+puts "ROWDEC_RC_MINDELAY=[extresist mindelay]"
 extresist
 ext2spice lvs
 ext2spice -o row_decoder_flat_extracted.spice

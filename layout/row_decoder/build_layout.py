@@ -9,6 +9,10 @@ The script reads the canonical Xschem schematic. It does not edit the schematic.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
+from datetime import datetime, timezone
+import hashlib
+import json
 import re
 import subprocess
 import sys
@@ -195,10 +199,39 @@ def generate_route_tcl(devices: list[Device]) -> None:
     import_mag = LAYOUT / "row_decoder_import.mag"
     instances = parse_instances(import_mag)
     net_order = ordered_nets(devices)
-    track_y = {net: 6000 + i * 300 for i, net in enumerate(net_order)}
-    track_xmin, track_xmax = 400, 44500
-    pitch = 1500
-    pmos_y, nmos_y = 2000, -2000
+    track_order = ["VSS", "EVAL_GND", "net1", "net2", "net3", "net4",
+                   "A0T", "A1T", "A0B", "A1B", "N0", "N1", "N2", "N3",
+                   "DEC0", "DEC1", "DEC2", "DEC3", "A0", "A1", "PCLK", "VDD"]
+    track_y = {net: -1680 + i * 160 for i, net in enumerate(track_order)}
+    pitch = 1700
+    pmos_y, nmos_y = 2400, -2400
+    # Keep address inverter/buffer pairs together, then place each row's
+    # precharge/evaluation/output devices in three adjacent columns.
+    columns = {1: 0, 2: 0, 26: 1, 27: 1, 3: 2, 4: 2, 28: 3, 29: 3,
+               5: 4, 6: 4, 7: 5, 9: 6, 10: 6,
+               11: 7, 12: 7, 13: 8, 14: 9, 15: 9, 8: 10,
+               16: 11, 17: 11, 18: 12, 19: 13, 20: 13,
+               21: 14, 22: 14, 23: 15, 24: 16, 25: 16}
+    positions = {}
+    offsets = {}
+    for device in devices:
+        is_pfet = "pfet" in device.model.lower()
+        positions[device.name] = (1500 + columns[int(device.name[2:])] * pitch,
+                                  pmos_y if is_pfet else nmos_y)
+        # Separate vertical M2 lanes for aligned PFET/NFET cells. In
+        # particular their source and body routes carry different supplies.
+        offsets[device.name] = ((-300, 150, 300, 560) if is_pfet
+                                else (-650, -450, 850, 700))
+    # Bound each track by its actual via/port endpoints. Full-width tracks
+    # leave long open stubs on local dynamic nets and load the output stages.
+    endpoints = {net: ([500] if net in PORT_INDEX else []) for net in net_order}
+    for device in devices:
+        x, _ = positions[device.name]
+        for net, offset in zip((device.drain, device.gate, device.source, device.bulk),
+                               offsets[device.name]):
+            endpoints[net].append(x + offset)
+    track_bounds = {net: (min(points) - 100, max(points) + 100)
+                    for net, points in endpoints.items()}
 
     rows = [
         "load row_decoder_import",
@@ -219,9 +252,7 @@ def generate_route_tcl(devices: list[Device]) -> None:
     for i in range(1, 30):
         name = f"XM{i}"
         _, old_x, old_y = instances[name]
-        target_x = 1500 + (i - 1) * pitch
-        is_pfet = "pfet" in next(d.model for d in devices if d.name == name).lower()
-        target_y = pmos_y if is_pfet else nmos_y
+        target_x, target_y = positions[name]
         rows.append(f"move_inst_to {name} {target_x - old_x} {target_y - old_y}")
     rows += [
         "",
@@ -233,8 +264,8 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "select clear",
         "select no labels",
         "",
-        "proc m3_track {y} {",
-        "    box values 400 [expr {$y - 30}] 44500 [expr {$y + 30}]",
+        "proc m3_track {xlo xhi y} {",
+        "    box values $xlo [expr {$y - 30}] $xhi [expr {$y + 30}]",
         "    paint metal3",
         "}",
         "",
@@ -284,7 +315,8 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "",
     ]
     for net in net_order:
-        rows.append(f"m3_track {track_y[net]}")
+        xmin, xmax = track_bounds[net]
+        rows.append(f"m3_track {xmin} {xmax} {track_y[net]}")
     rows.append("")
 
     for device in devices:
@@ -293,24 +325,24 @@ def generate_route_tcl(devices: list[Device]) -> None:
         is_pfet = "pfet" in device.model.lower()
         geometry = device_geometry(LAYOUT / f"{child}.mag", is_pfet)
         # The placed cell transform is known from the target placement above.
-        x = 1500 + (int(name[2:]) - 1) * pitch
-        y = pmos_y if is_pfet else nmos_y
+        x, y = positions[name]
+        drain_via, gate_via, source_via, body_via = offsets[name]
         tracks = track_y
         rows.append(f"# {name}: D={device.drain}, G={device.gate}, S={device.source}, B={device.bulk}")
-        rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x - 300} {tracks[device.drain]}")
+        rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x + drain_via} {tracks[device.drain]}")
         # The SKY130 Magic MOS PCell exposes gate contacts on both sides. Route
         # both to the same gate net so no small floating metal landing remains.
         # Keep the M1-to-M2 landing beyond the adjacent diffusion contacts.
         for gate_index, (gate_x, gate_y) in enumerate(geometry.gate_contacts):
             make_m3_via = 1 if gate_index == 0 else 0
             rows.append(
-                f"terminal_to_m3 {x + gate_x} {y + gate_y} {x + 150} "
+                f"terminal_to_m3 {x + gate_x} {y + gate_y} {x + gate_via} "
                 f"{tracks[device.gate]} {make_m3_via}"
             )
-        rows.append(f"terminal_to_m3 {x + geometry.source_x} {y + geometry.source_y} {x + 300} {tracks[device.source]}")
+        rows.append(f"terminal_to_m3 {x + geometry.source_x} {y + geometry.source_y} {x + source_via} {tracks[device.source]}")
         # Keep the mcon outside the PCell's substrate/well tap footprint; the
         # LI route joins the tap to this offset via, as in the peripheral flows.
-        rows.append(f"body_to_m3 {x + geometry.bulk_x} {y + geometry.bulk_y} {x + 500} {x + 560} {tracks[device.bulk]}")
+        rows.append(f"body_to_m3 {x + geometry.bulk_x} {y + geometry.bulk_y} {x + 500} {x + body_via} {tracks[device.bulk]}")
         rows.append("")
 
     for net in net_order:
@@ -327,8 +359,9 @@ def generate_route_tcl(devices: list[Device]) -> None:
                 "select no labels",
             ]
         else:
+            xmax = track_bounds[net][1]
             rows += [
-                f"box values 44350 {y - 25} 44400 {y + 25}",
+                f"box values {xmax - 75} {y - 25} {xmax - 25} {y + 25}",
                 f"label {net} center metal3",
                 "select clear",
                 "select no labels",
@@ -383,6 +416,14 @@ def extraction_script() -> None:
         # .sim/.nodes database for the currently loaded cell before extresist.
         "ext2sim labels on",
         "ext2sim",
+        # Modern Magic's default 10-ohm cutoff can omit every signal net.
+        # Keep all networks and prune only sub-0.1-ohm resistor branches.
+        "extresist threshold 0",
+        "extresist mindelay 0",
+        "extresist minres 100",
+        'puts "ROWDEC_RC_THRESHOLD=[extresist threshold]"',
+        'puts "ROWDEC_RC_MINRES=[extresist minres]"',
+        'puts "ROWDEC_RC_MINDELAY=[extresist mindelay]"',
         "extresist",
         "ext2spice lvs",
         "ext2spice -o row_decoder_flat_extracted.spice",
@@ -406,8 +447,12 @@ def run_netgen_lvs() -> str:
     ]
     lvs_log = run_checked(command, cwd=ROOT, log=LAYOUT / "reports" / "lvs.log")
     report = (LAYOUT / "reports" / "lvs.out").read_text(encoding="utf-8")
-    if "Circuits match uniquely" not in lvs_log + report:
+    if not re.search(r"(?m)^Final result:\s*Circuits match uniquely\.?\s*$", report):
         raise RuntimeError("Netgen LVS did not report a unique match; inspect reports/lvs.log and lvs.out")
+    # Netgen pads its columns with trailing spaces; retain all report text
+    # while making the generated artifact compatible with diff --check.
+    (LAYOUT / "reports" / "lvs.out").write_text(
+        "\n".join(line.rstrip() for line in report.splitlines()) + "\n", encoding="utf-8")
     return lvs_log
 
 
@@ -444,7 +489,12 @@ def run_lvs_only() -> str:
 def run_extraction_and_lvs() -> tuple[str, str, list[str]]:
     (LAYOUT / "pex").mkdir(exist_ok=True)
     extraction_script()
-    magic("extract_layout.tcl", "extract.log")
+    extraction_log = magic("extract_layout.tcl", "extract.log")
+    for option, expected in (("THRESHOLD", 0), ("MINRES", 100), ("MINDELAY", 0)):
+        setting = re.search(rf"(?m)^ROWDEC_RC_{option}=([^\n]+)$", extraction_log)
+        if not setting or float(setting.group(1)) != expected:
+            raise RuntimeError(f"Magic did not apply extresist {option.lower()}={expected}; "
+                               "use Magic 8.3.653 or newer for detailed R-C extraction")
     connectivity_path = LAYOUT / "row_decoder_flat_extracted.spice"
     spice = connectivity_path.read_text(encoding="utf-8").rstrip() + "\n"
     connectivity_path.write_text(spice, encoding="utf-8")
@@ -459,7 +509,43 @@ def run_extraction_and_lvs() -> tuple[str, str, list[str]]:
     if not re.search(r"(?m)^R\d+\s", pex) or not re.search(r"(?m)^C\d+\s", pex):
         raise RuntimeError("Magic PEX netlist is missing extracted R or C elements")
     negative_caps = negative_capacitance_lines(pex)
+    resistor_nets = Counter()
+    for line in pex.splitlines():
+        parts = line.split()
+        if parts and re.fullmatch(r"R\d+", parts[0]):
+            if float(parts[3]) <= 0:
+                raise RuntimeError(f"Invalid extracted resistance: {line}")
+            resistor_nets[parts[1].split(".", 1)[0]] += 1
+    expected_nets = set(ordered_nets(parse_devices(
+        (LAYOUT / "row_decoder_import.spice").read_text(encoding="utf-8"))))
+    if set(resistor_nets) != expected_nets:
+        raise RuntimeError("Detailed R-C extraction omitted labeled networks: "
+                           + ", ".join(sorted(expected_nets - set(resistor_nets))))
+    output_count = re.search(r"Nets output:\s*(\d+)", extraction_log)
+    if not output_count or int(output_count.group(1)) != len(expected_nets):
+        raise RuntimeError("Magic did not output all 22 decoder resistance networks")
     lvs_log = run_netgen_lvs()
+    version = re.search(r"Magic (\S+) revision (\d+)", extraction_log)
+    digest = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+    metadata = {
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "magic_version": f"{version[1]}.{version[2]}" if version else "unknown",
+        "extresist": {"threshold_milliohms": 0, "minres_milliohms": 100, "mindelay_ps": 0},
+        "resistance_networks": dict(sorted(resistor_nets.items())),
+        "components": {"mos": len(devices), "resistors": sum(resistor_nets.values()),
+                       "capacitors": sum(bool(re.match(r"^C\d+\s", line))
+                                         for line in pex.splitlines())},
+        "pins": list(EXPECTED_PINS),
+        "negative_capacitors": negative_caps,
+        "lvs": "Circuits match uniquely",
+        "source_sha256": digest(SCHEMATIC),
+        "source_text_sha256": hashlib.sha256(SCHEMATIC.read_text(encoding="utf-8").encode()).hexdigest(),
+        "import_sha256": digest(LAYOUT / "row_decoder_import.spice"),
+        "layout_sha256": digest(LAYOUT / "row_decoder_flat.mag"),
+        "pex_sha256": digest(LAYOUT / "pex" / "row_decoder_pex.spice"),
+    }
+    (LAYOUT / "pex" / "extraction_manifest.json").write_text(
+        json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     return lvs_log, pex, negative_caps
 
 

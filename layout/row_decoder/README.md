@@ -1,140 +1,90 @@
 # SKY130A dynamic row decoder layout
 
-The source circuit is [`cells/row_decoder/row_decoder.sch`](../../cells/row_decoder/row_decoder.sch).
-This directory contains the generated Magic layout and the scripts used to
-import, route, check, and extract it. The layout builder reads the Xschem
-netlist, checks its nine external pins and 29 MOS devices, and creates the
-Magic views without editing the schematic.
+The canonical circuit is [row_decoder.sch](../../cells/row_decoder/row_decoder.sch).
+This directory contains the generated Magic views, routing/extraction scripts,
+DRC/LVS reports and the qualified decoder R-C netlist. Only the decoder was
+changed; the WL buffers used by the electrical bench remain schematic devices.
 
-## Current evidence
+## Current evidence - 2026-10-07 UTC
 
-- The latest routed and flattened views pass Magic `drc(full)` with zero
-  errors. Magic 8.3.684 was used for routing and DRC; Magic 8.3.589 was used
-  for Xschem-to-layout device import. The flow used SKY130A technology 1.0.493.
-- Netgen 1.5.293 reports a unique LVS match: 29 MOS devices (17 NFET,
-  12 PFET), 22 nets, and matching external/bulk connections.
-- The latest detailed R-C PEX contains 393 resistors and 226 capacitors, has
-  no negative capacitor values, and preserves the Xschem pin order. Its
-  SHA-256 is `c3e39efae880fd46fddd0d610f9dd789a3beeee847c62ba2fbdaa1bf88419128`;
-  see [`pex/row_decoder_pex.spice`](pex/row_decoder_pex.spice),
-  `reports/extract.log`, and `reports/lvs.out`.
-- The matched 13-case PEX campaign completed: nine cases pass and four
-  SS/−40 °C cases fail the selected-wordline 1 ns level check. These are
-  electrical closure failures; do not report the decoder as fully validated.
-- The earlier Magic 8.3.589 PEX had four negative shunt capacitors and is
-  superseded by the 8.3.684 extraction. The negative-capacitance guard remains
-  in the builder and simulation runner. Do not remove negative entries by hand.
-- The extracted PEX includes the decoder only. The four WL buffers remain
-  schematic devices, the row load is the 17.4 fF estimate, and physical-row
-  loading and complete macro behavior remain unqualified. Full measurements and
-  limitations are recorded in the
-  [`validation log`](../../docs/feature_peripherals_validation_log.md).
+- Magic 8.3.684, SKY130A tech 1.0.493, `drc(full)`: **0 routed / 0 flattened
+  errors**, measured after `drc catchup`. See `reports/route.log` and
+  `reports/drc_flat.log`.
+- Netgen 1.5.293: **Circuits match uniquely**, 29 MOS (17 NFET / 12 PFET),
+  22 connectivity nets, matching external pins and bulk connections.
+  See `reports/lvs.log` and `reports/lvs.out`.
+- [Current PEX](pex/row_decoder_pex.spice): **744 R / 392 C / 29 MOS**;
+  resistance networks cover **all 22 nets**. No negative capacitors.
+  The pin order is `VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`.
+  [Extraction manifest](pex/extraction_manifest.json) records hashes,
+  tool version, extraction cutoffs and counts by network.
+- Matched schematic/PEX campaigns pass **13/13 cases each at both 5 ps and
+  1 ps**, with zero functional, precharge or experimental voltage-screen
+  findings. See [5 ps results](../../sims/row_decoder/results/row_decoder_pex_verified_5ps/)
+  and [1 ps results](../../sims/row_decoder/results/row_decoder_pex_verified_1ps/).
+  Slow-corner PEX WL delay to 90% is 891.858-943.617 ps; WL precharge to
+  10% is 877.315-899.474 ps. The existing 1 ns checks were retained.
 
-## Reproduce layout, DRC, and LVS
+This closes the selected decoder electrical matrix with a distributed R-C
+model. The scope is nine TT/1.8 V/27 C transitions and four SS/1.62 V/-40 C
+diagonal transitions, ideal 50 ps input edges and a 17.4 fF estimated row load.
+Physical row loading, broader PVT/noise/retention qualification, captured-address
+fanout and full-macro operation remain to be requalified for the changed source.
+The experimental 1.95 V screens do not establish signed model-domain or
+reliability clearance. Source-energy measurements require their own numerical
+convergence review; see the validation log.
 
-From the repository root, in the configured project container, rerun layout
-generation and DRC with:
+## What changed
 
-```bash
-./tools/sram-eda python3 layout/row_decoder/build_layout.py --skip-import
-```
+Placement groups the address inverters/buffers and each row's devices around
+a central routing channel. Each M3 track ends at its actual connections,
+removing the old full-width stubs. All contacts and vias retain DRC-valid
+landing dimensions. Address inverters M1-M4 use W=0.84 um, precharge PFETs
+M5/M11/M16/M21 use W=1.25 um, evaluation stacks use W=2 um and output PFETs
+use W=3 um. All decoder devices retain L=0.15 um, nf=1 and mult=1.
 
-The DRC scripts wait for Magic's background checker before reading the count.
-To repeat DRC and then regenerate the connectivity netlist and run LVS without
-starting RC PEX, run:
+Detailed extraction explicitly sets `extresist threshold 0`, `mindelay 0` and
+`minres 100` (milliohms). Magic's default threshold had emitted only the VSS
+resistance network in the previous 393-R artifact; merely finding both R and C
+was insufficient. The builder now requires all 22 networks, positive
+resistances, preserved pins, nonnegative capacitances and clean connectivity
+LVS. The simulator checks the extraction/source hashes and compares MOS
+connectivity and geometry before accepting a PEX. Every distributed dynamic
+segment must have a saved waveform; baseline coverage is reported separately.
 
-```bash
-./tools/sram-eda python3 layout/row_decoder/build_layout.py \
-  --skip-import --lvs-only
-```
+## Reproduce
 
-`--lvs-only` runs Magic connectivity extraction and Netgen LVS. It does not run
-`extresist` or create an R-C PEX netlist.
-
-## Reproduce detailed R-C extraction
-
-The latest run used Magic 8.3.589 for Xschem-to-layout device import and Magic
-8.3.684 for routing, DRC and extraction. The 8.3.589 import sequence calls
-`ext2sim` on the loaded cell before `extresist`. Install the newer source release
-in the existing project container with the repository installer:
-
-```bash
-docker start sram-xschem
-docker exec -u 0 -w /work sram-xschem \
-  bash /work/tools/install_magic_8_3_684.sh
-```
-
-The installer builds Magic 8.3.684 under `/opt/magic/8.3.684`, leaves the PDK
-files and existing Magic 8.3.589 installation in place, and records the source
-and executable SHA-256 values in `/opt/magic/8.3.684/BUILD-INFO.txt`. The
-container's writable layer keeps this installation until the container is
-removed; rerun the installer if it is recreated. Confirm the selected binary:
-
-```bash
-docker exec -w /work sram-xschem bash -lc \
-  'export PATH="/opt/magic/8.3.684/bin:$PATH"; command -v magic; magic --version; cat /opt/magic/8.3.684/BUILD-INFO.txt'
-```
-
-On Linux, `tools/sram-eda` adds `/opt/magic/*/bin` to `PATH`. Verify the
-selected version and regenerate the retained layout's extraction:
-
-```bash
-./tools/sram-eda magic --version
-./tools/sram-eda sh -c \
-  'test "$(magic --version)" = "8.3.684" && exec python3 layout/row_decoder/build_layout.py --skip-import --extract'
-sha256sum layout/row_decoder/pex/row_decoder_pex.spice
-```
-
-For Windows Docker Desktop, explicitly select 8.3.684 so the command cannot
-silently use the older image binary:
+Use the configured `sram-xschem` container (see [environment setup](../../tools/ENVIRONMENT.md)).
+The [versioned installer](../../tools/install_magic_8_3_684.sh) reproduces the
+Magic 8.3.684 build inside the container.
+Import with Magic 8.3.589 and route/extract with 8.3.684. The detailed-extraction
+cutoff controls require Magic 8.3.653 or newer; use the recorded 8.3.684 build
+for reproduction. From PowerShell in the repository root:
 
 ```powershell
-docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do if [ -d "$tool_dir" ]; then PATH="$tool_dir:$PATH"; fi; done; export PATH="/opt/magic/8.3.684/bin:$PATH" PDK_ROOT=/opt/pdks PDK=sky130A; test "$(magic --version)" = "8.3.684"; magic --version; sha256sum "$(command -v magic)"; python3 layout/row_decoder/build_layout.py --skip-import --extract'
+docker exec -w /work sram-xschem bash -lc 'PATH=/opt/magic/8.3.589/bin:$PATH; for tool_dir in /opt/netgen/*/bin /opt/xschem/*/bin; do PATH=$tool_dir:$PATH; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-route'
+docker exec -w /work sram-xschem bash -lc 'PATH=/opt/magic/8.3.684/bin:$PATH; for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do PATH=$tool_dir:$PATH; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-import --extract'
+docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do PATH=$tool_dir:$PATH; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/decoder_reproduction_5ps --max-step-ps 5 --workers 2 --timeout-s 300'
 ```
 
-The builder runs Netgen LVS and returns nonzero if the extracted PEX contains
-any negative capacitor values. Continue to simulation only when it prints
-`PEX capacitance audit: PASS`. Record the Magic version, executable hash,
-extraction logs, PEX SHA-256, and audit result. The matched simulation runner
-also blocks a PEX with negative capacitors before launching Xschem or ngspice.
-The earlier cap-only file remains unqualified and must not be used as PEX.
-
-## Repeat matched electrical tests
-
-The PEX-specific runner replaces only the decoder subcircuit with the extracted
-network; it retains the four existing pre-layout WL buffers and their 17.4 fF
-loads. It compares the schematic and PEX for nine TT address transitions and
-four SS/-40 C diagonal transitions, checking logic, precharge, dynamic-node
-segments, terminal magnitudes, delay, slew, and energy. On a faster machine,
-run the full matrix with a longer per-case timeout:
+Repeat the last command with a new empty output directory and
+`--max-step-ps 1` for the numerical comparison. The runner deliberately rejects
+an existing nonempty output directory. In the configured Linux launcher, the
+corresponding extraction command remains:
 
 ```bash
-./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
-  --workers 2 --timeout-s 900
+./tools/sram-eda python3 layout/row_decoder/build_layout.py --skip-import --extract
 ```
 
-The 1 ps and 5 ps single-case pilots and their failed PEX manifests are retained
-under `sims/row_decoder/results/row_decoder_pex_smoke*`. They show the timeout,
-not a functional PEX failure or a successful post-layout simulation. Record
-the matched comparison before making electrical post-layout claims.
+`--lvs-only` repeats routing, DRC and connectivity LVS without `extresist` or
+R-C generation. `row_decoder_flat_extracted.spice` is **connectivity only**;
+use `pex/row_decoder_pex.spice` for decoder post-layout simulations.
+`--skip-route` cannot be combined with `--extract` or `--lvs-only`.
 
-## 2026-10-08 UTC: current R-C extraction and simulation status
+## Historical artifacts
 
-The later extraction with Magic 8.3.684 supersedes the negative-capacitance
-artifact described above. Current routed and flattened DRC are both zero;
-Netgen LVS is a unique match. The current PEX contains 29 MOS, 393 resistors and
-226 capacitors, preserves the external pins, and contains no negative
-capacitance. Its SHA-256 is
-`c3e39efae880fd46fddd0d610f9dd789a3beeee847c62ba2fbdaa1bf88419128`.
-
-The full matched simulation is in
-[`row_decoder_pex_output_pfets_3um_20261008`](../../sims/row_decoder/results/row_decoder_pex_output_pfets_3um_20261008/).
-All 13 pre-layout cases pass their functional/settling checks. The extracted
-PEX completed all 13 cases: nine pass and four SS/-40 C diagonal cases fail the
-selected-wordline 1 ns level check (1.201–1.328 V versus a 1.458 V minimum).
-The PEX's signed model upper screen passes, while five cases exceed the
-experimental 1.95 V magnitude screen. Thus R-C extraction, DRC and LVS are
-closed; full post-layout electrical closure remains open. The decoder-only PEX
-still uses schematic WL buffers and the estimated 17.4 fF row load. See the
-dated entry in the validation log for tool versions, commands, measurements
-and limitations.
+Earlier negative-capacitance, cap-only and timed-out experiments remain
+historical evidence in the [validation log](../../docs/feature_peripherals_validation_log.md).
+The cap-only artifact `reports/row_decoder_cap_only_unqualified.spice` has
+231 C / 0 R and remains unqualified. The earlier 393-R PEX and its four slow
+failures are superseded by the all-network extraction and passing matrix above.
