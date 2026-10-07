@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Pessoa 3 — Estado da Fase 1</title>
+  <style>
+    :root { color-scheme: dark; --ink:#f2f5f9; --muted:#b7c3d2; --line:#334258; --panel:#172337; --accent:#62e0c1; --gold:#ffcf70; --red:#ff8e8e; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#0b1220; color:var(--ink); font:18px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { min-height:100vh; display:grid; place-items:center; padding:32px 24px 88px; }
+    .slide { display:none; width:min(1120px,100%); min-height:min(680px,calc(100vh - 130px)); padding:clamp(28px,5vw,64px); border:1px solid var(--line); border-radius:24px; background:radial-gradient(ellipse at 100% 0%,#1c3446 0,transparent 42%),linear-gradient(145deg,#142033,#101827 70%); box-shadow:0 28px 90px #0008; }
+    .slide.active { display:flex; flex-direction:column; justify-content:center; animation:show .22s ease-out; }
+    @keyframes show { from { opacity:.5; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; font-weight:750; }
+    h1,h2 { line-height:1.06; margin:.35em 0 .45em; letter-spacing:-.035em; }
+    h1 { font-size:clamp(2.7rem,7vw,5.6rem); max-width:900px; }
+    h2 { font-size:clamp(2rem,4.5vw,3.5rem); }
+    h3 { margin:.2em 0 .5em; font-size:1.15rem; }
+    p { color:var(--muted); max-width:920px; margin:.55em 0; }
+    strong { color:var(--ink); }
+    .lead { font-size:clamp(1.1rem,2vw,1.45rem); max-width:850px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:22px 0; }
+    .grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .card { padding:20px 22px; border:1px solid var(--line); border-radius:16px; background:#101a2a; }
+    .metric { color:var(--accent); font-size:clamp(1.6rem,3vw,2.5rem); font-weight:800; line-height:1.1; }
+    .label { color:var(--muted); font-size:.92rem; margin-top:8px; }
+    ul { color:var(--muted); padding-left:1.2em; }
+    li { margin:.48em 0; }
+    table { width:100%; border-collapse:collapse; margin:18px 0; font-size:.94rem; }
+    th,td { padding:11px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
+    th { color:var(--accent); font-weight:700; }
+    .tag { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:4px 10px; color:var(--muted); font-size:.82rem; margin:4px 5px 4px 0; }
+    .ok { color:var(--accent); } .warn { color:var(--gold); } .bad { color:var(--red); }
+    a { color:var(--accent); text-underline-offset:3px; }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:24px 0; }
+    .flow span { padding:10px 13px; border:1px solid var(--line); border-radius:10px; background:#101a2a; }
+    .flow b { color:var(--gold); }
+    nav { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:14px; padding:14px; background:#0b1220ed; border-top:1px solid var(--line); }
+    button { font:inherit; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 15px; cursor:pointer; }
+    button:hover { border-color:var(--accent); }
+    #count { min-width:68px; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .source { margin-top:auto; padding-top:18px; font-size:.82rem; color:var(--muted); }
+    @media (max-width:700px) { body{font-size:16px}.grid,.grid.three{grid-template-columns:1fr}.slide{min-height:calc(100vh - 110px);padding:27px 22px;border-radius:16px}main{padding:16px 12px 78px}table{font-size:.82rem}th,td{padding:8px 6px} }
+    @media print { body{background:white;color:#172033;font-size:14px} main{display:block;padding:0} .slide,.slide.active{display:flex!important;min-height:0;page-break-after:always;border:1px solid #9ca9b8;border-radius:0;background:white;color:#172033;box-shadow:none} p,ul,.label,.source{color:#37465a}.card,.flow span{background:#f4f7fa;border-color:#b8c2cf;color:#172033} .metric,.eyebrow,th,a{color:#087c68} nav{display:none} }
+  </style>
+</head>
+<body>
+<main aria-label="Apresentação do estado da Pessoa 3 na Fase 1">
+  <section class="slide active">
+    <div class="eyebrow">Open-Source SRAM Memory Compiler · SKY130A</div>
+    <h1>Pessoa 3<br>Estado da Fase 1</h1>
+    <p class="lead">Decoder de linha dinâmico, wordline driver e write driver. Evidências locais registradas na branch <strong>feature/peripherals</strong>.</p>
+    <div><span class="tag">Atualizado em 7 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Dono: Leonardo</span></div>
+    <p class="source">Apresentação resumida com base nos relatórios, CSVs e manifests do repositório.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">01 · Escopo</div>
+    <h2>O que a Pessoa 3 entrega</h2>
+    <p>Na SRAM inicial 4×8, os endereços capturados selecionam uma das quatro linhas. O decoder dinâmico gera a seleção lógica; o buffer de wordline fornece capacidade de acionamento; o write driver controla BL/BLB.</p>
+    <div class="flow"><span>CLK + endereço capturado</span><b>→</b><span>Decoder 2→4 dinâmico</span><b>→</b><span>WL driver</span><b>→</b><span>linha de bitcells</span></div>
+    <div class="grid three">
+      <div class="card"><h3>Row decoder</h3><p>Pré-carga e avaliação dinâmica, uma saída DEC ativa por endereço.</p></div>
+      <div class="card"><h3>Wordline driver</h3><p>Buffer CMOS não inversor entre DEC e a carga da linha.</p></div>
+      <div class="card"><h3>Write driver</h3><p>Acionamento complementar de BL e BLB conforme DATA e WE.</p></div>
+    </div>
+    <p class="source">A especificação determina o decoder dinâmico e mantém a estratégia de decoders maiores como decisão futura.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">02 · Wordline driver</div>
+    <h2>Folha simulada e verificada fisicamente</h2>
+    <p>Buffer CMOS não inversor de dois estágios, com larguras de 0,42 µm e 0,84 µm e L=0,15 µm.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">36/36</div><div class="label">casos esquemáticos aprovados</div></div>
+      <div class="card"><div class="metric">36/36</div><div class="label">casos com PEX existente aprovados</div></div>
+      <div class="card"><div class="metric">0</div><div class="label">erros DRC reportados na folha</div></div>
+    </div>
+    <table><thead><tr><th>Carga</th><th>Atraso máximo esquemático</th><th>Atraso máximo PEX</th><th>Canto limitante</th></tr></thead><tbody>
+      <tr><td>17,4 fF estimados</td><td>0,291 ns</td><td>0,386 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+      <tr><td>50 fF stress</td><td>0,665 ns</td><td>0,760 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+    </tbody></table>
+    <p><strong class="ok">LVS:</strong> match único, 4 MOS e 5 redes. O PEX atual é de folha e não inclui a linha física completa.</p>
+    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#wordline-driver">registro de validação</a> · <a href="../sims/wl_driver_smoke_3corner_pvt.csv">CSV PVT</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">03 · Write driver</div>
+    <h2>Operação complementar demonstrada</h2>
+    <div class="grid">
+      <div class="card"><h3>Write 0 · 3 ns</h3><div class="metric">BL ≈ 0 V</div><p>BLB medido em 1,800297 V.</p></div>
+      <div class="card"><h3>Write 1 · 12 ns</h3><div class="metric">BL ≈ 1,78 V</div><p>BLB medido em aproximadamente 0 V.</p></div>
+    </div>
+    <p>O drift durante o intervalo desabilitado foi medido: 3,39 mV em BL e 1,46 mV em BLB. O deck ainda não define limite de aceitação para esse drift.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">72/72</div><div class="label">medições AC da folha</div></div>
+      <div class="card"><div class="metric">72/72</div><div class="label">medições AC usando PEX existente</div></div>
+      <div class="card"><div class="metric">0</div><div class="label">erros DRC reportados na folha</div></div>
+    </div>
+    <p><strong class="ok">LVS:</strong> match único, 10 MOS e 12 redes. A capacitância efetiva foi medida, mas a especificação não define limite máximo para ela.</p>
+    <p>Faixa de Ceff no estado desligado: 1,02–4,03 fF na folha e 14,11–26,72 fF no PEX existente. A folha final do write driver ainda precisa de verificação integrada com bitcell e precharge.</p>
+    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#write-driver">registro de validação</a> · <a href="../sims/write_driver_capacitance_local_3corner_pvt.csv">CSV PVT</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">04 · Decoder dinâmico</div>
+    <h2>Candidato B7 retido para a próxima etapa</h2>
+    <p>O endereço é pré-decodificado por inversores; os nós dinâmicos são pré-carregados e depois avaliados. B7 acrescenta buffers estáticos para regenerar os literais de endereço e reduzir excursões elétricas observadas em candidatos anteriores.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">264/264</div><div class="label">casos amplos B7 aprovados nos critérios declarados</div></div>
+      <div class="card"><div class="metric">204</div><div class="label">casos de contrato: 168 PASS e controles negativos detectados</div></div>
+      <div class="card"><div class="metric">1,925 V</div><div class="label">maior magnitude medida nas comparações numéricas finas</div></div>
+    </div>
+    <ul>
+      <li>Arquitetura dinâmica 2→4 e interface de nove pinos preservadas.</li>
+      <li>O decoder B7 tem 29 MOS; os quatro buffers WL existentes acrescentam 16 MOS.</li>
+      <li>O estudo anterior de lead ideal não representava o atraso clock-to-Q do registrador.</li>
+    </ul>
+    <p>Dimensões do B7: literais regenerados M26–M29 com W=2 µm; pré-carga 0,5 µm; footer 1,5 µm; inversores de saída 2 µm; stacks 1 µm; inversores de endereço 0,42 µm; L=0,15 µm.</p>
+    <p class="source">Fonte: <a href="row_decoder_contract_characterization.md#buffered-address-candidate-b7">caracterização B7</a> · <a href="row_decoder_feedthrough_fix.md">correção de feedthrough</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">05 · Captura → PCLK</div>
+    <h2>Orçamento preliminar medido</h2>
+    <p>Usando clock-to-Q e transições do flip-flop <code>dfxtp_1</code> da Liberty SKY130 para gerar rampas PWL de endereço, o decoder B7 foi simulado com modelos MOS contínuos. PCLK recebeu atraso parametrizado após a captura.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">1,50 ns</div><div class="label">atraso de captura até PCLK recomendado para o cenário medido</div></div>
+      <div class="card"><div class="metric">431 ps</div><div class="label">menor lead dos sinais internos em SS / carga de stress</div></div>
+      <div class="card"><div class="metric">72/72</div><div class="label">casos aprovados em TT, SS e FF e duas cargas Liberty</div></div>
+    </div>
+    <table><thead><tr><th>Fase de PCLK</th><th>Lead interno mínimo</th><th>Guard de 250 ps</th><th>Resultado</th></tr></thead><tbody>
+      <tr><td>1,25 ns</td><td>181 ps</td><td>Não: 5/12 passam</td><td class="warn">Margem insuficiente</td></tr>
+      <tr><td>1,50 ns</td><td>431 ps</td><td>Sim: 12/12 passam</td><td class="ok">Recomendado</td></tr>
+    </tbody></table>
+    <p>Com captura em 15 ns e queda de CLK em 20 ns, a fase alta de PCLK fica em 3,5 ns; o maior atraso medido até WL atingir 90% foi 675,44 ps. A carga das WLs permaneceu em 17,4 fF; 3,43 fF e 9,00 fF são cargas de tabela Liberty para a saída Q do registrador.</p>
+    <p class="source">O guard é um critério experimental. O Q é uma rampa baseada em Liberty; o PCLK ainda é ideal. Setup/hold externo, metastabilidade, gerador real de PCLK, carga Q extraída, carga WL de 50 fF e Fmax não foram fechados. Evidências: <a href="../sims/row_decoder/results/capture_to_pclk_slow_coarse/summary.csv">grade SS</a>, <a href="../sims/row_decoder/results/capture_to_pclk_selected_1500ps/summary.csv">TT/FF a 1,50 ns</a> e <a href="../sims/row_decoder/results/capture_to_pclk_slow_nominal_1500ps/summary.csv">SS nominal a 1,50 ns</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">06 · Estado físico e integração</div>
+    <h2>Folhas periféricas fechadas; decoder ainda sem layout</h2>
+    <div class="grid">
+      <div class="card"><h3 class="ok">Concluído nas folhas WL/write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC zero e LVS único para ambas as folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
+      <div class="card"><h3 class="warn">Ainda pendente</h3><ul><li>Layout Magic, DRC, LVS e PEX do decoder B7.</li><li>Repetir timing e níveis com parasitas reais.</li><li>Interligar decoder, quatro WL drivers e a linha física.</li><li>Teste integrado de escrita com bitcell e precharge.</li></ul></div>
+    </div>
+    <p class="bad"><strong>Bloqueio histórico:</strong> a tentativa de leitura integrada parou no netlist do precharge, antes do ngspice. O circuito pertence à Pessoa 2; a correção precisa vir do dono e a versão atual deve ser reavaliada.</p>
+    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> · <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">bloqueio de integração</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">07 · Próximas tarefas até 13/10</div>
+    <h2>Sequência de fechamento</h2>
+    <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
+      <tr><td>08/10</td><td>Revisar interface PCLK e desenhar layout do decoder</td><td>Layout Magic com rails, nós dinâmicos e EVAL_GND roteados</td></tr>
+      <tr><td>09/10</td><td>Fechar DRC e LVS do decoder</td><td>DRC zero; match Netgen único contra os 29 MOS</td></tr>
+      <tr><td>10/10</td><td>Extrair parasitas e repetir testes críticos</td><td>Waveforms, margens, atraso e energia pós-layout</td></tr>
+      <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
+      <tr><td>12/10</td><td>Revisão de interfaces e reprodução</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
+      <tr><td>13/10</td><td>Empacotar entrega da Pessoa 3</td><td>Artefatos, evidências reproduzíveis e pendências honestas</td></tr>
+    </tbody></table>
+    <p class="warn"><strong>Dependências externas:</strong> decisão/implementação da origem de PCLK, versão válida do precharge da Pessoa 2 e interface/carga física do bitcell da Pessoa 1. Não alterar arquivos dos outros donos para contornar essas dependências.</p>
+    <p class="source">Plano detalhado: <a href="person3_phase1_remaining_tasks.md">tarefas restantes da Pessoa 3</a>. Use ←/→ ou os botões para navegar; impressão gera uma página por slide.</p>
+  </section>
+</main>
+<nav aria-label="Controles da apresentação">
+  <button id="prev" type="button" aria-label="Slide anterior">← Anterior</button>
+  <span id="count" aria-live="polite">1 / 8</span>
+  <button id="next" type="button" aria-label="Próximo slide">Próximo →</button>
+</nav>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let current = 0;
+  function show(index) {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+    document.querySelector('#count').textContent = `${current + 1} / ${slides.length}`;
+  }
+  document.querySelector('#prev').addEventListener('click', () => show(current - 1));
+  document.querySelector('#next').addEventListener('click', () => show(current + 1));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight' || event.key === 'PageDown') show(current + 1);
+    if (event.key === 'ArrowLeft' || event.key === 'PageUp') show(current - 1);
+  });
+</script>
+</body>
+</html>

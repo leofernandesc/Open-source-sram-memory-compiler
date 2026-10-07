@@ -1,7 +1,10 @@
 # Person 3 peripheral validation log
 
-- Date: 2026-10-06
+- Date: 2026-10-07
 - Branch: `feature/peripherals`
+
+The [HTML status presentation](person3_phase1_status.html) summarizes the
+Person 3 work, current evidence, and remaining Phase 1 tasks.
 
 This log records local tests run on the current wordline-driver and write-driver
 schematics and layouts. Imported results in
@@ -331,3 +334,84 @@ real capture/PCLK timing, decoder layout, DRC/LVS, PEX repetition, row/write
 integration and delivery through 13 October. No physical implementation was
 started in this task. Existing WL/write layouts and other owners' work remain
 unchanged. Local focused commits record the work; no publishing is implied.
+
+
+## 2026-10-07: captured-address to PCLK timing budget
+
+The new [`run_row_decoder_capture_timing.py`](../sims/row_decoder/run_row_decoder_capture_timing.py)
+uses the SKY130 `sky130_fd_sc_hd__dfxtp_1` Liberty clock-to-Q and output
+transition tables to create address-Q PWL waveforms. The current B7 decoder
+and its four WL buffers are then freshly netlisted and simulated with the
+continuous SKY130 MOS models. All 12 non-repeat old/new address transitions
+are included. The decoder's wordline capacitors remain at the pre-layout
+estimate of 17.4 fF for this timing study.
+
+The DFF timing arcs were evaluated at two Liberty table loads: 3.434554 fF
+(`nominal`) and 9.001619 fF (`stress`). These are table lookup points; the
+captured-address Q-pin fanout has not yet been extracted. The selected
+libraries are TT/1.80 V/25 C, SS/1.60 V/-40 C, and FF/1.65 V/100 C. The
+decoder transistor-model profiles are TT/1.80 V/27 C, SS/1.62 V/-40 C, and
+FF/1.80 V/125 C. Thus the DFF Liberty points are close-corner timing proxies,
+not exact matched DFF/decoder corner pairs. The FF hot library was selected
+from the installed PDK because it is closer to the decoder's hot profile than
+the previously used FF/-40 C file.
+
+| Campaign | Address transitions | PCLK phase points | Qualification | Timing guard |
+|---|---:|---:|---:|---:|
+| SS/-40 C, 9.00 fF DFF load | 12 x 8 = 96 | 0 to 2 ns | 60/96; early evaluation points are rejected | 41/96 across the sampled phase grid |
+| Selected point, TT and FF; 3.43/9.00 fF DFF loads | 48 | 1.50 ns | 48/48 | 48/48 |
+| Selected point, SS/-40 C; 3.43 fF DFF load | 12 | 1.50 ns | 12/12 | 12/12 |
+
+At the recommended **1.50 ns capture-to-PCLK rise**, all 72 selected-point
+cases pass the full decoder logic/voltage screen and the experimental
+250 ps literal-settling guard. The worst result is SS/-40 C with the 9.00 fF
+DFF table load: the raw and regenerated address literals settle 431.2 ps
+before PCLK, leaving 181.2 ps beyond the selected guard. The largest measured
+selected-WL delay to 90% is 675.44 ps. The largest terminal-magnitude result
+at this selected point is 1.910414 V. PCLK falls at the CLK falling edge in
+the test deck, leaving a 3.50 ns high evaluation phase after the 1.50 ns delay.
+
+At 1.25 ns, all twelve SS/stress cases pass the logic/voltage screen, but only
+5/12 meet the 250 ps internal-literal guard; the worst lead is 181.2 ps. At
+1.00 ns all twelve pass the logic/voltage screen, but none meet the guard.
+The sampled coarse study therefore supports 1.50 ns as a conservative
+pre-layout timing target for the tested B7/17.4 fF row-load case. It does not
+claim that 1.50 ns is an exact minimum or a project-wide clock specification.
+
+The capture standard-cell subcircuit did not resolve with this installation's
+continuous MOS model set: after adding the missing special-device wrapper,
+ngspice still rejected the `nshort_model` bin. Those direct-subcircuit
+attempts are excluded; the rejected run is retained in
+[`capture_to_pclk_smoke2`](../sims/row_decoder/results/capture_to_pclk_smoke2/manifest.json).
+The first two direct-subcircuit pilots each failed all 12 cases before a
+complete transient. A later TT/nominal PWL pilot passed its 12 output
+logic/voltage screens at a 500 ps phase, but its worst internal-literal lead
+was -157.8 ps; that pilot is superseded by the full matrix. The accepted
+method uses Liberty table arcs and PWL Q waveforms, while PCLK remains an ideal
+delayed waveform. External register setup/hold, metastability, the
+actual PCLK-generation path, extracted Q/load capacitance, the 50 fF WL stress
+load, and post-layout timing are not covered. The 250 ps guard is an
+engineering screening value, not yet an advisor-approved system requirement.
+This closes a measured pre-layout timing budget, but the physical PCLK source
+and complete macro timing budget remain open.
+
+Reproduce the archived campaigns using new output directories:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_capture_timing.py \
+  --profiles slow --loads stress \
+  --phase-ps 0 500 750 1000 1250 1500 1750 2000 --workers 2 \
+  --output-dir /tmp/decoder-capture-slow-grid
+
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_capture_timing.py \
+  --profiles tt fast --loads nominal stress --phase-ps 1500 --workers 2 \
+  --output-dir /tmp/decoder-capture-tt-ff-1500ps
+
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_capture_timing.py \
+  --profiles slow --loads nominal --phase-ps 1500 --workers 2 \
+  --output-dir /tmp/decoder-capture-slow-nominal-1500ps
+```
+
+Summaries, detailed checks, terminal measurements, exact executed scripts,
+PDK/library/tool hashes, and per-case decks/logs are archived in
+[`sims/row_decoder/results/`](../sims/row_decoder/results/).

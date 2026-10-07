@@ -337,6 +337,62 @@ they are retained and cannot count as legal operation.
 B6 and B7 boundary tables are kept separate so different source circuits are
 not pooled into a fictitious common timing result.
 
+## Captured-address to PCLK timing budget
+
+The 2026-10-07 timing campaign adds SKY130 `dfxtp_1` clock-to-Q and output
+transition data from the standard-cell Liberty files to the pre-layout B7
+decoder contract. The runner replaces the address sources with PWL Q edges
+using those table arcs, then measures when the raw address and all regenerated
+true/complement literals settle relative to the PCLK rising 50% crossing.
+The decoder and four WL buffers are freshly netlisted from the current Xschem
+source. The four WL output capacitors remain at the 17.4 fF pre-layout row
+estimate; that estimate has not yet been replaced with extracted row data.
+
+The DFF table lookup uses a 53.13 ps input slew and 3.434554 fF nominal /
+9.001619 fF stress Q loads. The loads are Liberty table points, not extracted
+register-output capacitances. DFF libraries are TT/1.80 V/25 C,
+SS/1.60 V/-40 C, and FF/1.65 V/100 C. The decoder uses TT/1.80 V/27 C,
+SS/1.62 V/-40 C, and FF/1.80 V/125 C. These are close-corner proxies rather
+than exact matched DFF/decoder corners. The previous FF/-40 C library was
+replaced by the available FF/100 C library for the selected-point campaign.
+
+The slow/stress phase grid has 96 cases: all twelve address transitions at
+0, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75 and 2.0 ns from capture to PCLK. Sixty
+cases pass the full logic/voltage qualification; early PCLK assertion fails
+because the captured address or regenerated literals have not settled. The
+experimental 250 ps internal-literal guard passes 41/96 cases over the grid.
+This grid is archived in
+[`capture_to_pclk_slow_coarse`](../sims/row_decoder/results/capture_to_pclk_slow_coarse/summary.csv)
+and its [manifest](../sims/row_decoder/results/capture_to_pclk_slow_coarse/manifest.json).
+
+At 1.50 ns after the capture edge, 72/72 selected-point cases pass the full
+logic/voltage checks and the 250 ps internal-literal guard. They comprise the
+slow/stress grid point, TT and FF hot at both DFF loads, and slow/nominal load.
+The worst literal-settle lead is **431.2 ps** in SS/-40 C with the 9.00 fF
+DFF table load, leaving 181.2 ps over the selected guard. The largest
+selected-WL delay to 90% is **675.44 ps**; the largest measured terminal
+magnitude is **1.910414 V**. PCLK falls at the CLK falling edge in the test
+schedule, so a 1.50 ns delay leaves a **3.50 ns high evaluation phase**.
+
+At 1.25 ns, all twelve slow/stress cases pass the output logic/voltage screen,
+but only five meet the 250 ps literal guard; the worst lead is 181.2 ps. At
+1.0 ns, all twelve pass output logic/voltage checks but none meet that guard.
+Therefore 1.50 ns is the recommended conservative **pre-layout timing target
+for this modeled 17.4 fF case**, not an exact minimum, a finalized clock
+specification, or a claim about maximum macro frequency. Selected-point data
+are in [`capture_to_pclk_selected_1500ps`](../sims/row_decoder/results/capture_to_pclk_selected_1500ps/summary.csv)
+and [`capture_to_pclk_slow_nominal_1500ps`](../sims/row_decoder/results/capture_to_pclk_slow_nominal_1500ps/summary.csv).
+
+The direct standard-cell SPICE subcircuit did not resolve with this PDK
+installation's continuous MOS model set, so those attempts are excluded. The
+accepted method uses Liberty table arcs to make PWL Q edges, and PCLK is still
+an ideal delayed source. The Q load has not been extracted, no physical PCLK
+generator has been characterized, and register setup/hold, metastability,
+the 50 fF WL stress case and post-layout timing are not included. The 250 ps
+guard is an engineering screening margin awaiting advisor confirmation. Thus
+this study establishes a measured interface budget for the next layout and
+integration step; it does not close full macro timing.
+
 ## Reproduction and remaining work
 
 Run from the checkout through `./tools/sram-eda`. Use new output directories
@@ -371,8 +427,9 @@ Exact executed script snapshots accompany historical tables.
   --output-dir /tmp/decoder-stack-review
 ```
 
-Remaining closure includes margins after parasitic extraction and real
-captured-address/PCLK driver timing. The ordered Phase 1 work is recorded in
+The pre-layout captured-address/PCLK budget is now measured as documented
+above. Remaining closure includes the actual captured-address and PCLK driver,
+external setup/hold, and margins after parasitic extraction. The ordered Phase 1 work is recorded in
 [the Person 3 task plan](person3_phase1_remaining_tasks.md). The leaf
 contains no CSb/OEb/WEb qualification; idle/disabled/invalid row suppression
 requires the integration control path. Decoder layout, DRC and LVS have not
