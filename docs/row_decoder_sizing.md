@@ -3,6 +3,13 @@
 Status: sizing in progress. The measurements below define the loaded reference
 candidate; they do not establish final transistor sizes or PVT robustness.
 
+The [whole-circuit review and sizing campaign](row_decoder_sizing_plan.md)
+extends this record. The repaired runner reproduces B5 timing and its output
+logic passes, but its new output-NMOS VGS screen detects dynamic-node peaks
+above the published 1.95 V model envelope under the original 50 ps clock.
+Historical 72/72 PASS entries below refer to sampled output voltages, not this
+new envelope check. Clock/model-envelope closure now precedes final sizing.
+
 ## Baseline setup
 
 | Item | Value |
@@ -233,8 +240,14 @@ sizes. No PVT sweep, layout, parasitic extraction, or post-layout simulation is
 included here.
 
 The next candidates will change one transistor family at a time while holding
-the rest at B0. The next footer candidate is 0.42 µm, the SKY130A minimum
+the rest at B0. A planned footer candidate is 0.42 µm, the SKY130A minimum
 channel width for ordinary devices under the applicable DRC rule. Record the
 exact W values and rerun the same loaded testbench. After individual sweeps,
 combine the best passing choices and repeat the comparison before freezing the
 schematic for Magic layout.
+
+Before selecting that combined candidate, follow the clock/model-envelope,
+address-history, family/interactions, load, PVT and extracted-netlist campaign
+in the linked review. At the current B5 sizes, 250 ps clock edges pass the
+tested upper-VGS screen while 50 ps edges do not; this diagnostic does not
+approve a new macro clock-slew limit.
