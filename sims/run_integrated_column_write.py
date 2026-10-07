@@ -19,7 +19,8 @@ NUMBER = r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
 MEASURE_RE = re.compile(
     rf"^\s*(?P<name>"
     rf"q_before|qb_before|t_wl_rise|t_wl_fall|bl_at_wl|blb_at_wl|"
-    rf"t_q_full|t_qb_full|q_after|qb_after|bl_recovery|blb_recovery"
+    rf"t_q_full|t_qb_full|q_after|qb_after|bl_recovery|blb_recovery|"
+    rf"bl_prech_on|blb_prech_on|t_prech_on50|t_bl_recovery|t_blb_recovery"
     rf")\s*=\s*(?P<value>{NUMBER})",
     re.MULTILINE,
 )
@@ -62,6 +63,21 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--wpu", type=float, default=0.42)
     p.add_argument("--wpd", type=float, default=1.26)
     p.add_argument("--wacc", type=float, default=0.60)
+    p.add_argument(
+        "--write-output-width-um",
+        type=float,
+        default=0.84,
+        help=(
+            "Override the eight BL/BLB output-stack transistor widths for sizing "
+            "sweeps; the WE-to-WE_B inverter remains at its canonical 0.84 um."
+        ),
+    )
+    p.add_argument(
+        "--precharge-width-um",
+        type=float,
+        default=0.42,
+        help="Override the three precharge/equalization PMOS widths for sizing sweeps.",
+    )
     p.add_argument("--cbl-total-ff", type=float, default=65.0)
     p.add_argument("--cell-access-ceff-ff", type=float, default=0.452619)
     p.add_argument("--precharge-ceff-ff", type=float, default=0.908533)
@@ -93,6 +109,24 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--timeout-s", type=float, default=90.0)
     p.add_argument("--pex", action="store_true", help="Use Magic RC-extracted leaf netlists.")
+    p.add_argument(
+        "--precharge-pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional precharge/equalization PEX override; implies PEX for all leaves.",
+    )
+    p.add_argument(
+        "--write-pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional write-driver PEX override; implies PEX for all leaves.",
+    )
+    p.add_argument(
+        "--wl-driver-pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional wordline-driver PEX override; implies PEX for all leaves.",
+    )
     p.add_argument(
         "--resume",
         action="store_true",
@@ -142,6 +176,28 @@ def write_part(path: Path, row: dict[str, object]) -> None:
 def extract_leaf(root: Path, key: str) -> str:
     rel, pins, expected_devices = LEAFS[key]
     schematic = (root / rel).resolve()
+    static_spice = root / "cells" / f"{schematic.stem}.spice"
+    if static_spice.exists():
+        text = static_spice.read_text(encoding="utf-8")
+        match = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
+        if not match:
+            raise RuntimeError(f"missing subcircuit header in {static_spice}")
+        if set(match.group(2).split()) != set(pins):
+            raise RuntimeError(f"unexpected {key} pin set in {static_spice}: {match.group(2)}")
+        body = [
+            line for line in text.splitlines()
+            if line.startswith("X")
+        ]
+        if len(body) != len(expected_devices):
+            raise RuntimeError(
+                f"unexpected {key} device count in {static_spice}: "
+                f"got {len(body)}, expected {len(expected_devices)}"
+            )
+        return (
+            f".subckt {key}_core {' '.join(pins)}\n"
+            + "\n".join(body)
+            + f"\n.ends {key}_core\n"
+        )
     with tempfile.TemporaryDirectory(prefix=f"{key}-xschem-") as td:
         result = subprocess.run(
             ["xschem", "-x", "-q", "-n", "-o", td, str(schematic)],
@@ -178,12 +234,68 @@ def extract_leaf(root: Path, key: str) -> str:
     )
 
 
-def pex_leaf(root: Path, key: str) -> str:
+def override_write_output_width(subckt: str, width_um: float) -> str:
+    if width_um <= 0:
+        raise ValueError("write-driver output width must be positive")
+    lines = []
+    changed = 0
+    for line in subckt.splitlines():
+        device = line.split(maxsplit=1)[0] if line.startswith("X") else ""
+        if device not in {"XMPWEB", "XMNWEB", ""}:
+            line, count = re.subn(
+                r"\b[wW]=[^\s]+", f"w={width_um:g}", line, count=1
+            )
+            changed += count
+        lines.append(line)
+    if changed != 8:
+        raise RuntimeError(
+            f"expected to override 8 write-driver output widths, changed {changed}"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def override_precharge_width(subckt: str, width_um: float) -> str:
+    if width_um <= 0:
+        raise ValueError("precharge width must be positive")
+    lines = []
+    changed = 0
+    for line in subckt.splitlines():
+        device = line.split(maxsplit=1)[0] if line.startswith("X") else ""
+        if device in {"XMPBL", "XMPBLB", "XMEQ"}:
+            line, count = re.subn(
+                r"\b[wW]=[^\s]+", f"w={width_um:g}", line, count=1
+            )
+            changed += count
+        lines.append(line)
+    if changed != 3:
+        raise RuntimeError(f"expected to override 3 precharge widths, changed {changed}")
+    return "\n".join(lines) + "\n"
+
+
+def pex_leaf(
+    root: Path,
+    key: str,
+    precharge_override: Path | None = None,
+    write_override: Path | None = None,
+    wl_driver_override: Path | None = None,
+) -> str:
     pex_paths = {
         "bitcell": root / "layout" / "bitcell_6t" / "pex" / "bitcell_6t_pex.spice",
-        "precharge": root / "layout" / "precharge" / "pex" / "precharge_pex.spice",
-        "wl_driver": root / "layout" / "wl_driver" / "pex" / "wl_driver_pex.spice",
-        "write_driver": root / "layout" / "write_driver" / "pex" / "write_driver_pex.spice",
+        "precharge": (
+            precharge_override.resolve()
+            if precharge_override is not None
+            else root / "layout" / "precharge" / "pex" / "precharge_pex.spice"
+        ),
+        "wl_driver": (
+            wl_driver_override.resolve()
+            if wl_driver_override is not None
+            else root / "layout" / "wl_driver" / "pex" / "wl_driver_pex.spice"
+        ),
+        "write_driver": (
+            write_override.resolve()
+            if write_override is not None
+            else root / "layout" / "write_driver" / "pex" / "write_driver_pex.spice"
+        ),
     }
     expected_pex_pins = {
         "bitcell": ("VDD", "BL", "BLB", "VSS", "WL"),
@@ -417,6 +529,8 @@ def run_case(
         "wpu_um": args.wpu,
         "wpd_um": args.wpd,
         "wacc_um": args.wacc,
+        "wpre_um": args.precharge_width_um,
+        "wwrite_out_um": args.write_output_width_um,
         "cbl_total_ff": args.cbl_total_ff,
         "wl_extra_ff": args.wl_extra_ff,
         "wl_in_width_ns": args.wl_in_width_ns,
@@ -447,13 +561,40 @@ def main() -> int:
         args.workers < 1 or args.cbl_total_ff <= 0 or args.wl_extra_ff < 0
         or args.wl_in_width_ns <= 0 or args.tran_step_ps <= 0
         or args.precharge_recovery_window_ns <= 0
+        or args.write_output_width_um <= 0
+        or args.precharge_width_um <= 0
     ):
         raise SystemExit("invalid workers/capacitance/timing arguments")
 
+    use_pex = (
+        args.pex
+        or args.precharge_pex_netlist is not None
+        or args.write_pex_netlist is not None
+        or args.wl_driver_pex_netlist is not None
+    )
+    args.pex = use_pex
     leafs = {
-        key: (pex_leaf(args.root, key) if args.pex else extract_leaf(args.root, key))
+        key: (
+            pex_leaf(
+                args.root,
+                key,
+                args.precharge_pex_netlist,
+                args.write_pex_netlist,
+                args.wl_driver_pex_netlist,
+            )
+            if use_pex
+            else extract_leaf(args.root, key)
+        )
         for key in LEAFS
     }
+    if not args.pex and args.write_output_width_um != 0.84:
+        leafs["write_driver"] = override_write_output_width(
+            leafs["write_driver"], args.write_output_width_um
+        )
+    if not args.pex and args.precharge_width_um != 0.42:
+        leafs["precharge"] = override_precharge_width(
+            leafs["precharge"], args.precharge_width_um
+        )
     cases = list(itertools.product(args.corners, args.vdd_values, args.temps_c, args.states))
     rows: list[dict[str, object]] = []
     pending = []

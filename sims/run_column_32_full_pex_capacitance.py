@@ -22,8 +22,14 @@ ACCESS_RE = re.compile(
 COORD_RE = re.compile(r"^a_\d+_(-?\d+)(?:\.t\d+)?$")
 
 
-def load_full_column_pex(root: Path) -> tuple[str, str, list[tuple[str, str]]]:
-    path = root / "layout" / "column_32_full" / "pex" / "column_32_full_v2_pex.spice"
+def load_full_column_pex(
+    root: Path, pex_netlist: Path | None = None
+) -> tuple[str, str, list[tuple[str, str]]]:
+    path = (
+        pex_netlist.resolve()
+        if pex_netlist is not None
+        else root / "layout" / "column_32_full" / "pex" / "column_32_full_v2_pex.spice"
+    )
     text = path.read_text(encoding="utf-8")
     header = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
     if not header:
@@ -107,12 +113,13 @@ def main() -> int:
     p.add_argument("--frequency-hz", type=float, default=1.0e6)
     p.add_argument("--timeout-s", type=float, default=60.0)
     p.add_argument("--workers", type=int, default=2)
+    p.add_argument("--pex-netlist", type=Path, default=None)
     p.add_argument("--output", type=Path, default=root / "sims" / "column_32_full_pex_capacitance_pvt.csv")
     args = p.parse_args()
     if args.workers < 1 or args.frequency_hz <= 0 or any(not 0 < v <= 1.8 for v in args.vdd_values):
         p.error("invalid workers/frequency/VDD")
 
-    text, name, pairs = load_full_column_pex(root)
+    text, name, pairs = load_full_column_pex(root, args.pex_netlist)
     cases = list(itertools.product(args.corners, args.vdd_values, args.temps_c, args.states, ("BL", "BLB")))
 
     def execute(case: tuple[str, float, float, int, str]) -> dict[str, object]:

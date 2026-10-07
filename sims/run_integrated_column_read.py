@@ -85,6 +85,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--precharge-recovery-window-ns", type=float, default=5.0)
     p.add_argument("--edge-ps", type=float, default=50.0)
     p.add_argument("--tran-step-ps", type=float, default=5.0)
+    p.add_argument("--ngspice-method", choices=["gear", "trap"], default="gear")
+    p.add_argument("--reltol", type=float, default=1e-4)
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--timeout-s", type=float, default=60.0)
     p.add_argument("--pex", action="store_true", help="Use Magic RC-extracted leaf netlists.")
@@ -93,6 +95,18 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help="Optional sense-amplifier PEX override; implies PEX for all leaves.",
+    )
+    p.add_argument(
+        "--precharge-pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional precharge/equalization PEX override; implies PEX for all leaves.",
+    )
+    p.add_argument(
+        "--wl-driver-pex-netlist",
+        type=Path,
+        default=None,
+        help="Optional wordline-driver PEX override; implies PEX for all leaves.",
     )
     p.add_argument(
         "--resume",
@@ -177,11 +191,25 @@ def extract_leaf(root: Path, key: str) -> str:
     )
 
 
-def pex_leaf(root: Path, key: str, sense_override: Path | None = None) -> str:
+def pex_leaf(
+    root: Path,
+    key: str,
+    sense_override: Path | None = None,
+    precharge_override: Path | None = None,
+    wl_driver_override: Path | None = None,
+) -> str:
     pex_paths = {
         "bitcell": root / "layout" / "bitcell_6t" / "pex" / "bitcell_6t_pex.spice",
-        "precharge": root / "layout" / "precharge" / "pex" / "precharge_pex.spice",
-        "wl_driver": root / "layout" / "wl_driver" / "pex" / "wl_driver_pex.spice",
+        "precharge": (
+            precharge_override.resolve()
+            if precharge_override is not None
+            else root / "layout" / "precharge" / "pex" / "precharge_pex.spice"
+        ),
+        "wl_driver": (
+            wl_driver_override.resolve()
+            if wl_driver_override is not None
+            else root / "layout" / "wl_driver" / "pex" / "wl_driver_pex.spice"
+        ),
         "sense": (
             sense_override.resolve()
             if sense_override is not None
@@ -239,7 +267,12 @@ def make_deck(
     # The total C_BL envelope already includes selected-cell access, precharge and
     # sense input capacitance.  Instantiate those real leaves and lump only the
     # remaining column/wire capacitance to avoid double counting.
-    use_pex = args.pex or args.sense_pex_netlist is not None
+    use_pex = (
+        args.pex
+        or args.sense_pex_netlist is not None
+        or args.precharge_pex_netlist is not None
+        or args.wl_driver_pex_netlist is not None
+    )
     modeled_leaf_ff = (
         args.pex_cell_access_ceff_ff
         + args.pex_precharge_ceff_ff
@@ -302,7 +335,7 @@ CBL_EXTRA bl 0 {lumped_extra_ff:.6f}f
 CBLB_EXTRA blb 0 {lumped_extra_ff:.6f}f
 {wl_extra}
 .ic {q_ref}={q0:.12g} {qb_ref}={qb0:.12g} v(bl)={vdd:.12g} v(blb)={vdd:.12g} v(sa)={vdd/2:.12g} v(sab)={vdd/2:.12g}
-.options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-7 iabstol=1e-10
+.options ngbehavior=ps method={args.ngspice_method} reltol={args.reltol:.12g} vabstol=1e-7 iabstol=1e-10
 .tran {args.tran_step_ps:g}p {stop_ns:.12g}n 0 {args.tran_step_ps:g}p uic
 .meas tran bl_pre find v(bl) at={args.precharge_release_ns - 0.05:.12g}n
 .meas tran blb_pre find v(blb) at={args.precharge_release_ns - 0.05:.12g}n
@@ -466,15 +499,27 @@ def main() -> int:
     ):
         raise SystemExit("invalid workers/delta/cbl")
 
-    use_pex = args.pex or args.sense_pex_netlist is not None
+    use_pex = (
+        args.pex
+        or args.sense_pex_netlist is not None
+        or args.precharge_pex_netlist is not None
+        or args.wl_driver_pex_netlist is not None
+    )
+    args.pex = use_pex
     leafs = {
         key: (
-            pex_leaf(args.root, key, args.sense_pex_netlist)
+            pex_leaf(
+                args.root,
+                key,
+                args.sense_pex_netlist,
+                args.precharge_pex_netlist,
+                args.wl_driver_pex_netlist,
+            )
             if use_pex else extract_leaf(args.root, key)
         )
         for key in LEAFS
     }
-    if args.precharge_width_um != 0.42:
+    if not args.pex and args.precharge_width_um != 0.42:
         leafs["precharge"] = override_precharge_width(
             leafs["precharge"], args.precharge_width_um
         )
