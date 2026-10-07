@@ -1,7 +1,8 @@
 # Orçamento pré-layout da capacitância de wordline
 
-Status em 06/10/2026: **baseline pré-layout congelada; G6 físico concluído e
-G7 em requalificação pós-layout**. A bitcell e o `wl_driver` já possuem layout
+Status em 07/10/2026: **baseline pré-layout congelada; G6 físico concluído e
+matrizes integradas G7 concluídas, com recuperação de escrita ainda fora da
+janela de 4 ns**. A bitcell e o `wl_driver` já possuem layout
 com Magic DRC `0` e Netgen LVS único. A coluna 32× também já foi construída,
 verificada e extraída; os valores deste documento permanecem como referência
 histórica da wordline e **não** devem ser tratados como capacitâncias PEX.
@@ -78,9 +79,17 @@ capacitor lumped adicional adotado é **17 fF**, acima do bound
 apenas como stress test conservador e não como estimativa física da linha.
 
 O bound `CWL,row,max=17,397827664 fF` e o capacitor lumped adicional de `17 fF`
-ficam preservados como baseline pré-layout. A coluna 32× usada para fechar
-`C_BL,PEX` já existe, mas a carga física representativa da wordline ainda não
-foi consolidada como métrica pós-layout equivalente. Essa é a pendência deste
-documento: extrair/medir a WL física de integração e requalificar slew, atraso,
-largura efetiva de WL e read-disturb. Se esse PEX alterar o contrato usado no
-screening, o gate de timing da WL deve ser reaberto.
+ficam preservados como baseline pré-layout. A linha física representativa de
+8 bits em `layout/row_8_wl` fecha DRC/LVS/PEX e mede `C_WL,PEX,max=98,914001 fF`
+em `sims/row_8_wl_pex_capacitance_pvt.csv` (`60/60 PASS`). A bitcell selecionada
+contribui até `8,988801 fF`; a carga adicional aplicada nos benches integrados
+é `89,925201 fF`. A extração WLOFF de `361,100284 fF` da coluna curto-circuita
+32 WLs e permanece somente como diagnóstico de stress.
+
+A requalificação integrada usa o PEX do WL driver reforçado. As matrizes PVT
+completas terminaram: leitura `60/60 PASS` e escrita `56/60 PASS`, com quatro
+falhas de recuperação de bitline na janela de 4 ns. Slew, atraso e largura
+efetiva de WL foram considerados nos resultados integrados; o read-disturb
+passou na matriz de leitura. O gate G7 continua aberto pelas quatro falhas de
+recuperação, confirmadas pelo diagnóstico de 5 ns como cruzamentos entre
+`4,03137` e `4,18573 ns`.

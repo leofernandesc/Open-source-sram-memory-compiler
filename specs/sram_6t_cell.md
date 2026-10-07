@@ -164,7 +164,7 @@ aceite, não resultados medidos:
 | WLVM | mínimo `0.619 V` em `WPD=0.84 µm`, `0.605 V` em `1.05 µm`; critério de aceite pendente |
 | Carga de bitline pré-layout | orçamento corrigido: `Ccell_access,max=0.452619 fF`, `Cprecharge,max=0.908533 fF`, `Cwrite,max=4.033129 fF`, `Csense,max=9.004605 fF` e fio `1.061862 fF/célula`; `C_BL,max=62.409659 fF` em 32 linhas; usar 65 fF para revalidação pré-layout |
 | Schematic Freeze | **concluído em 05/10/2026**: G4 dinâmico fechado como engineering screening; timing ativo de leitura `SCLK=2.84 ns`; potência permanece referência medida sem teto macro aprovado; PEX continua pós-layout. |
-| Layout, DRC e LVS | pendentes |
+| Layout, DRC e LVS | G6 concluído nas cinco leafs; coluna física G7 reforçada e WL representativa de 8 bits também passaram DRC/LVS/PEX. G7 elétrico segue aberto: leitura pós-layout `60/60 PASS`, escrita `56/60 PASS`, com quatro falhas de recuperação acima da janela de 4 ns. |
 
 ## Leaf cells da etapa 2
 

@@ -18,8 +18,11 @@ O trabalho está concentrado nas leaf cells e na validação elétrica da bitcel
 - sweep automatizado de capacitância, estado e corner;
 - preparação de pré-carga, sense amplifier, driver de WL e driver de escrita.
 
-Layout, DRC, LVS, caracterização completa e geração final das views ainda estão
-pendentes.
+O schematic freeze e o fechamento físico G6 das cinco leafs estão concluídos.
+A coluna G7 reforçada e a wordline física representativa também têm DRC/LVS/PEX.
+A requalificação elétrica pós-layout de leitura passou `60/60`; a de escrita
+passou `56/60`, com quatro falhas porque a recuperação de BL/BLB excede a janela
+vigente de 4 ns. Portanto, o fechamento da Fase 1 permanece aberto em G7.
 
 ## Configurações suportadas
 
@@ -401,7 +404,7 @@ substitui a estimativa e o teto de requalificação passa a ser
 | Leitura capacitiva | sizing 0,84 µm falhou excursão em 28/40; sizing 1,05 µm passou 40/40 |
 | Sweep de capacitância | automatizado |
 | Corners tt, ff, ss, fs, sf | diferencial passou 40/40; read disturb depende do sizing |
-| Sense amplifier, pré-carga e wl_driver | esquemáticos netlistados; sense 330/330 casos determinísticos; precharge/WL passaram pontos selecionados em 60/50 fF, sweep completo pendente |
+| Sense amplifier, pré-carga e wl_driver | leafs e variantes físicas reforçadas com DRC/LVS/PEX; leitura pós-layout `60/60 PASS`; escrita integrada `56/60 PASS`, com quatro falhas de recuperação de bitline na janela de 4 ns |
 | Baseline histórica 0,42/0,84/0,60 µm | gate de read disturb reprovado; substituída no esquema canônico |
 | Sizing exploratório 0,42/1,05/0,60 µm | leitura 40/40 nominal, mas 72/90 na triagem PVT/50 fF; não selecionado |
 | Sizing canônico congelado 0,42/1,26/0,60 µm | único candidato testado que atende Read SNM nominal >=0,4 V (`0,414349 V`); G1/G2/G3/G4 fechados para screening pré-layout e sizing aplicado em `bitcell_6t.sch/.sym` |
@@ -412,18 +415,20 @@ substitui a estimativa e o teto de requalificação passa a ser
 | Write driver | conectividade corrigida; G1 em 65 fF passou `60/60`. Na integração com precharge + write driver + WL driver + bitcell, `65 fF + 17 fF` de carga de WL, `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura `1,0 ns` passaram `60/60`; pior full flip `0,37283 ns`, `WL_min(+30%)=0,484679 ns` |
 | Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
 | WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; o sense possui critério estatístico de engenharia para freeze, enquanto potência macro continua sem requisito numérico aprovado |
-| Layout, DRC, LVS e parasitas | G6 físico fechado nas cinco leafs. No G7, a coluna 32× completa também fecha Magic DRC `0`, Netgen LVS único e PEX; `C_BL,PEX,max=422,651867 fF`, com teto final `486,049647 fF`. A requalificação segue aberta por timing de sense/write no pior corner. |
+| Layout, DRC, LVS e parasitas | G6 físico fechado nas cinco leafs. No G7, a coluna 32× reforçada fecha Magic DRC `0`, Netgen LVS único e PEX; `C_BL,PEX,max=452,580954 fF`, com teto `520,468097 fF`. Requalificação integrada concluída: leitura `60/60 PASS`; escrita `56/60 PASS`, com quatro falhas de recuperação na janela de 4 ns. |
 
 ## Limitações e próximos passos
 
-1. G1 está fechado em `65 fF`. G2 determinístico fechou `60/60` em `SCLK=2,79 ns`; G4 mismatch mostrou margem insuficiente nesse ponto para uma seed real e promoveu `SCLK=2,84 ns` como timing ativo de freeze. O rerun crítico pós-aplicação passou `2/2` com setup `>=78,46 ps` e `ΔV>=360,848 mV`.
-2. A escrita integrada passou `60/60` com `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura de `1,0 ns`; pior full flip `0,37283 ns`, regra `+30%=0,484679 ns` e margem mínima até a queda de WL `0,59366 ns`. Os controles de leitura e escrita passam a usar temporizações específicas por operação.
-3. G4 está fechado como screening de engenharia: read crítico `10/10` em `ss_mm/1,62 V/-40 °C`, `10/10` em `ff_mm/1,80 V/125 °C`, smoke all-corner `10/10`; write crítico `20/20` e demais selecionados `6/6`. Isso não é claim de yield de produção.
-4. Registrar formalmente a faixa contínua de qualificação em `1,62–1,80 V`; manter `1,95 V` somente como limite estático/auditoria do modelo e `1,98 V` como não qualificado com os dispositivos `01v8` atuais.
-5. Registrar potência/leakage como referência de arquitetura enquanto não houver teto macro aprovado; não rotular potência como PASS/FAIL sem requisito. Estender mismatch à escrita/read disturb onde necessário.
-6. Completar PVT de pré-carga/equalização e `wl_driver`; ampliar o `write_driver` para mismatch usando a carga pré-layout fechada.
-7. Schematic freeze concluído com `WPU/WPD/WACC=0,42/1,26/0,60 µm` e `SCLK=2,84 ns` para o contrato ativo de leitura.
-8. G6 físico já concluído nas cinco leafs. No G7, a coluna física 32× já foi construída, verificada e extraída; o teto de requalificação atual é `486,049647 fF`. O pior corner `ss/1,62 V/125 °C` ainda viola `t_res<=0,25 ns` no sense e evidencia drive insuficiente na escrita. Reforçar esses periféricos, reextrair a coluna e repetir a qualificação no novo `1,15 × C_BL,PEX` antes do fechamento da Fase 1.
+1. G7 continua aberto por quatro falhas de recuperação de escrita em `sf/ss`,
+   1,62 V/−40 °C. A matriz pós-layout de leitura passou `60/60`; a de escrita,
+   `56/60`. Diagnósticos focais confirmaram recuperação entre `4,03137` e
+   `4,18573 ns`, acima da janela vigente de 4 ns.
+2. Reforçar fisicamente o precharge e, se necessário, o write driver. Depois,
+   repetir DRC/LVS/PEX da coluna, recalcular `C_BL,PEX` e o teto `1,15×`, e
+   reexecutar as qualificações afetadas antes de fechar G7.
+3. Ruído estatístico/yield formal, teto de potência macro e mismatch ampliado
+   permanecem trabalhos posteriores, sem bloquear o fechamento técnico atual da
+   Fase 1.
 
 ## Documentação relacionada
 
