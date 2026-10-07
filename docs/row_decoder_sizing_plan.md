@@ -86,19 +86,36 @@ of extrapolation outside the published model envelope, not proof of silicon
 damage or a foundry reliability violation.
 [SKY130 device model information](https://skywater-pdk.readthedocs.io/en/main/rules/device-details.html#v-nmos-fet).
 
-Two diagnostic runs were completed with the identical B5 sizing and load:
+Four diagnostic runs were completed with the identical B5 sizing and load:
 
 | Diagnostic | Output samples | Maximum dynamic-node/output-NMOS VGS | Max DEC/WL evaluation delay | Max DEC/WL precharge delay |
 |---|---|---:|---:|---:|
 | Gear, 10 ps maximum step, 50 ps clock | 72/72 PASS | 1.97798 V, outside published envelope | 121.92 / 302.94 ps | 117.35 / 292.90 ps |
+| Gear, 5 ps maximum step, 50 ps clock | 72/72 PASS | 1.97534 V, outside published envelope | 122.06 / 302.91 ps | 116.16 / 292.39 ps |
 | Trapezoidal, 5 ps maximum step, 50 ps clock | 72/72 PASS | 1.97475 V, outside published envelope | 122.12 / 302.82 ps | 116.00 / 292.34 ps |
 | Gear, 10 ps maximum step, 250 ps clock | 72/72 PASS | 1.89772 V, below 1.95 V in all 16 checks | 161.44 / 342.51 ps | 164.15 / 340.03 ps |
 
-The smaller timestep and different integration method preserve the envelope
-finding. Slower clock edges eliminate this particular upper-VGS violation in
-the tested sequence, at the cost of greater delay. Capacitive clock coupling
-is a plausible contributor; it has not been isolated from every other mechanism.
-A 250 ps input edge has not been adopted as the macro's allowed clock slew.
+At the 50 ps clock edge, the three integration settings produce maximum VGS
+values from 1.97475 V to 1.97798 V. All 16 per-row/per-cycle checks remain
+outside the published envelope. Maximum DEC/WL evaluation timing differs by at
+most 0.20/0.12 ps, and maximum precharge timing by 1.35/0.56 ps, across these
+runs. The smaller timestep and different integration method therefore preserve
+the model-envelope finding and the timing ranking for this B5 condition; they do
+not establish the full terminal-voltage envelope.
+
+In the Gear 5 ps raw waveform, the four dynamic-node peaks occur at 10.0535,
+30.0515, 50.0535, and 70.0535 ns, about 1.5–3.5 ps after each 50 ps PCLK rising
+edge reaches 1.8 V. Together with the lower peak in the 250 ps edge run, this
+timing correlation is consistent with capacitive clock feedthrough or charge
+injection into the floating, unselected dynamic nodes. This is an engineering
+inference, not an isolated causal proof or a finding that the schematic is
+error-free. The exact clock waveform from its upstream driver and the complete
+device terminal envelope still need review. A 250 ps input edge has not been
+adopted as the macro's allowed clock slew.
+
+The Gear 5 ps run artifacts are available as [output samples](../sims/row_decoder/results/b5_review_tt_gear5_samples.csv),
+[expanded metrics](../sims/row_decoder/results/b5_review_tt_gear5_samples_metrics.csv),
+and [run manifest](../sims/row_decoder/results/b5_review_tt_gear5_samples.json).
 
 Supply integration is now reported separately for evaluation and precharge.
 It includes the decoder and, in the loaded bench, all four drivers. It excludes
@@ -157,9 +174,11 @@ still need dedicated benches or extensions.
 1. Preserve B0–B5 timing references and recheck selected references with the
    repaired runner; store new criteria as a separate review, not a silent
    rewrite of earlier results.
-2. Complete numeric sensitivity: Gear 10 ps versus Gear 5 ps and trapezoidal
-   5 ps, recording timing and voltage-peak changes. Investigate differences
-   that could change candidate ranking or an envelope decision.
+2. B5 numeric sensitivity at the 50 ps clock edge is complete for Gear 10 ps,
+   Gear 5 ps, and trapezoidal 5 ps; the results above show the same 1.95 V
+   envelope excursion in all 16 checks for each method. Preserve these results
+   as the solver sensitivity reference. Repeat the comparison for another
+   candidate only if its ranking is close enough to change the sizing decision.
 3. Explore PCLK rise/fall edges at 25, 50, 100, 250, 500 and 1000 ps at current
    B5 sizes. Then test unequal rise/fall edges with a dedicated stimulus.
    These are diagnostic inputs, not an approved slew specification.

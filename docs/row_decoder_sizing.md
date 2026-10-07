@@ -5,10 +5,12 @@ candidate; they do not establish final transistor sizes or PVT robustness.
 
 The [whole-circuit review and sizing campaign](row_decoder_sizing_plan.md)
 extends this record. The repaired runner reproduces B5 timing and its output
-logic passes, but its new output-NMOS VGS screen detects dynamic-node peaks
-above the published 1.95 V model envelope under the original 50 ps clock.
-Historical 72/72 PASS entries below refer to sampled output voltages, not this
-new envelope check. Clock/model-envelope closure now precedes final sizing.
+logic passes, but its output-NMOS VGS screen detects dynamic-node peaks above
+the published 1.95 V model envelope under the original 50 ps clock. Gear 10 ps,
+Gear 5 ps, and trapezoidal 5 ps runs all report 16/16 excursions, so the finding
+is not specific to the tested integration method or timestep. Historical
+72/72 PASS entries below refer to sampled output voltages, not this envelope
+check. Clock/model-envelope closure now precedes final sizing.
 
 ## Baseline setup
 
