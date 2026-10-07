@@ -622,3 +622,77 @@ and the matched checks pass. The decoder PEX includes the extracted decoder
 only; the four WL buffers remain schematic devices and the row load remains the
 17.4 fF estimate. Physical-row loading and complete macro behavior are still
 outside this evidence.
+
+## 2026-10-08 UTC: nonnegative decoder R-C PEX and matched electrical matrix
+
+This entry supersedes the 2026-10-07 negative-capacitance status above. The
+layout is the row decoder only. The bitcell and sense-amplifier/precharge source
+trees were not changed. The retained decoder sizing for this run is: four
+PCLK precharge PFETs M5/M11/M16/M21 at 2 um, eight evaluation-stack NFETs
+M6/M7/M12/M13/M17/M18/M22/M23 at 2 um, and four output PFETs
+M9/M14/M19/M24 at 3 um. The four wordline buffers remain schematic devices.
+
+The Windows host used the `sram-xschem` container and SKY130A tech 1.0.493
+(`open_pdks` commit `0fe599b2afb6708d281543108caf8310912f54af`). Magic 8.3.589
+was used for Xschem-to-layout device import; Magic 8.3.684, built from commit
+`4f53bb3091d1e4a9b2009a58f157a8a4331d4c84`, was used for routing, DRC and
+extraction. Xschem was 3.4.6, Netgen 1.5.293 and ngspice 44.2. The generated
+netlist/import and PEX flow was:
+
+```bash
+docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/xschem/*/bin; do PATH="$tool_dir:$PATH"; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-route'
+docker exec -w /work/layout/row_decoder sram-xschem bash -lc 'PATH=/opt/magic/8.3.589/bin:$PATH; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; magic -dnull -noconsole -rcfile /opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc < generate_import.tcl'
+docker exec -w /work sram-xschem bash -lc 'PATH=/opt/magic/8.3.684/bin:$PATH; for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do PATH="$tool_dir:$PATH"; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-import --extract'
+docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do PATH="$tool_dir:$PATH"; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/row_decoder_pex_output_pfets_3um_20261008 --workers 2 --timeout-s 300'
+```
+
+Both hierarchical and flattened Magic `drc(full)` reports have zero errors.
+Netgen reports a unique match: 29 MOS (17 NFET, 12 PFET), 22 nets and matching
+external/bulk connections. The R-C PEX preserves the pin order
+`VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`, contains 393 resistors and 226
+capacitors, and has no negative capacitor values. Its SHA-256 is
+`c3e39efae880fd46fddd0d610f9dd789a3beeee847c62ba2fbdaa1bf88419128`.
+The connectivity-only `row_decoder_flat_extracted.spice` remains separate from
+this R-C PEX. Logs are in `layout/row_decoder/reports/`.
+
+The complete paired matrix is retained at
+[`row_decoder_pex_output_pfets_3um_20261008`](../sims/row_decoder/results/row_decoder_pex_output_pfets_3um_20261008/),
+including its manifests, input netlists, CSV checks/measurements and comparison.
+It completed all nine TT transitions and four SS/1.62 V/-40 C diagonal
+transitions at a 5 ps maximum timestep with Gear integration, 50 ps clock and
+address edges, and 17.4 fF loads. The pre-layout functional/settling results
+are PASS in all 13 cases, while its separate terminal screen reports nine
+upper-range findings. The PEX has nine PASS cases and four
+`SETTLING_SCREEN_FAIL` cases. In each slow-corner case, the two selected-WL
+checks at 1 ns measure 1.201–1.328 V against the 1.458 V minimum. No logic or
+precharge check fails in those cases. The output PFET increase from 2 um to
+3 um improved the slow-corner 90% WL delay from 1166–1235 ps in the prior
+2 um-output iteration to 1089–1142 ps here, but did not close the 1 ns level
+check. Current slow-corner WL precharge-to-10% delay is 943–1000 ps, compared
+with 419–427 ps pre-layout. The PEX terminal screen reports five magnitude
+findings; its signed model upper screen passes in all 13 cases. The baseline
+and PEX campaign command exits nonzero because these experimental screens and
+the four PEX settling checks are not all closed.
+
+The sizing trail is retained as compact run evidence: the 0.5 um precharge
+pilot fails the TT 00-to-00 PEX recovery check
+([result](../sims/row_decoder/results/row_decoder_pex_20261007_234742/)); the
+1 um precharge/1 um stack full matrix has 9 PEX passes and 4 slow-corner cases
+with six failed checks each
+([result](../sims/row_decoder/results/row_decoder_pex_20261007_235827/)); and
+the 2 um precharge/2 um stack, 2 um output-PFET matrix reduces those slow cases
+to two selected-WL failures each
+([result](../sims/row_decoder/results/row_decoder_pex_20261008_000419/)). The
+current 3 um output-PFET iteration improves the slow-corner WL delay further,
+but the four 1 ns level failures remain. The runner's `.raw` waveforms are
+excluded by the repository's `*.raw` ignore rule; manifests, input netlists,
+logs and CSV measurements are retained for review.
+
+These results establish a nonnegative distributed R-C extraction with DRC/LVS
+closure and a completed matched simulation campaign; they do not establish
+post-layout electrical closure. The 1.95 V terminal-magnitude screen remains
+experimental, not a full reliability qualification. The PEX replaces only the
+decoder; WL buffers are schematic devices and 17.4 fF remains an estimated row
+load. Physical-row loading, full-macro behavior and external setup/hold remain
+unqualified. Keep the four slow-corner selected-WL failures open; do not relax
+the contract threshold or report full electrical sign-off.
