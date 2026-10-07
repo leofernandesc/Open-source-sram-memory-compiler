@@ -231,3 +231,29 @@ the command used `/tmp/integrated_column_read_wl_checkpoint_parts` for parts and
 
 Temporary netlists, raw waveforms, extracted LVS netlists, and Netgen reports
 were kept under `/tmp` and are not repository evidence artifacts.
+
+## 2026-10-07: dynamic row-decoder feedthrough correction
+
+The original B5 output-NMOS upper-VGS finding was reproduced and localized to
+the precharge path with independent-clock and footer-off diagnostics. A
+precharge-only correction also exposed address-inverter VDS overshoot at
+SS/1.8 V/-40 C. The implemented B6 source reduces M1–M5, M11, M16 and M21
+widths to 0.42 um, retaining the original dynamic topology and M8 W=0.50 um.
+The source-generated netlist matches the qualification netlist byte for byte.
+
+Fresh Xschem/ngspice checks pass for the bare and loaded decoder. The loaded
+TT/1.8 V/27 C/17.4 fF/50 ps result has 72/72 output samples, 252/252
+non-model checks and zero upper-voltage findings. Peak output-NMOS VGS is
+1.90111 V; maximum WL evaluation/precharge times are 302.04/413.64 ps.
+
+The 54-condition TT/SS/FF voltage/temperature/slew experiment passes 3,888
+output samples, with no VGS/VGD/VDS magnitude over 1.95 V. Four additional
+Gear/trapezoidal 1 ps runs pass; their smallest measured magnitude margin is
+3.12 mV. Sixteen script regressions pass. The full signed model domain,
+noise/mismatch, timing contract and decoder physical closure remain open.
+
+Selected CSV/JSON/netlist evidence, cause isolation, energy/timing comparisons
+and a waveform figure are in [the feedthrough report](row_decoder_feedthrough_fix.md).
+The standard runner now checks address-inverter VDS during precharge as well as
+dynamic-node upper VGS during the entire transient. Existing bitcell, WL driver,
+write driver and other owners' schematics/layouts were preserved.

@@ -4,13 +4,16 @@ Status: proposed pre-layout campaign for the existing 2-to-4 dynamic decoder.
 This document plans experiments; it does not freeze transistor sizes, clock
 limits, nominal characterization temperature, or the project's optimization
 priority. Architecture remains defined by [the specification](../specs/technical_specification.md).
-Historical candidates B0–B5 are recorded in [the sizing record](row_decoder_sizing.md).
+Candidates B0–B6 are recorded in [the sizing record](row_decoder_sizing.md).
+The implemented [B6 feedthrough correction](row_decoder_feedthrough_fix.md)
+supersedes B5 as the current source. B5 diagnostics below remain historical evidence.
 
 ## 1. Current circuit and connectivity review
 
 The generated Xschem hierarchy was reviewed, not only the drawing. It contains
-25 SKY130 1.8 V MOS instances, L=0.15 um and nf=1. All widths are 1.00 um except
-the shared footer M8, currently 0.50 um (B5).
+25 SKY130 1.8 V MOS instances, L=0.15 um and nf=1. The two address inverters
+and four precharge PMOS have W=0.42 um, the shared footer M8 has W=0.50 um,
+and the remaining evaluation/output devices have W=1.00 um (B6).
 
 | Family | Devices | Function and review |
 |---|---|---|
@@ -46,7 +49,7 @@ Valid-operation gating and captured-address timing must therefore be checked
 with the integration control implementation before claiming safe idle,
 disabled, or invalid macro operation.
 
-## 2. Reproduced results and newly observed limits
+## 2. Historical B5 reproduced results and observed limits
 
 The repaired runner passes Xschem netlisting and ngspice execution. The original
 functional bench passes 36/36 output samples; the loaded bench passes 72/72.
@@ -179,14 +182,17 @@ still need dedicated benches or extensions.
    envelope excursion in all 16 checks for each method. Preserve these results
    as the solver sensitivity reference. Repeat the comparison for another
    candidate only if its ranking is close enough to change the sizing decision.
-3. Explore PCLK rise/fall edges at 25, 50, 100, 250, 500 and 1000 ps at current
-   B5 sizes. Then test unequal rise/fall edges with a dedicated stimulus.
-   These are diagnostic inputs, not an approved slew specification.
+3. B5 equal rise/fall edges at 25, 50, 100, 250, 500 and 1000 ps have been
+   measured in the feedthrough investigation. B6 also passes the specified
+   screens at 25, 50 and 250 ps in its 54-condition experiment. Unequal edges
+   still need a dedicated stimulus. These inputs do not approve a macro slew limit.
 4. Check the full model terminal envelope and the actual upstream clock load.
    Determine the input waveform range that a realizable clock driver supplies.
 5. Examine precharge/output-inverter sizes as possible ways to alter clock
    feedthrough before optimizing only the footer. A bigger footer cannot
    directly clamp a dynamic node whose address stack is off.
+   The B6 correction implements the measured precharge/address sizing result;
+   the linked report retains the discarded alternatives and timing tradeoffs.
 6. If sizing and credible timing cannot provide adequate retention/margin,
    present a keeper or intermediate-node-precharge option for a topology
    decision. Do not insert either into the schematic automatically.
@@ -305,6 +311,11 @@ The voltage/temperature stress points are proposals consistent with existing
 peripheral experiments; they are not approved product limits. Nominal
 characterization temperature still requires advisor confirmation.
 
+B6 has now been measured at all 18 of these conditions with three PCLK slew
+values (25/50/250 ps), totaling 54 runs. Four 1 ps numerical-refinement runs
+also pass its defined screens. See the feedthrough report for the measured
+margins; this experiment does not finalize the operating envelope.
+
 Check model envelopes at each condition before ranking its timing. A higher
 supply requires demonstrated headroom for dynamic-node excursions; do not
 automatically apply 1.98 V as a '+10%' corner for 1.8 V devices.
@@ -341,14 +352,15 @@ Loaded sizing screen, preserving the source schematic and original stimuli:
 
 ~~~bash
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_tt.py \
-  --bench sizing --candidate B5 \
-  --output sims/row_decoder/results/b5_review_tt_samples.csv \
-  --artifacts-dir /tmp/decoder-sizing-review-artifacts
+  --bench sizing --candidate B6 --method gear --max-step-ps 5 \
+  --output /tmp/b6_tt_samples.csv \
+  --artifacts-dir /tmp/decoder-B6-live-loaded
 ~~~
 
-The current 50 ps B5 screen returns 1 because of OUTSIDE_MODEL_RANGE, despite
-Xschem/ngspice return codes 0 and all output logic/window checks passing.
-That result is intentional evidence, not the old symbol-loading error.
+The current B6 source passes the defined 50 ps screens. Historical B5 returns
+nonzero on upper-voltage findings despite its logical passes. Reproduce B5
+from its archived netlist using the investigation runner's `--campaign explore`;
+`--candidate` is a label and does not restore a historical schematic size.
 
 For a diagnostic change only, add --clock-slew-ps 250, or
 --method trap --max-step-ps 5, and give each run its own candidate/output path.
@@ -371,21 +383,22 @@ Archived evidence:
 The archived Xschem netlist is a structural regression fixture; the waveform
 remains a reproducible temporary artifact.
 
-Ten checker regression tests pass, including intentional footer shorts, wrong
+Sixteen checker regression tests pass, including intentional footer shorts, wrong
 output bulk, duplicated driver input, wrong capacitor row, subminimum width,
-negative/above-rail false-pass prevention and local precharge crossing windows:
+negative/above-rail false-pass prevention, full-transient address checks,
+isolated-family experiments and local precharge crossing windows:
 
 ~~~bash
-./tools/sram-eda python3 sims/row_decoder/test_run_row_decoder_tt.py -v
+./tools/sram-eda python3 -m unittest discover -s sims/row_decoder -p 'test_*.py' -v
 ~~~
 
-Regenerate the plotted review from the kept raw waveform and manifest:
+Generate a current B6 review from the kept waveform and its matching manifest:
 
 ~~~bash
 ./tools/sram-eda python3 sims/row_decoder/plot_row_decoder_review.py \
-  /tmp/decoder-sizing-review-artifacts/row_decoder.raw \
-  sims/row_decoder/results/b5_review_tt_samples.json \
-  --output docs/assets/row_decoder_b5_review.png
+  /tmp/decoder-B6-live-loaded/row_decoder.raw \
+  /tmp/b6_tt_samples.json \
+  --output /tmp/row_decoder_b6_review.png
 ~~~
 
 The runner uses Xschem's runtime XSCHEM_SHAREDIR plus both standard-library
@@ -402,4 +415,5 @@ Sources: [Xschem library paths](https://xschem.sourceforge.io/stefan/xschem_man/
 
 Verification gaps that remain explicit: general address histories, capture/
 enable integration, input-source energy, full terminal envelopes, extended
-retention, PVT for the decoder, decoder layout/DRC/LVS and extracted timing.
+retention, operating-envelope closure beyond the B6 experimental PVT grid,
+decoder layout/DRC/LVS and extracted timing.

@@ -12,6 +12,11 @@ is not specific to the tested integration method or timestep. Historical
 72/72 PASS entries below refer to sampled output voltages, not this envelope
 check. Clock/model-envelope closure now precedes final sizing.
 
+The current schematic is corrective candidate **B6**. Its measured precharge
+and address-inverter widths remove the observed upper excursions under the
+tested conditions. See [the feedthrough investigation](row_decoder_feedthrough_fix.md)
+for cause isolation, alternatives, terminal extrema and PVT experiments.
+
 ## Baseline setup
 
 | Item | Value |
@@ -65,6 +70,12 @@ the same input stimulus for every candidate.
 | B3 | 1.00 µm | 1.00 µm | 1.00 µm | 1.25 µm | 1.00 / 1.00 µm | 17.4 fF | 87.93 ps | 267.03 ps | 121.60 ps | 297.23 ps | 72/72 PASS |
 | B4 | 1.00 µm | 1.00 µm | 1.00 µm | 0.75 µm | 1.00 / 1.00 µm | 17.4 fF | 102.59 ps | 282.46 ps | 118.54 ps | 294.75 ps | 72/72 PASS |
 | B5 | 1.00 µm | 1.00 µm | 1.00 µm | 0.50 µm | 1.00 / 1.00 µm | 17.4 fF | 121.92 ps | 302.94 ps | 117.35 ps | 292.90 ps | 72/72 PASS |
+| B6 | 0.42 µm | 0.42 µm | 1.00 µm | 0.50 µm | 1.00 / 1.00 µm | 17.4 fF | 121.36 ps | 302.04 ps | 240.05 ps | 413.64 ps | 72/72 PASS; upper VGS screen PASS |
+
+B6 is measured with Gear 5 ps; B0–B5 historical timing uses the original
+10 ps reference. The feedthrough report compares B5 and B6 at the same 5 ps
+setting. Its 54-condition B6 campaign is separate from the historical TT-only
+footer experiments. B6 is a corrective baseline, not a final optimum.
 
 All channels are L=0.15 µm for B0. Group membership is:
 
@@ -230,6 +241,23 @@ the tested footer widths. These results show a timing tradeoff; they do not
 identify a single best width without a project-level priority between
 evaluation and precharge.
 
+## B6 corrective sizing results
+
+B6 changes the four address-inverter and four precharge widths to 0.42 um,
+while retaining M8 at 0.50 um and the other devices at 1.00 um. Fresh Xschem
+netlisting matches the netlist used in its qualification campaign. At TT,
+1.8 V, 27 C, 50 ps clock and 17.4 fF/WL, the loaded testbench passes 72/72
+voltage samples and 252 non-model window/internal/timing checks. Maximum
+output-NMOS VGS drops to 1.90111 V; there are no per-cycle upper excursions.
+The bare decoder also passes all 36 voltage samples.
+
+Relative to B5 with the same Gear 5 ps method, maximum WL evaluation changes
+from 302.91 to 302.04 ps, while WL precharge completion increases from 292.39
+to 413.64 ps. This longer recovery must be retained in the low-phase budget.
+Mean VDD stimulus-cycle energy drops from 123.76 to 120.46 fJ; clock/address
+source energy is excluded. Sum(W*L) drops from 3.675 to 2.979 um2, a channel
+proxy rather than measured layout area.
+
 ## Interpretation and next work
 
 B0 is a measured nominal-TT reference with the wordline drivers and estimated
@@ -237,19 +265,18 @@ wordline loads attached. B1 is functionally passing in the same nominal-TT
 screen, but is slower than B0 in all four recorded maximum timing metrics. B2
 is fastest in evaluation so far; reducing the footer toward B3, B4, and B5
 trades evaluation speed for faster precharge. B5 is fastest in precharge so
-far. These candidates are measured only at nominal TT and are not finalized
-sizes. No PVT sweep, layout, parasitic extraction, or post-layout simulation is
-included here.
+far within that historical footer series. B0–B5 were measured at nominal TT
+without the later terminal-envelope criteria. B6 adds a PVT/slew experiment;
+none of these results establish decoder layout, DRC, LVS or extracted timing.
 
-The next candidates will change one transistor family at a time while holding
-the rest at B0. A planned footer candidate is 0.42 µm, the SKY130A minimum
-channel width for ordinary devices under the applicable DRC rule. Record the
-exact W values and rerun the same loaded testbench. After individual sweeps,
-combine the best passing choices and repeat the comparison before freezing the
-schematic for Magic layout.
+Continue with the address-history, captured-address setup and phase-duration
+experiments from B6, retaining both timing and terminal-voltage checks. Further
+family sizing, including a possible 0.42 um footer, must preserve the measured
+voltage margins and precharge budget rather than ranking candidates only by
+their evaluation delay.
 
 Before selecting that combined candidate, follow the clock/model-envelope,
 address-history, family/interactions, load, PVT and extracted-netlist campaign
-in the linked review. At the current B5 sizes, 250 ps clock edges pass the
+in the linked review. At the historical B5 sizes, 250 ps clock edges pass the
 tested upper-VGS screen while 50 ps edges do not; this diagnostic does not
 approve a new macro clock-slew limit.

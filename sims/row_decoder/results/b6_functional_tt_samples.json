@@ -1,0 +1,344 @@
+{
+  "bench": "functional",
+  "candidate": "B6",
+  "corner": "tt",
+  "vdd_v": 1.8,
+  "temperature_c": 27,
+  "scope": "pre-layout, fixed four-address sequence, 1 ns settling guard",
+  "method": "gear",
+  "max_step_ps": 5.0,
+  "num_threads": 1,
+  "output_nmos_vgs_upper_screen_v": 1.95,
+  "model_screen_scope": "Output-NMOS upper VGS per cycle and full transient, address-inverter NMOS upper VDS. Not the complete signed model domain.",
+  "model_bound_source": "https://skywater-pdk.readthedocs.io/en/main/rules/device-details.html#v-nmos-fet",
+  "node_mapping": {
+    "DEC0": "DEC0",
+    "DEC1": "DEC1",
+    "DEC2": "DEC2",
+    "DEC3": "DEC3",
+    "PCLK": "net2"
+  },
+  "decoder_devices": {
+    "M1": {
+      "nodes": [
+        "A0B",
+        "A0",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M2": {
+      "nodes": [
+        "A0B",
+        "A0",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M3": {
+      "nodes": [
+        "A1B",
+        "A1",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M4": {
+      "nodes": [
+        "A1B",
+        "A1",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M5": {
+      "nodes": [
+        "N0",
+        "PCLK",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M6": {
+      "nodes": [
+        "N0",
+        "A1B",
+        "NET1",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M7": {
+      "nodes": [
+        "NET1",
+        "A0B",
+        "EVAL_GND",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M8": {
+      "nodes": [
+        "EVAL_GND",
+        "PCLK",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 0.5,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M9": {
+      "nodes": [
+        "DEC0",
+        "N0",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M10": {
+      "nodes": [
+        "DEC0",
+        "N0",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M11": {
+      "nodes": [
+        "N1",
+        "PCLK",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M12": {
+      "nodes": [
+        "N1",
+        "A1B",
+        "NET2",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M13": {
+      "nodes": [
+        "NET2",
+        "A0",
+        "EVAL_GND",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M14": {
+      "nodes": [
+        "DEC1",
+        "N1",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M15": {
+      "nodes": [
+        "DEC1",
+        "N1",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M16": {
+      "nodes": [
+        "N2",
+        "PCLK",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M17": {
+      "nodes": [
+        "N2",
+        "A1",
+        "NET3",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M18": {
+      "nodes": [
+        "NET3",
+        "A0B",
+        "EVAL_GND",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M19": {
+      "nodes": [
+        "DEC2",
+        "N2",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M20": {
+      "nodes": [
+        "DEC2",
+        "N2",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M21": {
+      "nodes": [
+        "N3",
+        "PCLK",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 0.42,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M22": {
+      "nodes": [
+        "N3",
+        "A1",
+        "NET4",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M23": {
+      "nodes": [
+        "NET4",
+        "A0",
+        "EVAL_GND",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M24": {
+      "nodes": [
+        "DEC3",
+        "N3",
+        "VDD",
+        "VDD"
+      ],
+      "model": "SKY130_FD_PR__PFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    },
+    "M25": {
+      "nodes": [
+        "DEC3",
+        "N3",
+        "VSS",
+        "VSS"
+      ],
+      "model": "SKY130_FD_PR__NFET_01V8",
+      "W": 1.0,
+      "L": 0.15,
+      "NF": 1.0
+    }
+  },
+  "decoder_channel_area_proxy_um2": 2.978999999999999,
+  "clock_rise_ps": 50.0,
+  "clock_fall_ps": 50.0,
+  "wl_capacitance_ff": [],
+  "overrides": {
+    "wl_cap_ff": null,
+    "clock_slew_ps": null,
+    "address_slew_ps": null
+  },
+  "source_sha256": {
+    "/work/sims/row_decoder/tb_row_decoder.sch": "749ddc8e90c60e3dd6c1feb864ef863c6e94f8000eec9143447e5a866e76a88e",
+    "/work/cells/row_decoder/row_decoder.sch": "bb9006b994ea4965d9d6ce9d5f8f2fa89c8cea39e5d38dbbc7fd71261c4fb2fb",
+    "/work/cells/row_decoder/row_decoder.sym": "f714c580e352c592b04b4a7d865ba5b293ee3b5cf76833e61990946779d2b44c",
+    "/work/sims/row_decoder/run_row_decoder_tt.py": "3e9037c32427ff0a1dd8158c98d762baa449416c79e24ef40cc18b6405fc0dd8",
+    "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+  },
+  "model_hash_scope": "top-level library only, not recursive includes",
+  "tool_versions": {
+    "xschem": "XSCHEM V3.4.6\nCopyright (C) 1998-2024 Stefan Schippers\n\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n\nUsing run time directory XSCHEM_SHAREDIR = /opt/xschem/313acc8/share/xschem\nSourcing /opt/xschem/313acc8/share/xschem/xschemrc init file\nSourcing /work/xschemrc init file",
+    "ngspice": "******\n** ngspice-44.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2024, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Jan 21 05:28:45 UTC 2026\n******"
+  }
+}

@@ -25,6 +25,8 @@ EVALUATION_SAMPLES = (("00", 15), ("01", 35), ("10", 55), ("11", 75))
 PRECHARGE_SAMPLES_NS = (5, 25, 45, 65, 85)
 # Published nfet_01v8 model-validity bound, not a foundry reliability rating.
 NFET_MODEL_VGS_MAX = 1.95
+MODEL_CATEGORIES = {"output_nmos_vgs_upper", "full_dynamic_node_vgs_upper",
+                    "address_nmos_vds_upper"}
 
 
 def require(condition: bool, message: str) -> None:
@@ -299,6 +301,14 @@ def make_deck(netlist: str, model_lib: Path, nodes: dict, args: argparse.Namespa
         for row in range(4):
             measure(f"prenode_{phase}_n{row}", f"FIND v(x1.N{row}) AT={sample_ns}n",
                     "internal_precharge", "V", output=f"N{row}", low=.9*args.vdd, high=1.1*args.vdd)
+    # Address transitions occur in precharge, so evaluation-only checks cannot
+    # detect the inverter drain excursion. These NMOS sources are at VSS.
+    for device, node in ((2, "A0B"), (4, "A1B")):
+        measure(f"vds_peak_m{device}", f"MAX v(x1.{node}) FROM=0 TO=90n",
+                "address_nmos_vds_upper", "V", output=f"M{device}", high=NFET_MODEL_VGS_MAX)
+    for row, device in enumerate((10, 15, 20, 25)):
+        measure(f"vgs_full_peak_m{device}", f"MAX v(x1.N{row}) FROM=0 TO=90n",
+                "full_dynamic_node_vgs_upper", "V", output=f"M{device}", high=NFET_MODEL_VGS_MAX)
     return "\n".join([*lines, ".end", ""]), metrics
 
 
@@ -386,7 +396,7 @@ def run(args: argparse.Namespace, temp: Path) -> int:
                             "measurement": m["name"], "value": value, "unit": m["unit"],
                             "low_limit": "" if low is None else low, "high_limit": "" if high is None else high,
                             "result": (("PASS" if passed else "OUTSIDE_MODEL_RANGE")
-                                       if m["category"] == "output_nmos_vgs_upper" else
+                                       if m["category"] in MODEL_CATEGORIES else
                                        ("PASS" if passed else "FAIL")) if constrained else "MEASURED"})
     write_csv(args.output, rows)
     write_csv(args.metrics_output, metric_rows)
@@ -396,6 +406,7 @@ def run(args: argparse.Namespace, temp: Path) -> int:
     manifest = {**context, "scope": "pre-layout, fixed four-address sequence, 1 ns settling guard",
                 "method": args.method, "max_step_ps": args.max_step_ps, "num_threads": 1,
                 "output_nmos_vgs_upper_screen_v": NFET_MODEL_VGS_MAX,
+                "model_screen_scope": "Output-NMOS upper VGS per cycle and full transient, address-inverter NMOS upper VDS. Not the complete signed model domain.",
                 "model_bound_source": "https://skywater-pdk.readthedocs.io/en/main/rules/device-details.html#v-nmos-fet",
                 "node_mapping": nodes, "decoder_devices": devices,
                 "decoder_channel_area_proxy_um2": sum(d["W"] * d["L"] for d in devices.values()),
@@ -411,8 +422,9 @@ def run(args: argparse.Namespace, temp: Path) -> int:
     failures = [row for row in metric_rows if row["result"] == "FAIL"]
     model_exceeded = [row for row in metric_rows if row["result"] == "OUTSIDE_MODEL_RANGE"]
     print(f"Voltage samples: {passed} PASS, {len(rows)-passed} FAIL")
-    print(f"Additional window/internal/timing checks: {sum(r['result']=='PASS' for r in metric_rows)} PASS, {len(failures)} FAIL")
-    print(f"Output NMOS VGS upper model-envelope screen: {len(model_exceeded)} OUTSIDE_MODEL_RANGE")
+    print(f"Additional window/internal/timing checks: {sum(r['result']=='PASS' and r['category'] not in MODEL_CATEGORIES for r in metric_rows)} PASS, {len(failures)} FAIL")
+    print(f"Output NMOS VGS upper model-envelope screen: {sum(r['category']=='output_nmos_vgs_upper' for r in model_exceeded)} OUTSIDE_MODEL_RANGE")
+    print(f"Full-transient dynamic VGS/address inverter VDS screen: {sum(r['category']!='output_nmos_vgs_upper' for r in model_exceeded)} OUTSIDE_MODEL_RANGE")
     print(f"M8 W={devices['M8']['W']:g} um; decoder topology audit PASS")
     for category in ("evaluation_delay", "precharge_delay", "output_slew"):
         for family in (("DEC", "WL") if args.bench == "sizing" else ("DEC",)):
@@ -422,7 +434,7 @@ def run(args: argparse.Namespace, temp: Path) -> int:
         print(f"FAIL: {row['measurement']} = {row['value']:.8g} {row['unit']}")
     if model_exceeded:
         peak = max(row["value"] for row in model_exceeded)
-        print(f"MODEL_RANGE_REVIEW_REQUIRED: peak VGS={peak:.6g} V exceeds {NFET_MODEL_VGS_MAX:g} V; "
+        print(f"MODEL_RANGE_REVIEW_REQUIRED: peak screened terminal voltage={peak:.6g} V exceeds {NFET_MODEL_VGS_MAX:g} V; "
               "logic PASS does not close model validity or device reliability")
     print(f"CSV: {args.output}\nMetrics: {args.metrics_output}\nManifest: {args.output.with_suffix('.json')}")
     return 0 if passed == len(rows) and not failures and not model_exceeded else 1

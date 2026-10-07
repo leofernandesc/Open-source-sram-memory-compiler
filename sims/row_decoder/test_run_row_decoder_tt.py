@@ -81,6 +81,17 @@ class DecoderScreenRegression(unittest.TestCase):
         limits = next(m for m in metrics if m["name"] == "vgs_peak_01_m15")
         self.assertEqual(limits["high"], 1.95)
 
+    def test_address_voltage_is_checked_during_precharge_as_well(self):
+        args = argparse.Namespace(bench="sizing", method="gear", max_step_ps=5,
+                                  vdd=1.8, temp_c=27, corner="ss")
+        nodes, _ = screen.inspect_netlist(self.netlist, True)
+        deck, metrics = screen.make_deck(self.netlist, Path("/models/sky130.lib.spice"),
+                                        nodes, args, 50e-12, 50e-12)
+        self.assertIn(".meas tran vds_peak_m2 MAX v(x1.A0B) FROM=0 TO=90n", deck)
+        self.assertIn(".meas tran vgs_full_peak_m25 MAX v(x1.N3) FROM=0 TO=90n", deck)
+        self.assertEqual(next(m for m in metrics if m["name"]=="vds_peak_m2")["high"],1.95)
+        self.assertIn("address_nmos_vds_upper", screen.MODEL_CATEGORIES)
+
 
 if __name__ == "__main__":
     unittest.main()
