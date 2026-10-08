@@ -6,7 +6,9 @@
 Current decoder status: the compact layout from `d20f509` has routed/flat DRC
 0/0, unique LVS, and current PEX with 762 R / 389 C across all 22 resistance
 networks. The matched 13-case schematic/PEX matrix passes at both 5 ps and
-1 ps. A selected FF/1.8 V/125 °C extension also passes nine schematic/PEX
+1 ps. The complete 16-pair TT matrix also passes 16/16 schematic and PEX cases
+at both steps; see the full address-pair entry below.
+A selected FF/1.8 V/125 °C extension also passes nine schematic/PEX
 transitions at 5 ps and 1 ps; the baseline terminal screen has only 0.963 mV
 of headroom, and ngspice reports FF model-parameter warnings. See the
 [compact-layout extraction entry](#2026-10-08-compact-decoder-r-c-extraction-and-electrical-checks)
@@ -1146,3 +1148,32 @@ The audit summary with hashes and warning counts is
 [`compact_decoder_fast_hot_audit.json`](../sims/row_decoder/results/compact_decoder_fast_hot_audit.json);
 the interpretation and reproduction commands are in the
 [qualification report](row_decoder_fast_hot_qualification_20261008.md).
+
+## 2026-10-08: full 16-pair TT decoder matrix
+
+The current runner's --all-address-pairs option was used with --profiles tt
+to exercise all 16 ordered pairs among 00, 01, 10 and 11, including same-address
+pairs. The run used the current 29-MOS, 762-R, 389-C PEX. At 5 ps and 1 ps,
+both the schematic baseline and PEX passed 16/16 cases; contract findings were
+zero and all dynamic-node, model-upper and absolute-terminal screens passed.
+The 5 ps PEX peak terminal magnitude was 1.875056 V (tt_11_to_11); the 1 ps
+peak was 1.877770 V (tt_11_to_00).
+
+The largest per-case PEX differences between 5 ps and 1 ps were 0.080561 ps
+in WL delay to 90%, 0.126165 ps in precharge-to-10%, 0.051190 ps in selected
+WL rise slew and 4.190 mV in terminal magnitude. The complete result roots,
+including cases, summaries, checks, manifests, input decks and per-case ngspice
+logs, are [5 ps](../sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps/)
+and [1 ps](../sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps/).
+Each root includes a raw-waveform manifest with size and SHA-256 for its 32
+waveforms. The 845,475,648 bytes of waveform dumps remain under
+/tmp/row_decoder_ced83c4_tt_all_pairs_{5ps,1ps} in sram-xschem and are not
+committed.
+
+Reproduce from the repository root with:
+- ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps --profiles tt --all-address-pairs --max-step-ps 5 --workers 2 --timeout-s 900
+- ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps --profiles tt --all-address-pairs --max-step-ps 1 --workers 2 --timeout-s 900
+
+This closes the complete TT address-pair matrix for the recorded setup. It
+does not replace the selected SS matrix or qualify FF/all-pairs, broad PVT,
+physical row loading, noise, retention, capture/fanout or reliability.

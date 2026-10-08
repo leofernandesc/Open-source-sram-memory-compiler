@@ -29,6 +29,15 @@ rise slew is 294.811–445.935 ps. The largest PEX terminal-magnitude result is
 1 ps, the largest per-case changes are 0.091 ps in WL 90% delay, 0.127 ps in
 precharge delay, 0.052 ps in rise slew and 4.2 mV in terminal magnitude.
 
+The additional complete TT address-pair matrix covers all 16 ordered old/new
+pairs, including same-address pairs. At both 5 ps and 1 ps, schematic baseline
+and PEX each passed 16/16 cases with zero contract findings; all absolute
+terminal screens passed. Maximum PEX terminal magnitude was 1.875056 V at 5 ps
+and 1.877770 V at 1 ps. The largest 5 ps-to-1 ps changes were 0.081 ps in WL
+90% delay, 0.126 ps in precharge delay, 0.051 ps in rise slew and 4.19 mV in
+terminal magnitude. Results: [5 ps](../../sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps/)
+and [1 ps](../../sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps/).
+
 These are selected TT/1.8 V/27 °C and SS/1.62 V/-40 °C transitions with
 50 ps input edges, Gear integration and the estimated 17.4 fF row load. The
 decoder alone is extracted; four WL buffers remain schematic devices. This
@@ -106,6 +115,8 @@ Magic 8.3.684 build inside the container. From the repository root:
 ./tools/sram-eda bash tools/extract_row_decoder.sh
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_5ps --max-step-ps 5 --workers 2 --timeout-s 900
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_1ps --max-step-ps 1 --workers 2 --timeout-s 900
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps --profiles tt --all-address-pairs --max-step-ps 5 --workers 2 --timeout-s 900
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps --profiles tt --all-address-pairs --max-step-ps 1 --workers 2 --timeout-s 900
 ```
 
 The extraction helper selects Magic 8.3.684 and runs
