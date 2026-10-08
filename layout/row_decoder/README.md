@@ -7,25 +7,36 @@ changed; the WL buffers used by the electrical bench remain schematic devices.
 
 ## Current compact layout - 2026-10-08
 
-The latest remote sizing and extraction safeguards from `7ad0348` are preserved.
-The new compact layout passes routed/flat DRC (0/0) and unique LVS (29 MOS,
-22 nets). Its bbox is 98.80 × 36.92 µm: 12.93% smaller than `7ad0348`.
-Horizontal M3 trunk length falls 22.68%, including added VSS shields.
-New R-C extraction and electrical qualification are **pending on the other machine**.
-The canonical PEX and extraction manifest are still historical; the runner blocks
-their use for the new geometry via `pex/provenance.json` (stale).
+The compact layout preserves the sizing and extraction safeguards from
+`7ad0348`. Its bounding box is 98.80 × 36.92 µm, 12.93% smaller than
+`7ad0348`; horizontal M3 trunk length falls 22.68%, including the added VSS
+shields.
 
-Run on the other machine, with the updated checkout mounted at `/work`:
+On 2026-10-08, Magic 8.3.684 with SKY130A tech 1.0.493 reported zero routed
+and flattened DRC errors. Netgen 1.5.293 reported a unique LVS match for 29 MOS,
+22 nets and nine external pins. The new PEX contains **762 resistors, 389
+capacitors and 29 MOS**; resistance covers all 22 labeled networks, every
+resistance is positive, and no capacitor is negative. The pin order remains
+`VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`. PEX SHA-256:
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`.
+`pex/provenance.json` is current.
 
-```powershell
-docker exec -w /work sram-xschem bash tools/extract_row_decoder.sh
-```
+The matched 13-case schematic/PEX campaigns pass **13/13 at 5 ps and 13/13 at
+1 ps**, with zero contract findings in either run. At 1 ps, PEX selected-WL
+90% delay is 551.858–815.389 ps, precharge-to-10% is 524.334–789.564 ps and
+rise slew is 294.811–445.935 ps. The largest PEX terminal-magnitude result is
+1.878 V against the runner's experimental 1.95 V screen. Between 5 ps and
+1 ps, the largest per-case changes are 0.091 ps in WL 90% delay, 0.127 ps in
+precharge delay, 0.052 ps in rise slew and 4.2 mV in terminal magnitude.
 
-The helper selects Magic 8.3.684, repeats physical checks, performs all-net
-R-C extraction and binds the resulting PEX to the checked layout. See the
-[compaction report and handoff](../../docs/row_decoder_layout_compaction_20261008.md)
-for geometry images, local evidence, installation and subsequent tests.
-Previous revisions and PEX are archived under `archive/` with hashes.
+These are selected TT/1.8 V/27 °C and SS/1.62 V/-40 °C transitions with
+50 ps input edges, Gear integration and the estimated 17.4 fF row load. The
+decoder alone is extracted; four WL buffers remain schematic devices. This
+does not establish broad PVT, physical-row loading, full-macro timing, signed
+model-domain clearance or reliability qualification. Full logs and result
+directories are listed in the [validation log](../../docs/feature_peripherals_validation_log.md)
+and [compaction handoff](../../docs/row_decoder_layout_compaction_20261008.md).
+Previous layouts and PEX remain archived under `archive/` with hashes.
 
 ## Historical evidence for 7ad0348 - 2026-10-07 UTC
 
@@ -78,25 +89,19 @@ segment must have a saved waveform; baseline coverage is reported separately.
 
 Use the configured `sram-xschem` container (see [environment setup](../../tools/ENVIRONMENT.md)).
 The [versioned installer](../../tools/install_magic_8_3_684.sh) reproduces the
-Magic 8.3.684 build inside the container.
-Import with Magic 8.3.589 and route/extract with 8.3.684. The detailed-extraction
-cutoff controls require Magic 8.3.653 or newer; use the recorded 8.3.684 build
-for reproduction. From PowerShell in the repository root:
-
-```powershell
-docker exec -w /work sram-xschem bash -lc 'PATH=/opt/magic/8.3.589/bin:$PATH; for tool_dir in /opt/netgen/*/bin /opt/xschem/*/bin; do PATH=$tool_dir:$PATH; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-route'
-docker exec -w /work sram-xschem bash -lc 'PATH=/opt/magic/8.3.684/bin:$PATH; for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do PATH=$tool_dir:$PATH; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 layout/row_decoder/build_layout.py --skip-import --extract'
-docker exec -w /work sram-xschem bash -lc 'for tool_dir in /opt/ngspice/*/bin /opt/netgen/*/bin /opt/iverilog/*/bin /opt/xschem/*/bin; do PATH=$tool_dir:$PATH; done; export PATH PDK_ROOT=/opt/pdks PDK=sky130A; python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/decoder_reproduction_5ps --max-step-ps 5 --workers 2 --timeout-s 300'
-```
-
-Repeat the last command with a new empty output directory and
-`--max-step-ps 1` for the numerical comparison. The runner deliberately rejects
-an existing nonempty output directory. In the configured Linux launcher, the
-corresponding extraction command remains:
+Magic 8.3.684 build inside the container. From the repository root:
 
 ```bash
-./tools/sram-eda python3 layout/row_decoder/build_layout.py --skip-import --extract
+./tools/sram-eda --check
+./tools/sram-eda bash tools/extract_row_decoder.sh
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_5ps --max-step-ps 5 --workers 2 --timeout-s 900
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_1ps --max-step-ps 1 --workers 2 --timeout-s 900
 ```
+
+The extraction helper selects Magic 8.3.684 and runs
+`python3 layout/row_decoder/build_layout.py --skip-import --extract`. Use fresh
+output directories when repeating simulations; the runner rejects a nonempty
+output directory.
 
 `--lvs-only` repeats routing, DRC and connectivity LVS without `extresist` or
 R-C generation. `row_decoder_flat_extracted.spice` is **connectivity only**;

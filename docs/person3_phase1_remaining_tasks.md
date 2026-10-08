@@ -1,6 +1,6 @@
 # Person 3: remaining Phase 1 tasks
 
-Owner: Leonardo. Branch: `feature/peripherals`. Updated: 2026-10-07.
+Owner: Leonardo. Branch: `feature/peripherals`. Updated: 2026-10-08.
 Target: 2026-10-13. This is a dependency-based work plan, not evidence that a
 pending check has passed. The compiler and generated macro views belong to
 later phases. Danilo's bitcell and Andre's sense/precharge sources remain
@@ -11,12 +11,15 @@ visual handoff of completed work and remaining tasks.
 
 ## Current task and retained evidence
 
-**Current decoder closure, 2026-10-08:** the compact layout preserves 7ad0348
-sizing and passes DRC (0 routed / 0 flat) and unique LVS. New R-C extraction
-and electrical tests are pending on the other machine. The previous 7ad0348
-layout passed all 13 matched schematic/PEX cases at 5 ps and 1 ps; its
-744 R / 392 C artifact is historical. See the
-[compaction handoff](row_decoder_layout_compaction_20261008.md).
+**Current decoder closure, 2026-10-08:** commit `d20f509` preserves the
+approved decoder schematic/sizing while compacting its layout. The current
+geometry passes routed/flat DRC (0/0) and unique LVS (29 MOS, 22 nets, nine
+pins). Its fresh PEX has 762 R / 389 C across all 22 resistance networks,
+zero negative capacitors and current source/layout/PEX provenance. The matched
+13-case schematic/PEX matrix passes at both 5 ps and 1 ps, with zero contract
+findings. Full selected measurements and scope limits are in the
+[compaction handoff](row_decoder_layout_compaction_20261008.md) and
+[validation log](feature_peripherals_validation_log.md).
 
 **Historical evidence:** B7 pre-layout qualification (264 cases), the 204-case
 contract campaign, 15 numerical comparisons and the captured-address budget
@@ -57,7 +60,7 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
-| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Pending for the compact layout; run on the other machine.** Preserve 7ad0348 sizing and all-net extraction controls. Its previous 13/13 matrix is historical. | New extraction manifest and current provenance, all 22 networks, 29 MOS, nonnegative C, then matched 5 ps/1 ps campaigns. See `row_decoder_layout_compaction_20261008.md`; WL buffers remain schematic and row load estimated at 17.4 fF. |
+| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Selected compact-layout closure complete.** Magic 8.3.684 extracted current R-C and provenance; matched 5 ps and 1 ps matrices both pass 13/13. | `layout/row_decoder/pex/extraction_manifest.json`, `pex/provenance.json`, and `sims/row_decoder/results/compact_decoder_{5ps,1ps}/`. WL buffers remain schematic and the row load is estimated at 17.4 fF; broad PVT, noise/retention and captured-address/fanout requalification remain open. |
 | P3-7 | Review row loads and WL behavior with physical row | P3-6; Danilo's bitcell interface | **Blocked by missing physical input.** No `layout/bitcell_6t/` layout is present on this branch. | After Danilo supplies/reviews the physical bitcell: decoder → four WL buffers → row for every address, coupling and 50 fF stress; replace the 17.4 fF estimate with extracted data. |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |

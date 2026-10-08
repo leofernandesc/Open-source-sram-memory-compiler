@@ -6,10 +6,16 @@ Magic, Netgen, Icarus Verilog, GTKWave, Python e gdstk. Alguns executáveis em
 `/opt` não estavam no `PATH`, e executar um script Python diretamente no host
 fazia seus subprocessos procurarem `xschem` no Ubuntu do host.
 
-O container em uso está baseado em `isaiassh/unic-cass-tools:1.0.7`; o relatório
-da bitcell menciona `1.1.0`. A configuração abaixo verifica as ferramentas e os
-arquivos SKY130A realmente instalados, em vez de presumir que o número da tag
-garante o conteúdo.
+No checkout conferido em 2026-10-08, o container `sram-xschem` usa
+`isaiassh/unic-cass-tools:1.1.0`, com este repositório montado em `/work`.
+O `--check` confirma executáveis e arquivos SKY130A instalados; a tag sozinha
+não comprova o conteúdo do PDK.
+
+A imagem fornece Magic 8.3.613 no `PATH`. A extração detalhada do decoder
+exige Magic 8.3.684; `tools/install_magic_8_3_684.sh` instala essa versão ao
+lado da versão da imagem, sem reconstruir o PDK. O helper
+`tools/extract_row_decoder.sh` seleciona explicitamente 8.3.684 e valida a
+versão antes de iniciar o fluxo.
 
 Use `tools/sram-eda` para executar comandos dentro do container com `PDK=sky130A`,
 `PDK_ROOT=/opt/pdks` e o `PATH` corrigido. O lançador também confere se o

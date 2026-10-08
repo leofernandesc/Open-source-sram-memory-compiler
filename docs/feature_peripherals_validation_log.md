@@ -1,12 +1,14 @@
 # Person 3 peripheral validation log
 
-- Date: 2026-10-07
+- Date: 2026-10-08
 - Branch: `feature/peripherals`
 
-Current decoder status: DRC/LVS and all 13 matched schematic/PEX cases pass
-at 5 ps and 1 ps with all 22 resistance networks extracted. See the
-[latest closure entry](#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure)
-for measurements, changed sizing and remaining qualification limits.
+Current decoder status on compact commit `d20f509`: routed/flat DRC is 0/0,
+LVS is unique, and the current PEX has 762 R / 389 C across all 22 resistance
+networks. The matched 13-case schematic/PEX matrix passes at both 5 ps and
+1 ps. See the [compact-layout extraction entry](#2026-10-08-compact-decoder-r-c-extraction-and-electrical-checks)
+for measured results and remaining limits. The 7ad0348 PEX and its matrix are
+historical for the previous geometry.
 
 The [HTML status presentation](person3_phase1_status.html) summarizes the
 Person 3 work, current evidence, and remaining Phase 1 tasks.
@@ -25,9 +27,9 @@ passed for Xschem 3.4.6, ngspice 44.2, Magic 8.3.589, Netgen 1.5.293, Icarus
 Verilog, GTKWave, Python, gdstk, and the SKY130A model/technology files.
 Reproduction instructions are in [`tools/ENVIRONMENT.md`](../tools/ENVIRONMENT.md).
 
-The active container image is `isaiassh/unic-cass-tools:1.0.7`; the bitcell
-status note mentions `1.1.0`. The local executable and PDK checks passed, so the
-container was not replaced.
+The earlier leaf-driver checks above recorded
+`isaiassh/unic-cass-tools:1.0.7`. The compact-decoder run below used the
+verified `1.1.0` image and the same SKY130A PDK revision.
 
 ## Wordline driver
 
@@ -1007,3 +1009,79 @@ completed full post-layout PVT/macro qualification.
   RC logs are archived so they cannot be mistaken for current extraction.
 - Commands, actual-geometry PNG/PDF, reports and next checks:
   [compaction handoff](row_decoder_layout_compaction_20261008.md).
+
+## 2026-10-08: compact decoder R-C extraction and electrical checks
+
+This entry closes the new compact geometry from `d20f509`; it supersedes the
+pending-extraction handoff above. Only `layout/row_decoder/` and its decoder
+simulation evidence were regenerated. The canonical decoder schematic and
+the bitcell, sense-amplifier, precharge, WL-driver and write-driver sources
+were not changed.
+
+The checkout was on `feature/peripherals` at `d20f509`, fast-forwarded from
+`7ad0348` with a clean worktree before execution. Docker image
+`isaiassh/unic-cass-tools:1.1.0` mounted that checkout at `/work`.
+`./tools/sram-eda --check` confirmed the container, SKY130A model/technology
+files, Xschem 3.4.6, ngspice 44.2, Netgen 1.5.293 and support tools. The
+image's Magic 8.3.613 was too old for this run; the repository's
+`tools/install_magic_8_3_684.sh` installed Magic 8.3.684, after which the
+launcher check selected that version. SKY130A technology was 1.0.493, from
+open_pdks commit `0fe599b2afb6708d281543108caf8310912f54af`; the PDK was
+already present and was not rebuilt.
+
+One extraction command was run:
+
+```bash
+./tools/sram-eda bash tools/extract_row_decoder.sh
+```
+
+The helper selected Magic 8.3.684 and ran
+`python3 layout/row_decoder/build_layout.py --skip-import --extract`. It
+regenerated routing, waited for hierarchical and flat `drc(full)`, extracted
+R-C, ran Netgen LVS and checked current provenance. Exit status was 0.
+Both DRC counts were zero. Netgen reported “Circuits match uniquely” for
+29 MOS (17 NFET, 12 PFET), 22 nets and the matching nine pins. The PEX contains
+**762 positive resistors and 389 nonnegative capacitors**; resistance covers
+all 22 labeled networks. The external pin order is
+`VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`. There are no negative capacitors.
+The current PEX SHA-256 is
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`.
+
+The full extraction stdout is retained in
+[the extraction log](../layout/row_decoder/reports/extract_run_d20f509_20261008.log).
+Machine-readable counts, the 22-network breakdown and source/layout/PEX hashes
+are in [the extraction manifest](../layout/row_decoder/pex/extraction_manifest.json)
+and [current provenance](../layout/row_decoder/pex/provenance.json).
+The builder logs are `reports/route.log`, `reports/drc_flat.log`,
+`reports/extract.log` and `reports/lvs.log`.
+
+The critical paired simulations were run as:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_5ps --max-step-ps 5 --workers 2 --timeout-s 900
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_1ps --max-step-ps 1 --workers 2 --timeout-s 900
+```
+
+Each matrix contains nine TT/1.8 V/27 °C transitions and four SS/1.62 V/-40 °C
+diagonal transitions. Both used Gear integration, 50 ps clock/address edges,
+the unchanged schematic WL buffers and an estimated 17.4 fF row load. At both
+steps, schematic and PEX each pass 13/13 cases with zero contract, precharge,
+dynamic-node or experimental terminal-screen findings. The runner checked 28
+distributed dynamic segments on the PEX.
+
+At 1 ps, PEX selected-WL 90% delay is 551.858–815.389 ps; precharge-to-10%
+is 524.334–789.564 ps; selected-WL 10–90% rise slew is 294.811–445.935 ps.
+The largest PEX terminal-magnitude result is 1.878 V, below the unchanged
+experimental 1.95 V screen. Across matched cases, the largest 5 ps-to-1 ps
+differences are 0.091 ps for WL 90% delay, 0.127 ps for precharge delay,
+0.052 ps for rise slew, 4.2 mV for terminal magnitude and 0.139 fJ for the
+reported ideal-VDD-source energy. Source energy is net energy in the selected
+window and includes returned energy; it is not upstream-driver dissipation.
+
+Detailed checks and measurements are in each result root's
+`baseline/`, `pex/` and `comparison.csv`; each root also records the
+PEX hash and extraction manifest. These results close the selected decoder
+matrix for this layout, not broad PVT, noise/retention, captured-address
+fanout, physical-row loading or full-macro operation. The WL buffers remain
+schematic and 17.4 fF remains an estimate. The 1.95 V screen is experimental
+and does not establish signed model-domain or reliability clearance.

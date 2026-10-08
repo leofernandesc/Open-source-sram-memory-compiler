@@ -1,4 +1,4 @@
-timestamp 1791473939
+timestamp 1791475912
 version 8.3
 tech sky130A
 style ngspice()
@@ -38,6 +38,35 @@ node "A0B" 5555 7674.34 1427 -1084 ndif 0 0 0 0 0 0 0 0 9744 452 9744 452 0 0 0 
 node "A0" 1414 1434.74 475 175 m3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 30684 1820 0 0 8976 800 49232 2440 157492 5398 77928 2708 0 0 0 0 0 0
 node "VDD" 168207 27115.4 475 1675 m3 0 0 0 0 4132224 29712 0 0 837216 49248 263088 10464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1192320 68400 546096 23688 957264 34008 1202736 40096 0 0 0 0 0 0
 substrate "VSS" 220368 0 475 -1725 m3 0 0 0 0 0 0 0 0 176088 7116 1152328 67784 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1537956 87464 504736 21034 1661156 57646 1205328 40168 0 0 0 0 0 0
+cap "net4" "PCLK" 32.0043
+cap "EVAL_GND" "net2" 245.42
+cap "A1T" "A1B" 1372.38
+cap "N3" "DEC2" 1.2017
+cap "VDD" "A0T" 638.173
+cap "m1_160_n1740#" "A1B" 1942.09
+cap "net2" "DEC1" 0.35736
+cap "A0B" "DEC2" 69.1364
+cap "net3" "N2" 251.401
+cap "DEC3" "VDD" 599.001
+cap "EVAL_GND" "A1T" 137.152
+cap "A0T" "PCLK" 184.879
+cap "A0" "A1" 219.078
+cap "A0" "A0B" 515.528
+cap "net2" "N1" 251.401
+cap "VDD" "N0" 1746.73
+cap "A1T" "DEC1" 0.0553861
+cap "DEC0" "m1_160_n1740#" 0.14912
+cap "VDD" "PCLK" 3223.14
+cap "m1_160_n1740#" "DEC1" 0.14912
+cap "N0" "PCLK" 163.654
+cap "A1" "A1B" 558.168
+cap "net1" "m1_160_n1740#" 0.0610965
+cap "A0B" "A1B" 443.945
+cap "EVAL_GND" "N3" 68.9459
+cap "m1_160_n1740#" "N1" 0.11602
+cap "net3" "A1T" 90.4791
+cap "net4" "A1T" 90.4791
+cap "net2" "A0T" 760.771
 cap "EVAL_GND" "A0B" 303.43
 cap "VDD" "N2" 1672.06
 cap "net3" "m1_160_n1740#" 0.0610965
@@ -65,8 +94,8 @@ cap "DEC3" "N3" 993.692
 cap "A0T" "A1" 71.6973
 cap "A0B" "A0T" 1321.51
 cap "DEC0" "A1B" 18.4149
-cap "net3" "DEC2" 0.35736
 cap "m1_160_n1740#" "PCLK" 1939.89
+cap "net3" "DEC2" 0.35736
 cap "VDD" "N3" 1740.36
 cap "net1" "A1B" 90.4791
 cap "N2" "A1T" 844.901
@@ -84,11 +113,11 @@ cap "DEC0" "net1" 0.35736
 cap "A0B" "PCLK" 380.934
 cap "A0" "A0T" 62.7506
 cap "EVAL_GND" "N1" 161.001
-cap "net2" "m1_160_n1740#" 0.0610965
 cap "N3" "N2" 62.5435
+cap "net2" "m1_160_n1740#" 0.0610965
 cap "DEC0" "N1" 1.2017
-cap "EVAL_GND" "net3" 245.42
 cap "VDD" "DEC2" 600.61
+cap "EVAL_GND" "net3" 245.42
 cap "N1" "DEC1" 993.692
 cap "net4" "EVAL_GND" 245.42
 cap "A0B" "N2" 65.5475
@@ -96,12 +125,12 @@ cap "VDD" "A0" 573.803
 cap "A0T" "A1B" 47.6804
 cap "m1_160_n1740#" "A1T" 2191.49
 cap "PCLK" "DEC2" 67.7099
-cap "net2" "A0B" 0.0386733
 cap "EVAL_GND" "A0T" 369.869
+cap "net2" "A0B" 0.0386733
 cap "VDD" "A1B" 1653.1
+cap "N0" "A1B" 902.228
 cap "DEC0" "A0T" 0.0553861
 cap "N3" "A1T" 839.341
-cap "N0" "A1B" 902.228
 cap "N2" "DEC2" 993.692
 cap "DEC3" "EVAL_GND" 44.2129
 cap "A0T" "DEC1" 69.1364
@@ -110,12 +139,12 @@ cap "N3" "m1_160_n1740#" 34.9252
 cap "A1" "A1T" 59.1069
 cap "A0B" "A1T" 137.268
 cap "EVAL_GND" "VDD" 105.071
-cap "EVAL_GND" "N0" 75.6985
 cap "A0T" "N1" 65.5475
+cap "EVAL_GND" "N0" 75.6985
 cap "DEC0" "VDD" 600.61
 cap "A1" "m1_160_n1740#" 4.56016
-cap "A0B" "m1_160_n1740#" 3546.74
 cap "DEC0" "N0" 993.692
+cap "A0B" "m1_160_n1740#" 3546.74
 cap "VDD" "DEC1" 601.414
 cap "EVAL_GND" "PCLK" 430.021
 cap "net1" "VDD" 131.766
@@ -136,37 +165,8 @@ cap "PCLK" "N1" 198.909
 cap "net4" "VDD" 131.776
 cap "A0B" "A1" 155.155
 cap "A0" "m1_160_n1740#" 7.944
-cap "DEC3" "A0T" 69.1364
 cap "net3" "PCLK" 40.2358
-cap "EVAL_GND" "net2" 245.42
-cap "net4" "PCLK" 32.0043
-cap "A1T" "A1B" 1372.38
-cap "N3" "DEC2" 1.2017
-cap "VDD" "A0T" 638.173
-cap "m1_160_n1740#" "A1B" 1942.09
-cap "net2" "DEC1" 0.35736
-cap "A0B" "DEC2" 69.1364
-cap "net3" "N2" 251.401
-cap "DEC3" "VDD" 599.001
-cap "EVAL_GND" "A1T" 137.152
-cap "A0T" "PCLK" 184.879
-cap "A0" "A1" 219.078
-cap "A0" "A0B" 515.528
-cap "net2" "N1" 251.401
-cap "VDD" "N0" 1746.73
-cap "A1T" "DEC1" 0.0553861
-cap "DEC0" "m1_160_n1740#" 0.14912
-cap "VDD" "PCLK" 3223.14
-cap "m1_160_n1740#" "DEC1" 0.14912
-cap "A1" "A1B" 558.168
-cap "net1" "m1_160_n1740#" 0.0610965
-cap "N0" "PCLK" 163.654
-cap "A0B" "A1B" 443.945
-cap "EVAL_GND" "N3" 68.9459
-cap "m1_160_n1740#" "N1" 0.11602
-cap "net3" "A1T" 90.4791
-cap "net4" "A1T" 90.4791
-cap "net2" "A0T" 760.771
+cap "DEC3" "A0T" 69.1364
 device msubckt sky130_fd_pr__nfet_01v8 19085 -1200 19086 -1199 l=30 w=400 "VSS" "N3" 60 0 "DEC3" 400 23200,916 "VSS" 400 23200,916
 device msubckt sky130_fd_pr__nfet_01v8 17985 -1200 17986 -1199 l=30 w=400 "VSS" "A0T" 60 0 "net4" 400 23200,916 "EVAL_GND" 400 23200,916
 device msubckt sky130_fd_pr__nfet_01v8 16885 -1200 16886 -1199 l=30 w=400 "VSS" "A1T" 60 0 "N3" 400 23200,916 "net4" 400 23200,916

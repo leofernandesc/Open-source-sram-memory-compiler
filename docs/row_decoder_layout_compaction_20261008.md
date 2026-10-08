@@ -8,14 +8,46 @@ branch. O esquemático, a topologia e o sizing desse commit foram preservados.
 O trabalho de bitcell, sense amplifier, precharge, WL driver e write driver
 não foi alterado.
 
-**Verificado para a geometria compactada:** DRC hierárquico e achatado com zero
-violações; LVS com correspondência única, 29 MOS e 22 redes. **Pendente:** nova
-extração R-C e simulação dessa geometria. Não foi executado `extresist` nesta
-máquina. A extração de conectividade utilizada pelo LVS não gera o novo PEX R-C.
+**Estado no handoff original de `d20f509`, antes desta execução:** DRC
+hierárquico/achatado zero e LVS único (29 MOS, 22 redes); nova extração R-C e
+simulação ainda pendentes. O resultado atualizado abaixo encerra essa etapa
+para o layout compacto.
 
 O commit remoto já tinha melhorado o layout, ajustado o sizing e registrado
 13/13 casos aprovados nas campanhas de 5 ps e 1 ps. Esses resultados pertencem
 à revisão remota arquivada, não à geometria compactada entregue agora.
+
+## Resultado após o handoff - 2026-10-08
+
+No checkout `d20f509`, o helper
+`./tools/sram-eda bash tools/extract_row_decoder.sh` concluiu com código 0.
+Magic 8.3.684, SKY130A tech 1.0.493: DRC roteado e achatado 0/0. Netgen
+1.5.293: “Circuits match uniquely”, 29 MOS, 22 redes e nove pinos. A extração
+gerou 762 resistores positivos e 389 capacitores não negativos, com cobertura
+resistiva de todas as 22 redes. A interface permanece
+`VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`; não há capacitores negativos.
+PEX SHA-256:
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`.
+O manifesto e `pex/provenance.json` registram os hashes e o estado atual.
+
+As matrizes pareadas passam 13/13 casos no baseline e PEX, tanto a 5 ps como
+a 1 ps, sem achados nos checks de lógica, pré-carga, segmentos dinâmicos ou
+tensão. A 1 ps, o atraso de 90% do WL no PEX é 551.858–815.389 ps,
+pré-carga até 10% é 524.334–789.564 ps e slew de subida 10–90% é
+294.811–445.935 ps. O máximo de magnitude terminal PEX é 1.878 V.
+
+```bash
+./tools/sram-eda bash tools/extract_row_decoder.sh
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_5ps --max-step-ps 5 --workers 2 --timeout-s 900
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_1ps --max-step-ps 1 --workers 2 --timeout-s 900
+```
+
+Os resultados completos ficam em
+`sims/row_decoder/results/compact_decoder_{5ps,1ps}/`; o stdout completo
+da extração está em `layout/row_decoder/reports/extract_run_d20f509_20261008.log`.
+O escopo continua limitado ao decoder, com WL buffers esquemáticos e carga de
+linha estimada em 17,4 fF. Esses casos não qualificam ampla PVT, ruído,
+retenção, linha física, macro completa ou confiabilidade.
 
 ## Alterações físicas
 
@@ -56,7 +88,7 @@ extração de parasitas. Escala conferida no Magic: 2.000 unidades internas =
 10 µm. [Métricas](../layout/row_decoder/reports/compaction/metrics.json) e
 [figura em PDF](../layout/row_decoder/reports/compaction/layout_comparison.pdf).
 
-## Evidências locais
+## Evidências do handoff antes da extração R-C
 
 Magic 8.3.684, SKY130A tech 1.0.493 e Netgen 1.5.293:
 
@@ -67,7 +99,7 @@ Magic DRC flattened: 0
 DRC PASS
 Magic connectivity extraction: 29 MOS devices; no RC PEX requested
 Netgen LVS: Circuits match uniquely
-RC PEX is stale/pending; no extresist was run.
+RC PEX was stale at this handoff; extresist had not yet been run.
 ```
 
 - [Execução do builder](../layout/row_decoder/reports/compaction/build.txt)
@@ -96,20 +128,22 @@ python3 -m unittest discover -s layout/row_decoder -p test_compact_routing.py -v
 ## Preservação e bloqueio de PEX antigo
 
 As geometrias e extrações anteriores estão em
-`layout/row_decoder/archive/precompact_20261008/` e
-`layout/row_decoder/archive/remote_7ad0348/`, com manifests de hashes.
-O PEX canônico ainda é o de 7ad0348, preservado byte a byte; seu manifest de
-extração também continua histórico. Os arquivos intermediários `.res.ext`,
-`.sim`, `.nodes` e o log R-C antigo foram movidos para os arquivos históricos.
+layout/row_decoder/archive/precompact_20261008/ e
+layout/row_decoder/archive/remote_7ad0348/, com manifests de hashes. O PEX
+de 7ad0348 foi preservado no arquivo histórico. A extração desta execução
+atualizou o PEX canônico e seu manifest para a geometria compactada. Os
+intermediários antigos e logs R-C antigos continuam no arquivo; os arquivos
+.res.ext, .sim e .nodes atuais foram regenerados junto ao layout compacto.
 
-`pex/provenance.json` registra **stale**, mesmo com DRC/LVS aprovados. O runner
-elétrico verifica esse estado antes de iniciar Xschem/ngspice. Nova extração
-aprovada atualiza o manifest de extração, vincula os hashes da geometria,
-esquemático e PEX e remove `pex/STALE.md`. A rotina preserva os controles de
-7ad0348: `extresist threshold 0`, `mindelay 0`, `minres 100` mΩ, resistência
-positiva, cobertura das 22 redes, capacitores não negativos e LVS único.
+No estado original de `d20f509`, `pex/provenance.json` registrava
+`stale` e o runner rejeitava o PEX histórico antes de iniciar Xschem/ngspice.
+A extração registrada acima substituiu o artefato, atualizou hashes e removeu
+`pex/STALE.md`. O estado atual da proveniência é `current`. A rotina preservou
+os controles `extresist threshold 0`, `mindelay 0`, `minres 100` mΩ,
+resistência positiva, cobertura das 22 redes, capacitores não negativos e LVS
+único.
 
-## Na outra máquina: extração e simulação
+## Procedimento de reprodução
 
 1. Atualizar `feature/peripherals` e conferir se não há alterações locais que
    seriam sobrescritas. Não executar a extração sobre 39f5ebc ou 7ad0348.
