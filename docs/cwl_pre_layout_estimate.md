@@ -1,16 +1,18 @@
 # Orçamento pré-layout da capacitância de wordline
 
-Status em 07/10/2026: **baseline pré-layout preservada; G6 e G7 pós-layout
-fechados no escopo de engenharia**. A bitcell e o `wl_driver` já possuem layout
-com Magic DRC `0` e Netgen LVS único. A coluna 32× também já foi construída,
-verificada e extraída; os valores deste documento permanecem como referência
-histórica da wordline e **não** devem ser tratados como capacitâncias PEX.
+**Status vigente em 08/10/2026:** baseline pré-layout preservada; G6 e a
+implementação física G7 requalificados com DRC completo `0`, LVS único e PEX.
+A primeira PVT de 08/10 da linha WL e da bitcell usou inicialização em taps
+resistivos de acesso; `C_WL,max=102,873935 fF` e `94 fF` extras são **diagnósticos
+inválidos para sign-off**. É necessário refazer a PVT usando os nós de saída
+da latch (`.t0`) e rodar as matrizes integradas; G7 elétrico e Fase 1 abertos.
+O restante deste documento é baseline pré-layout ou registro histórico de 07/10.
 
 Este documento fecha um bound de engenharia para a carga da wordline antes do
 layout. O objetivo é substituir o antigo smoke arbitrário de `50 fF` por uma
 carga derivada dos gates das oito bitcells da linha e de uma restrição física
-de roteamento. Esse bound continua sendo pré-layout; o G7 já usa a carga
-extraída da linha física representativa de 8 bits (`89,925201 fF` adicionais
+de roteamento. Esse bound continua sendo pré-layout; na revisão histórica de
+07/10 o G7 usava a carga da linha física de 8 bits (`89,925201 fF` adicionais
 no bench), registrada na seção de resultados pós-layout abaixo.
 
 ## Capacitância dos gates de acesso
@@ -78,6 +80,8 @@ capacitor lumped adicional adotado é **17 fF**, acima do bound
 `CWL,extra,max=16,314090726 fF`. O antigo smoke de `50 fF` continua válido
 apenas como stress test conservador e não como estimativa física da linha.
 
+## Registro histórico de WL física e integração em 07/10/2026 — supersedido
+
 O bound `CWL,row,max=17,397827664 fF` e o capacitor lumped adicional de `17 fF`
 ficam preservados como baseline pré-layout. A linha física representativa de
 8 bits em `layout/row_8_wl` fecha DRC/LVS/PEX e mede `C_WL,PEX,max=98,914001 fF`
@@ -86,11 +90,12 @@ contribui até `8,988801 fF`; a carga adicional aplicada nos benches integrados
 é `89,925201 fF`. A extração WLOFF de `361,100284 fF` da coluna curto-circuita
 32 WLs e permanece somente como diagnóstico de stress.
 
-A requalificação integrada final usa o PEX do WL driver reforçado e a carga da
+A requalificação integrada registrada em 07/10 usou o PEX do WL driver reforçado e a carga da
 linha de 8 bits: leitura `60/60 PASS` e escrita `60/60 PASS`. O slew de subida
 da WL variou `255,85–427,69 ps` e o de descida `102,11–159,72 ps`; o pulso de
 escrita efetivo ficou entre `1,00475` e `1,04705 ns` para entrada de 1 ns. A
 recuperação máxima de escrita foi `3,49470 ns`, dentro da janela de 4 ns. O
 read-disturb passou a matriz pós-layout, com máximo `0,1796454 V`. O bound de
 wordline neste arquivo continua pré-layout; a carga física usada nos benches é
-`89,925201 fF` adicional, derivada do PEX da WL de 8 bits.
+`89,925201 fF` adicional, derivada do PEX de 07/10 da WL de 8 bits; aguarda
+substituição pelo valor corrigido em `.t0` da revisão de 08/10.

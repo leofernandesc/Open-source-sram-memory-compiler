@@ -1,5 +1,15 @@
 # Relatório de desenvolvimento e validação da bitcell SRAM 6T
 
+> **Atualização de 08/10/2026:** a auditoria de DRC na célula inteira reabriu
+> a Fase 1. As cinco leafs e as integrações coluna/linha/G7 passaram por
+> DRC completo, LVS único e PEX. A primeira rodada PVT de C_BL/C_WL/Ceff da
+> bitcell usou taps resistivos do lado de acesso para inicialização e é inválida
+> para sign-off; os valores e o teto derivados precisam ser refeitos com os nós
+> de saída das latches (`.t0`). Dois smokes integrados corrigidos em `tt`,
+> 1,8 V, 27 °C passaram (leitura Q0 e escrita Q0→Q1), ainda usando cargas
+> provisórias. As matrizes completas e as conclusões G7 de 07/10 permanecem
+> pendentes/históricas, não são aceite da revisão atual.
+
 > **Atualização de 03/10/2026:** este relatório preserva resultados de
 > caracterizações anteriores, muitas delas a 50 fF e com periféricos ainda em
 > desenvolvimento. A entrada do sense amplifier atual foi medida em
@@ -842,12 +852,12 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | tensão terminal na leitura | excedeu 1,95 V em 30/30 casos a VDD=1,95 V; pior 2,056858 V; bloqueio de validade do modelo |
 | write_driver.sch | netlist Xschem corrigido; complementaridade e isolamento com `WE=0` verificados em smoke |
 | Monte Carlo de SNM | 200 seeds exploratórias de Read e 200 de Hold em `sf_mm`; não constituem yield de produção. Campanha estatística ampliada de mismatch está fora do escopo da Fase 1 |
-| G6 — layout, DRC e LVS das leafs | **fechado em 05/10/2026** nas cinco leafs; Magic DRC `0`, Netgen LVS `Circuits match uniquely`; bitcell com abutment gap zero normal/espelhado DRC `0` |
-| G7 — PEX e requalificação | **fechado em 07/10/2026 no escopo de engenharia**; coluna final DRC/LVS/PEX; C_BL `120/120 PASS`; leitura e escrita integradas `60/60 PASS`. `t_res,max=0,23209 ns`, read-disturb máximo `0,1796454 V`, diferencial mínimo `0,276681 V`; recuperação máxima de escrita `3,49470 ns`, margem mínima de WL `0,34274 ns`. Yield formal, ruído completo e teto macro de potência continuam fora deste gate. |
+| G6 — layout, DRC e LVS das leafs | **requalificado em 08/10/2026** nas cinco variantes físicas; DRC completo hierárquico/flat `0`, Netgen LVS único, PEX nova e abutment da bitcell normal/espelhado com DRC `0` |
+| G7 — PEX e requalificação | **ABERTO em 08/10/2026**; DRC/LVS/PEX físicos requalificados. A primeira C_BL PVT `120/120`, teto `597,056241 fF`, WL PVT `60/60` e extra `94 fF` são **diagnósticos inválidos para aceite**: inicialização nos taps resistivos de acesso. Refazer PVT de C_BL/C_WL/Ceff bitcell em `.t0`, recalcular cargas e executar matrizes integradas. Smokes corrigidos nominais TT/1,8 V/27 °C passaram com cargas provisórias: leitura Q0 disturb `0,1659978 V` e `t_res=0,14156 ns`; escrita Q0→Q1 flip `0,47072 ns` e recuperação `2,83645 ns`. Smoke antigo com `0,21078 V` e lote de escrita interrompido são inválidos. Resultados de 07/10 são históricos. |
 
-## 11. Fechamento do G7 pós-layout
+## 11. Histórico da revisão G7 fechada em 07/10 (supersedido)
 
-**G7 foi fechado em 07/10/2026 no escopo da Fase 1.** A coluna final
+**G7 havia sido considerado fechado em 07/10/2026 no escopo da Fase 1.** A coluna final
 `layout/column_32_full_g7_wpre2p52_final` passou Magic DRC hierárquico e flat
 com zero erros, Netgen LVS único e extração PEX RC. A matriz de capacitância
 PVT passou `120/120`; `C_BL,PEX,max=453,588404713 fF` em

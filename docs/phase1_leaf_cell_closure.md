@@ -1,6 +1,38 @@
 # Fase 1 — fechamento das leaf cells SKY130A
 
-**Estado em 2026-10-07: Fase 1 concluída no escopo de qualificação de engenharia; G7 pós-layout fechado.** O
+**Atualização de 08/10/2026 — requalificação aberta.** A auditoria com
+`drc(full)` na célula inteira invalidou o fechamento físico anteriormente
+registrado. As cinco leafs foram reparadas e reexecutadas: DRC hierárquico/flat
+`0`, LVS Netgen único e PEX nova. A coluna de 32 linhas, a linha WL de 8 bits
+e a coluna G7 completa também passaram DRC/LVS/PEX nesta revisão. A primeira
+rodada de PVT para C_BL, C_WL e Ceff da bitcell usou um tap resistivo do lado
+de acesso para inicializar o estado e é inválida para sign-off; esses números
+e o teto derivado precisam ser refeitos com o nó de saída da latch (`.t0`).
+Dois smokes integrados corrigidos (`tt`, 1,8 V, 27 °C) passaram, um de leitura
+Q0 e outro de escrita Q0→Q1, mas usaram essas cargas ainda provisórias.
+**As matrizes PVT integradas permanecem pendentes; G7 e Fase 1 não estão
+fechados.**
+As tabelas e gates detalhados abaixo preservam a revisão de 07/10 como
+histórico; PASS pós-layout ali registrado não fecha a requalificação atual.
+
+## Gates vigentes — checkpoint do Ciclo 0 (08/10/2026)
+
+| Gate | Evidência disponível | Situação para aceite da Fase 1 |
+|---|---|---|
+| G1–G4 e schematic freeze | Sizing canônico `0,42/1,26/0,60 µm`; screening pré-layout preservado | **Fechado**, como qualificação pré-layout de engenharia |
+| G6 e implementação física G7 | Cinco leafs, bitcell com abutment gap zero normal/espelhado, coluna 32×, linha WL 8 bits, coluna G7: `drc(full)=0`, LVS único e nova PEX | **Fechado fisicamente** |
+| Requalificação de carga G7 | Primeira rodada C_BL/C_WL/Ceff da bitcell inicializou em taps de acesso; teto `597,056241 fF` e WL extra `94 fF` são apenas diagnósticos | **Aberto**: repetir PVTs com `.t0` e recalcular teto `1,15 × C_BL,max` e carga WL |
+| Leitura G7 | Smoke corrigido `tt/1,8 V/27 °C/Q0`: disturb `0,1659978 V`, `t_res=0,14156 ns`; cargas provisórias | **Aberto**: matriz PVT completa com `t_res≤0,25 ns`, disturb `≤0,20 V`, ΔBL `≥200 mV`, setup `≥25 ps` |
+| Escrita G7 | Smoke corrigido `tt/1,8 V/27 °C/Q0→Q1`: flip `0,47072 ns`, recuperação `2,83645 ns`; cargas provisórias | **Aberto**: matriz PVT completa, recuperação `≤4 ns` e margem WL atendida |
+
+As falhas dos smokes anteriores à correção de inicialização e o lote de
+escrita interrompido **não** qualificam nem reprovam o circuito. Yield de
+produção, ruído estatístico completo, DC-SNM-PVT e teto de potência da macro
+estão fora do escopo declarado desta fase.
+
+## Registro histórico de 07/10/2026 — supersedido pela atualização acima
+
+**Na revisão de 07/10/2026, a Fase 1 foi considerada concluída no escopo de qualificação de engenharia.** O
 sizing canônico foi congelado em `WPU/WPD/WACC=0,42/1,26/0,60 µm` após o
 fechamento elétrico G1–G4 e uma regressão curta pós-aplicação. As cinco leafs
 (`bitcell_6t`, `sense_amp`, `precharge`, `wl_driver`, `write_driver`) têm agora
@@ -22,7 +54,7 @@ máxima foi `3,49470 ns` dentro da janela de 4 ns; a margem mínima da WL antes
 da queda foi `0,34274 ns`. A carga simulada foi igual ou superior ao teto PEX.
 Os CSVs dos benches registram os caminhos e hashes SHA256 dos netlists.
 
-O G7 e a Fase 1 estão fechados no escopo de engenharia. As campanhas existentes
+Na revisão de 07/10, o G7 e a Fase 1 foram considerados fechados no escopo de engenharia. As campanhas existentes
 de SNM/mismatch permanecem screening, sem claim de yield de produção; ruído
 estatístico completo e teto de potência macro não são requisitos bloqueadores
 desta fase.
@@ -47,9 +79,9 @@ escolhida para o modelo atual; `1,95 V` é ponto de auditoria estática e
 `1,98 V` não está qualificado. A validade dos modelos nas temperaturas
 extremas continua sujeita à confirmação do PDK.
 
-## Estado por célula
+## Estado por célula — registro histórico de 07/10
 
-| Leaf | Esquemático, evidência elétrica e fechamento físico | Estado atual no G7 |
+| Leaf | Esquemático, evidência elétrica e fechamento físico | Resultado histórico do G7 em 07/10 (supersedido) |
 |---|---|---|
 | Bitcell 6T | `cells/bitcell_6t.sch` e `cells/bitcell_6t.sym` usam o sizing canônico `0,42/1,26/0,60 µm`. G1–G4 fecharam para screening pré-layout; Read SNM nominal `0,414349 V` e read-disturb crítico pré-layout `0,1781393 V`. `layout/bitcell_6t` fecha com DRC `0`, LVS único e abutment normal/espelhado em gap zero com DRC `0`. | Incluída nas matrizes G7 com carga CBL PEX e WL física. Leitura e escrita integradas passaram `60/60`; o resultado anterior com quatro falhas de recuperação pertencia à coluna `Wpre=2,10 µm` e foi supersedido pela variante final `Wpre=2,52 µm`. |
 | Sense amplifier | `cells/sense_amp.sch` contém latch regenerativo de sete transistores com amostragem PMOS; o netlist do próprio Xschem passou 330/330 casos determinísticos. No G2, `150 mV` acumula `800/800` decisões sem falha; G4 promoveu `SCLK=2,84 ns`. `layout/sense_amp` fecha com DRC `0` e LVS único, 7 dispositivos/8 nets. A variante física `1,5×` passa DRC/LVS/PEX; a medição crítica na revisão anterior registrou `t_res=0,22060/0,23257 ns`, sucedida pela coluna final cuja matriz integrada fechou `60/60` e `t_res,max=0,23209 ns`. | Qualificação de leitura pós-layout concluída; não há falha de sense aberta no G7 atual. |
@@ -57,7 +89,7 @@ extremas continua sujeita à confirmação do PDK.
 | WL driver | `cells/wl_driver.sch` gera dois inversores conectados; sizing `0,42/0,84 µm`. O smoke selecionado passou em `tt/1,8 V/27 °C` e `ss/1,62 V/−40 °C`. `layout/wl_driver` fecha com DRC `0` e LVS único, 4 dispositivos/5 nets. A variante integrada reforçada tem PEX; linha física de 8 bits: `98,914001 fF`, com `89,925201 fF` extras no bench. Leitura e escrita pós-layout foram simuladas com essa carga. | G7 integrado passou `60/60` em leitura e escrita; slews de WL foram `255,85–427,69 ps` na subida e `102,11–159,72 ps` na descida. Escrita: largura efetiva `1,00475–1,04705 ns`, limite mínimo calculado `0,871819 ns` e margem mínima `0,34274 ns` antes da queda da WL. |
 | Write driver | Com bitcell `WPD=1,26 µm` e 65 fF, a integração passou `60/60`; G4 mismatch passou os corners selecionados. `layout/write_driver` fecha com DRC `0` e LVS único, 10 dispositivos/12 nets, preservando `WE_B` e os quatro nós internos dos stacks. A variante física `Wout=5,04 µm` tem PEX e foi usada na matriz pós-layout. | G7 integrado passou `60/60`; recuperação máxima `3,49470 ns` dentro de 4 ns e margem mínima `0,34274 ns` antes da queda da WL. O resultado anterior `56/60` da variante `Wpre=2,10 µm` foi supersedido. |
 
-## Gates da Fase 1 e evidência de fechamento
+## Gates da Fase 1 — registro histórico de 07/10, supersedido
 
 1. **Contrato elétrico e schematic freeze — concluídos.** O sizing canônico
    `WPU/WPD/WACC=0,42/1,26/0,60 µm`, pinos, polaridades e netlists Xschem

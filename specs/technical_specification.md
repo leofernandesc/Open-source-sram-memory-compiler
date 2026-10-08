@@ -376,10 +376,16 @@ foundry/model limits and measured results.
   capacitance. Electrical revalidation therefore moves from `60 fF` to a
   conservative `65 fF` screen; this is a
   pre-layout estimate rather than a qualified limit;
-- PEX is a post-freeze validation step. For the Phase 1 32-row column,
-  `C_BL,PEX,max=453.588404713 fF` and the requalification ceiling
-  `1.15 × C_BL,PEX,max=521.626665420 fF`. The final column and integrated
-  read/write gates passed; see `docs/phase1_leaf_cell_closure.md`;
+- PEX is a post-freeze validation step. The 07/10/2026 column previously
+  reported `C_BL,PEX,max=453.588404713 fF` and ceiling
+  `521.626665420 fF`; both are superseded historical evidence.
+  On 08/10/2026 the repaired 32-row column passed full-cell DRC/LVS/PEX,
+  but the new `519.179340 fF` maximum and `597.056241 fF` ceiling were
+  calculated with invalid access-tap state initialization. Correct the
+  initial state at latch outputs (`.t0`), rerun bitcell/column/WL capacitance
+  PVT, recalculate loads, and rerun integrated read/write matrices.
+  G7 electrical requalification remains open; see
+  `docs/phase1_leaf_cell_closure.md`;
 - the lower WL pulse limit is `1.30 ×` the worst measured full write-flip time;
   full flip is defined here as both internal storage nodes reaching the
   `90%/10%` rails;
@@ -403,7 +409,8 @@ The derivation, PVT evidence and routing constraint are recorded in
 [`docs/cbl_pre_layout_estimate.md`](../docs/cbl_pre_layout_estimate.md). The
 `50 fF` and `60 fF` no longer cover the corrected 32-row budget; `65 fF` is
 the conservative pre-layout screening point. It is superseded for Phase 1 G7
-by the extracted 32-row column result and requalification ceiling above.
+by the post-layout column extraction once the corrected 08/10 PVT and
+requalification ceiling have been established.
 
 Characterization results must be reported for at least the 8×8 and 32×8 configurations.
 

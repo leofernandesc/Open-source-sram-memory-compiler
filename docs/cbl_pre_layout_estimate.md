@@ -1,6 +1,20 @@
 # Avaliação pré-layout de C_BL
 
-Status em 07/10/2026: **baseline pré-layout preservada; G6 físico e G7 pós-layout concluídos no escopo de qualificação de engenharia**. A coluna final mede `C_BL,PEX,max=453,588405 fF`, teto G7 `521,626665 fF`; leitura e escrita integradas passaram `60/60` cada.
+**Revisão física de 08/10/2026:** a coluna G7 reparada passou DRC completo,
+LVS único e nova PEX. A caracterização em PVT deu
+`C_BL,PEX,max=519,179340 fF` (`120/120`), mas essa primeira rodada inicializou
+o estado da bitcell em taps resistivos do lado de acesso. O valor e o teto
+`597,056241 fF` são diagnósticos, inválidos para sign-off, e precisam ser
+refeitos usando os nós de saída das latches (`.t0`). O G7/Fase 1 seguem abertos.
+O status de 07/10 abaixo preserva a revisão anterior. A medição vigente para
+aceite depende da PVT corrigida, com `1,15 × C_BL,PEX,max`, seguida por matrizes
+integradas de leitura/escrita com as cargas recalculadas.
+
+## Registro histórico de 07/10/2026 — supersedido
+
+Na revisão de 07/10, G6 e G7 haviam sido considerados concluídos. Os valores e
+as matrizes daquele registro foram supersedidos pela requalificação de 08/10
+descrita no início deste documento.
 As cinco leaf cells já possuem layout com Magic DRC `0` e Netgen LVS único.
 Os valores deste documento continuam sendo o orçamento histórico usado para o
 schematic freeze e para os screenings de 65 fF; eles **não** são PEX. A coluna
@@ -129,15 +143,16 @@ reaberto.
 | `Csense` | `sims/sense_input_capacitance_pvt.csv`, `60/60 PASS`, usando o netlist do `cells/sense_amp.sch`. | `9,004605 fF` é a medição AC standalone com BL/BLB pré-carregadas. A variante física 1,5× foi requalificada em leitura integrada com PEX `60/60`; isso não representa análise estatística completa de ruído/yield. |
 | `Cmux` | Arquitetura de uma palavra por linha e sem mux de coluna na especificação atual. | `0 fF` enquanto a arquitetura não mudar. |
 
-## Screening não usado como bound
+## Screening não usado como bound — referência histórica de 07/10
 
 `50 fF` e `60 fF` permanecem apenas como resultados históricos de screening.
-O screening de `65 fF` para 32 linhas também é histórico. A referência corrente
-de G7 é a coluna física extraída e a requalificação feita no teto de
-`521,626665 fF` ou acima dele. As parcelas do modelo lumped pré-layout ajudam
+O screening de `65 fF` para 32 linhas também é histórico. A referência de
+07/10 era a coluna física extraída e a requalificação feita no teto de
+`521,626665 fF` ou acima dele; em 08/10 esse valor foi supersedido e o novo
+teto deve ser calculado com inicialização válida em `.t0`. As parcelas do modelo lumped pré-layout ajudam
 na interpretação, mas não substituem o total RC medido.
 
-## Transição para o G7 pós-layout
+## Transição para o G7 pós-layout — resultados históricos de 07/10
 
 O screening pré-layout em `65 fF` e o bound `62,409659 fF` ficam preservados
 como baseline de engenharia que sustentou o freeze. A coluna física original
@@ -146,7 +161,7 @@ valores foram substituídos após o reforço dos periféricos. A coluna
 `layout/column_32_full_g7_wpre2p52_final`, integrada com sense 1,5×, precharge
 `W=2,52 µm` e write `Wout=5,04 µm`, passou DRC hierárquico/flat, LVS único e
 PEX. Sua varredura PVT passou `120/120`, com `C_BL,PEX,max=453,588404713 fF`
-em `ss/1,62 V/125 °C`, Q=1, BL. O teto corrente é
+em `ss/1,62 V/125 °C`, Q=1, BL. O teto usado em 07/10 era
 `1,15 × C_BL,PEX = 521,626665420 fF`.
 
 As matrizes integradas pós-layout passaram `60/60` em leitura e `60/60` em

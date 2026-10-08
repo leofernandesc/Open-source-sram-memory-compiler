@@ -1,6 +1,28 @@
 # Matriz de testes e decisões — bitcell SRAM 6T SKY130A
 
-> **Atualização de 07/10/2026:** parte dos registros abaixo descreve a matriz
+> **Estado corrente em 08/10/2026:** após a auditoria de `drc(full)`, as cinco
+> leafs, a coluna física 32×, a linha WL de 8 bits e a coluna G7 foram
+> requalificadas com DRC/LVS/PEX. A primeira rodada PVT de C_BL/C_WL/Ceff da
+> bitcell usou inicialização em taps resistivos do lado de acesso e é inválida
+> para sign-off; as cargas e o teto derivados precisam ser refeitos usando os
+> nós de saída das latches (`.t0`). Dois smokes corrigidos em `tt`, 1,8 V,
+> 27 °C passaram (leitura Q0 e escrita Q0→Q1), ainda com cargas provisórias.
+> **G7/Fase 1 seguem abertos** até refazer as PVTs de capacitância e as matrizes
+> integradas completas. Os números de 07/10 abaixo são históricos.
+
+| Gate vigente em 08/10 | Resultado | Pendência de aceite |
+|---|---|---|
+| G1–G4 / freeze | **Fechado** no screening pré-layout | Nenhuma nesta revisão |
+| G6 / G7 físico | **Fechado fisicamente**: cinco leafs, abutment normal/espelhado, coluna 32×, linha WL 8 bits e G7 com DRC/LVS/PEX | Nenhuma pendência física observada |
+| Ceff bitcell / C_BL / C_WL | **Inválido para sign-off**: inicialização em taps de acesso | Repetir PVTs em `.t0`; recalcular C_BL teto ×1,15 e WL adicional |
+| Leitura G7 | Smoke nominal corrigido Q0: disturb `0,1659978 V`, ΔBL `0,427048 V`, setup `977,22 ps`, `t_res=0,14156 ns`, **carga provisória** | Matriz integrada PVT: disturb `≤0,20 V`, ΔBL `≥200 mV`, setup `≥25 ps`, `t_res≤0,25 ns` |
+| Escrita G7 | Smoke nominal corrigido Q0→Q1: flip `0,47072 ns`, recuperação `2,83645 ns`, **carga provisória** | Matriz integrada PVT: recuperação `≤4 ns` e margem WL |
+
+Os smokes com inicialização anterior e o lote de escrita interrompido não são
+evidência de falha do circuito. Yield de produção, ruído estatístico completo,
+DC-SNM-PVT e teto de potência da macro permanecem fora do escopo da Fase 1.
+
+> **Registro histórico de 07/10/2026 — supersedido:** parte dos registros abaixo descreve a matriz
 > histórica que usava 50 fF e o sense amplifier anterior. O contrato técnico
 > corrente usa qualificação contínua em `1,62–1,80 V`, mantém `1,95 V` somente
 > como auditoria/limite estático do modelo e não qualifica `1,98 V` com os
@@ -24,7 +46,7 @@
 
 **Data do levantamento:** 07/10/2026
 **Escopo:** testes elétricos pré-layout, falhas de bancada/netlist registradas e estado das verificações físicas.
-**Estado geral em 07/10/2026:** **Schematic Freeze, G6 físico e G7 pós-layout concluídos** no escopo de qualificação de engenharia. A coluna 32× revisada e a WL física de 8 bits têm DRC/LVS/PEX. A leitura e a escrita pós-layout passaram `60/60 PASS` cada, no teto PEX ou acima dele; a recuperação máxima da escrita foi `3,49470 ns` frente ao limite de 4 ns. Este documento consolida evidências de engenharia e não declara yield de produção.
+**Registro geral de 07/10/2026 — supersedido:** naquela revisão, Schematic Freeze, G6 físico e G7 pós-layout foram considerados concluídos. O estado atual está no aviso de 08/10 no início deste documento.
 
 ## 1. Ambiente e convenções
 
@@ -36,7 +58,7 @@ Neste documento, **PASS** quer dizer que o caso cumpriu o teste e o limite espec
 
 ### 1.1 Resumo consolidado das conquistas
 
-| Conquista / decisão | Valor usado ou medido | Motivo do uso | Teste / evidência | Estado atual |
+| Conquista / decisão | Valor usado ou medido | Motivo do uso | Teste / evidência | Situação registrada em 07/10 (histórica) |
 |---|---|---|---|---|
 | Baseline histórica | `WPU/WPD/WACC=0,42/0,84/0,60 µm`, `L=0,15 µm` | Referência para comparar variantes. | Read-disturb nominal `12/40 PASS`; Read SNM nominal `0,348804 V`. | **Não atende** os gates de leitura e não é mais o sizing canônico. |
 | Sizing canônico congelado | `WPU/WPD/WACC=0,42/1,26/0,60 µm`, β=`2,10` | Aumentar o pull-down reduz a elevação do nó baixo durante leitura e foi o único candidato que passou a meta nominal de Read SNM. | G1 `60/60` read + `60/60` write em 65 fF; G2 `60/60`; G3 `60/60`; G4 read/write mismatch fechado como screening. Regressão pós-aplicação: Read SNM `0,414349 V`, read-disturb crítico `0,1781393 V`. | **Aplicado e congelado** no `bitcell_6t.sch/.sym`; G6 e G7 pós-layout concluídos no escopo de engenharia. |
@@ -213,9 +235,11 @@ Evidências: [`mismatch Read`](../sims/bitcell_read_snm_mismatch_sf_1p62_125.csv
 - A organização de coluna ficou explícita para as macros suportadas: uma palavra por linha física, `Nrows=4/8/16/32` e nenhum mux de coluna (`Cmux=0`). Isso permite separar a contribuição de dreno da carga de fio/precharge/sense e evita tratar 50 fF como requisito arquitetural.
 - A matriz agora separa valores medidos, gates provisórios, recomendações de engenharia e hipóteses de screening; em especial, ±10% de VDD, 15% de folga sobre PEX, +30% no pulso e o alvo de 100 mV não são atribuídos às fontes como números universais.
 
-## 6. Status final e limites de escopo
+## 6. Registro histórico de fechamento em 07/10 (supersedido)
 
-**O esquemático está congelado; G6 físico e G7 pós-layout foram concluídos.** As cinco leafs possuem layout roteado, Magic DRC `0` e Netgen LVS com `Circuits match uniquely`. A bitcell também passou abutment em gap zero nas orientações normal e espelhada horizontalmente. A coluna física 32× final passou DRC/LVS/PEX; `C_BL,PEX,max=453,588405 fF`, teto `521,626665 fF`; as matrizes integradas passaram `60/60` em leitura e escrita.
+O texto e os números desta seção descrevem a conclusão registrada em
+07/10/2026; a atualização de 08/10 no início deste arquivo reabriu a
+qualificação elétrica do G7.
 
 Estado consolidado dos gates:
 
