@@ -17,6 +17,14 @@ class PexContractRegressionTests(unittest.TestCase):
                           (0, 3), (3, 0), (1, 2), (2, 1)})
         self.assertEqual(runner.contract.PROFILES["fast"], ("ff", 1.8, 125))
 
+    def test_all_address_pairs_covers_complete_four_by_four_matrix(self):
+        cases = runner.case_matrix(("fast",), all_address_pairs=True)
+        self.assertEqual(len(cases), 16)
+        self.assertEqual({(case["old"], case["new"]) for case in cases},
+                         {(old, new) for old in range(4) for new in range(4)})
+        self.assertTrue(all(case["profile"] == "fast" for case in cases))
+        self.assertEqual(len({case["label"] for case in cases}), 16)
+
     @classmethod
     def setUpClass(cls):
         runner.load_simulation_dependencies()

@@ -341,8 +341,9 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
     return result, checks, extrema
 
 
-def case_matrix(profiles=("tt", "slow")):
+def case_matrix(profiles=("tt", "slow"), all_address_pairs=False):
     cases = []
+    complete_pairs = tuple((old, new) for old in range(4) for new in range(4))
     by_profile = {
         "tt": ((0, 0), (0, 1), (1, 0), (0, 2), (2, 0), (0, 3), (3, 0), (1, 2), (2, 1)),
         # FF/1.8 V/125 C is the existing project fast-hot diagnostic profile.
@@ -353,7 +354,7 @@ def case_matrix(profiles=("tt", "slow")):
     if not profiles or len(profiles) != len(set(profiles)) or set(profiles) - set(by_profile):
         raise ValueError(f"Invalid selected decoder profiles: {profiles}")
     for profile in profiles:
-        pairs = by_profile[profile]
+        pairs = complete_pairs if all_address_pairs else by_profile[profile]
         for old, new in pairs:
             cases.append(dict(
                 label=f"{profile}_{old:02b}_to_{new:02b}", campaign="history",
@@ -390,8 +391,16 @@ def run_campaign(netlist_path: Path, case_path: Path, output: Path, artifacts: P
         )
         manifest["ngspice_timeout_s"] = timeout_s
         manifest["screen_definitions"] = {
-            "model_upper_result": "Experimental upper bound on gate-side dynamic-node voltage: 1.95 V; not signed model-domain clearance.",
-            "magnitude_result": "Experimental maximum absolute VGS/VGD/VDS: 1.95 V. VBS extrema are reported separately.",
+            "model_upper_result": (
+                "Historical field name: maximum internal dynamic-node voltage <= 1.95 V. "
+                "The numeric value is a documented SKY130 model-range boundary, but this node check "
+                "is not a signed per-device VGS/VDS/VBS model-domain check."
+            ),
+            "magnitude_result": (
+                "Project screen: maximum absolute VGS/VGD/VDS <= 1.95 V; VBS extrema are separate. "
+                "The PDK documents signed ranges for VGS/VDS/VBS, not VGD, so this screen is not "
+                "signed model-domain clearance."
+            ),
         }
         manifest["energy_definition"] = (
             "Net energy delivered by each ideal source from first_fall to second_fall "
@@ -470,13 +479,16 @@ def main() -> int:
     parser.add_argument("--limit", type=int,
                         help="Run the first N matched cases, for a small smoke check.")
     parser.add_argument("--cases", nargs="+",
-                        choices=[case["label"] for case in case_matrix(("tt", "slow", "fast"))],
+                        choices=[case["label"] for case in
+                                 case_matrix(("tt", "slow", "fast"), all_address_pairs=True)],
                         help="Select named cases for targeted numerical rechecks.")
     parser.add_argument("--profiles", nargs="+", choices=("tt", "slow", "fast"),
                         default=("tt", "slow"),
                         help="PVT case sets (fast is FF/1.8 V/125 C; default preserves TT/slow matrix).")
     parser.add_argument("--max-step-ps", type=float, default=5,
                         help="Maximum transient timestep in ps (default: 5).")
+    parser.add_argument("--all-address-pairs", action="store_true",
+                        help="Run all 16 old/new 2-bit address pairs for each selected PVT profile.")
     args = parser.parse_args()
     require_current_pex()
     require(args.timeout_s > 0, "--timeout-s must be a positive integer")
@@ -518,10 +530,13 @@ def main() -> int:
     baseline_path.write_text(baseline, encoding="utf-8")
     pex_netlist_path.write_text(pex_netlist, encoding="utf-8")
     case_path = root / "cases.json"
-    cases = case_matrix(args.profiles)
+    cases = case_matrix(args.profiles,
+                        all_address_pairs=args.all_address_pairs or bool(args.cases))
     if args.cases:
         require(len(args.cases) == len(set(args.cases)), "--cases must not contain duplicates")
         cases = [case for case in cases if case["label"] in args.cases]
+        require(len(cases) == len(args.cases),
+                "One or more --cases do not belong to the selected --profiles")
     for case in cases:
         case["step_ps"] = args.max_step_ps
     if args.limit is not None:

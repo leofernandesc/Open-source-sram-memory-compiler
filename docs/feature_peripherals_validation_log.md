@@ -1108,17 +1108,24 @@ pairs or broad PVT qualification.
 
 At 1 ps, maximum baseline WL delay to 90% was 394.006 ps and maximum
 precharge-to-10% was 306.280 ps. The corresponding PEX maxima were 492.795 ps
-and 461.940 ps. In the directed `01→10` baseline case, maximum terminal
-magnitude was 1.949037 V at 1 ps and 1.949031 V at 0.5 ps. This is about
-0.963 mV below the runner's experimental 1.95 V magnitude screen. The maximum
-PEX terminal magnitude was 1.878690 V at 1 ps and 1.878005 V in the directed
-0.5 ps case. These screens do not establish reliability or signed device-model
-validity.
+and 461.940 ps. In the directed `01→10` baseline case, maximum absolute `VGD`
+was 1.949037 V at 1 ps and 1.949031 V at 0.5 ps, or 0.963 mV below the
+runner's 1.95 V absolute terminal-difference screen. This is not a signed
+model-domain margin: the PDK documents signed operating ranges for `VGS`,
+`VDS` and `VBS`, but not `VGD`. The runner's historical `model_upper_result`
+checks an internal dynamic-node voltage against the same number, while
+`magnitude_result` checks absolute `VGS`/`VGD`/`VDS`; neither is a full signed
+PDK-domain check. The maximum PEX terminal magnitude was 1.878690 V at 1 ps
+and 1.878005 V in the directed 0.5 ps case. These project screens do not
+establish reliability or signed device-model validity. The PDK ranges are
+documented in [device-details.rst](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248).
 
 The 38 retained ngspice text logs contain no `Error:` lines, but they report
 FF model warnings: several `A2` values exceed 1, causing ngspice to clamp `A2`
 and reset `A1`, and negative `Eta0`, `Pdibl1` and `Pdibl2` values are also
-reported. Thus, passing logic/voltage checks describe this simulator's
+reported. Ngspice's [BSIM4 checks](https://github.com/ngspice/ngspice/blob/master/src/spicelib/devices/bsim4v5/b4v5check.c#L2683-L2729)
+show that `A2` is modified while the cited checks for the negative parameters
+warn. Thus, passing logic/project-screen checks describe this simulator's
 interpretation of the loaded FF models; review the warnings before extending
 the result to model-validity or reliability claims.
 

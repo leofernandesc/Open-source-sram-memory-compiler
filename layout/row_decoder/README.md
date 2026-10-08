@@ -25,7 +25,7 @@ The matched 13-case schematic/PEX campaigns pass **13/13 at 5 ps and 13/13 at
 1 ps**, with zero contract findings in either run. At 1 ps, PEX selected-WL
 90% delay is 551.858–815.389 ps, precharge-to-10% is 524.334–789.564 ps and
 rise slew is 294.811–445.935 ps. The largest PEX terminal-magnitude result is
-1.878 V against the runner's experimental 1.95 V screen. Between 5 ps and
+1.878 V against the runner's absolute 1.95 V terminal screen. Between 5 ps and
 1 ps, the largest per-case changes are 0.091 ps in WL 90% delay, 0.127 ps in
 precharge delay, 0.052 ps in rise slew and 4.2 mV in terminal magnitude.
 
@@ -40,9 +40,11 @@ Previous layouts and PEX remain archived under `archive/` with hashes.
 
 The selected FF/1.8 V/125 °C extension passes nine schematic and PEX
 transitions at both 5 ps and 1 ps; the directed peak case also passes at 0.5 ps.
-The baseline is only 0.963 mV below the runner's experimental 1.95 V terminal
-magnitude screen, and ngspice emits FF model-parameter warnings. These results
-are not reliability or full model-domain qualification. See the
+The baseline `VGD` peak is 0.963 mV below the runner's absolute terminal
+difference screen at 1.95 V. The PDK documents 1.95 V as a boundary for signed
+`VGS`/`VDS` model ranges, but `VGD` is not one of those variables; the reported
+headroom is not a PDK model-domain margin. The FF run also emits model-parameter
+warnings. These results are not reliability or full model-domain qualification. See the
 [FF-hot report](../../docs/row_decoder_fast_hot_qualification_20261008.md)
 for detailed metrics, warning records and scope limits.
 
