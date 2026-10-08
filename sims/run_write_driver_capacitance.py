@@ -28,6 +28,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--frequency-hz", type=float, default=1.0e6)
     p.add_argument("--timeout-s", type=float, default=30.0)
     p.add_argument("--pex", action="store_true", help="Use the canonical Magic RC-extracted write-driver netlist.")
+    p.add_argument("--pex-netlist", type=Path, default=None, help="Override the write-driver PEX netlist.")
     p.add_argument("--schematic", type=Path, default=root / "cells" / "write_driver.sch")
     p.add_argument("--output", type=Path, default=root / "sims" / "write_driver_capacitance_pvt.csv")
     return p.parse_args()
@@ -64,8 +65,8 @@ def extract_write_driver(schematic: Path) -> str:
     return ".subckt write_driver_core DATA DATA_B WE BL BLB VDD VSS\n" + "\n".join(body) + "\n.ends write_driver_core\n"
 
 
-def extract_write_driver_pex(root: Path) -> str:
-    netlist = root / "layout" / "write_driver" / "pex" / "write_driver_pex.spice"
+def extract_write_driver_pex(root: Path, netlist_override: Path | None = None) -> str:
+    netlist = netlist_override.resolve() if netlist_override is not None else root / "layout" / "write_driver" / "pex" / "write_driver_pex.spice"
     text = netlist.read_text(encoding="utf-8")
     match = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
     if not match:
@@ -137,7 +138,7 @@ def main() -> int:
     if args.frequency_hz <= 0 or any(not 0 < v <= 1.8 for v in args.vdd_values):
         raise SystemExit("invalid frequency/VDD; characterization is limited to VDD <= 1.8 V")
     root = Path(__file__).resolve().parent.parent
-    subckt = extract_write_driver_pex(root) if args.pex else extract_write_driver(args.schematic)
+    subckt = extract_write_driver_pex(root, args.pex_netlist) if args.pex or args.pex_netlist else extract_write_driver(args.schematic)
     rows: list[dict[str, object]] = []
     for corner, vdd, temp_c, data, probe in itertools.product(
         args.corners, args.vdd_values, args.temps_c, args.data, ("BL", "BLB")

@@ -1,23 +1,23 @@
 * NGSPICE file created from bitcell_6t.ext - technology: sky130A
 
-.subckt sky130_fd_pr__pfet_01v8_RCZQRH w_n210_n260#
-X0 a_14_n42# a_n32_n138# a_n72_n42# w_n210_n260# sky130_fd_pr__pfet_01v8 ad=0.1218 pd=1.42 as=0.1218 ps=1.42 w=0.42 l=0.14
+.subckt bitcell_6t_pd_device a_n33_n214# a_n73_n126# a_15_n126# a_n175_n300#
+X0 a_15_n126# a_n33_n214# a_n73_n126# a_n175_n300# sky130_fd_pr__nfet_01v8 ad=0.3654 pd=3.1 as=0.3654 ps=3.1 w=1.26 l=0.15
 .ends
 
-.subckt sky130_fd_pr__nfet_01v8_6SJXNR a_n174_n300#
-X0 a_14_n126# a_n32_n214# a_n72_n126# a_n174_n300# sky130_fd_pr__nfet_01v8 ad=0.3654 pd=3.1 as=0.3654 ps=3.1 w=1.26 l=0.14
+.subckt bitcell_6t_acc_device a_n33_n148# a_15_n60# a_n175_n234# a_n73_n60#
+X0 a_15_n60# a_n33_n148# a_n73_n60# a_n175_n234# sky130_fd_pr__nfet_01v8 ad=0.174 pd=1.78 as=0.174 ps=1.78 w=0.6 l=0.15
 .ends
 
-.subckt sky130_fd_pr__nfet_01v8_FJKXR4 a_n174_n234#
-X0 a_14_n60# a_n32_n148# a_n72_n60# a_n174_n234# sky130_fd_pr__nfet_01v8 ad=0.174 pd=1.78 as=0.174 ps=1.78 w=0.6 l=0.14
+.subckt bitcell_6t_pu_device a_15_n42# w_n211_n261# a_n33_n139# a_n73_n42#
+X0 a_15_n42# a_n33_n139# a_n73_n42# w_n211_n261# sky130_fd_pr__pfet_01v8 ad=0.1218 pd=1.42 as=0.1218 ps=1.42 w=0.42 l=0.15
 .ends
 
-.subckt bitcell_6t
-XXPU_L XPU_R/w_n210_n260# sky130_fd_pr__pfet_01v8_RCZQRH
-XXPU_R XPU_R/w_n210_n260# sky130_fd_pr__pfet_01v8_RCZQRH
-XXPD_L XPU_R/VSUBS sky130_fd_pr__nfet_01v8_6SJXNR
-XXACC_L XPU_R/VSUBS sky130_fd_pr__nfet_01v8_FJKXR4
-XXPD_R XPU_R/VSUBS sky130_fd_pr__nfet_01v8_6SJXNR
-XXACC_R XPU_R/VSUBS sky130_fd_pr__nfet_01v8_FJKXR4
+.subckt bitcell_6t VDD BL BLB VSS WL
+Xbitcell_6t_pd_device_0 m1_n196_n1755# VSS VSS VSS bitcell_6t_pd_device
+Xbitcell_6t_pd_device_1 VSS VSS m1_n196_n1755# VSS bitcell_6t_pd_device
+Xbitcell_6t_acc_device_0 WL BL VSS VSS bitcell_6t_acc_device
+Xbitcell_6t_acc_device_1 WL BLB VSS m1_n196_n1755# bitcell_6t_acc_device
+Xbitcell_6t_pu_device_0 VSS VDD m1_n196_n1755# VDD bitcell_6t_pu_device
+Xbitcell_6t_pu_device_1 m1_n196_n1755# VDD VSS VDD bitcell_6t_pu_device
 .ends
 

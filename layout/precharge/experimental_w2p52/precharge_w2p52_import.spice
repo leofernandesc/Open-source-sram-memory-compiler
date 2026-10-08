@@ -1,0 +1,6 @@
+* Physical G7 precharge candidate sized for <=4 ns recovery closure.
+.subckt precharge_w2p52_sram6t VDD BL BLB PRECH VSS
+XMPBL  BL  PRECH VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.52 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XMPBLB BLB PRECH VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.52 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XMEQ   BL  PRECH BLB VDD sky130_fd_pr__pfet_01v8 l=0.15 w=2.52 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+.ends precharge_w2p52_sram6t

@@ -1,4 +1,4 @@
-load column_32_p1800_flat
+load column_32_p2652_flat
 select top cell
 
 extract do local
@@ -17,6 +17,6 @@ ext2spice subcircuits top on
 ext2spice cthresh 0
 ext2spice rthresh 0
 ext2spice extresist on
-ext2spice -o pex/column_32_p1800_pex.spice
+ext2spice -o pex/column_32_p2652_pex.spice
 
 quit -noprompt

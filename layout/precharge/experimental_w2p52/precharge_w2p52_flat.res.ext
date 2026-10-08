@@ -1,0 +1,49 @@
+scale 1000 1 500000
+rnode "VSS" 0 0 -255 -1875 0
+rnode "VDD.t4" 0 1103.39 1900 -582 0
+rnode "VDD.t2" 0 1102.47 1100 -582 0
+rnode "VDD.n0" 0 713.704 1420 -300 0
+rnode "VDD.t3" 0 90.9812 1115 -1000 0
+rnode "VDD.n1" 0 384.332 1232 -300 0
+rnode "VDD.t0" 0 1102.47 300 -582 0
+rnode "VDD.n2" 0 303.397 620 -300 0
+rnode "VDD.t1" 0 90.9812 315 -1000 0
+rnode "VDD.n3" 0 392.863 432 -300 0
+rnode "VDD" 0 122.503 -255 -325 0
+resist "VDD.n3" "VDD.n2" 0.10519
+resist "VDD.n1" "VDD.n0" 0.10519
+resist "VDD.n2" "VDD.n1" 0.342429
+resist "VDD" "VDD.n3" 0.384393
+resist "VDD.n1" "VDD.t3" 105.356
+resist "VDD.n3" "VDD.t1" 105.356
+resist "VDD.n0" "VDD.t2" 189.223
+resist "VDD.n2" "VDD.t0" 189.223
+resist "VDD.n0" "VDD.t4" 189.671
+rnode "PRECH.t0" 0 160.915 1900 -1000 0
+rnode "PRECH.t1" 0 160.11 1100 -1000 0
+rnode "PRECH.n0" 0 2102.26 1100 -500 0
+rnode "PRECH.t2" 0 160.11 300 -1000 0
+rnode "PRECH.n1" 0 841.085 300 -500 0
+rnode "PRECH" 0 364.905 -255 -525 0
+resist "PRECH" "PRECH.n1" 0.310536
+resist "PRECH.n1" "PRECH.n0" 0.447619
+resist "PRECH.n0" "PRECH.t1" 648.271
+resist "PRECH.n1" "PRECH.t2" 648.271
+resist "PRECH.n0" "PRECH.t0" 648.718
+rnode "BL.t0" 0 268.887 1885 -1000 0
+rnode "BL.t1" 0 253.872 285 -1000 0
+rnode "BL.n0" 0 3135.27 168 -1500 0
+rnode "BL" 0 264.482 -255 -1525 0
+resist "BL" "BL.n0" 0.236679
+resist "BL.n0" "BL.t1" 105.058
+resist "BL.n0" "BL.t0" 105.954
+rnode "BLB.t1" 0 231.87 1915 -1000 0
+rnode "BLB.t0" 0 224.434 1085 -1000 0
+rnode "BLB.n0" 0 2662.02 968 -1650 0
+rnode "BLB" 0 455.416 -255 -1675 0
+resist "BLB" "BLB.n0" 0.684298
+resist "BLB.n0" "BLB.t0" 105.281
+resist "BLB.n0" "BLB.t1" 105.877
+device msubckt sky130_fd_pr__pfet_01v8 285 -1252 286 -1251  "VDD.t0" "PRECH.t2" 60 0 "BL.t1" 504 29232,1124 "VDD.t1" 504 29232,1124
+device msubckt sky130_fd_pr__pfet_01v8 1085 -1252 1086 -1251  "VDD.t2" "PRECH.t1" 60 0 "BLB.t0" 504 29232,1124 "VDD.t3" 504 29232,1124
+device msubckt sky130_fd_pr__pfet_01v8 1885 -1252 1886 -1251  "VDD.t4" "PRECH.t0" 60 0 "BL.t0" 504 29232,1124 "BLB.t1" 504 29232,1124

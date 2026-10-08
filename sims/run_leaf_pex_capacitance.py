@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from run_cbl_device_capacitance import MODEL_LIB, run_deck
+from pex_access_nodes import bitcell_storage_nodes
 
 
 def pex_text(root: Path, leaf: str, override: Path | None = None) -> tuple[str, str, Path]:
@@ -38,6 +39,7 @@ def bitcell_deck(
         bl, blb, current = f"{vdd:g}", f"DC {vdd:g} AC 1", "VBLB"
     q = vdd if state else 0.0
     qb = 0.0 if state else vdd
+    q_node, qb_node = bitcell_storage_nodes(text)
     return f"""* Full PEX bitcell input capacitance with WL deselected.
 .lib "{MODEL_LIB}" {corner}
 .temp {temp_c:g}
@@ -47,7 +49,7 @@ VWL wl 0 0
 VBL bl 0 {bl}
 VBLB blb 0 {blb}
 XCELL vdd bl blb 0 wl {name}
-.nodeset v(xcell.a_173_n1434.t0)={q:.12g} v(xcell.a_126_n1530.t1)={qb:.12g}
+.nodeset v(xcell.{q_node})={q:.12g} v(xcell.{qb_node})={qb:.12g}
 .ac lin 1 {frequency_hz:.12g} {frequency_hz:.12g}
 .print ac imag(i({current}))
 .end

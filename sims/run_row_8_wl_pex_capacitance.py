@@ -5,9 +5,10 @@ import argparse, csv, itertools, re, subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from run_cbl_device_capacitance import MODEL_LIB, run_deck
+from pex_access_nodes import storage_output_node
 
 ACCESS_RE = re.compile(
-    r"^X\S+\s+(BLB?\d)(?:\.t\d+)?\s+WL(?:\.t\d+)?\s+(a_\d+_-?\d+(?:\.t\d+)?)\s+\S+\s+sky130_fd_pr__nfet_01v8\b",
+    r"^X\S+\s+(\S+)\s+WL(?:\.t\d+)?\s+(\S+)\s+\S+\s+sky130_fd_pr__nfet_01v8\b[^\n]*\bw=0\.6\b",
     re.MULTILINE,
 )
 
@@ -24,7 +25,14 @@ def load_pex(root: Path) -> tuple[str, str, dict[str, str]]:
         raise RuntimeError(f'unexpected row PEX pins: {pins}')
     access: dict[str, str] = {}
     for m in ACCESS_RE.finditer(text):
-        access[m.group(1)] = m.group(2)
+        first, third = m.groups()
+        if re.fullmatch(r"BLB?\d(?:\.t\d+)?", first):
+            bitline, storage = first, third
+        elif re.fullmatch(r"BLB?\d(?:\.t\d+)?", third):
+            bitline, storage = third, first
+        else:
+            continue
+        access[bitline.split('.')[0]] = storage_output_node(storage)
     if len(access) != 16:
         raise RuntimeError(f'expected 16 access storage nodes, got {len(access)}')
     return text, header.group(1), access

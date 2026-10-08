@@ -2,139 +2,104 @@
 # The six SKY130 PCells remain unchanged; only parent-level interconnect,
 # body taps, labels, and ports are added here.
 
-load bitcell_6t_import
+load bitcell_6t_placed
 save bitcell_6t
 snap internal
 
-# Remove the five placeholder metal1 pin rectangles/labels created by
-# magic::netlist_to_layout.  They are not electrically connected to devices.
-box values -10 -1610 210 210
-select do labels
-select area metal1
-delete
-select clear
-select no labels
-
 proc m3_rail {y} {
-    box values -450 [expr {$y - 30}] 2600 [expr {$y + 30}]
+    box values -450 [expr {$y - 42}] 3000 [expr {$y + 42}]
     paint metal3
 }
 
-proc terminal_to_m3 {tx ty vx track} {
-    # Extend the PCell metal1 terminal to a via column.
-    set xlo [expr {min($tx, $vx) - 20}]
-    set xhi [expr {max($tx, $vx) + 20}]
-    box values $xlo [expr {$ty - 20}] $xhi [expr {$ty + 20}]
+proc terminal_to_m3 {tx ty vx track {sd_half_y 0}} {
+    # Generated/repaired leaf devices already expose D/S/G/body on M1.
+    # Extend M1 laterally to a dedicated Via1 column, then route vertically
+    # on M2 and land on the logical M3 rail.
+    # Source/drain contacts are native M1 rings around a ViaLI array.  Fill
+    # that ring before leaving horizontally so no narrow M1 notch remains.
+    if {$sd_half_y > 0} {
+        box values [expr {$tx - 24}] [expr {$ty - $sd_half_y}] \
+                   [expr {$tx + 24}] [expr {$ty + $sd_half_y}]
+        paint metal1
+    }
+
+    set m1lo [expr {min($tx, $vx) - 20}]
+    set m1hi [expr {max($tx, $vx) + 20}]
+    box values $m1lo [expr {$ty - 18}] $m1hi [expr {$ty + 18}]
     paint metal1
 
-    # M1 -> M2.
-    set vxlo [expr {$vx - 30}]
-    set vxhi [expr {$vx + 30}]
-    set tylo [expr {$ty - 30}]
-    set tyhi [expr {$ty + 30}]
-    box values $vxlo $tylo $vxhi $tyhi
+    box values [expr {$vx - 36}] [expr {$ty - 36}] \
+               [expr {$vx + 36}] [expr {$ty + 36}]
     paint metal1
     paint metal2
+    box values [expr {$vx - 26}] [expr {$ty - 26}] \
+               [expr {$vx + 26}] [expr {$ty + 26}]
     contact m2contact
 
-    # Vertical M2 branch.
-    set ylo [expr {min($ty, $track) - 30}]
-    set yhi [expr {max($ty, $track) + 30}]
-    box values [expr {$vx - 30}] $ylo [expr {$vx + 30}] $yhi
+    set ylo [expr {min($ty, $track) - 42}]
+    set yhi [expr {max($ty, $track) + 42}]
+    box values [expr {$vx - 42}] $ylo [expr {$vx + 42}] $yhi
     paint metal2
 
-    # M2 -> M3 at the net rail.
-    set trlo [expr {$track - 30}]
-    set trhi [expr {$track + 30}]
-    box values $vxlo $trlo $vxhi $trhi
-    paint metal2
+    box values [expr {$vx - 42}] [expr {$track - 42}] \
+               [expr {$vx + 42}] [expr {$track + 42}]
     paint metal3
+    box values [expr {$vx - 30}] [expr {$track - 30}] \
+               [expr {$vx + 30}] [expr {$track + 30}]
     contact m3contact
-}
-
-proc body_tap_to_m3 {well diff contact_type cx cy mx vx track} {
-    # Diffusion/well tap -> local interconnect.
-    set cxlo [expr {$cx - 70}]
-    set cxhi [expr {$cx + 70}]
-    set cylo [expr {$cy - 70}]
-    set cyhi [expr {$cy + 70}]
-    box values $cxlo $cylo $cxhi $cyhi
-    paint $well
-    paint $diff
-    paint locali
-    contact $contact_type
-
-    # Move in LI to a dedicated LI/M1 contact so the substrate/well contact
-    # and mcon do not occupy the same cut area.
-    set lxlo [expr {min($cx, $mx) - 20}]
-    set lxhi [expr {max($cx, $mx) + 20}]
-    box values $lxlo [expr {$cy - 20}] $lxhi [expr {$cy + 20}]
-    paint locali
-
-    set mxlo [expr {$mx - 30}]
-    set mxhi [expr {$mx + 30}]
-    set mylo [expr {$cy - 30}]
-    set myhi [expr {$cy + 30}]
-    box values $mxlo $mylo $mxhi $myhi
-    paint locali
-    paint metal1
-    contact mcon
-
-    terminal_to_m3 $mx $cy $vx $track
 }
 
 # One horizontal M3 rail per logical net.  M2 is used only for vertical
 # branches, which allows crossings without accidental shorts.
-set VDD_Y -760
-set Q_Y   -880
-set QB_Y  -1000
-set VSS_Y -2080
-set WL_Y  -2200
-set BL_Y  -2320
-set BLB_Y -2440
+set VDD_Y -400
+set Q_Y   -550
+set QB_Y  -700
+set VSS_Y -2450
+set WL_Y  -2600
+set BL_Y  -2750
+set BLB_Y -2900
 
 foreach y [list $VDD_Y $Q_Y $QB_Y $VSS_Y $WL_Y $BL_Y $BLB_Y] {
     m3_rail $y
 }
 
 # Left inverter: PU_L / PD_L and left access transistor.
-# PU_L: source=VDD, drain=Q, gate=QB
-terminal_to_m3 114 -1392   60 $VDD_Y
-terminal_to_m3 202 -1392  260 $Q_Y
-terminal_to_m3 158 -1286  160 $QB_Y
+# PU_L center=(200,-1000): source=VDD, drain=Q, gate=QB
+terminal_to_m3 156 -1000    0 $VDD_Y 42
+terminal_to_m3 244 -1000  480 $Q_Y   42
+terminal_to_m3 200  -894 -160 $QB_Y
+terminal_to_m3 200  -792  160 $VDD_Y
 
-# PD_L: source=VSS, drain=Q, gate=QB
-terminal_to_m3 852 -1423  780 $VSS_Y
-terminal_to_m3 940 -1423 1020 $Q_Y
-terminal_to_m3 896 -1242  900 $QB_Y
+# PD_L center=(200,-1900): source=VSS, drain=Q, gate=QB
+terminal_to_m3 156 -1900    0 $VSS_Y 126
+terminal_to_m3 244 -1900  480 $Q_Y   126
+terminal_to_m3 200 -1719 -160 $QB_Y
+terminal_to_m3 200 -1617  160 $VSS_Y
 
-# ACC_L: source=Q, drain=BL, gate=WL
-terminal_to_m3 1590 -1595 1520 $Q_Y
-terminal_to_m3 1678 -1595 1760 $BL_Y
-terminal_to_m3 1634 -1480 1640 $WL_Y
+# ACC_L center=(1400,-1900): left diffusion=BL, right diffusion=Q, gate=WL
+terminal_to_m3 1356 -1900 1240 $BL_Y
+terminal_to_m3 1444 -1900 1600 $Q_Y  60
+terminal_to_m3 1400 -1785 2800 $WL_Y
+terminal_to_m3 1400 -1683 1760 $VSS_Y
 
 # Right inverter: PU_R / PD_R and right access transistor.
-# PU_R: source=VDD, drain=QB, gate=Q
-terminal_to_m3 483 -1445  420 $VDD_Y
-terminal_to_m3 571 -1445  650 $QB_Y
-terminal_to_m3 527 -1339  530 $Q_Y
+# PU_R center=(900,-1000): source=VDD, drain=QB, gate=Q
+terminal_to_m3 856 -1000  640 $VDD_Y 42
+terminal_to_m3 944 -1000 1120 $QB_Y  42
+terminal_to_m3 900  -894 1280 $Q_Y
+terminal_to_m3 900  -792  800 $VDD_Y
 
-# PD_R: source=VSS, drain=QB, gate=Q
-terminal_to_m3 1221 -1476 1150 $VSS_Y
-terminal_to_m3 1309 -1476 1390 $QB_Y
-terminal_to_m3 1265 -1295 1260 $Q_Y
+# PD_R center=(800,-1900): source=VSS, drain=QB, gate=Q
+terminal_to_m3 756 -1900  640 $VSS_Y 126
+terminal_to_m3 844 -1900 1120 $QB_Y  126
+terminal_to_m3 800 -1719  960 $Q_Y
+terminal_to_m3 800 -1617  800 $VSS_Y
 
-# ACC_R: source=QB, drain=BLB, gate=WL
-terminal_to_m3 1959 -1648 1880 $QB_Y
-terminal_to_m3 2047 -1648 2130 $BLB_Y
-terminal_to_m3 2003 -1533 2000 $WL_Y
-
-# PMOS nwell is continuous across PU_L/PU_R; add one n+ well tap on its left.
-body_tap_to_m3 nwell nsubdiff nsc -105 -1392 -280 -380 $VDD_Y
-
-# NMOS pwell is continuous across PD_L/PD_R/ACC_L/ACC_R; add one p+ tap
-# on its right and tie it to VSS.
-body_tap_to_m3 pwell psubdiff psc 2240 -1540 2420 2520 $VSS_Y
+# ACC_R center=(2000,-1900): left diffusion=BLB, right diffusion=QB, gate=WL
+terminal_to_m3 1956 -1900 1920 $BLB_Y 60
+terminal_to_m3 2044 -1900 2240 $QB_Y  60
+terminal_to_m3 2000 -1785 2800 $WL_Y
+terminal_to_m3 2000 -1683 2400 $VSS_Y
 
 # Ports live on M3 rails, away from device-level routing.
 proc make_port {name index x y} {
@@ -158,8 +123,17 @@ make_port BLB 2 -230 $BLB_Y
 make_port VSS 3 -230 $VSS_Y
 make_port WL  4 -230 $WL_Y
 
-drc check
-drc count total
+drc euclidean on
+drc style drc(full)
+drc on
+select top cell
+expand
+drc catchup
+set bitcell_route_errors [drc listall why]
+puts "BITCELL_ROUTE_DRC_ERRORS=[llength $bitcell_route_errors]"
+if {[llength $bitcell_route_errors] > 0} {
+    puts "BITCELL_ROUTE_DRC_DETAIL=$bitcell_route_errors"
+}
 
 save bitcell_6t
 quit -noprompt

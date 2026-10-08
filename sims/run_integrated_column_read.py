@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from pex_access_nodes import bitcell_storage_nodes
 
 
 MODEL_LIB = "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice"
@@ -334,8 +335,12 @@ def make_deck(
     pre_reenable_ns = max(wl_off_ns + edge_ns + 0.25, args.sclk_at_ns + args.sclk_high_ns + edge_ns)
     stop_ns = pre_reenable_ns + args.precharge_recovery_window_ns
     target_v = args.delta_target_mv * 1e-3
-    q_ref = "v(xcell.xpex.a_173_n1434.t0)" if use_pex else "v(xcell.q)"
-    qb_ref = "v(xcell.xpex.a_126_n1530.t1)" if use_pex else "v(xcell.qb)"
+    if use_pex:
+        q_node, qb_node = bitcell_storage_nodes(leafs["bitcell"])
+        q_ref = f"v(xcell.xpex.{q_node})"
+        qb_ref = f"v(xcell.xpex.{qb_node})"
+    else:
+        q_ref, qb_ref = "v(xcell.q)", "v(xcell.qb)"
     wl_extra = (
         f"CWL_EXTRA wl 0 {args.wl_extra_ff:.9f}f"
         if args.wl_extra_ff > 0

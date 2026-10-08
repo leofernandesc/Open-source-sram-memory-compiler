@@ -11,19 +11,27 @@ def load_pex(root):
  m=re.search(r'^\.subckt\s+(\S+)\s+(.+)$',t,re.M)
  if not m: raise RuntimeError('missing bitcell PEX header')
  if tuple(m.group(2).split()) != ('VDD','BL','BLB','VSS','WL'): raise RuntimeError(m.group(2))
- return t,m.group(1)
+ access={}
+ for line in t.splitlines():
+  parts=line.split()
+  if len(parts)<6 or not parts[0].startswith('X') or parts[2].split('.')[0]!='WL' or parts[5]!='sky130_fd_pr__nfet_01v8' or 'w=0.6' not in parts: continue
+  first,third=parts[1],parts[3]
+  if first.split('.')[0] in ('BL','BLB'): access[first.split('.')[0]]=third
+  elif third.split('.')[0] in ('BL','BLB'): access[third.split('.')[0]]=first
+ if set(access)!= {'BL','BLB'}: raise RuntimeError(f'expected two bitcell access nodes, got {access}')
+ return t,m.group(1),access
 
-def deck(text,name,corner,vdd,temp,state,freq):
+def deck(text,name,access,corner,vdd,temp,state,freq):
  q=vdd if state else 0.0; qb=0.0 if state else vdd
- return f'''* Extracted selected-bitcell WL capacitance.\n.lib "{MODEL_LIB}" {corner}\n.temp {temp:g}\n{text}\nVDD vdd 0 {vdd:g}\nVBL bl 0 {q:.12g}\nVBLB blb 0 {qb:.12g}\nVWL wl 0 DC 0 AC 1\nXCELL vdd bl blb 0 wl {name}\n.nodeset v(xcell.a_173_n1434.t0)={q:.12g} v(xcell.a_126_n1530.t1)={qb:.12g}\n.ac lin 1 {freq:.12g} {freq:.12g}\n.print ac imag(i(VWL))\n.end\n'''
+ return f'''* Extracted selected-bitcell WL capacitance.\n.lib "{MODEL_LIB}" {corner}\n.temp {temp:g}\n{text}\nVDD vdd 0 {vdd:g}\nVBL bl 0 {q:.12g}\nVBLB blb 0 {qb:.12g}\nVWL wl 0 DC 0 AC 1\nXCELL vdd bl blb 0 wl {name}\n.nodeset v(xcell.{access['BL']})={q:.12g} v(xcell.{access['BLB']})={qb:.12g}\n.ac lin 1 {freq:.12g} {freq:.12g}\n.print ac imag(i(VWL))\n.end\n'''
 
 def main():
  root=Path(__file__).resolve().parent.parent; p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('--corners',nargs='+',default=['tt','ff','ss','fs','sf']); p.add_argument('--vdd-values',nargs='+',type=float,default=[1.62,1.80]); p.add_argument('--temps-c',nargs='+',type=float,default=[-40.0,27.0,125.0]); p.add_argument('--states',nargs='+',type=int,choices=[0,1],default=[0,1]); p.add_argument('--frequency-hz',type=float,default=1e6); p.add_argument('--timeout-s',type=float,default=60); p.add_argument('--workers',type=int,default=4); p.add_argument('--output',type=Path,default=root/'sims'/'bitcell_pex_wordline_capacitance_pvt.csv'); a=p.parse_args()
- text,name=load_pex(root); cases=list(itertools.product(a.corners,a.vdd_values,a.temps_c,a.states))
+ text,name,access=load_pex(root); cases=list(itertools.product(a.corners,a.vdd_values,a.temps_c,a.states))
  def ex(c):
   corner,vdd,temp,state=c; r={'corner':corner,'vdd_v':vdd,'temp_c':temp,'state':state,'frequency_hz':a.frequency_hz,'cwl_bitcell_pex_ff':'','status':'ERROR','error':''}
-  try: x,_=run_deck('ngspice',deck(text,name,corner,vdd,temp,state,a.frequency_hz),a.timeout_s); r['cwl_bitcell_pex_ff']=f'{x:.9f}'; r['status']='PASS'
+  try: x,_=run_deck('ngspice',deck(text,name,access,corner,vdd,temp,state,a.frequency_hz),a.timeout_s); r['cwl_bitcell_pex_ff']=f'{x:.9f}'; r['status']='PASS'
   except (RuntimeError,subprocess.TimeoutExpired) as e:r['error']=str(e).replace('\n',' | ')[:1000]
   return r
  rows=[]

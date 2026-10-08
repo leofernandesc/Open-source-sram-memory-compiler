@@ -13,6 +13,7 @@ import tempfile
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from pex_access_nodes import bitcell_storage_nodes
 
 
 MODEL_LIB = "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice"
@@ -391,8 +392,12 @@ def make_deck(
 
     q0 = vdd if old_q else 0.0
     qb0 = 0.0 if old_q else vdd
-    q_ref = "v(xcell.xpex.a_173_n1434.t0)" if args.pex else "v(xcell.q)"
-    qb_ref = "v(xcell.xpex.a_126_n1530.t1)" if args.pex else "v(xcell.qb)"
+    if args.pex:
+        q_node, qb_node = bitcell_storage_nodes(leafs["bitcell"])
+        q_ref = f"v(xcell.xpex.{q_node})"
+        qb_ref = f"v(xcell.xpex.{qb_node})"
+    else:
+        q_ref, qb_ref = "v(xcell.q)", "v(xcell.qb)"
     data = vdd if new_q else 0.0
     data_b = 0.0 if new_q else vdd
     q_crossing = "rise=1" if new_q else "fall=1"

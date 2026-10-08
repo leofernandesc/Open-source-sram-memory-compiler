@@ -1,7 +1,7 @@
 * Experimental G7 wordline driver for physical 8-bit row load.
 .subckt wl_driver_s1p68_s2p5p04 VDD VSS WL_IN WL
-XMP1 WL_N WL_IN VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=1.68 nf=1
-XMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.68 nf=1
-XMP2 WL WL_N VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=5.04 nf=1
-XMN2 WL WL_N VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=5.04 nf=1
+XMP1 WL_N WL_IN VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=1.68 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.68 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XMP2 WL WL_N VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=5.04 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XMN2 WL WL_N VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=5.04 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
 .ends wl_driver_s1p68_s2p5p04

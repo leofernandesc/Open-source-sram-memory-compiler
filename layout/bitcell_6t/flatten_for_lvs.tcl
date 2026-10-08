@@ -19,18 +19,26 @@ proc restore_l015 {type xlo ylo xhi yhi} {
 }
 
 # Pull-down NMOS pair.
-restore_l015 nmos 882  -1549 910  -1297
-restore_l015 nmos 1251 -1602 1279 -1350
+restore_l015 nmos 186 -2026 214 -1774
+restore_l015 nmos 786 -2026 814 -1774
 
 # Access NMOS pair.
-restore_l015 nmos 1620 -1655 1648 -1535
-restore_l015 nmos 1989 -1708 2017 -1588
+restore_l015 nmos 1386 -1960 1414 -1840
+restore_l015 nmos 1986 -1960 2014 -1840
 
 # Pull-up PMOS pair.
-restore_l015 pmos 144 -1434 172 -1350
-restore_l015 pmos 513 -1487 541 -1403
+restore_l015 pmos 186 -1042 214 -958
+restore_l015 pmos 886 -1042 914 -958
 
-drc check
-drc count total
+drc euclidean on
+drc style drc(full)
+drc on
+select top cell
+drc catchup
+set bitcell_flat_errors [drc listall why]
+puts "BITCELL_FLAT_DRC_ERRORS=[llength $bitcell_flat_errors]"
+if {[llength $bitcell_flat_errors] > 0} {
+    puts "BITCELL_FLAT_DRC_DETAIL=$bitcell_flat_errors"
+}
 save bitcell_6t_flat
 quit -noprompt

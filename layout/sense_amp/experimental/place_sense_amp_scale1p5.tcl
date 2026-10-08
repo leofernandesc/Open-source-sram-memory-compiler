@@ -11,13 +11,13 @@ proc move_inst {name dx dy} {
     select clear
 }
 
-move_inst XMP1       142  1045
-move_inst XMP2       204  1151
-move_inst XMSAMPBL   266  1246
-move_inst XMSAMPBLB  697  1299
-move_inst XMN1        73  -802
-move_inst XMN2       235  -696
-move_inst XMTAIL      28  -537
+move_inst XMP1       195  1416
+move_inst XMP2       257  1522
+move_inst XMSAMPBL   319  1617
+move_inst XMSAMPBLB  750  1670
+move_inst XMN1       126  -431
+move_inst XMN2       288  -325
+move_inst XMTAIL      81  -166
 
 drc check
 puts "SCALE1P5_PLACE_DRC_BEGIN"

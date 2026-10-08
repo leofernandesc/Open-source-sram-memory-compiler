@@ -13,10 +13,10 @@ proc move_inst {name dx dy} {
 
 # Keep the same logical centers as the canonical WL driver so the external
 # rail/port geometry remains stable while the device widths change.
-move_inst XMP1 142  -134
-move_inst XMP2 604  -364
-move_inst XMN1  73 -2072
-move_inst XMN2 535 -2302
+move_inst XMP1 195    78
+move_inst XMP2 657  -152
+move_inst XMN1 126 -1860
+move_inst XMN2 588 -2090
 
 drc check
 drc count total

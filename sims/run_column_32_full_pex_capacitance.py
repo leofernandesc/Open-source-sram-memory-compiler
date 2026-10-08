@@ -12,11 +12,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from run_cbl_device_capacitance import MODEL_LIB, run_deck
+from pex_access_nodes import storage_output_node
 
 
 ACCESS_RE = re.compile(
-    r"^X\S+\s+(BLB?|BLB?\.t\d+)\s+(WLOFF(?:\.t\d+)?)\s+(a_\d+_-?\d+(?:\.t\d+)?)\s+\S+\s+"
-    r"sky130_fd_pr__nfet_01v8\b",
+    r"^X\S+\s+(\S+)\s+(WLOFF(?:\.t\d+)?)\s+(\S+)\s+\S+\s+"
+    r"sky130_fd_pr__nfet_01v8\b[^\n]*\bw=0\.6\b",
     re.MULTILINE,
 )
 COORD_RE = re.compile(r"^a_\d+_(-?\d+)(?:\.t\d+)?$")
@@ -31,10 +32,10 @@ def load_full_column_pex(
         else root / "layout" / "column_32_full" / "pex" / "column_32_full_v2_pex.spice"
     )
     text = path.read_text(encoding="utf-8")
-    header = re.search(r"^\.subckt\s+(\S+)\s+(.+)$", text, re.MULTILINE)
+    header = re.search(r"^\.subckt\s+(\S+)\s+(.+?)(?=\n[^+])", text, re.MULTILINE | re.DOTALL)
     if not header:
         raise RuntimeError(f"missing subcircuit header: {path}")
-    pins = tuple(header.group(2).split())
+    pins = tuple(re.sub(r"\n\+\s*", " ", header.group(2)).split())
     expected = ("BL", "BLB", "VSS", "VDD", "WLOFF", "PRECH", "SCLK", "WE", "DATA_B", "DATA")
     if pins != expected:
         raise RuntimeError(f"unexpected full-column PEX pins: {pins}")
@@ -42,11 +43,17 @@ def load_full_column_pex(
     q_nodes: list[tuple[int, str]] = []
     qb_nodes: list[tuple[int, str]] = []
     for match in ACCESS_RE.finditer(text):
-        bitline, _, storage = match.groups()
+        first, _, third = match.groups()
+        if re.fullmatch(r"BLB?(?:\.t\d+)?", first):
+            bitline, storage = first, third
+        elif re.fullmatch(r"BLB?(?:\.t\d+)?", third):
+            bitline, storage = third, first
+        else:
+            continue
         coord = COORD_RE.match(storage)
         if not coord:
             raise RuntimeError(f"cannot infer row coordinate from storage node {storage}")
-        item = (int(coord.group(1)), storage)
+        item = (int(coord.group(1)), storage_output_node(storage))
         if bitline.startswith("BLB"):
             qb_nodes.append(item)
         else:

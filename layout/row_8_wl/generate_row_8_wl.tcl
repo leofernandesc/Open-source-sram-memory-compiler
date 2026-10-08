@@ -1,16 +1,22 @@
 path search +../bitcell_6t
 load row_8_wl
+box values -100000 -100000 100000 100000
+select area
+delete
+select clear
 snap internal
 set llx -450
-set lly -2470
-set pitch_x 3110
+set lly -2942
+# Repaired bitcell bbox is 3450 units wide.  Keep a 60-unit horizontal
+# channel between adjacent cells instead of overlapping the new geometry.
+set pitch_x 3510
 set cols 8
 set x_port_offset 220
-set y_bl 150
-set y_blb 30
-set y_vss 390
-set y_vdd 1710
-set y_wl 270
+set y_bl 192
+set y_blb 42
+set y_vss 492
+set y_vdd 2542
+set y_wl 342
 for {set col 0} {$col < $cols} {incr col} {
   set x [expr {$col * $pitch_x}]
   getcell bitcell_6t_flat child $llx $lly parent $x 0
@@ -21,9 +27,13 @@ proc m4_hrail {y xlo xhi} {
   paint metal4
 }
 proc m3_to_m4 {x y} {
-  box values [expr {$x - 40}] [expr {$y - 40}] [expr {$x + 40}] [expr {$y + 40}]
+  # Five rails are 150 units apart.  Adjacent landings need a 60-unit gap.
+  box values [expr {$x - 45}] [expr {$y - 45}] [expr {$x + 45}] [expr {$y + 45}]
   paint metal3
+  # Broaden M4 horizontally to satisfy its 9600-unit minimum area.
+  box values [expr {$x - 60}] [expr {$y - 45}] [expr {$x + 60}] [expr {$y + 45}]
   paint metal4
+  box values [expr {$x - 32}] [expr {$y - 32}] [expr {$x + 32}] [expr {$y + 32}]
   contact via3
 }
 proc make_m4_port {name index x y} {
@@ -50,32 +60,44 @@ for {set col 0} {$col < $cols} {incr col} {
 make_m4_port VDD 0 -40 $y_vdd
 make_m4_port VSS 1 -40 $y_vss
 make_m4_port WL  2 -40 $y_wl
-make_m4_port BL0 3 220 $y_bl
-make_m4_port BLB0 4 220 $y_blb
-make_m4_port BL1 5 3330 $y_bl
-make_m4_port BLB1 6 3330 $y_blb
-make_m4_port BL2 7 6440 $y_bl
-make_m4_port BLB2 8 6440 $y_blb
-make_m4_port BL3 9 9550 $y_bl
-make_m4_port BLB3 10 9550 $y_blb
-make_m4_port BL4 11 12660 $y_bl
-make_m4_port BLB4 12 12660 $y_blb
-make_m4_port BL5 13 15770 $y_bl
-make_m4_port BLB5 14 15770 $y_blb
-make_m4_port BL6 15 18880 $y_bl
-make_m4_port BLB6 16 18880 $y_blb
-make_m4_port BL7 17 21990 $y_bl
-make_m4_port BLB7 18 21990 $y_blb
+for {set col 0} {$col < $cols} {incr col} {
+  set x [expr {$col * $pitch_x + $x_port_offset}]
+  set bl_index [expr {3 + 2 * $col}]
+  set blb_index [expr {$bl_index + 1}]
+  make_m4_port "BL${col}" $bl_index $x $y_bl
+  make_m4_port "BLB${col}" $blb_index $x $y_blb
+}
+
+drc euclidean on
+drc style drc(full)
+drc on
+select top cell
+expand
+box select
 drc check
-puts "ROW8_WL_HIER_DRC_BEGIN"
-drc count total
-puts "ROW8_WL_HIER_DRC_END"
+drc catchup
+set row8_hier_errors 0
+foreach {rule boxes} [drc listall why] {
+  puts "ROW8_WL_HIER_DRC_RULE=$rule BOXES=[llength $boxes]"
+  if {[llength $boxes] > 0} { puts "ROW8_WL_HIER_DRC_SAMPLES=[lrange $boxes 0 9]" }
+  incr row8_hier_errors [llength $boxes]
+}
+puts "ROW8_WL_HIER_DRC_ERRORS=$row8_hier_errors"
+if {$row8_hier_errors != 0} { error "row_8_wl hierarchical DRC failed" }
 save row_8_wl
 flatten row_8_wl_flat
 load row_8_wl_flat
+select top cell
+expand
+box select
 drc check
-puts "ROW8_WL_FLAT_DRC_BEGIN"
-drc count total
-puts "ROW8_WL_FLAT_DRC_END"
+drc catchup
+set row8_flat_errors 0
+foreach {rule boxes} [drc listall why] {
+  puts "ROW8_WL_FLAT_DRC_RULE=$rule BOXES=[llength $boxes]"
+  incr row8_flat_errors [llength $boxes]
+}
+puts "ROW8_WL_FLAT_DRC_ERRORS=$row8_flat_errors"
+if {$row8_flat_errors != 0} { error "row_8_wl flat DRC failed" }
 save row_8_wl_flat
 quit -noprompt
