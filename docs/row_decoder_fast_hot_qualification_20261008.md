@@ -98,27 +98,60 @@ Esta extensão cobre nove transições no perfil FF quente. Ruído/retenção,
 variação/mismatch, captura/fanout de endereço e a carga da wordline física
 continuam pendentes.
 
-## Próxima execução: matriz completa de endereços
+## Matriz FF completa de pares de endereço — concluída
 
-O runner agora aceita `--all-address-pairs`, mantendo inalterada a matriz
-selecionada quando a opção é omitida. Para FF quente, a opção gera as 16
-combinações ordenadas de endereço anterior e novo, incluindo as quatro
-combinações sem mudança de endereço. A campanha completa a 1 ps é reservada à
-máquina mais potente: a campanha FF existente de nove pares a 1 ps ocupa
-398.621.348 bytes; por extrapolação linear, 16 pares podem ocupar perto de
-710 MB. A execução existente de nove pares a 5 ps ocupa 82.377.000 bytes.
-Essas estimativas variam com a quantidade de dados das waveforms. Execute
-primeiro a 5 ps como triagem e depois a 1 ps na outra máquina, cada uma em
-diretório novo:
+A opção `--all-address-pairs` foi executada no perfil `fast` (FF, 1,8 V,
+125 °C), cobrindo as 16 transições ordenadas entre `00`, `01`, `10` e `11`,
+incluindo endereço sem mudança. O baseline e o PEX compacto atual passaram
+16/16 casos em cada passo temporal, sem falhas nos checks registrados.
+
+| Passo máximo | Baseline | PEX | Checks baseline | Checks PEX | Máximo terminal baseline | Máximo terminal PEX |
+|---:|---:|---:|---:|---:|---:|---:|
+| 5 ps | 16/16 PASS | 16/16 PASS | 1.664/1.664 | 2.560/2.560 | 1,948349 V | 1,879030 V |
+| 1 ps | 16/16 PASS | 16/16 PASS | 1.664/1.664 | 2.560/2.560 | 1,949037 V | 1,878690 V |
+
+A 1 ps, o maior atraso do WL até 90% foi 394,006 ps no baseline e
+492,795 ps no PEX. A maior pré-carga até 10% foi 306,280 ps e 461,940 ps,
+respectivamente. O pico baseline de 1,949037 V é magnitude absoluta de `VGD`
+na transição `01→10`, apenas 0,963 mV abaixo da tela numérica histórica de
+1,95 V. Isso não representa margem assinada de domínio do modelo. O pico PEX
+de magnitude terminal é 1,878690 V em `10→01`.
+
+Entre 5 ps e 1 ps, os maiores deltas por par no PEX foram 0,130 ps em atraso
+de WL, 0,191 ps em pré-carga, 0,058 ps em slew de subida do WL e 0,373 mV em
+magnitude terminal. A energia por ciclo observada na fonte PCLK variou até
+0,502 fJ (11,39%); esse resultado depende mais do passo temporal que as
+métricas de atraso e tensão, por isso a análise usa 1 ps como referência e
+deixa a convergência de energia como revisão separada.
+
+Os 64 logs ngspice desta matriz não contêm linhas `Error:`, mas todos mantêm
+os avisos dos modelos FF vistos na campanha selecionada: `A2 > 1` (o ngspice
+limita `A2` e redefine `A1`) e valores negativos de `Eta0`, `Pdibl1` e
+`Pdibl2`. Logo, os checks lógicos e as telas de tensão passaram sob o
+tratamento reportado pelo simulador, mas não demonstram domínio assinado
+completo do modelo nem confiabilidade. As waveforms brutas totalizam
+845.475.232 bytes, permanecem locais e são ignoradas pelo Git.
+
+O audit JSON reúne hashes, contagem de avisos, resultados por passo e deltas
+por transição: [matriz FF completa](../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json).
+As pastas de resultados contêm casos, checks, manifests, decks e logs de
+texto: [5 ps](../sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps/)
+e [1 ps](../sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps/).
+O PEX é o arquivo compacto com SHA-256
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`.
+
+Comandos usados no container `sram-pex-diag-20261008`, um worker por vez:
 
 ```bash
-./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
   --profiles fast --all-address-pairs --max-step-ps 5 --workers 1 \
-  --timeout-s 300 --output-root sims/row_decoder/results/fast_all_pairs_5ps
-./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+  --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps
+SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
   --profiles fast --all-address-pairs --max-step-ps 1 --workers 1 \
-  --timeout-s 300 --output-root sims/row_decoder/results/fast_all_pairs_1ps
+  --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps
 ```
 
-Esse conjunto ainda qualifica somente FF/1,8 V/125 °C, o decoder extraído,
-buffers WL esquemáticos e carga estimada de 17,4 fF.
+Esta execução fecha a matriz FF completa para o testbench e carga registrados.
+Ainda não cobre PVT amplo, wordline física, ruído, retenção, mismatch,
+captura/fanout de endereço ou comportamento da macro completa. Os avisos do
+modelo FF e a convergência da energia PCLK continuam como itens de revisão.

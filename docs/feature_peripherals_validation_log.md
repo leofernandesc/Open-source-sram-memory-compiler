@@ -8,11 +8,12 @@ Current decoder status: the compact layout from `d20f509` has routed/flat DRC
 networks. The matched 13-case schematic/PEX matrix passes at both 5 ps and
 1 ps. The complete 16-pair TT matrix also passes 16/16 schematic and PEX cases
 at both steps; see the full address-pair entry below.
-A selected FF/1.8 V/125 °C extension also passes nine schematic/PEX
-transitions at 5 ps and 1 ps; the baseline terminal screen has only 0.963 mV
-of headroom, and ngspice reports FF model-parameter warnings. See the
+A full FF/1.8 V/125 °C matrix now passes all 16 ordered address pairs in both
+baseline and PEX at 5 ps and 1 ps. The baseline terminal screen remains close
+to its 1.95 V numerical threshold, and ngspice reports FF model-parameter
+warnings. See the
 [compact-layout extraction entry](#2026-10-08-compact-decoder-r-c-extraction-and-electrical-checks)
-and [FF-hot qualification entry](#2026-10-08-compact-decoder-ff-hot-electrical-extension)
+and [full FF address-pair entry](#2026-10-08-full-16-pair-ff-hot-decoder-matrix)
 for measurements and limits. The 7ad0348 PEX and its matrix are historical for
 the previous geometry.
 
@@ -1177,3 +1178,61 @@ Reproduce from the repository root with:
 This closes the complete TT address-pair matrix for the recorded setup. It
 does not replace the selected SS matrix or qualify FF/all-pairs, broad PVT,
 physical row loading, noise, retention, capture/fanout or reliability.
+
+## 2026-10-08: full 16-pair FF-hot decoder matrix
+
+The complete ordered address-transition matrix was run at the `fast` profile
+(FF, 1.8 V, 125 °C), at both 5 ps and 1 ps maximum transient steps. Each
+matrix includes all 16 old/new address pairs among 00, 01, 10 and 11,
+including the four same-address transitions. The baseline and current compact
+29-MOS/762-R/389-C PEX each passed 16/16 cases at both steps, with zero
+contract-check failures. That is 1,664/1,664 baseline checks and 2,560/2,560
+PEX checks per timestep; the dynamic-node, model-upper and absolute-terminal
+screens passed in every case.
+
+| Maximum step | Baseline | PEX | Baseline checks | PEX checks | Peak baseline terminal magnitude | Peak PEX terminal magnitude |
+|---:|---:|---:|---:|---:|---:|---:|
+| 5 ps | 16/16 PASS | 16/16 PASS | 1,664/1,664 | 2,560/2,560 | 1.948349 V | 1.879030 V |
+| 1 ps | 16/16 PASS | 16/16 PASS | 1,664/1,664 | 2,560/2,560 | 1.949037 V | 1.878690 V |
+
+At 1 ps, the baseline maximum WL delay to 90% is 394.006 ps and the maximum
+precharge-to-10% is 306.280 ps. The corresponding PEX maxima are 492.795 ps
+and 461.940 ps. The baseline peak is the absolute `VGD` magnitude in
+`fast_01_to_10`; it is 0.963 mV below the runner's historical 1.95 V
+absolute-terminal screen. That is a numerical screen result, not a signed PDK
+model-domain margin. The PEX peak terminal magnitude is 1.878690 V in
+`fast_10_to_01`.
+
+For matched cases, the largest 5 ps-to-1 ps PEX changes are 0.130 ps in WL
+90% delay, 0.191 ps in WL precharge-to-10%, 0.058 ps in selected WL rise slew,
+and 0.373 mV in terminal magnitude. The maximum difference in measured PCLK
+source cycle energy is 0.502 fJ (11.39%), so the energy result is more
+time-step-sensitive than the timing and terminal screens; use the 1 ps result
+as the reported value until energy convergence is examined separately.
+
+All 64 retained ngspice logs (16 baseline and 16 PEX cases at each of two
+timesteps) have no `Error:` lines. They do contain the FF BSIM4 parameter
+warnings already seen in the selected campaign: `A2 > 1` (ngspice clamps `A2`
+and resets `A1`), and negative `Eta0`, `Pdibl1` and `Pdibl2`. Therefore, passing
+logic and project voltage screens under the simulator's reported parameter
+handling does not establish full signed model-domain or reliability
+qualification. The terminal-magnitude screen includes `VGD` and is not itself
+a signed model-domain check.
+
+The PEX file hash is
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc` (29 MOS,
+762 resistors, 389 capacitors). The full audit, including warning counts,
+matched timestep deltas and hashes, is
+[`compact_decoder_full_fast_matrix_audit.json`](../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json).
+Per-case summaries, checks, manifests, input decks and text logs are in the
+[5 ps result root](../sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps/)
+and [1 ps result root](../sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps/).
+The 64 raw waveforms total 845,475,232 bytes and remain local/ignored by Git.
+
+Reproduce from the repository root with one worker:
+- `./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps --profiles fast --all-address-pairs --max-step-ps 5 --workers 1 --timeout-s 900`
+- `./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps --profiles fast --all-address-pairs --max-step-ps 1 --workers 1 --timeout-s 900`
+
+This completes the FF all-address-pair matrix for the recorded setup. It
+does not remove the model warnings or qualify broad PVT, physical row loading,
+noise, retention, mismatch, captured-address/fanout or macro-level behavior.

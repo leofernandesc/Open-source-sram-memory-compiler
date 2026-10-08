@@ -161,9 +161,9 @@
   <section class="slide">
     <div class="eyebrow">05 · Decoder compacto · FF quente</div>
     <h2>Extensão elétrica no canto FF</h2>
-    <p>Foram simuladas nove transições selecionadas em FF, 1,8 V e 125 °C, comparando o esquemático com o PEX R-C compacto. A matriz passou a 5 ps e 1 ps; o caso de maior excursão também passou com passo de 0,5 ps.</p>
+    <p>Foram simulados os 16 pares ordenados de endereço em FF, 1,8 V e 125 °C, comparando o baseline com o PEX R-C compacto. Os 16 casos passaram a 5 ps e 1 ps; a campanha selecionada anterior também avaliou o caso de maior excursão com passo de 0,5 ps.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">9 / 9</div><div class="label">transições aprovadas no esquemático e no PEX, a 5 ps e 1 ps</div></div>
+      <div class="card"><div class="metric">16 / 16</div><div class="label">pares aprovados no baseline e no PEX, a 5 ps e 1 ps</div></div>
       <div class="card"><div class="metric">0,963 mV</div><div class="label">distância do pico VGD até a tela de magnitude do runner; não é margem de domínio do modelo</div></div>
       <div class="card"><div class="metric">493 ps</div><div class="label">atraso máximo PEX da WL até 90%, a 1 ps</div></div>
     </div>
@@ -173,7 +173,7 @@
       <tr><td>Magnitude terminal observada</td><td>1,949037 V</td><td>1,878690 V</td></tr>
     </tbody></table>
     <p class="warn">O ngspice emitiu avisos nos modelos FF: valores de A2 acima de 1 foram limitados pelo simulador, com A1 ajustado para 0; também aparecem parâmetros Eta0, Pdibl1 e Pdibl2 negativos. Os checks passaram sob essa interpretação, mas o pico VGD ficou próximo do limite numérico da tela do runner, sem medir diretamente as faixas assinadas do PDK.</p>
-    <p class="source">O PDK documenta 1,95 V como limite de faixas assinadas de VGS/VDS; a tela do runner também compara VGD, que não é uma dessas variáveis, e por isso não comprova domínio do modelo ou confiabilidade. A matriz usa nove transições, WL drivers esquemáticos e carga estimada de 17,4 fF. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório e comandos</a> · <a href="../sims/row_decoder/results/compact_decoder_fast_1ps/comparison.csv">CSV a 1 ps</a> · <a href="../sims/row_decoder/results/compact_decoder_fast_hot_audit.json">Auditoria e hashes</a>.</p>
+    <p class="source">O PDK documenta 1,95 V como limite de faixas assinadas de VGS/VDS; a tela do runner também compara VGD, que não é uma dessas variáveis, e por isso não comprova domínio do modelo ou confiabilidade. Permanecem os avisos dos modelos FF. A matriz usa WL drivers esquemáticos e carga estimada de 17,4 fF; a energia da fonte PCLK variou até 11,39% entre passos de 5 ps e 1 ps. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório e comandos</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps/comparison.csv">CSV a 1 ps</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json">Auditoria, hashes e deltas</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps/">Resultados a 5 ps</a>.</p>
   </section>
 
   <section class="slide">
@@ -212,7 +212,7 @@
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Requalificar captura/fanout e a interface PCLK</td><td>Orcamento medido para o novo dimensionamento</td></tr>
       <tr><td>09/10</td><td>Repetir qualificacao ampla, ruido e retencao</td><td>Fonte atual e limites explicitamente registrados</td></tr>
-      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS e PEX executados; campanha FF seletiva concluída, avisos dos modelos e consumo ainda em revisão</td></tr>
+      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS e PEX executados; matriz FF completa concluída, avisos dos modelos e energia PCLK ainda em revisão</td></tr>
       <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>

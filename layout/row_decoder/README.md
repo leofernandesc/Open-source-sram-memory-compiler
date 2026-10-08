@@ -38,24 +38,35 @@ and 1.877770 V at 1 ps. The largest 5 ps-to-1 ps changes were 0.081 ps in WL
 terminal magnitude. Results: [5 ps](../../sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps/)
 and [1 ps](../../sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps/).
 
-These are selected TT/1.8 V/27 °C and SS/1.62 V/-40 °C transitions with
-50 ps input edges, Gear integration and the estimated 17.4 fF row load. The
-decoder alone is extracted; four WL buffers remain schematic devices. This
-does not establish broad PVT, physical-row loading, full-macro timing, signed
-model-domain clearance or reliability qualification. Full logs and result
-directories are listed in the [validation log](../../docs/feature_peripherals_validation_log.md)
-and [compaction handoff](../../docs/row_decoder_layout_compaction_20261008.md).
+The recorded electrical campaigns include selected TT/1.8 V/27 °C and
+SS/1.62 V/-40 °C transitions plus complete 16-pair TT and FF/1.8 V/125 °C
+matrices. They use 50 ps input edges, Gear integration and the estimated
+17.4 fF row load. The decoder alone is extracted; four WL buffers remain
+schematic devices. This does not establish broad PVT, physical-row loading,
+full-macro timing, signed model-domain clearance or reliability qualification.
+Full logs and result directories are listed in the
+[validation log](../../docs/feature_peripherals_validation_log.md) and
+[compaction handoff](../../docs/row_decoder_layout_compaction_20261008.md).
 Previous layouts and PEX remain archived under `archive/` with hashes.
 
-The selected FF/1.8 V/125 °C extension passes nine schematic and PEX
-transitions at both 5 ps and 1 ps; the directed peak case also passes at 0.5 ps.
-The baseline `VGD` peak is 0.963 mV below the runner's absolute terminal
-difference screen at 1.95 V. The PDK documents 1.95 V as a boundary for signed
-`VGS`/`VDS` model ranges, but `VGD` is not one of those variables; the reported
-headroom is not a PDK model-domain margin. The FF run also emits model-parameter
-warnings. These results are not reliability or full model-domain qualification. See the
-[FF-hot report](../../docs/row_decoder_fast_hot_qualification_20261008.md)
-for detailed metrics, warning records and scope limits.
+The full FF/1.8 V/125 °C extension now covers all 16 ordered address pairs.
+At 5 ps and 1 ps, baseline and PEX each pass 16/16 cases and all recorded
+contract and voltage-screen checks. At 1 ps, maximum PEX WL delay to 90% is
+492.795 ps, precharge-to-10% is 461.940 ps, and terminal magnitude is
+1.878690 V. The largest matched 5 ps-to-1 ps PEX differences are 0.130 ps in
+WL delay, 0.191 ps in precharge, 0.058 ps in WL rise slew, and 0.373 mV in
+terminal magnitude. PCLK source cycle energy differs by up to 0.502 fJ
+(11.39%), so that metric is more timestep-sensitive.
+
+The baseline peak is 1.949037 V of absolute `VGD` in `01→10`, 0.963 mV below
+the runner's 1.95 V numerical screen. This is not signed PDK model-domain
+headroom: `VGD` is not one of the documented signed model-range variables.
+The FF logs also report `A2 > 1` (clamped by ngspice) and negative `Eta0`,
+`Pdibl1`, and `Pdibl2`. These results pass the project checks under ngspice's
+reported model handling; they do not establish full model-domain or
+reliability qualification. See the [FF-hot report](../../docs/row_decoder_fast_hot_qualification_20261008.md)
+and [full matrix audit](../../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json)
+for warning records, hashes, per-case data and scope limits.
 
 ## Historical evidence for 7ad0348 - 2026-10-07 UTC
 

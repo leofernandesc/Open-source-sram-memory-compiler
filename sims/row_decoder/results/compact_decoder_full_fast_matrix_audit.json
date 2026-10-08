@@ -1,0 +1,666 @@
+{
+  "title": "Full 16-pair FF-hot row decoder matrix on compact-layout R-C PEX",
+  "date": "2026-10-08",
+  "condition": {
+    "profile": "fast",
+    "model_corner": "ff",
+    "supply_v": 1.8,
+    "temperature_c": 125,
+    "address_transition_scope": "all 16 ordered old/new pairs among 00, 01, 10, 11, including same-address pairs",
+    "wl_buffer": "schematic",
+    "estimated_wl_load_ff": 17.4,
+    "integration": "Gear",
+    "workers": 1
+  },
+  "pex": {
+    "sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+    "components": {
+      "mos": 29,
+      "resistors": 762,
+      "capacitors": 389
+    }
+  },
+  "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+  "campaigns": {
+    "5ps": {
+      "max_step_ps": 5.0,
+      "method": "Gear",
+      "address_pairs": 16,
+      "unique_ordered_address_pairs": 16,
+      "baseline": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 1664,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 390.92344609053885,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 394.3011107188596,
+              "case": "fast_10_to_00"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 304.08060451042047,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 306.5079682194274,
+              "case": "fast_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 249.92557448830237,
+              "case": "fast_00_to_11"
+            },
+            "max": {
+              "value": 249.95891469216107,
+              "case": "fast_10_to_00"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 101.03920425720212,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 104.51572617621925,
+              "case": "fast_10_to_00"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 147.83375093885977,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 150.85210105218036,
+              "case": "fast_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.9390189640502267,
+              "case": "fast_01_to_01"
+            },
+            "max": {
+              "value": 1.948349276447175,
+              "case": "fast_01_to_10",
+              "device": "x1.m6",
+              "voltage": "VGD"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.9229096839784439,
+              "case": "fast_10_to_10"
+            },
+            "max": {
+              "value": 1.9241808325203011,
+              "case": "fast_11_to_01"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 219.24858061355113,
+              "case": "fast_11_to_11"
+            },
+            "max": {
+              "value": 292.8328043205618,
+              "case": "fast_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 1.8302809176251604,
+              "case": "fast_11_to_10"
+            },
+            "max": {
+              "value": 1.8754009568538932,
+              "case": "fast_01_to_10"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 160,
+            "A2": 256,
+            "Pdibl1": 256,
+            "Pdibl2": 160
+          },
+          "logs_with_warning_by_parameter": {
+            "A2": 16,
+            "Pdibl1": 16,
+            "Pdibl2": 16,
+            "Eta0": 16
+          }
+        }
+      },
+      "pex": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 2560,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 485.0708318507153,
+              "case": "fast_01_to_00"
+            },
+            "max": {
+              "value": 492.9025036148192,
+              "case": "fast_01_to_10"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 460.8729864019986,
+              "case": "fast_11_to_00"
+            },
+            "max": {
+              "value": 462.0605724075648,
+              "case": "fast_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 250.05912957586884,
+              "case": "fast_10_to_01"
+            },
+            "max": {
+              "value": 250.09944626757417,
+              "case": "fast_00_to_10"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 209.9058654417056,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 217.8918540048298,
+              "case": "fast_01_to_10"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 316.1947408251833,
+              "case": "fast_11_to_00"
+            },
+            "max": {
+              "value": 317.6119282187127,
+              "case": "fast_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.87383338432115,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 1.8790302560974694,
+              "case": "fast_10_to_01",
+              "device": "x1.13",
+              "voltage": "VGS"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.878859781646022,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 1.8804345523557706,
+              "case": "fast_11_to_11"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 336.2024733729382,
+              "case": "fast_11_to_11"
+            },
+            "max": {
+              "value": 603.4979925606231,
+              "case": "fast_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 4.409106719182133,
+              "case": "fast_01_to_00"
+            },
+            "max": {
+              "value": 4.815537980590297,
+              "case": "fast_01_to_10"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 160,
+            "A2": 256,
+            "Pdibl1": 256,
+            "Pdibl2": 160
+          },
+          "logs_with_warning_by_parameter": {
+            "A2": 16,
+            "Pdibl1": 16,
+            "Pdibl2": 16,
+            "Eta0": 16
+          }
+        }
+      }
+    },
+    "1ps": {
+      "max_step_ps": 1.0,
+      "method": "Gear",
+      "address_pairs": 16,
+      "unique_ordered_address_pairs": 16,
+      "baseline": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 1664,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 390.61747494602486,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 394.0060449188243,
+              "case": "fast_10_to_00"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 303.82436058851243,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 306.27981462107516,
+              "case": "fast_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 249.9980367643384,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 249.99929969213696,
+              "case": "fast_00_to_00"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 100.47483441614645,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 103.95485781429431,
+              "case": "fast_10_to_00"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 147.33039258968498,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 150.0549610682356,
+              "case": "fast_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.9396230663315803,
+              "case": "fast_01_to_01"
+            },
+            "max": {
+              "value": 1.949036821755575,
+              "case": "fast_01_to_10",
+              "device": "x1.m6",
+              "voltage": "VGD"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.922231239099999,
+              "case": "fast_11_to_10"
+            },
+            "max": {
+              "value": 1.9277904461536262,
+              "case": "fast_11_to_01"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 219.21574188322833,
+              "case": "fast_11_to_11"
+            },
+            "max": {
+              "value": 292.7441664724353,
+              "case": "fast_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 1.6941726046000554,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 1.7331930986034483,
+              "case": "fast_01_to_10"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 160,
+            "A2": 256,
+            "Pdibl1": 256,
+            "Pdibl2": 160
+          },
+          "logs_with_warning_by_parameter": {
+            "A2": 16,
+            "Pdibl1": 16,
+            "Pdibl2": 16,
+            "Eta0": 16
+          }
+        }
+      },
+      "pex": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 2560,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 484.95598547655464,
+              "case": "fast_01_to_00"
+            },
+            "max": {
+              "value": 492.79457834921635,
+              "case": "fast_01_to_10"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 460.682139744812,
+              "case": "fast_11_to_00"
+            },
+            "max": {
+              "value": 461.9395647502243,
+              "case": "fast_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 250.11517004259457,
+              "case": "fast_11_to_11"
+            },
+            "max": {
+              "value": 250.1189528789124,
+              "case": "fast_01_to_10"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 209.75669753783745,
+              "case": "fast_10_to_11"
+            },
+            "max": {
+              "value": 217.85600963159786,
+              "case": "fast_01_to_10"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 315.9020006591483,
+              "case": "fast_11_to_00"
+            },
+            "max": {
+              "value": 317.4654306947997,
+              "case": "fast_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.8736948237497395,
+              "case": "fast_00_to_00"
+            },
+            "max": {
+              "value": 1.878689737943879,
+              "case": "fast_10_to_01",
+              "device": "x1.13",
+              "voltage": "VGS"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.8787497357089735,
+              "case": "fast_10_to_00"
+            },
+            "max": {
+              "value": 1.8802798997880594,
+              "case": "fast_11_to_11"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 336.25016653427315,
+              "case": "fast_11_to_11"
+            },
+            "max": {
+              "value": 603.5929353102349,
+              "case": "fast_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 3.907002545657678,
+              "case": "fast_01_to_00"
+            },
+            "max": {
+              "value": 4.3152076802280686,
+              "case": "fast_01_to_10"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 160,
+            "A2": 256,
+            "Pdibl1": 256,
+            "Pdibl2": 160
+          },
+          "logs_with_warning_by_parameter": {
+            "A2": 16,
+            "Pdibl1": 16,
+            "Pdibl2": 16,
+            "Eta0": 16
+          }
+        }
+      }
+    }
+  },
+  "max_abs_5ps_vs_1ps_delta": {
+    "baseline": {
+      "wl_delay90_ps": {
+        "max_absolute_difference": 0.330435925326924,
+        "case_for_max_absolute_difference": "fast_11_to_01",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.330435925326924,
+        "max_relative_difference_percent": 0.08398152211763778,
+        "case_for_max_relative_difference": "fast_11_to_01"
+      },
+      "wl_precharge10_ps": {
+        "max_absolute_difference": 0.2717717069561445,
+        "case_for_max_absolute_difference": "fast_00_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.2717717069561445,
+        "max_relative_difference_percent": 0.08908778986199327,
+        "case_for_max_relative_difference": "fast_00_to_00"
+      },
+      "wl_selected_rise_slew10_90_ps": {
+        "max_absolute_difference": 0.07323510590271098,
+        "case_for_max_absolute_difference": "fast_00_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": 0.07323510590271098,
+        "max_relative_difference_percent": 0.02930276585445589,
+        "case_for_max_relative_difference": "fast_00_to_11"
+      },
+      "dec_delay90_ps": {
+        "max_absolute_difference": 0.5643698410556652,
+        "case_for_max_absolute_difference": "fast_10_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.5643698410556652,
+        "max_relative_difference_percent": 0.5585652076386347,
+        "case_for_max_relative_difference": "fast_10_to_11"
+      },
+      "dec_precharge10_ps": {
+        "max_absolute_difference": 0.8444372517226952,
+        "case_for_max_absolute_difference": "fast_11_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.8444372517226952,
+        "max_relative_difference_percent": 0.5640545833019305,
+        "case_for_max_relative_difference": "fast_11_to_00"
+      },
+      "terminal_magnitude_max_v": {
+        "max_absolute_difference": 0.000928914161166805,
+        "case_for_max_absolute_difference": "fast_01_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": 0.000928914161166805,
+        "max_relative_difference_percent": 0.04774238000636726,
+        "case_for_max_relative_difference": "fast_01_to_11"
+      },
+      "output_vgs_peak_v": {
+        "max_absolute_difference": 0.003609613633325015,
+        "case_for_max_absolute_difference": "fast_11_to_01",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": 0.003609613633325015,
+        "max_relative_difference_percent": 0.18759222482208837,
+        "case_for_max_relative_difference": "fast_11_to_01"
+      },
+      "vdd_src_cycle_energy_fj": {
+        "max_absolute_difference": 0.08863784812649556,
+        "case_for_max_absolute_difference": "fast_11_to_00",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.08863784812649556,
+        "max_relative_difference_percent": 0.03026909786700823,
+        "case_for_max_relative_difference": "fast_11_to_00"
+      },
+      "vpclk_cycle_energy_fj": {
+        "max_absolute_difference": 0.14435329923893359,
+        "case_for_max_absolute_difference": "fast_01_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.14435329923893359,
+        "max_relative_difference_percent": 7.750709443277707,
+        "case_for_max_relative_difference": "fast_01_to_11"
+      }
+    },
+    "pex": {
+      "wl_delay90_ps": {
+        "max_absolute_difference": 0.13003686358035793,
+        "case_for_max_absolute_difference": "fast_10_to_10",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.13003686358035793,
+        "max_relative_difference_percent": 0.026547955407013688,
+        "case_for_max_relative_difference": "fast_10_to_10"
+      },
+      "wl_precharge10_ps": {
+        "max_absolute_difference": 0.19084665718662563,
+        "case_for_max_absolute_difference": "fast_11_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.19084665718662563,
+        "max_relative_difference_percent": 0.041409816330644895,
+        "case_for_max_relative_difference": "fast_11_to_00"
+      },
+      "wl_selected_rise_slew10_90_ps": {
+        "max_absolute_difference": 0.05774961568963022,
+        "case_for_max_absolute_difference": "fast_10_to_01",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": 0.05774961568963022,
+        "max_relative_difference_percent": 0.02309438403132119,
+        "case_for_max_relative_difference": "fast_10_to_01"
+      },
+      "dec_delay90_ps": {
+        "max_absolute_difference": 0.15262439414090068,
+        "case_for_max_absolute_difference": "fast_10_to_10",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.15262439414090068,
+        "max_relative_difference_percent": 0.07106419039518135,
+        "case_for_max_relative_difference": "fast_10_to_11"
+      },
+      "dec_precharge10_ps": {
+        "max_absolute_difference": 0.29274016603500286,
+        "case_for_max_absolute_difference": "fast_11_to_11",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.29274016603500286,
+        "max_relative_difference_percent": 0.09258223753849595,
+        "case_for_max_relative_difference": "fast_11_to_00"
+      },
+      "terminal_magnitude_max_v": {
+        "max_absolute_difference": 0.0003733829221994611,
+        "case_for_max_absolute_difference": "fast_00_to_01",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.0003733829221994611,
+        "max_relative_difference_percent": 0.019879095153876664,
+        "case_for_max_relative_difference": "fast_00_to_01"
+      },
+      "output_vgs_peak_v": {
+        "max_absolute_difference": 0.0001754734179968409,
+        "case_for_max_absolute_difference": "fast_00_to_01",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.0001754734179968409,
+        "max_relative_difference_percent": 0.00933759474150456,
+        "case_for_max_relative_difference": "fast_00_to_01"
+      },
+      "vdd_src_cycle_energy_fj": {
+        "max_absolute_difference": 0.09494274961184601,
+        "case_for_max_absolute_difference": "fast_11_to_00",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": 0.09494274961184601,
+        "max_relative_difference_percent": 0.016557201697488522,
+        "case_for_max_relative_difference": "fast_01_to_00"
+      },
+      "vpclk_cycle_energy_fj": {
+        "max_absolute_difference": 0.5021041735244549,
+        "case_for_max_absolute_difference": "fast_01_to_00",
+        "signed_1ps_minus_5ps_at_max_absolute_difference": -0.5021041735244549,
+        "max_relative_difference_percent": 11.387888874179772,
+        "case_for_max_relative_difference": "fast_01_to_00"
+      }
+    }
+  },
+  "waveforms": {
+    "5ps": {
+      "count": 32,
+      "bytes": 141698832,
+      "git_ignored": true
+    },
+    "1ps": {
+      "count": 32,
+      "bytes": 703776400,
+      "git_ignored": true
+    }
+  },
+  "interpretation": [
+    "Baseline and PEX passed all recorded decoder contract checks and both voltage screens for all 16 pairs at both timesteps.",
+    "FF ngspice logs report BSIM4 parameter warnings including A2 > 1 (ngspice clamps A2 and resets A1), and negative Eta0, Pdibl1, and Pdibl2. Passing project screens under these warnings is not full model-domain or reliability qualification.",
+    "The absolute terminal-magnitude screen includes VGD and is not a signed SKY130 model-domain check. The baseline peak remains close to the historical 1.95 V numerical screen.",
+    "Timing and terminal metrics are closely matched between 5 ps and 1 ps; PCLK source cycle-energy results show larger timestep sensitivity and should use the 1 ps data for reference pending a dedicated energy-convergence review.",
+    "The distributed PEX covers the decoder only. WL buffers remain schematic and the 17.4 fF row load is an estimate, not extracted physical row loading.",
+    "Raw waveforms are retained locally for inspection but are ignored by Git due to their size; textual summaries, checks, manifests, netlists, and logs are retained in the result roots."
+  ],
+  "reproduction": [
+    "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles fast --all-address-pairs --max-step-ps 5 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps",
+    "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles fast --all-address-pairs --max-step-ps 1 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps"
+  ]
+}
