@@ -3,12 +3,16 @@
 - Date: 2026-10-08
 - Branch: `feature/peripherals`
 
-Current decoder status on compact commit `d20f509`: routed/flat DRC is 0/0,
-LVS is unique, and the current PEX has 762 R / 389 C across all 22 resistance
+Current decoder status: the compact layout from `d20f509` has routed/flat DRC
+0/0, unique LVS, and current PEX with 762 R / 389 C across all 22 resistance
 networks. The matched 13-case schematic/PEX matrix passes at both 5 ps and
-1 ps. See the [compact-layout extraction entry](#2026-10-08-compact-decoder-r-c-extraction-and-electrical-checks)
-for measured results and remaining limits. The 7ad0348 PEX and its matrix are
-historical for the previous geometry.
+1 ps. A selected FF/1.8 V/125 °C extension also passes nine schematic/PEX
+transitions at 5 ps and 1 ps; the baseline terminal screen has only 0.963 mV
+of headroom, and ngspice reports FF model-parameter warnings. See the
+[compact-layout extraction entry](#2026-10-08-compact-decoder-r-c-extraction-and-electrical-checks)
+and [FF-hot qualification entry](#2026-10-08-compact-decoder-ff-hot-electrical-extension)
+for measurements and limits. The 7ad0348 PEX and its matrix are historical for
+the previous geometry.
 
 The [HTML status presentation](person3_phase1_status.html) summarizes the
 Person 3 work, current evidence, and remaining Phase 1 tasks.
@@ -1085,3 +1089,53 @@ matrix for this layout, not broad PVT, noise/retention, captured-address
 fanout, physical-row loading or full-macro operation. The WL buffers remain
 schematic and 17.4 fF remains an estimate. The 1.95 V screen is experimental
 and does not establish signed model-domain or reliability clearance.
+
+## 2026-10-08: compact decoder FF-hot electrical extension
+
+After the fresh compact-layout extraction, the selected decoder matrix was
+extended to the existing fast-hot model profile: FF, 1.8 V and 125 °C. The
+runner now accepts `--profiles fast`; the default TT/SS matrix is unchanged.
+Nine selected address transitions matching the TT set were evaluated against
+both the current Xschem baseline and the current distributed R-C PEX. This is
+a selected extension, not the full set of 16 possible previous/new address
+pairs or broad PVT qualification.
+
+| Maximum transient step | Baseline | PEX | Baseline checks | PEX checks |
+|---:|---:|---:|---:|---:|
+| 5 ps | 9/9 pass | 9/9 pass | 936/936 | 1,440/1,440 |
+| 1 ps | 9/9 pass | 9/9 pass | 936/936 | 1,440/1,440 |
+| 0.5 ps, directed peak case | 1/1 pass | 1/1 pass | 104/104 | 160/160 |
+
+At 1 ps, maximum baseline WL delay to 90% was 394.006 ps and maximum
+precharge-to-10% was 306.280 ps. The corresponding PEX maxima were 492.795 ps
+and 461.940 ps. In the directed `01→10` baseline case, maximum terminal
+magnitude was 1.949037 V at 1 ps and 1.949031 V at 0.5 ps. This is about
+0.963 mV below the runner's experimental 1.95 V magnitude screen. The maximum
+PEX terminal magnitude was 1.878690 V at 1 ps and 1.878005 V in the directed
+0.5 ps case. These screens do not establish reliability or signed device-model
+validity.
+
+The 38 retained ngspice text logs contain no `Error:` lines, but they report
+FF model warnings: several `A2` values exceed 1, causing ngspice to clamp `A2`
+and reset `A1`, and negative `Eta0`, `Pdibl1` and `Pdibl2` values are also
+reported. Thus, passing logic/voltage checks describe this simulator's
+interpretation of the loaded FF models; review the warnings before extending
+the result to model-validity or reliability claims.
+
+The transient timestep comparison is numerically close: largest 5 ps-to-1 ps
+changes were 0.309 ps in baseline WL delay, 0.272 ps in baseline precharge,
+0.129 ps in PEX WL delay, 0.191 ps in PEX precharge and 0.910 mV in baseline
+terminal magnitude. The targeted 0.5 ps run was only the `01→10` peak case.
+The four WL buffers remain schematic and each row load is an estimated
+17.4 fF; extracted physical row loading, address capture/fanout, noise,
+retention, mismatch and macro-level behavior remain open.
+
+The runner unit suite passes six tests, including the new nine-transition
+profile regression. Result decks, manifests, CSVs and text logs are under
+[`compact_decoder_fast_5ps`](../sims/row_decoder/results/compact_decoder_fast_5ps/),
+[`compact_decoder_fast_1ps`](../sims/row_decoder/results/compact_decoder_fast_1ps/)
+and [`compact_decoder_fast_peak_0p5ps`](../sims/row_decoder/results/compact_decoder_fast_peak_0p5ps/).
+The audit summary with hashes and warning counts is
+[`compact_decoder_fast_hot_audit.json`](../sims/row_decoder/results/compact_decoder_fast_hot_audit.json);
+the interpretation and reproduction commands are in the
+[qualification report](row_decoder_fast_hot_qualification_20261008.md).

@@ -8,6 +8,15 @@ import run_row_decoder_pex_contract as runner
 
 
 class PexContractRegressionTests(unittest.TestCase):
+    def test_fast_hot_profile_contains_nine_matching_transition_cases(self):
+        cases = runner.case_matrix(("fast",))
+        self.assertEqual(len(cases), 9)
+        self.assertTrue(all(case["profile"] == "fast" for case in cases))
+        self.assertEqual({(case["old"], case["new"]) for case in cases},
+                         {(0, 0), (0, 1), (1, 0), (0, 2), (2, 0),
+                          (0, 3), (3, 0), (1, 2), (2, 1)})
+        self.assertEqual(runner.contract.PROFILES["fast"], ("ff", 1.8, 125))
+
     @classmethod
     def setUpClass(cls):
         runner.load_simulation_dependencies()

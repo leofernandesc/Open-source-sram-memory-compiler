@@ -38,6 +38,14 @@ directories are listed in the [validation log](../../docs/feature_peripherals_va
 and [compaction handoff](../../docs/row_decoder_layout_compaction_20261008.md).
 Previous layouts and PEX remain archived under `archive/` with hashes.
 
+The selected FF/1.8 V/125 °C extension passes nine schematic and PEX
+transitions at both 5 ps and 1 ps; the directed peak case also passes at 0.5 ps.
+The baseline is only 0.963 mV below the runner's experimental 1.95 V terminal
+magnitude screen, and ngspice emits FF model-parameter warnings. These results
+are not reliability or full model-domain qualification. See the
+[FF-hot report](../../docs/row_decoder_fast_hot_qualification_20261008.md)
+for detailed metrics, warning records and scope limits.
+
 ## Historical evidence for 7ad0348 - 2026-10-07 UTC
 
 - Magic 8.3.684, SKY130A tech 1.0.493, `drc(full)`: **0 routed / 0 flattened

@@ -65,7 +65,7 @@
     <div class="eyebrow">Open-Source SRAM Memory Compiler · SKY130A</div>
     <h1>Andamento<br>da Fase 1</h1>
     <p class="lead">Decoder dinâmico de linha, wordline driver e write driver. Este resumo reúne esquemas, resultados medidos e próximos passos da branch <strong>feature/peripherals</strong>.</p>
-    <div><span class="tag">Atualizado em 7 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
+    <div><span class="tag">Atualizado em 8 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
     <p class="source">Os resultados e as pendências têm links para os esquemas, relatórios e dados de origem no repositório.</p>
   </section>
 
@@ -146,7 +146,7 @@
   <section class="slide">
     <div class="eyebrow">Decoder - evidência histórica 7ad0348, 07/10/2026 UTC</div>
     <h2>Revisão anterior: DRC/LVS e matriz crítica aprovados</h2>
-    <p class="warn">Atualização 08/10: o layout foi compactado preservando esse sizing. DRC/LVS passam, mas a nova extração e a simulação ficam para a outra máquina. <a href="row_decoder_layout_compaction_20261008.md">Handoff e evidências</a>.</p>
+    <p class="warn">Este slide registra a geometria e a extração de 7ad0348. O layout compacto foi extraído e simulado depois; a matriz atual está resumida no slide seguinte e no <a href="row_decoder_layout_compaction_20261008.md">handoff da compactação</a>.</p>
     <div class="grid three">
       <div class="card"><div class="metric">0 / 0</div><div class="label">DRC roteado / achatado; LVS unico</div></div>
       <div class="card"><div class="metric">744 R / 392 C</div><div class="label">29 MOS, resistencia nas 22 redes</div></div>
@@ -155,11 +155,29 @@
     <p>Roteamento agrupado, canal central e trilhas limitadas aos pontos de conexao. Inversores de endereco: 0,84 um; precharge: 1,25 um; stacks: 2 um; PFETs de saida: 3 um.</p>
     <p>SS / 1,62 V / -40 C: pior WL a 90% em 943,617 ps e precharge a 10% em 899,474 ps. O limite de 1 ns permanece; zero alertas nos dois criterios experimentais de 1,95 V.</p>
     <p class="warn">Escopo: nove casos TT e quatro SS, WL buffers esquematicos e carga estimada de 17,4 fF. Carga fisica, qualificacao ampla, captura/PCLK e confiabilidade permanecem pendentes. Energia de fontes ideais tem avaliacao numerica separada.</p>
-    <p class="source"><a href="../layout/row_decoder/README.md">Fluxo e reproducao</a> &middot; <a href="../sims/row_decoder/results/row_decoder_pex_verified_1ps/comparison.csv">Comparacao a 1 ps</a> &middot; <a href="feature_peripherals_validation_log.md#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure">Registro completo</a></p>
+    <p class="source"><a href="../layout/row_decoder/README.md">Fluxo e reproducao</a> &middot; <a href="../sims/row_decoder/results/row_decoder_pex_verified_1ps/comparison.csv">Comparacao historica a 1 ps</a> &middot; <a href="feature_peripherals_validation_log.md#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure">Registro historico</a></p>
   </section>
 
   <section class="slide">
-    <div class="eyebrow">05 · Captura → PCLK</div>
+    <div class="eyebrow">05 · Decoder compacto · FF quente</div>
+    <h2>Extensão elétrica no canto FF</h2>
+    <p>Foram simuladas nove transições selecionadas em FF, 1,8 V e 125 °C, comparando o esquemático com o PEX R-C compacto. A matriz passou a 5 ps e 1 ps; o caso de maior excursão também passou com passo de 0,5 ps.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">9 / 9</div><div class="label">transições aprovadas no esquemático e no PEX, a 5 ps e 1 ps</div></div>
+      <div class="card"><div class="metric">0,963 mV</div><div class="label">margem do pico VGD esquemático até a tela experimental de 1,95 V</div></div>
+      <div class="card"><div class="metric">493 ps</div><div class="label">atraso máximo PEX da WL até 90%, a 1 ps</div></div>
+    </div>
+    <table><thead><tr><th>Métrica máxima, passo 1 ps</th><th>Esquemático</th><th>PEX compacto</th></tr></thead><tbody>
+      <tr><td>WL até 90%</td><td>394,006 ps</td><td>492,795 ps</td></tr>
+      <tr><td>Pré-carga da WL até 10%</td><td>306,280 ps</td><td>461,940 ps</td></tr>
+      <tr><td>Magnitude terminal observada</td><td>1,949037 V</td><td>1,878690 V</td></tr>
+    </tbody></table>
+    <p class="warn">O ngspice emitiu avisos nos modelos FF: valores de A2 acima de 1 foram limitados pelo simulador, com A1 ajustado para 0; também aparecem parâmetros Eta0, Pdibl1 e Pdibl2 negativos. Os checks passaram sob essa interpretação, mas a margem experimental do esquemático é estreita.</p>
+    <p class="source">A tela de 1,95 V é experimental, não é um limite da especificação e não comprova confiabilidade. A matriz usa nove transições, WL drivers esquemáticos e carga estimada de 17,4 fF. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório e comandos</a> · <a href="../sims/row_decoder/results/compact_decoder_fast_1ps/comparison.csv">CSV a 1 ps</a> · <a href="../sims/row_decoder/results/compact_decoder_fast_hot_audit.json">Auditoria e hashes</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">06 · Captura → PCLK</div>
     <p class="warn">Evidencia historica: repetir esta campanha de captura/fanout para o dimensionamento atual do decoder.</p>
     <h2>Captura → PCLK — margem de estabilização</h2>
     <p>Clock-to-Q e tempos de transição do flip-flop <code>dfxtp_1</code> da Liberty SKY130 foram usados para gerar rampas PWL de endereço. A simulação do decoder B7 com modelos MOS contínuos avaliou diferentes atrasos entre a captura e PCLK.</p>
@@ -178,7 +196,7 @@
   </section>
 
   <section class="slide">
-    <div class="eyebrow">06 · Estado físico e integração</div>
+    <div class="eyebrow">07 · Estado físico e integração</div>
     <h2>O que está concluído e o que falta</h2>
     <div class="grid">
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
@@ -189,12 +207,12 @@
   </section>
 
   <section class="slide">
-    <div class="eyebrow">07 · Próximas tarefas até 13/10</div>
+    <div class="eyebrow">08 · Próximas tarefas até 13/10</div>
     <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Requalificar captura/fanout e a interface PCLK</td><td>Orcamento medido para o novo dimensionamento</td></tr>
       <tr><td>09/10</td><td>Repetir qualificacao ampla, ruido e retencao</td><td>Fonte atual e limites explicitamente registrados</td></tr>
-      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS aprovados; novo PEX na outra máquina, consumo e integração pendentes</td></tr>
+      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS e PEX executados; campanha FF seletiva concluída, avisos dos modelos e consumo ainda em revisão</td></tr>
       <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>
@@ -205,7 +223,7 @@
 </main>
 <nav aria-label="Controles da apresentação">
   <button id="prev" type="button" aria-label="Slide anterior">← Anterior</button>
-  <span id="count" aria-live="polite">1 / 8</span>
+  <span id="count" aria-live="polite">1 / 10</span>
   <button id="next" type="button" aria-label="Próximo slide">Próximo →</button>
 </nav>
 <dialog class="image-viewer" id="image-viewer" aria-labelledby="viewer-title" aria-describedby="viewer-caption">
