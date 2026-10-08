@@ -161,23 +161,26 @@ audit did not perform a new extraction.
    for TT, SS and FF. Each profile runs 16 ordered address pairs for both
    baseline and PEX (32 ngspice runs); all three profiles total 96 runs. Keep
    the current PEX hash and 17.4 fF WL testbench load, and use new output roots
-   so the original UIC evidence is preserved. Example for TT (repeat with
-   `slow` and `fast`, changing the output-root name):
+   so the original UIC evidence is preserved. This sequential loop runs each
+   profile and audits it before moving on:
 
    ```bash
-   SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 \
-     sims/row_decoder/run_row_decoder_pex_contract.py \
-     --profiles tt --all-address-pairs --max-step-ps 1 --workers 1 \
-     --timeout-s 900 --initial-operating-point \
-     --output-root sims/row_decoder/results/compact_decoder_full_tt_opinit_matrix_1ps
-
-   python3 sims/row_decoder/audit_signed_device_domain.py \
-     --profiles tt \
-     --matrix-root sims/row_decoder/results/compact_decoder_full_tt_opinit_matrix_1ps \
-     --expected-cases 16 \
-     --output-json sims/row_decoder/results/compact_decoder_full_tt_opinit_matrix_1ps/signed_domain_audit.json \
-     --output-csv sims/row_decoder/results/compact_decoder_full_tt_opinit_matrix_1ps/signed_domain_audit.csv
+   for profile in tt slow fast; do
+     root="sims/row_decoder/results/compact_decoder_full_${profile}_opinit_matrix_1ps"
+     ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+       --profiles "$profile" --all-address-pairs --max-step-ps 1 --workers 1 \
+       --timeout-s 900 --initial-operating-point --output-root "$root"
+     ./tools/sram-eda python3 sims/row_decoder/audit_signed_device_domain.py \
+       --profiles "$profile" --matrix-root "$root" --expected-cases 16 \
+       --output-json "$root/signed_domain_audit.json" \
+       --output-csv "$root/signed_domain_audit.csv"
+   done
    ```
+
+   `tools/sram-eda` uses the `sram-xschem` container by default. If that
+   container is named differently on the stronger machine, set
+   `SRAM_EDA_CONTAINER` to the project container that mounts this checkout at
+   `/work`; the tool's environment requirements are in `tools/ENVIRONMENT.md`.
 
 2. Review the effective-source convention, the PDK's published bias ranges,
    and the FF BSIM4 parameter warnings with the SKY130 model maintainer or
