@@ -9,6 +9,8 @@ The script reads the canonical Xschem schematic. It does not edit the schematic.
 from __future__ import annotations
 
 import argparse
+from compact_routing import compact_plan
+from layout_provenance import write_state
 from collections import Counter
 from datetime import datetime, timezone
 import hashlib
@@ -199,39 +201,8 @@ def generate_route_tcl(devices: list[Device]) -> None:
     import_mag = LAYOUT / "row_decoder_import.mag"
     instances = parse_instances(import_mag)
     net_order = ordered_nets(devices)
-    track_order = ["VSS", "EVAL_GND", "net1", "net2", "net3", "net4",
-                   "A0T", "A1T", "A0B", "A1B", "N0", "N1", "N2", "N3",
-                   "DEC0", "DEC1", "DEC2", "DEC3", "A0", "A1", "PCLK", "VDD"]
-    track_y = {net: -1680 + i * 160 for i, net in enumerate(track_order)}
-    pitch = 1700
-    pmos_y, nmos_y = 2400, -2400
-    # Keep address inverter/buffer pairs together, then place each row's
-    # precharge/evaluation/output devices in three adjacent columns.
-    columns = {1: 0, 2: 0, 26: 1, 27: 1, 3: 2, 4: 2, 28: 3, 29: 3,
-               5: 4, 6: 4, 7: 5, 9: 6, 10: 6,
-               11: 7, 12: 7, 13: 8, 14: 9, 15: 9, 8: 10,
-               16: 11, 17: 11, 18: 12, 19: 13, 20: 13,
-               21: 14, 22: 14, 23: 15, 24: 16, 25: 16}
-    positions = {}
-    offsets = {}
-    for device in devices:
-        is_pfet = "pfet" in device.model.lower()
-        positions[device.name] = (1500 + columns[int(device.name[2:])] * pitch,
-                                  pmos_y if is_pfet else nmos_y)
-        # Separate vertical M2 lanes for aligned PFET/NFET cells. In
-        # particular their source and body routes carry different supplies.
-        offsets[device.name] = ((-300, 150, 300, 560) if is_pfet
-                                else (-650, -450, 850, 700))
-    # Bound each track by its actual via/port endpoints. Full-width tracks
-    # leave long open stubs on local dynamic nets and load the output stages.
-    endpoints = {net: ([500] if net in PORT_INDEX else []) for net in net_order}
-    for device in devices:
-        x, _ = positions[device.name]
-        for net, offset in zip((device.drain, device.gate, device.source, device.bulk),
-                               offsets[device.name]):
-            endpoints[net].append(x + offset)
-    track_bounds = {net: (min(points) - 100, max(points) + 100)
-                    for net, points in endpoints.items()}
+    plan = compact_plan(devices)
+    track_y = plan.tracks
 
     rows = [
         "load row_decoder_import",
@@ -252,7 +223,7 @@ def generate_route_tcl(devices: list[Device]) -> None:
     for i in range(1, 30):
         name = f"XM{i}"
         _, old_x, old_y = instances[name]
-        target_x, target_y = positions[name]
+        target_x, target_y = plan.placement[name]
         rows.append(f"move_inst_to {name} {target_x - old_x} {target_y - old_y}")
     rows += [
         "",
@@ -264,8 +235,9 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "select clear",
         "select no labels",
         "",
-        "proc m3_track {xlo xhi y} {",
-        "    box values $xlo [expr {$y - 30}] $xhi [expr {$y + 30}]",
+        "save row_decoder_placed",
+        "proc m3_track {y xmin xmax} {",
+        "    box values $xmin [expr {$y - 30}] $xmax [expr {$y + 30}]",
         "    paint metal3",
         "}",
         "",
@@ -315,8 +287,13 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "",
     ]
     for net in net_order:
-        xmin, xmax = track_bounds[net]
-        rows.append(f"m3_track {xmin} {xmax} {track_y[net]}")
+        lo, hi = plan.extents[net]
+        rows.append(f"m3_track {track_y[net]} {lo} {hi}")
+    lo, hi = plan.extents['VSS']
+    rows.append(f"terminal_to_m3 200 {track_y['VSS']} 200 {track_y['VSS']}")
+    for shield in plan.shields:
+        rows.append(f"m3_track {shield} {lo} {hi}")
+        rows.append(f"terminal_to_m3 200 {track_y['VSS']} 200 {shield}")
     rows.append("")
 
     for device in devices:
@@ -325,31 +302,31 @@ def generate_route_tcl(devices: list[Device]) -> None:
         is_pfet = "pfet" in device.model.lower()
         geometry = device_geometry(LAYOUT / f"{child}.mag", is_pfet)
         # The placed cell transform is known from the target placement above.
-        x, y = positions[name]
-        drain_via, gate_via, source_via, body_via = offsets[name]
+        x, y = plan.placement[name]
         tracks = track_y
         rows.append(f"# {name}: D={device.drain}, G={device.gate}, S={device.source}, B={device.bulk}")
-        rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x + drain_via} {tracks[device.drain]}")
+        rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x - 300} {tracks[device.drain]}")
         # The SKY130 Magic MOS PCell exposes gate contacts on both sides. Route
         # both to the same gate net so no small floating metal landing remains.
         # Keep the M1-to-M2 landing beyond the adjacent diffusion contacts.
         for gate_index, (gate_x, gate_y) in enumerate(geometry.gate_contacts):
             make_m3_via = 1 if gate_index == 0 else 0
             rows.append(
-                f"terminal_to_m3 {x + gate_x} {y + gate_y} {x + gate_via} "
+                f"terminal_to_m3 {x + gate_x} {y + gate_y} {x + plan.gate_offset[name]} "
                 f"{tracks[device.gate]} {make_m3_via}"
             )
-        rows.append(f"terminal_to_m3 {x + geometry.source_x} {y + geometry.source_y} {x + source_via} {tracks[device.source]}")
+        rows.append(f"terminal_to_m3 {x + geometry.source_x} {y + geometry.source_y} {x + plan.source_offset[name]} {tracks[device.source]}")
         # Keep the mcon outside the PCell's substrate/well tap footprint; the
         # LI route joins the tap to this offset via, as in the peripheral flows.
-        rows.append(f"body_to_m3 {x + geometry.bulk_x} {y + geometry.bulk_y} {x + 500} {x + body_via} {tracks[device.bulk]}")
+        rows.append(f"body_to_m3 {x + geometry.bulk_x} {y + geometry.bulk_y} {x + 500} {x + 560} {tracks[device.bulk]}")
         rows.append("")
 
     for net in net_order:
         y = track_y[net]
         if net in PORT_INDEX:
+            px = plan.port_x[net]
             rows += [
-                f"box values 475 {y - 25} 525 {y + 25}",
+                f"box values {px - 25} {y - 25} {px + 25} {y + 25}",
                 f"label {net} center metal3",
                 "select clear",
                 "select do labels",
@@ -359,9 +336,9 @@ def generate_route_tcl(devices: list[Device]) -> None:
                 "select no labels",
             ]
         else:
-            xmax = track_bounds[net][1]
+            px = plan.extents[net][0] + 60
             rows += [
-                f"box values {xmax - 75} {y - 25} {xmax - 25} {y + 25}",
+                f"box values {px - 25} {y - 25} {px + 25} {y + 25}",
                 f"label {net} center metal3",
                 "select clear",
                 "select no labels",
@@ -378,6 +355,15 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "",
     ]
     (LAYOUT / "route_row_decoder.tcl").write_text("\n".join(rows), encoding="utf-8")
+    (LAYOUT / 'routing_plan.json').write_text(json.dumps(dict(
+        strategy='paired devices, branch-local nets, grounded address shields',
+        placement=plan.placement, gate_offset=plan.gate_offset, source_offset=plan.source_offset,
+        tracks=plan.tracks,
+        extents=plan.extents, port_x=plan.port_x, shields=plan.shields,
+        m3_trunk_length_internal_units=sum(hi-lo for lo, hi in plan.extents.values())
+                                      + len(plan.shields)*(plan.extents['VSS'][1]-plan.extents['VSS'][0]),
+        note='Geometry/routing lengths only; no capacitance or timing claim before new PEX.'
+    ), indent=2) + '\n')
 
 
 def magic(script_name: str, log_name: str) -> str:
@@ -619,11 +605,13 @@ def main() -> int:
         print(f"Generated Xschem netlist: {netlist_path}")
         print("Magic device import is saved under layout/row_decoder/")
         return 0
+    write_state()
     generate_route_tcl(devices)
     route_log = magic("route_row_decoder.tcl", "route.log")
     flatten_script()
     flat_log = magic("flatten_for_check.tcl", "drc_flat.log")
     route_errors, flat_errors = drc_count(route_log), drc_count(flat_log)
+    write_state(top_drc=route_errors, flat_drc=flat_errors)
     print(f"Xschem MOS: {len(devices)} (12 PFET, 17 NFET)")
     print(f"Magic DRC hierarchical/top: {route_errors}")
     print(f"Magic DRC flattened: {flat_errors}")
@@ -639,8 +627,13 @@ def main() -> int:
         print(f"Magic connectivity extraction: {len(devices)} MOS devices; no RC PEX requested")
         print("Netgen LVS: Circuits match uniquely")
         print(f"Logs: {LAYOUT / 'reports' / 'lvs_extract.log'} and {LAYOUT / 'reports' / 'lvs.log'}")
+        write_state(top_drc=0, flat_drc=0, lvs=True)
+        print('RC PEX is stale/pending; no extresist was run.')
         return 0
     if args.extract:
+        version = subprocess.check_output(['magic', '--version'], text=True).strip()
+        if version != '8.3.684':
+            raise RuntimeError(f'R-C extraction requires Magic 8.3.684; selected {version}')
         lvs_log, pex, negative_caps = run_extraction_and_lvs()
         resistor_count = sum(1 for line in pex.splitlines() if re.match(r"^R\d+\s", line))
         capacitor_count = sum(1 for line in pex.splitlines() if re.match(r"^C\d+\s", line))
@@ -654,6 +647,7 @@ def main() -> int:
             print("Do not use this PEX for electrical characterization; review the extraction result.")
             return 3
         print("PEX capacitance audit: PASS (all extracted capacitor values are nonnegative)")
+        write_state(top_drc=0, flat_drc=0, lvs=True, current=True)
     else:
         print("Run with --lvs-only to recheck connectivity without RC PEX, or --extract for RC PEX and LVS.")
     return 0

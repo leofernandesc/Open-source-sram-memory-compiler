@@ -2,10 +2,32 @@
 
 The canonical circuit is [row_decoder.sch](../../cells/row_decoder/row_decoder.sch).
 This directory contains the generated Magic views, routing/extraction scripts,
-DRC/LVS reports and the qualified decoder R-C netlist. Only the decoder was
+DRC/LVS reports and the retained historical decoder R-C netlist. Only the decoder was
 changed; the WL buffers used by the electrical bench remain schematic devices.
 
-## Current evidence - 2026-10-07 UTC
+## Current compact layout - 2026-10-08
+
+The latest remote sizing and extraction safeguards from `7ad0348` are preserved.
+The new compact layout passes routed/flat DRC (0/0) and unique LVS (29 MOS,
+22 nets). Its bbox is 98.80 × 36.92 µm: 12.93% smaller than `7ad0348`.
+Horizontal M3 trunk length falls 22.68%, including added VSS shields.
+New R-C extraction and electrical qualification are **pending on the other machine**.
+The canonical PEX and extraction manifest are still historical; the runner blocks
+their use for the new geometry via `pex/provenance.json` (stale).
+
+Run on the other machine, with the updated checkout mounted at `/work`:
+
+```powershell
+docker exec -w /work sram-xschem bash tools/extract_row_decoder.sh
+```
+
+The helper selects Magic 8.3.684, repeats physical checks, performs all-net
+R-C extraction and binds the resulting PEX to the checked layout. See the
+[compaction report and handoff](../../docs/row_decoder_layout_compaction_20261008.md)
+for geometry images, local evidence, installation and subsequent tests.
+Previous revisions and PEX are archived under `archive/` with hashes.
+
+## Historical evidence for 7ad0348 - 2026-10-07 UTC
 
 - Magic 8.3.684, SKY130A tech 1.0.493, `drc(full)`: **0 routed / 0 flattened
   errors**, measured after `drc catchup`. See `reports/route.log` and
@@ -13,10 +35,10 @@ changed; the WL buffers used by the electrical bench remain schematic devices.
 - Netgen 1.5.293: **Circuits match uniquely**, 29 MOS (17 NFET / 12 PFET),
   22 connectivity nets, matching external pins and bulk connections.
   See `reports/lvs.log` and `reports/lvs.out`.
-- [Current PEX](pex/row_decoder_pex.spice): **744 R / 392 C / 29 MOS**;
+- [Historical PEX](archive/remote_7ad0348/pex/row_decoder_pex.spice): **744 R / 392 C / 29 MOS**;
   resistance networks cover **all 22 nets**. No negative capacitors.
   The pin order is `VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS`.
-  [Extraction manifest](pex/extraction_manifest.json) records hashes,
+  [Historical extraction manifest](archive/remote_7ad0348/pex/extraction_manifest.json) records hashes,
   tool version, extraction cutoffs and counts by network.
 - Matched schematic/PEX campaigns pass **13/13 cases each at both 5 ps and
   1 ps**, with zero functional, precharge or experimental voltage-screen

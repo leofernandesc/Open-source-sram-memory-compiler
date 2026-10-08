@@ -908,3 +908,102 @@ source, not the new sizing. Requalify broad PVT, perturbation/retention and
 capture/fanout before using those historical guarantees. Physical-row loading,
 full-macro operation and owner-interface integration remain separate work;
 no other owner's block was modified to obtain this result.
+
+> As duas entradas seguintes investigam a revisão histórica 39f5ebc, antes das correções de 7ad0348; não descrevem o sizing/PEX atual.
+
+## 2026-10-08: analysis of the retained decoder PEX campaign
+
+The artifact-only analysis is recorded in
+[`row_decoder_pex_analysis_20261008.md`](row_decoder_pex_analysis_20261008.md).
+It was reproduced with `python3 sims/row_decoder/analyze_row_decoder_pex.py`;
+input hashes and derived CSVs are retained under
+`sims/row_decoder/results/row_decoder_pex_analysis_20261008/`. No new extraction,
+simulation, circuit/layout edit, or acceptance-threshold change was performed.
+
+The eight failed checks are selected-WL window minima after the experimental
+1 ns settling allowance, not wrong-row or final-level failures. About 84% of
+the additional slow-corner 50% delay is already present at DEC. The route
+generator creates full-width M3 tracks even for internal local nets. Static
+PEX analysis finds 18.5–19.7 fF of incident capacitance on each dynamic node
+and 61.4 fF on EVAL_GND, including coupling rather than constant effective loads.
+This supports investigating routing/capacitive loading, without proving its
+causal contribution before a controlled transient comparison.
+
+All 393 explicit resistors belong to VSS; the dynamic/output signal nets are
+not resistively segmented in this PEX. The isolated DC resistor-network
+reduction gives 2.4–33.7 ohm to grounded diffusion contacts and 234–322 ohm
+to NFET bulk contacts. A 127 kOhm individual resistor does not represent the
+complete grounded path. Five magnitude-screen warnings peak on address-inverter
+M1/M2 at 18 ns during address switching, before PCLK evaluation at 20 ns.
+Worst WL precharge-to-10% is 999.896 ps, leaving only 0.104 ps versus the
+experimental 1 ns check at a 5 ps maximum timestep. Numerical margin and
+full signed model qualification remain open. The 1 ns allowance is not a
+specified macro timing target. Proposed next work starts with focused
+convergence and R/C-isolation simulations using the existing PEX; another
+extraction is needed after an actual physical change.
+
+## 2026-10-08: completed existing-PEX diagnostic simulations
+
+The detailed report is
+[`row_decoder_pex_diagnostics_20261008.md`](row_decoder_pex_diagnostics_20261008.md).
+Ten convergence/R-C isolation simulations of `slow_00_to_11` and `tt_11_to_00`,
+then two additional slow-case refinements, completed with ngspice 44.2.
+All 12 ngspice subprocesses returned zero; both campaigns have `complete=true`
+and no execution errors. The experiment executors return 1 because the full
+PEX settling/voltage screens remain open. No acceptance threshold, circuit,
+layout, or PEX was changed. The same recursive model hashes were required.
+A fresh Xschem electrical netlist exactly matches the archived baseline,
+despite differences in historical/current source-file byte hashes.
+
+At SS/1.62 V/-40 C, full PEX WL 90% delay is 1141.66 ps at 5 ps maximum step;
+collapsing the VSS resistor network changes it to 1139.63 ps; removing only
+the 226 explicit extracted capacitors changes it to 662.89 ps. Intrinsic MOS
+capacitances and external WL loads remain. These artificial variants identify
+the extracted-capacitance set as the dominant additional delay in the tested
+cases, without qualifying a modified physical circuit or isolating individual
+capacitors. The full slow-case settling failure persists at 1, 0.5 and 0.25 ps.
+At 0.25 ps with explicit tight tolerances, WL 90% delay is 1141.8598 ps and
+precharge-to-10% delay is 999.9769 ps. The latter still passes, but leaves only
+0.0231 ps versus the experimental 1 ns screen. Convergence does not supply
+physical robustness margin.
+
+The TT A0B undershoot is directly observed at -0.38606 V in the refined full
+PEX waveform. Collapsing VSS resistors barely changes it; removing extracted
+C reduces it to -0.03095 V. Full TT terminal magnitude remains 2.18606 V;
+even the no-C TT diagnostic has a 2.05783 V magnitude finding. Model-domain
+and reliability qualification remain open. Source/PEX hashes were checked
+again after execution. The host's stale GUI Xauthority mount was bypassed
+with a resource-limited headless container using the already installed image.
+
+Retained results are in `sims/row_decoder/results/row_decoder_pex_diagnostics_20261008/`
+and `row_decoder_pex_precharge_refinement_20261008/`: manifests, decks, CSVs,
+PNG/PDF waveforms, 10 ps visualization samples and versionable simulator text
+logs. Full raw waveforms are retained locally and remain ignored by Git.
+These focused tests support a routing/capacitance revision next, followed by
+DRC/LVS and another extraction after the physical change. They are not a
+completed full post-layout PVT/macro qualification.
+
+## 2026-10-08: compact decoder layout and remote extraction handoff
+
+- Fetched and fast-forwarded `feature/peripherals` to `7ad0348`. Preserved its
+  source sizing, all-network R-C extraction controls and runner fixes; archived
+  its physical/PEX evidence before changing geometry. The earlier local PEX
+  diagnostics above describe 39f5ebc only.
+- Paired placement, branch-local M3 spans and grounded address shields produce
+  a 98.80 × 36.92 um bbox (3647.70 um2). Compared to the newly fetched remote
+  layout: 12.93% less bbox area and 22.68% less horizontal M3, including shields.
+  Compared to 39f5ebc: 77.57% / 77.90%. No electrical improvement claimed.
+- Magic 8.3.684, SKY130A tech 1.0.493: routed and flattened DRC both zero.
+  Netgen 1.5.293 reports unique LVS, 29 MOS / 22 nets / nine unchanged pins.
+  The retained schematic is byte-identical to 7ad0348.
+- Connectivity extraction only for LVS; **no extresist or new R-C extraction
+  executed locally**. New PEX and electrical tests are for the other machine.
+- Ten routing/provenance regressions pass. The simulation runner rejects stale
+  PEX before starting tools; successful new extraction alone can bind current
+  source/layout/PEX hashes after physical and parasitic audits.
+- The old canonical PEX remains byte-identical to 7ad0348 (SHA-256
+  `58fdf8632941897bc2e243a1141b047b4bd872eee6239fae18f872e21faba0a0`).
+  It is marked stale for the new layout. `.res.ext`, `.sim`, `.nodes` and old
+  RC logs are archived so they cannot be mistaken for current extraction.
+- Commands, actual-geometry PNG/PDF, reports and next checks:
+  [compaction handoff](row_decoder_layout_compaction_20261008.md).

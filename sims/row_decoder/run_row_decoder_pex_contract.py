@@ -9,6 +9,7 @@ never modified.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 from collections import Counter
 import csv
 from datetime import datetime
@@ -443,6 +444,15 @@ def compare_runs(root: Path):
     return rows
 
 
+def require_current_pex():
+    path = ROOT / 'layout/row_decoder/layout_provenance.py'
+    spec = importlib.util.spec_from_file_location('decoder_layout_provenance', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.require_current_pex()
+
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-root", type=Path,
@@ -458,6 +468,7 @@ def main() -> int:
     parser.add_argument("--max-step-ps", type=float, default=5,
                         help="Maximum transient timestep in ps (default: 5).")
     args = parser.parse_args()
+    require_current_pex()
     require(args.timeout_s > 0, "--timeout-s must be a positive integer")
     require(math.isfinite(args.max_step_ps) and args.max_step_ps > 0,
             "--max-step-ps must be finite and positive")

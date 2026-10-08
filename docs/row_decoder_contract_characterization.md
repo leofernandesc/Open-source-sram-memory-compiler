@@ -1,5 +1,11 @@
 # Dynamic decoder: address contract, phase limits and robustness study
 
+> Compact-layout update (2026-10-08): source sizing from 7ad0348 is unchanged,
+> but the new geometry only has DRC/LVS closure. New R-C extraction and matched
+> electrical tests are pending on the other machine. The passing matrix below
+> belongs to the archived 7ad0348 layout. See the
+> [compaction handoff](row_decoder_layout_compaction_20261008.md).
+
 > Current-source update (2026-10-07 UTC): decoder layout closure changed the
 > address inverters to W=0.84 um, precharge PFETs to W=1.25 um, evaluation
 > stacks to W=2 um and output PFETs to W=3 um. The selected 13-case

@@ -1,0 +1,311 @@
+** sch_path: /work/sims/row_decoder/tb_row_decoder_sizing.sch
+**.subckt tb_row_decoder_sizing
+x1 net1 net2 net3 net4 DEC0 DEC1 DEC3 DEC2 GND row_decoder
+VDD_SRC net1 GND 1.62
+VPCLK net2 GND PWL(0 0 4.975e-09 0 5.025e-09 1.62 9.975e-09 1.62 1.0025e-08 0 1.9975e-08 0 2.0025e-08 1.62 2.4975e-08 1.62 2.5025e-08 0 3e-08 0)
+VA0 net3 GND PWL(0 0 1.795e-08 0 1.8e-08 1.62 3e-08 1.62)
+VA1 net4 GND PWL(0 0 1.795e-08 0 1.8e-08 1.62 3e-08 1.62)
+x2 net1 DEC0 net5 GND wl_driver
+x3 net1 DEC1 net6 GND wl_driver
+x4 net1 DEC3 net8 GND wl_driver
+x5 net1 DEC2 net7 GND wl_driver
+C_WL0 net5 GND 1.74e-14 m=1
+C_WL1 net6 GND 1.74e-14 m=1
+C_WL2 net7 GND 1.74e-14 m=1
+C_WL3 net8 GND 1.74e-14 m=1
+**.ends
+
+* expanding   symbol:  row_decoder.sym # of pins=9
+** sym_path: /work/cells/row_decoder/row_decoder.sym
+** sch_path: /work/cells/row_decoder/row_decoder.sch
+.subckt row_decoder VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS
+X0 VSS N2 DEC2 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X1 VSS A1B A1T VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X2 VSS A1 A1B VSS sky130_fd_pr__nfet_01v8 ad=0.1218 pd=1.42 as=0.1218 ps=1.42 w=0.42 l=0.15
+X3 EVAL_GND A0B net3 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X4 VSS A0B A0T VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X5 VSS A0 A0B VSS sky130_fd_pr__nfet_01v8 ad=0.1218 pd=1.42 as=0.1218 ps=1.42 w=0.42 l=0.15
+X6 VDD PCLK N0 VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X7 VDD PCLK N1 VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X8 EVAL_GND A0T net2 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X9 VDD PCLK N2 VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X10 VDD N2 DEC2 VDD sky130_fd_pr__pfet_01v8 ad=0.87 pd=6.58 as=0.87 ps=6.58 w=3 l=0.15
+X11 net4 A1T N3 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X12 VDD N3 DEC3 VDD sky130_fd_pr__pfet_01v8 ad=0.87 pd=6.58 as=0.87 ps=6.58 w=3 l=0.15
+X13 VDD A1 A1B VDD sky130_fd_pr__pfet_01v8 ad=0.1218 pd=1.42 as=0.1218 ps=1.42 w=0.42 l=0.15
+X14 VDD A1B A1T VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X15 EVAL_GND A0B net1 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X16 VSS PCLK EVAL_GND VSS sky130_fd_pr__nfet_01v8 ad=0.435 pd=3.58 as=0.435 ps=3.58 w=1.5 l=0.15
+X17 net3 A1T N2 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X18 VSS N1 DEC1 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X19 VDD PCLK N3 VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X20 VDD A0 A0B VDD sky130_fd_pr__pfet_01v8 ad=0.1218 pd=1.42 as=0.1218 ps=1.42 w=0.42 l=0.15
+X21 VSS N3 DEC3 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X22 EVAL_GND A0T net4 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X23 VDD A0B A0T VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X24 VDD N0 DEC0 VDD sky130_fd_pr__pfet_01v8 ad=0.87 pd=6.58 as=0.87 ps=6.58 w=3 l=0.15
+X25 net1 A1B N0 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X26 net2 A1B N1 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X27 VDD N1 DEC1 VDD sky130_fd_pr__pfet_01v8 ad=0.87 pd=6.58 as=0.87 ps=6.58 w=3 l=0.15
+X28 VSS N0 DEC0 VSS sky130_fd_pr__nfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+C0 A1B PCLK 0.35206f
+C1 net2 net1 5.2266f
+C2 DEC0 net3 0.12624f
+C3 A0 net3 0.11611f
+C4 A1T N1 0.24751f
+C5 PCLK DEC1 0.12156f
+C6 DEC3 DEC2 5.22874f
+C7 N3 DEC2 0.13045f
+C8 A1B DEC2 0.12156f
+C9 DEC0 PCLK 0.12917f
+C10 A0 PCLK 5.22872f
+C11 A0B N2 0.2457f
+C12 DEC2 DEC1 5.22874f
+C13 net2 A1T 0.1227f
+C14 A0B A1 5.45963f
+C15 DEC3 N3 1.42552f
+C16 DEC3 A1B 0.12156f
+C17 DEC0 DEC2 0.12668f
+C18 A0 DEC2 0.12156f
+C19 N3 A1B 0.24554f
+C20 A0T N0 0.24789f
+C21 net4 N2 0.12287f
+C22 A0T VDD 0.79024f
+C23 A1 net4 0.11611f
+C24 A0T net1 0.1227f
+C25 DEC3 DEC1 0.12668f
+C26 N3 DEC1 0.12548f
+C27 A1B DEC1 0.12156f
+C28 A0B N1 0.24582f
+C29 DEC3 DEC0 0.12631f
+C30 DEC3 A0 0.12156f
+C31 net3 N2 0.33586f
+C32 DEC0 N3 0.12596f
+C33 A0 N3 0.24554f
+C34 DEC0 A1B 0.12204f
+C35 A1 net3 0.11611f
+C36 A0 A1B 0.36629f
+C37 net4 N1 0.1227f
+C38 DEC0 DEC1 5.22874f
+C39 PCLK N2 0.58112f
+C40 A0 DEC1 0.12156f
+C41 A0T A1T 5.35865f
+C42 A1 PCLK 0.12331f
+C43 A0B net2 0.11611f
+C44 EVAL_GND N0 0.30786f
+C45 A0 DEC0 0.12204f
+C46 EVAL_GND VDD 0.29678f
+C47 N1 net3 0.12287f
+C48 EVAL_GND net1 0.58345f
+C49 DEC2 N2 1.38505f
+C50 net4 net2 0.12454f
+C51 A1 DEC2 0.12156f
+C52 PCLK N1 0.58112f
+C53 net2 net3 5.2266f
+C54 DEC3 N2 0.12156f
+C55 N3 N2 5.4246f
+C56 DEC3 A1 0.12156f
+C57 EVAL_GND A1T 0.3081f
+C58 A1B N2 0.24582f
+C59 A1 N3 0.24554f
+C60 A1 A1B 1.24035f
+C61 DEC2 N1 0.12156f
+C62 A0B A0T 1.2307f
+C63 PCLK net2 0.11612f
+C64 DEC1 N2 0.13045f
+C65 A1 DEC1 0.12156f
+C66 DEC0 N2 0.12596f
+C67 A0 N2 0.24554f
+C68 net4 A0T 0.7395f
+C69 DEC3 N1 0.12156f
+C70 A1 DEC0 0.12204f
+C71 A0 A1 5.22461f
+C72 N3 N1 0.24789f
+C73 DEC2 net2 0.12548f
+C74 A1B N1 0.85261f
+C75 A0T net3 0.11676f
+C76 N0 VDD 2.13462f
+C77 DEC1 N1 1.34457f
+C78 N0 net1 0.33586f
+C79 VDD net1 0.12253f
+C80 DEC3 net2 0.12548f
+C81 N3 net2 0.12505f
+C82 DEC0 N1 0.13093f
+C83 A0B EVAL_GND 3.85222f
+C84 A0 N1 0.24554f
+C85 A1B net2 1.95039f
+C86 PCLK A0T 0.23022f
+C87 DEC1 net2 0.12561f
+C88 net4 EVAL_GND 5.70321f
+C89 N0 A1T 5.35295f
+C90 DEC0 net2 0.12611f
+C91 A0 net2 0.11611f
+C92 DEC2 A0T 0.12156f
+C93 VDD A1T 0.78989f
+C94 A1T net1 0.12287f
+C95 A1 N2 0.24554f
+C96 EVAL_GND net3 0.61147f
+C97 DEC3 A0T 0.12188f
+C98 N3 A0T 0.28897f
+C99 EVAL_GND PCLK 0.81349f
+C100 A1B A0T 5.35124f
+C101 N1 N2 5.41708f
+C102 A1 N1 0.24554f
+C103 A0T DEC1 0.12184f
+C104 EVAL_GND DEC2 0.25981f
+C105 DEC0 A0T 0.12204f
+C106 A0 A0T 0.23017f
+C107 A0B N0 0.24628f
+C108 A0B VDD 1.95631f
+C109 net2 N2 0.12438f
+C110 A0B net1 0.70616f
+C111 A1 net2 0.11611f
+C112 DEC3 EVAL_GND 0.25954f
+C113 net4 N0 0.1227f
+C114 EVAL_GND N3 0.30826f
+C115 net4 VDD 0.12257f
+C116 EVAL_GND A1B 0.29623f
+C117 net4 net1 0.12416f
+C118 EVAL_GND DEC1 0.26062f
+C119 N0 net3 0.1227f
+C120 VDD net3 0.12257f
+C121 net2 N1 0.34836f
+C122 A0B A1T 0.26774f
+C123 net3 net1 0.12454f
+C124 DEC0 EVAL_GND 5.30799f
+C125 A0 EVAL_GND 0.28412f
+C126 PCLK N0 0.58128f
+C127 PCLK VDD 5.42908f
+C128 net4 A1T 2.05105f
+C129 A0T N2 0.24585f
+C130 PCLK net1 0.11614f
+C131 A1 A0T 0.23033f
+C132 DEC2 N0 0.12156f
+C133 A1T net3 2.05105f
+C134 DEC2 VDD 0.81799f
+C135 DEC2 net1 0.12548f
+C136 A0T N1 0.24692f
+C137 PCLK A1T 0.23012f
+C138 DEC3 N0 0.12156f
+C139 N3 N0 0.24714f
+C140 DEC3 VDD 0.81799f
+C141 N3 VDD 2.13462f
+C142 A1B N0 0.86331f
+C143 DEC3 net1 0.12548f
+C144 A1B VDD 1.95476f
+C145 EVAL_GND N2 0.30805f
+C146 N3 net1 5.22944f
+C147 A1B net1 1.95105f
+C148 A1 EVAL_GND 0.28412f
+C149 A0B net4 0.11611f
+C150 DEC2 A1T 0.12156f
+C151 N0 DEC1 0.12156f
+C152 A0T net2 0.74543f
+C153 DEC1 VDD 0.81799f
+C154 DEC1 net1 0.12548f
+C155 DEC0 N0 1.30458f
+C156 A0 N0 0.24554f
+C157 DEC0 VDD 0.81799f
+C158 A0 VDD 1.30178f
+C159 A0B net3 0.70616f
+C160 DEC0 net1 0.12606f
+C161 A0 net1 0.11611f
+C162 DEC3 A1T 0.12156f
+C163 EVAL_GND N1 0.30805f
+C164 N3 A1T 0.88619f
+C165 A1B A1T 1.27148f
+C166 net4 net3 5.2266f
+C167 A0B PCLK 0.35732f
+C168 DEC1 A1T 0.12156f
+C169 EVAL_GND net2 0.57229f
+C170 DEC0 A1T 0.12204f
+C171 net4 PCLK 0.11612f
+C172 A0 A1T 0.2301f
+C173 A0B DEC2 0.12184f
+C174 PCLK net3 0.11612f
+C175 net4 DEC2 0.12563f
+C176 N0 N2 0.24751f
+C177 VDD N2 2.13462f
+C178 A1 N0 0.26731f
+C179 DEC3 A0B 0.12156f
+C180 A0B N3 0.2457f
+C181 A1 VDD 1.30081f
+C182 net1 N2 0.12505f
+C183 A0B A1B 5.48408f
+C184 A1 net1 0.11611f
+C185 DEC2 net3 0.12561f
+C186 DEC3 net4 0.12561f
+C187 A0B DEC1 0.12156f
+C188 net4 N3 0.34836f
+C189 net4 A1B 0.11611f
+C190 EVAL_GND A0T 4.06378f
+C191 N0 N1 5.40993f
+C192 A0B DEC0 0.12204f
+C193 A0 A0B 1.19949f
+C194 PCLK DEC2 0.12156f
+C195 VDD N1 2.13462f
+C196 DEC3 net3 0.12548f
+C197 A1T N2 0.88607f
+C198 N1 net1 0.12438f
+C199 net4 DEC1 0.12576f
+C200 N3 net3 0.12438f
+C201 A1 A1T 0.23017f
+C202 A1B net3 0.11676f
+C203 net4 DEC0 0.12661f
+C204 A0 net4 0.11611f
+C205 DEC3 PCLK 0.12156f
+C206 N0 net2 0.12287f
+C207 DEC1 net3 0.12563f
+C208 N3 PCLK 0.58097f
+C209 VDD net2 0.12257f
+C210 DEC3 VSS 31.47772f
+C211 DEC2 VSS 18.45455f
+C212 DEC1 VSS 18.13375f
+C213 DEC0 VSS 21.89995f
+C214 VDD VSS 85.21084f
+C215 net4 VSS 20.87525f
+C216 net3 VSS 19.51783f
+C217 net2 VSS 16.2877f
+C218 EVAL_GND VSS 36.42005f
+C219 net1 VSS 11.96649f
+C220 N2 VSS 1.02113f
+C221 VSS VSS 4.01511f
+C222 VSS VSS 4.08453f
+C223 VSS VSS 7.19665f
+C224 VSS VSS 7.35285f
+C225 VSS VSS 8.3732f
+.ends row_decoder
+
+
+* expanding   symbol:  wl_driver.sym # of pins=4
+** sym_path: /work/cells/wordline_driver/wl_driver.sym
+** sch_path: /work/cells/wordline_driver/wl_driver.sch
+.subckt wl_driver VDD WL_IN WL VSS
+*.iopin VDD
+*.iopin VSS
+*.iopin WL_IN
+*.iopin WL
+XMP1 WL_N WL_IN VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMP2 WL WL_N VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMN2 WL WL_N VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+.ends
+
+.GLOBAL GND
+
+.lib "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice" ss
+.temp -40
+.options method=gear
+.save v(dec0) v(dec1) v(dec2) v(dec3) v(net1) v(net2) v(net3) v(net4) v(net5) v(net6) v(net7) v(net8) v(x1.a0b) v(x1.a0t) v(x1.a1b) v(x1.a1t) v(x1.eval_gnd) v(x1.n0) v(x1.n1) v(x1.n2) v(x1.n3) v(x1.net1) v(x1.net2) v(x1.net3) v(x1.net4) v(gnd) v(x2.wl_n) v(x3.wl_n) v(x4.wl_n) v(x5.wl_n) i(VDD_SRC) i(VPCLK) i(VA0) i(VA1)
+.tran 5p 3e-08 0 5e-12 uic
+.control
+set num_threads=1
+run
+write waveform.raw
+quit 0
+.endc
+.end
