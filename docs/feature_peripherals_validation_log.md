@@ -1126,16 +1126,23 @@ documented in [device-details.rst](https://github.com/google/skywater-pdk/blob/m
 The 38 retained ngspice text logs contain no `Error:` lines, but they report
 FF model warnings: several `A2` values exceed 1, causing ngspice to clamp `A2`
 and reset `A1`, and negative `Eta0`, `Pdibl1` and `Pdibl2` values are also
-reported. Ngspice's [BSIM4 checks](https://github.com/ngspice/ngspice/blob/master/src/spicelib/devices/bsim4v5/b4v5check.c#L2683-L2729)
-show that `A2` is modified while the cited checks for the negative parameters
-warn. Thus, passing logic/project-screen checks describe this simulator's
-interpretation of the loaded FF models; review the warnings before extending
-the result to model-validity or reliability claims.
+reported. The versioned [ngspice 44.2 BSIM4 check for `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L435-L459)
+sets `A2` to 1 and `A1` to 0 when `A2 > 1`. Its [checks for negative `Eta0`,
+`Pdibl1` and `Pdibl2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L521-L529)
+print warnings without changing those parameters in that validation routine.
+There are no fatal `Error:` lines. The warnings come from FF model parameter
+validation; they are not evidence of a schematic connectivity error. The
+logic and project screens therefore describe this simulator's handling of the
+loaded FF model, while model-domain and reliability qualification still need
+review by the PDK/model owner.
 
-The transient timestep comparison is numerically close: largest 5 ps-to-1 ps
-changes were 0.309 ps in baseline WL delay, 0.272 ps in baseline precharge,
-0.129 ps in PEX WL delay, 0.191 ps in PEX precharge and 0.910 mV in baseline
-terminal magnitude. The targeted 0.5 ps run was only the `01→10` peak case.
+The largest 5 ps-to-1 ps PEX timing and terminal changes are 0.130 ps in WL
+90% delay, 0.191 ps in WL precharge, 0.058 ps in selected WL rise slew, and
+0.373 mV in terminal magnitude. The PCLK ideal-source energy had a maximum
+0.502 fJ difference in this full matrix. Selected 0.5 ps refinements of the
+highest-sensitivity pairs across TT/SS/FF passed; the 1 ps-to-0.5 ps change
+was at most 0.576% in the FF baseline and 0.253% in FF PEX. The full
+corner-by-corner results are in the [PCLK convergence audit](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json).
 The four WL buffers remain schematic and each row load is an estimated
 17.4 fF; extracted physical row loading, address capture/fanout, noise,
 retention, mismatch and macro-level behavior remain open.
@@ -1175,9 +1182,10 @@ Reproduce from the repository root with:
 - ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps --profiles tt --all-address-pairs --max-step-ps 5 --workers 2 --timeout-s 900
 - ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --output-root sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps --profiles tt --all-address-pairs --max-step-ps 1 --workers 2 --timeout-s 900
 
-This closes the complete TT address-pair matrix for the recorded setup. It
-does not replace the selected SS matrix or qualify FF/all-pairs, broad PVT,
-physical row loading, noise, retention, capture/fanout or reliability.
+This section closes the TT address-pair matrix for the recorded setup. The
+later SS-cold and FF-hot sections also record their complete 16-pair matrices.
+None of these leaf tests qualifies broad PVT, physical row loading, noise,
+retention, capture/fanout, signed model-domain limits or reliability.
 
 ## 2026-10-08: full 16-pair FF-hot decoder matrix
 
@@ -1206,9 +1214,10 @@ model-domain margin. The PEX peak terminal magnitude is 1.878690 V in
 For matched cases, the largest 5 ps-to-1 ps PEX changes are 0.130 ps in WL
 90% delay, 0.191 ps in WL precharge-to-10%, 0.058 ps in selected WL rise slew,
 and 0.373 mV in terminal magnitude. The maximum difference in measured PCLK
-source cycle energy is 0.502 fJ (11.39%), so the energy result is more
-time-step-sensitive than the timing and terminal screens; use the 1 ps result
-as the reported value until energy convergence is examined separately.
+source cycle energy is 0.502 fJ (12.85% relative to the 1 ps value), so the
+energy result is more timestep-sensitive than the timing and terminal screens.
+The targeted 0.5 ps refinements documented below support 1 ps as the reference
+for the recorded cases.
 
 All 64 retained ngspice logs (16 baseline and 16 PEX cases at each of two
 timesteps) have no `Error:` lines. They do contain the FF BSIM4 parameter
@@ -1236,3 +1245,78 @@ Reproduce from the repository root with one worker:
 This completes the FF all-address-pair matrix for the recorded setup. It
 does not remove the model warnings or qualify broad PVT, physical row loading,
 noise, retention, mismatch, captured-address/fanout or macro-level behavior.
+
+
+## 2026-10-08: full 16-pair SS-cold decoder matrix
+
+The complete 16-pair address-transition matrix was run at the `slow` profile
+(SS, 1.62 V, -40 °C), including all old/new pairs among `00`, `01`, `10` and
+`11`. At both 5 ps and 1 ps, the schematic baseline and the current compact
+29-MOS/762-R/389-C PEX passed all 16 cases, with no contract failures or
+voltage-screen findings. The baseline recorded 1,664 passing checks and PEX
+recorded 2,560 passing checks per timestep.
+
+| Maximum step | Baseline | PEX | Baseline checks | PEX checks | Peak baseline terminal magnitude | Peak PEX terminal magnitude |
+|---:|---:|---:|---:|---:|---:|---:|
+| 5 ps | 16/16 PASS | 16/16 PASS | 1,664/1,664 | 2,560/2,560 | 1.757977 V | 1.714500 V |
+| 1 ps | 16/16 PASS | 16/16 PASS | 1,664/1,664 | 2,560/2,560 | 1.766599 V | 1.716479 V |
+
+At 1 ps, the maximum WL delay to 90% is 672.226 ps in the baseline and
+815.389 ps in PEX; the maximum precharge-to-10% time is 510.733 ps and
+789.564 ps, respectively. All cases remain below the testbench's 1 ns timing
+screen. Between 5 ps and 1 ps, the largest PEX changes were 0.092 ps in WL
+90% delay, 0.097 ps in precharge-to-10%, and 2.363 mV in terminal magnitude.
+
+All 64 retained ngspice logs have no `Error:` lines. They report the same
+negative `Eta0` parameter warning in all 32 logs at each step (16 baseline and
+16 PEX). The selected 5 ps-to-1 ps PCLK energy differences and the 0.5 ps
+refinements for sensitive TT/SS/FF cases are summarized in the dedicated PCLK
+audit. The 1 ps full-matrix results are the numerical reference for the
+recorded setup.
+
+The PEX hash is
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`.
+The audit records hashes, model and tool versions, check counts, per-case
+metrics, warnings, and waveform sizes: [SS full-matrix audit](../sims/row_decoder/results/compact_decoder_full_slow_matrix_audit.json).
+Per-case outputs are in the [5 ps](../sims/row_decoder/results/compact_decoder_full_slow_matrix_5ps/)
+and [1 ps](../sims/row_decoder/results/compact_decoder_full_slow_matrix_1ps/) result roots. Raw waveforms total 845,503,008 bytes and remain local/ignored by Git.
+
+Reproduce with one worker in the headless project container:
+
+```bash
+SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+  --profiles slow --all-address-pairs --max-step-ps 5 --workers 1 \
+  --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_slow_matrix_5ps
+SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
+  --profiles slow --all-address-pairs --max-step-ps 1 --workers 1 \
+  --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_slow_matrix_1ps
+```
+
+## PCLK ideal-source energy convergence review — TT, SS and FF
+
+The complete 16-pair matrices at 5 ps and 1 ps show that PCLK source energy is
+more timestep-sensitive than the timing and terminal metrics. The selected
+0.5 ps runs target the pairs with the largest baseline or PEX energy changes
+in those full matrices. All seven selected pairs passed in both baseline and
+PEX, with 0 failed checks and no `Error:` lines.
+
+| Profile | Largest 5 ps→1 ps baseline delta | Largest 5 ps→1 ps PEX delta | Largest selected 1 ps→0.5 ps baseline delta | Largest selected 1 ps→0.5 ps PEX delta |
+|---|---:|---:|---:|---:|
+| TT, 1.8 V, 27 °C | 0.126 fJ (`11→01`) | 0.501 fJ (`11→10`) | 0.721% | 0.431% |
+| SS, 1.62 V, -40 °C | 0.090 fJ (`01→00`) | 0.395 fJ (`10→10`) | 0.889% | 0.503% |
+| FF, 1.8 V, 125 °C | 0.144 fJ (`01→11`) | 0.502 fJ (`01→00`) | 0.576% | 0.253% |
+
+Across all full matrices, the largest relative 5 ps-to-1 ps PEX change was
+15.83% in SS (`01→00`), using the 1 ps value as the denominator. The 0.5 ps refinements are targeted, not a complete
+0.5 ps matrix. Their maximum 1 ps-to-0.5 ps changes were below 0.89% in the
+baseline and below 0.51% in PEX. This supports retaining 1 ps as the reported
+reference for the specified cases; no energy tolerance was defined by the
+technical specification.
+
+The metric is signed net energy delivered by the ideal `VPCLK` source between
+the first and second PCLK falling-edge midpoints. It includes energy returned
+to the ideal source and is not the dissipation of a physical clock source or
+driver. The [machine-readable audit](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json)
+contains the per-case 5 ps, 1 ps and 0.5 ps values, screens, hashes and
+reproduction commands. Detailed 0.5 ps outputs are in the [FF](../sims/row_decoder/results/compact_decoder_fast_pclk_energy_0p5ps/)
+and [TT/SS](../sims/row_decoder/results/compact_decoder_ttslow_pclk_energy_0p5ps/) result roots.

@@ -1,0 +1,623 @@
+{
+  "title": "Full 16-pair SS-cold row decoder matrix on compact-layout R-C PEX",
+  "date": "2026-10-08",
+  "condition": {
+    "profile": "slow",
+    "model_corner": "ss",
+    "supply_v": 1.62,
+    "temperature_c": -40,
+    "address_transition_scope": "all 16 ordered old/new pairs among 00, 01, 10, 11, including same-address pairs",
+    "wl_buffer": "schematic",
+    "estimated_wl_load_ff": 17.4,
+    "integration": "Gear",
+    "workers": 1
+  },
+  "pex": {
+    "sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+    "components": {
+      "mos": 29,
+      "resistors": 762,
+      "capacitors": 389
+    }
+  },
+  "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+  "campaigns": {
+    "5ps": {
+      "max_step_ps": 5.0,
+      "method": "Gear",
+      "address_pairs": 16,
+      "unique_ordered_address_pairs": 16,
+      "baseline": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 1664,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 666.8650480854965,
+              "case": "slow_10_to_11"
+            },
+            "max": {
+              "value": 672.2132208150367,
+              "case": "slow_10_to_00"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 505.8777287729519,
+              "case": "slow_10_to_00"
+            },
+            "max": {
+              "value": 510.7542302176802,
+              "case": "slow_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 445.9026133205475,
+              "case": "slow_00_to_01"
+            },
+            "max": {
+              "value": 445.91821482874764,
+              "case": "slow_01_to_01"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 137.6451579902135,
+              "case": "slow_10_to_11"
+            },
+            "max": {
+              "value": 143.1076482216895,
+              "case": "slow_10_to_00"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 259.5405445460362,
+              "case": "slow_10_to_00"
+            },
+            "max": {
+              "value": 264.38804404981727,
+              "case": "slow_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.7532219382322174,
+              "case": "slow_00_to_00"
+            },
+            "max": {
+              "value": 1.7579769416184925,
+              "case": "slow_01_to_11",
+              "device": "x1.m24",
+              "voltage": "VDS"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.7112904943707765,
+              "case": "slow_10_to_01"
+            },
+            "max": {
+              "value": 1.7142853383020369,
+              "case": "slow_10_to_00"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 124.8001281812318,
+              "case": "slow_01_to_01"
+            },
+            "max": {
+              "value": 173.5407385210239,
+              "case": "slow_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 1.0570672238982155,
+              "case": "slow_10_to_11"
+            },
+            "max": {
+              "value": 1.0806949931532803,
+              "case": "slow_11_to_00"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 64
+          },
+          "logs_with_warning_by_parameter": {
+            "Eta0": 16
+          }
+        }
+      },
+      "pex": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 2560,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 807.9988275766491,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 815.3107493556197,
+              "case": "slow_01_to_10"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 786.0008635031005,
+              "case": "slow_11_to_00"
+            },
+            "max": {
+              "value": 789.5367324110312,
+              "case": "slow_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 445.9335313000609,
+              "case": "slow_00_to_10"
+            },
+            "max": {
+              "value": 445.94813036975205,
+              "case": "slow_11_to_10"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 289.5685810315767,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 296.88293609923727,
+              "case": "slow_01_to_10"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 544.1285642394562,
+              "case": "slow_11_to_00"
+            },
+            "max": {
+              "value": 547.6256013497164,
+              "case": "slow_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.7138433899249963,
+              "case": "slow_10_to_00"
+            },
+            "max": {
+              "value": 1.7145003302550605,
+              "case": "slow_11_to_00",
+              "device": "x4.mn1",
+              "voltage": "VDS"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.6795546570423885,
+              "case": "slow_01_to_01"
+            },
+            "max": {
+              "value": 1.6812463980056684,
+              "case": "slow_11_to_11"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 200.14173181868054,
+              "case": "slow_11_to_11"
+            },
+            "max": {
+              "value": 394.6099901168178,
+              "case": "slow_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 2.891963922152267,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 3.1963415776809687,
+              "case": "slow_01_to_10"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 64
+          },
+          "logs_with_warning_by_parameter": {
+            "Eta0": 16
+          }
+        }
+      }
+    },
+    "1ps": {
+      "max_step_ps": 1.0,
+      "method": "Gear",
+      "address_pairs": 16,
+      "unique_ordered_address_pairs": 16,
+      "baseline": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 1664,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 666.8446527385894,
+              "case": "slow_10_to_11"
+            },
+            "max": {
+              "value": 672.2264704399452,
+              "case": "slow_10_to_00"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 505.8577777535621,
+              "case": "slow_10_to_00"
+            },
+            "max": {
+              "value": 510.7333910567513,
+              "case": "slow_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 445.9041284620643,
+              "case": "slow_11_to_10"
+            },
+            "max": {
+              "value": 445.9046227076254,
+              "case": "slow_00_to_00"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 137.53843537284638,
+              "case": "slow_10_to_11"
+            },
+            "max": {
+              "value": 142.96052060620627,
+              "case": "slow_10_to_00"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 259.1980806981088,
+              "case": "slow_10_to_00"
+            },
+            "max": {
+              "value": 264.0575659748388,
+              "case": "slow_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.7606117048882628,
+              "case": "slow_00_to_00"
+            },
+            "max": {
+              "value": 1.7665990453432592,
+              "case": "slow_01_to_11",
+              "device": "x1.m24",
+              "voltage": "VDS"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.711432871453952,
+              "case": "slow_11_to_10"
+            },
+            "max": {
+              "value": 1.7147351928070256,
+              "case": "slow_10_to_00"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 124.84754569597976,
+              "case": "slow_00_to_00"
+            },
+            "max": {
+              "value": 173.63755861409527,
+              "case": "slow_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 0.9680699228360685,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 0.9920485439033614,
+              "case": "slow_11_to_00"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 64
+          },
+          "logs_with_warning_by_parameter": {
+            "Eta0": 16
+          }
+        }
+      },
+      "pex": {
+        "cases": 16,
+        "pass_cases": 16,
+        "contract_checks_pass": 2560,
+        "contract_checks_fail": 0,
+        "model_upper_pass_cases": 16,
+        "absolute_terminal_screen_pass_cases": 16,
+        "metrics": {
+          "wl_delay90_ps": {
+            "min": {
+              "value": 808.09125430433,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 815.3892174945319,
+              "case": "slow_01_to_10"
+            }
+          },
+          "wl_precharge10_ps": {
+            "min": {
+              "value": 786.0275544164688,
+              "case": "slow_11_to_00"
+            },
+            "max": {
+              "value": 789.5644088444129,
+              "case": "slow_01_to_00"
+            }
+          },
+          "wl_selected_rise_slew10_90_ps": {
+            "min": {
+              "value": 445.93396837686697,
+              "case": "slow_01_to_11"
+            },
+            "max": {
+              "value": 445.93548322630625,
+              "case": "slow_11_to_10"
+            }
+          },
+          "dec_delay90_ps": {
+            "min": {
+              "value": 289.60811950767544,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 296.98525318443234,
+              "case": "slow_01_to_10"
+            }
+          },
+          "dec_precharge10_ps": {
+            "min": {
+              "value": 544.1155309631423,
+              "case": "slow_11_to_00"
+            },
+            "max": {
+              "value": 547.7517709905638,
+              "case": "slow_01_to_00"
+            }
+          },
+          "terminal_magnitude_max_v": {
+            "min": {
+              "value": 1.7160784666211852,
+              "case": "slow_10_to_10"
+            },
+            "max": {
+              "value": 1.7164794233988412,
+              "case": "slow_11_to_11",
+              "device": "x4.mn1",
+              "voltage": "VDS"
+            }
+          },
+          "output_vgs_peak_v": {
+            "min": {
+              "value": 1.6794805345653907,
+              "case": "slow_01_to_01"
+            },
+            "max": {
+              "value": 1.681182794523194,
+              "case": "slow_11_to_11"
+            }
+          },
+          "vdd_src_cycle_energy_fj": {
+            "min": {
+              "value": 200.22163303156566,
+              "case": "slow_11_to_11"
+            },
+            "max": {
+              "value": 394.74780612075386,
+              "case": "slow_11_to_00"
+            }
+          },
+          "vpclk_cycle_energy_fj": {
+            "min": {
+              "value": 2.4968168182171753,
+              "case": "slow_01_to_00"
+            },
+            "max": {
+              "value": 2.8014395259595832,
+              "case": "slow_01_to_10"
+            }
+          }
+        },
+        "ngspice": {
+          "log_count": 16,
+          "error_lines": [],
+          "warning_lines_by_parameter": {
+            "Eta0": 64
+          },
+          "logs_with_warning_by_parameter": {
+            "Eta0": 16
+          }
+        }
+      }
+    }
+  },
+  "max_abs_5ps_vs_1ps_delta": {
+    "baseline": {
+      "wl_delay90_ps": {
+        "max_absolute_difference": 0.03442240471065361,
+        "case_for_max_absolute_difference": "slow_01_to_01",
+        "max_relative_difference_percent": 0.005138853897391084,
+        "case_for_max_relative_difference": "slow_01_to_01"
+      },
+      "wl_precharge10_ps": {
+        "max_absolute_difference": 0.05223491917320189,
+        "case_for_max_absolute_difference": "slow_11_to_11",
+        "max_relative_difference_percent": 0.010294711528835996,
+        "case_for_max_relative_difference": "slow_11_to_00"
+      },
+      "wl_selected_rise_slew10_90_ps": {
+        "max_absolute_difference": 0.01381984395152358,
+        "case_for_max_absolute_difference": "slow_01_to_01",
+        "max_relative_difference_percent": 0.0030992840857724207,
+        "case_for_max_relative_difference": "slow_01_to_01"
+      },
+      "dec_delay90_ps": {
+        "max_absolute_difference": 0.34705956766293866,
+        "case_for_max_absolute_difference": "slow_11_to_11",
+        "max_relative_difference_percent": 0.24867495426628347,
+        "case_for_max_relative_difference": "slow_11_to_11"
+      },
+      "dec_precharge10_ps": {
+        "max_absolute_difference": 0.3424638479273767,
+        "case_for_max_absolute_difference": "slow_10_to_11",
+        "max_relative_difference_percent": 0.13212437646336145,
+        "case_for_max_relative_difference": "slow_10_to_00"
+      },
+      "terminal_magnitude_max_v": {
+        "max_absolute_difference": 0.011270592957670189,
+        "case_for_max_absolute_difference": "slow_11_to_10",
+        "max_relative_difference_percent": 0.6380706575292149,
+        "case_for_max_relative_difference": "slow_11_to_00"
+      },
+      "output_vgs_peak_v": {
+        "max_absolute_difference": 0.0004972920924501967,
+        "case_for_max_absolute_difference": "slow_11_to_01",
+        "max_relative_difference_percent": 0.02900145413606366,
+        "case_for_max_relative_difference": "slow_11_to_01"
+      },
+      "vdd_src_cycle_energy_fj": {
+        "max_absolute_difference": 0.14001789222675143,
+        "case_for_max_absolute_difference": "slow_00_to_11",
+        "max_relative_difference_percent": 0.08602957746446445,
+        "case_for_max_relative_difference": "slow_00_to_11"
+      },
+      "vpclk_cycle_energy_fj": {
+        "max_absolute_difference": 0.08994533758293555,
+        "case_for_max_absolute_difference": "slow_01_to_00",
+        "max_relative_difference_percent": 9.291202573408198,
+        "case_for_max_relative_difference": "slow_01_to_00"
+      }
+    },
+    "pex": {
+      "wl_delay90_ps": {
+        "max_absolute_difference": 0.09242672768095872,
+        "case_for_max_absolute_difference": "slow_01_to_00",
+        "max_relative_difference_percent": 0.011437659693585853,
+        "case_for_max_relative_difference": "slow_01_to_00"
+      },
+      "wl_precharge10_ps": {
+        "max_absolute_difference": 0.09729376979430526,
+        "case_for_max_absolute_difference": "slow_10_to_11",
+        "max_relative_difference_percent": 0.012351751148175815,
+        "case_for_max_relative_difference": "slow_10_to_00"
+      },
+      "wl_selected_rise_slew10_90_ps": {
+        "max_absolute_difference": 0.012647143445803977,
+        "case_for_max_absolute_difference": "slow_11_to_10",
+        "max_relative_difference_percent": 0.002836092646026493,
+        "case_for_max_relative_difference": "slow_11_to_10"
+      },
+      "dec_delay90_ps": {
+        "max_absolute_difference": 0.1023170851950681,
+        "case_for_max_absolute_difference": "slow_01_to_10",
+        "max_relative_difference_percent": 0.03445190766139747,
+        "case_for_max_relative_difference": "slow_01_to_10"
+      },
+      "dec_precharge10_ps": {
+        "max_absolute_difference": 0.12616964084747906,
+        "case_for_max_absolute_difference": "slow_01_to_11",
+        "max_relative_difference_percent": 0.023034090902036095,
+        "case_for_max_relative_difference": "slow_01_to_00"
+      },
+      "terminal_magnitude_max_v": {
+        "max_absolute_difference": 0.0023626569673467213,
+        "case_for_max_absolute_difference": "slow_10_to_00",
+        "max_relative_difference_percent": 0.1376674421830032,
+        "case_for_max_relative_difference": "slow_10_to_00"
+      },
+      "output_vgs_peak_v": {
+        "max_absolute_difference": 7.41224769977844e-05,
+        "case_for_max_absolute_difference": "slow_01_to_01",
+        "max_relative_difference_percent": 0.004413416855525838,
+        "case_for_max_relative_difference": "slow_01_to_01"
+      },
+      "vdd_src_cycle_energy_fj": {
+        "max_absolute_difference": 0.1378160039360523,
+        "case_for_max_absolute_difference": "slow_11_to_00",
+        "max_relative_difference_percent": 0.04145173596313983,
+        "case_for_max_relative_difference": "slow_00_to_00"
+      },
+      "vpclk_cycle_energy_fj": {
+        "max_absolute_difference": 0.3954347073897635,
+        "case_for_max_absolute_difference": "slow_10_to_10",
+        "max_relative_difference_percent": 15.826035015946513,
+        "case_for_max_relative_difference": "slow_01_to_00"
+      }
+    }
+  },
+  "waveforms": {
+    "5ps": {
+      "count": 32,
+      "bytes": 141707536,
+      "git_ignored": true
+    },
+    "1ps": {
+      "count": 32,
+      "bytes": 703795472,
+      "git_ignored": true
+    }
+  },
+  "interpretation": [
+    "Baseline and PEX passed all 16 ordered address-pair checks at both 5 ps and 1 ps; the runner reported no contract-check failures or voltage-screen findings.",
+    "Ngspice logs contain only the reported negative Eta0 model-parameter warning; no Error lines were found. This is a model warning, not evidence of schematic connectivity failure.",
+    "At 1 ps, the maximum WL delay to 90% is 672.226 ps baseline and 815.389 ps PEX; both remain below the testbench 1 ns logic timing screen.",
+    "The PEX is decoder-only. WL buffers remain schematic and each row load is estimated at 17.4 fF; this does not qualify extracted physical row loading, capture/fanout, noise/retention, mismatch, or full-macro behavior.",
+    "PCLK source energy is net energy from an ideal source, includes returned energy, and requires a separate timestep review; it is not dissipation of a physical PCLK driver."
+  ],
+  "reproduction": [
+    "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles slow --all-address-pairs --max-step-ps 5 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_slow_matrix_5ps",
+    "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles slow --all-address-pairs --max-step-ps 1 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_slow_matrix_1ps"
+  ]
+}

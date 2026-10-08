@@ -38,15 +38,20 @@ and 1.877770 V at 1 ps. The largest 5 ps-to-1 ps changes were 0.081 ps in WL
 terminal magnitude. Results: [5 ps](../../sims/row_decoder/results/compact_decoder_full_tt_matrix_5ps/)
 and [1 ps](../../sims/row_decoder/results/compact_decoder_full_tt_matrix_1ps/).
 
-The recorded electrical campaigns include selected TT/1.8 V/27 °C and
-SS/1.62 V/-40 °C transitions plus complete 16-pair TT and FF/1.8 V/125 °C
-matrices. They use 50 ps input edges, Gear integration and the estimated
-17.4 fF row load. The decoder alone is extracted; four WL buffers remain
-schematic devices. This does not establish broad PVT, physical-row loading,
-full-macro timing, signed model-domain clearance or reliability qualification.
-Full logs and result directories are listed in the
-[validation log](../../docs/feature_peripherals_validation_log.md) and
-[compaction handoff](../../docs/row_decoder_layout_compaction_20261008.md).
+The recorded electrical campaigns include complete 16-pair TT, SS and
+FF matrices at 5 ps and 1 ps, using 50 ps input edges, Gear integration and
+the estimated 17.4 fF row load. All baseline and PEX cases pass the recorded
+contract checks. Selected high-sensitivity PCLK energy cases were refined at
+0.5 ps; they differ from 1 ps by less than 0.89% in baseline and 0.51% in PEX.
+FF model-parameter warnings were traced to ngspice's BSIM4 checks and remain a
+model-qualification caveat. The decoder alone is extracted; four WL buffers
+remain schematic devices. This does not establish broad PVT, physical-row
+loading, full-macro timing, signed model-domain clearance or reliability
+qualification. Full logs and result directories are listed in the
+[validation log](../../docs/feature_peripherals_validation_log.md), the
+[SS matrix audit](../../sims/row_decoder/results/compact_decoder_full_slow_matrix_audit.json),
+the [PCLK convergence audit](../../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json),
+and the [compaction handoff](../../docs/row_decoder_layout_compaction_20261008.md).
 Previous layouts and PEX remain archived under `archive/` with hashes.
 
 The full FF/1.8 V/125 °C extension now covers all 16 ordered address pairs.
@@ -56,7 +61,7 @@ contract and voltage-screen checks. At 1 ps, maximum PEX WL delay to 90% is
 1.878690 V. The largest matched 5 ps-to-1 ps PEX differences are 0.130 ps in
 WL delay, 0.191 ps in precharge, 0.058 ps in WL rise slew, and 0.373 mV in
 terminal magnitude. PCLK source cycle energy differs by up to 0.502 fJ
-(11.39%), so that metric is more timestep-sensitive.
+(12.85% relative to the 1 ps value), so that metric is more timestep-sensitive.
 
 The baseline peak is 1.949037 V of absolute `VGD` in `01→10`, 0.963 mV below
 the runner's 1.95 V numerical screen. This is not signed PDK model-domain

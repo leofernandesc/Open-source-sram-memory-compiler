@@ -655,12 +655,30 @@
     "Baseline and PEX passed all recorded decoder contract checks and both voltage screens for all 16 pairs at both timesteps.",
     "FF ngspice logs report BSIM4 parameter warnings including A2 > 1 (ngspice clamps A2 and resets A1), and negative Eta0, Pdibl1, and Pdibl2. Passing project screens under these warnings is not full model-domain or reliability qualification.",
     "The absolute terminal-magnitude screen includes VGD and is not a signed SKY130 model-domain check. The baseline peak remains close to the historical 1.95 V numerical screen.",
-    "Timing and terminal metrics are closely matched between 5 ps and 1 ps; PCLK source cycle-energy results show larger timestep sensitivity and should use the 1 ps data for reference pending a dedicated energy-convergence review.",
+    "PCLK source cycle energy is more timestep-sensitive than timing and terminal screens. A separate corner-selected 0.5 ps review found all selected cases pass and the largest 1 ps-to-0.5 ps difference is below 0.51% in PEX; see the dedicated convergence audit. This is not a complete 0.5 ps matrix or physical clock-driver power measurement.",
     "The distributed PEX covers the decoder only. WL buffers remain schematic and the 17.4 fF row load is an estimate, not extracted physical row loading.",
     "Raw waveforms are retained locally for inspection but are ignored by Git due to their size; textual summaries, checks, manifests, netlists, and logs are retained in the result roots."
   ],
   "reproduction": [
     "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles fast --all-address-pairs --max-step-ps 5 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps",
     "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles fast --all-address-pairs --max-step-ps 1 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps"
-  ]
+  ],
+  "model_warning_review": {
+    "ngspice_version": "44.2",
+    "source_checks": {
+      "a2_gt_one": "The versioned ngspice BSIM4 check clamps A2 to 1 and sets A1 to 0 when A2 > 1.",
+      "negative_eta0_pdibl1_pdibl2": "The corresponding checks emit warnings and do not modify these parameters in that validation routine."
+    },
+    "source_url_a2": "https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L435-L459",
+    "source_url_negative": "https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L521-L529",
+    "observed_parameters": [
+      "A2",
+      "Eta0",
+      "Pdibl1",
+      "Pdibl2"
+    ],
+    "errors": 0,
+    "interpretation": "No fatal ngspice Error lines occurred, and the decoder contract checks passed. A2 is modified by ngspice; other negative-parameter warnings are not corrected by that check. These are model-qualification caveats, not evidence of a schematic connectivity error; the FF model setup still needs owner/PDK review before full model-domain or reliability claims."
+  },
+  "pclk_energy_convergence_audit": "compact_decoder_pclk_energy_convergence_audit.json"
 }

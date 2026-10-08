@@ -159,21 +159,21 @@
   </section>
 
   <section class="slide">
-    <div class="eyebrow">05 · Decoder compacto · FF quente</div>
-    <h2>Extensão elétrica no canto FF</h2>
-    <p>Foram simulados os 16 pares ordenados de endereço em FF, 1,8 V e 125 °C, comparando o baseline com o PEX R-C compacto. Os 16 casos passaram a 5 ps e 1 ps; a campanha selecionada anterior também avaliou o caso de maior excursão com passo de 0,5 ps.</p>
+    <div class="eyebrow">05 · Decoder compacto · matriz elétrica</div>
+    <h2>Matrizes completas em TT, SS e FF</h2>
+    <p>Os 16 pares ordenados de endereço passaram no baseline e no PEX compacto em TT, SS e FF, nos passos de 5 ps e 1 ps. O PEX R-C atual foi mantido com o mesmo hash; não foi necessária nova extração para estas simulações.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">16 / 16</div><div class="label">pares aprovados no baseline e no PEX, a 5 ps e 1 ps</div></div>
-      <div class="card"><div class="metric">0,963 mV</div><div class="label">distância do pico VGD até a tela de magnitude do runner; não é margem de domínio do modelo</div></div>
-      <div class="card"><div class="metric">493 ps</div><div class="label">atraso máximo PEX da WL até 90%, a 1 ps</div></div>
+      <div class="card"><div class="metric">48 / 48</div><div class="label">pares aprovados por circuito em três cantos e dois passos temporais</div></div>
+      <div class="card"><div class="metric">0,89% / 0,51%</div><div class="label">maior delta de energia entre 1 ps e 0,5 ps nos casos refinados: baseline / PEX</div></div>
+      <div class="card"><div class="metric">493 ps</div><div class="label">atraso máximo PEX da WL até 90% no canto FF, a 1 ps</div></div>
     </div>
     <table><thead><tr><th>Métrica máxima, passo 1 ps</th><th>Esquemático</th><th>PEX compacto</th></tr></thead><tbody>
       <tr><td>WL até 90%</td><td>394,006 ps</td><td>492,795 ps</td></tr>
       <tr><td>Pré-carga da WL até 10%</td><td>306,280 ps</td><td>461,940 ps</td></tr>
       <tr><td>Magnitude terminal observada</td><td>1,949037 V</td><td>1,878690 V</td></tr>
     </tbody></table>
-    <p class="warn">O ngspice emitiu avisos nos modelos FF: valores de A2 acima de 1 foram limitados pelo simulador, com A1 ajustado para 0; também aparecem parâmetros Eta0, Pdibl1 e Pdibl2 negativos. Os checks passaram sob essa interpretação, mas o pico VGD ficou próximo do limite numérico da tela do runner, sem medir diretamente as faixas assinadas do PDK.</p>
-    <p class="source">O PDK documenta 1,95 V como limite de faixas assinadas de VGS/VDS; a tela do runner também compara VGD, que não é uma dessas variáveis, e por isso não comprova domínio do modelo ou confiabilidade. Permanecem os avisos dos modelos FF. A matriz usa WL drivers esquemáticos e carga estimada de 17,4 fF; a energia da fonte PCLK variou até 11,39% entre passos de 5 ps e 1 ps. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório e comandos</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_1ps/comparison.csv">CSV a 1 ps</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json">Auditoria, hashes e deltas</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_5ps/">Resultados a 5 ps</a>.</p>
+    <p class="warn">O ngspice emitiu avisos nos modelos FF. O check BSIM4 limita A2 a 1 e define A1=0 quando A2&gt;1; para Eta0, Pdibl1 e Pdibl2 negativos, essa rotina apenas avisa. Não houve erros fatais, mas a aceitação final desses parâmetros ainda requer revisão do responsável pelo modelo/PDK. O pico VGD de 1,949037 V fica próximo da tela numérica do runner; isso não mede diretamente as faixas assinadas do PDK.</p>
+    <p class="source">Os casos refinados a 0,5 ps ficaram a menos de 0,89% (baseline) e 0,51% (PEX) dos valores a 1 ps. Esse resultado apoia 1 ps como referência para os pares registrados, sem ser uma matriz completa a 0,5 ps nem medir a dissipação de um driver PCLK físico. O bench usa buffers WL esquemáticos e carga estimada de 17,4 fF. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório FF</a> · <a href="../sims/row_decoder/results/compact_decoder_full_slow_matrix_audit.json">Auditoria SS</a> · <a href="../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json">Auditoria de energia</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json">Auditoria FF</a>.</p>
   </section>
 
   <section class="slide">
@@ -212,7 +212,7 @@
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Requalificar captura/fanout e a interface PCLK</td><td>Orcamento medido para o novo dimensionamento</td></tr>
       <tr><td>09/10</td><td>Repetir qualificacao ampla, ruido e retencao</td><td>Fonte atual e limites explicitamente registrados</td></tr>
-      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS e PEX executados; matriz FF completa concluída, avisos dos modelos e energia PCLK ainda em revisão</td></tr>
+      <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS e PEX; matrizes TT/SS/FF completas; revisão de avisos FF e convergência numérica PCLK registrada</td></tr>
       <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>

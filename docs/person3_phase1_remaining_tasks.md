@@ -15,11 +15,15 @@ visual handoff of completed work and remaining tasks.
 approved decoder schematic/sizing while compacting its layout. The current
 geometry passes routed/flat DRC (0/0) and unique LVS (29 MOS, 22 nets, nine
 pins). Its fresh PEX has 762 R / 389 C across all 22 resistance networks,
-zero negative capacitors and current source/layout/PEX provenance. The matched
-13-case schematic/PEX matrix passes at both 5 ps and 1 ps, with zero contract
-findings. Full selected measurements and scope limits are in the
-[compaction handoff](row_decoder_layout_compaction_20261008.md) and
-[validation log](feature_peripherals_validation_log.md).
+zero negative capacitors and current source/layout/PEX provenance. Matched
+baseline/PEX matrices now cover all 16 ordered address pairs in TT, SS and FF
+at 5 ps and 1 ps; all cases pass with zero contract findings. The targeted
+PCLK energy refinement also passed its selected high-sensitivity pairs at
+0.5 ps, and the FF model warnings have been traced to ngspice's BSIM4 parameter
+checks. This closes the recorded leaf-level matrix, not physical-row or
+full-macro qualification. See the [compaction handoff](row_decoder_layout_compaction_20261008.md),
+[validation log](feature_peripherals_validation_log.md), and
+[PCLK convergence audit](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json).
 
 **Historical evidence:** B7 pre-layout qualification (264 cases), the 204-case
 contract campaign, 15 numerical comparisons and the captured-address budget
@@ -55,7 +59,7 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 
 | ID | Task | Dependency | Status and next action | Completion evidence |
 |---|---|---|---|---|
-| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Full TT and FF address-pair matrices complete at 5 ps/1 ps; FF model-warning and energy-convergence review remain.** | All 16 ordered pairs pass baseline and current PEX checks at both steps. The baseline FF `VGD` peak is 0.963 mV below the runner's absolute 1.95 V terminal screen, not a signed PDK model-domain margin. ngspice warns on FF model parameters, and PCLK cycle energy changes by up to 11.39% between the two timesteps. See the full-matrix audit and `row_decoder_fast_hot_qualification_20261008.md`; do not extend this to reliability or full model-domain qualification. |
+| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Complete for full TT/SS/FF 16-pair baseline/PEX matrices at 5 ps and 1 ps; targeted PCLK convergence and FF-warning interpretation recorded.** | All 16 ordered pairs pass baseline and current PEX checks at both timesteps in all three corners. Selected 0.5 ps PCLK refinements differ from 1 ps by at most 0.889% in baseline and 0.503% in PEX. The baseline FF `VGD` peak remains only 0.963 mV below the runner's absolute 1.95 V screen, not a signed model-domain margin; FF model warnings remain a qualification caveat. See the full-matrix audits and `row_decoder_fast_hot_qualification_20261008.md`; do not extend this to physical-row loading, reliability or full model-domain qualification. |
 | P3-2 | Establish captured-address/PCLK timing budget | P3-1; control interface coordination | **Historical provisional budget; requalification pending.** Repeat capture/fanout tests with the current W=0.84 um address inverters and agree the physical PCLK source. | Archived 72/72 selected-point cases and 431.2 ps worst lead belong to their original schematic. No current setup/hold or Fmax claim. |
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
@@ -72,11 +76,14 @@ and local routing around the address buffers. Channel-area proxies from
 schematic studies are not physical layout area.
 
 The terminal magnitude screen is not full signed model-domain or reliability
-clearance. Review model bias handling and any required guardband before calling
-the electrical sizing final. Noise injection and finite retention are measured
-experiments; an approved noise budget, clock-stop duration and mismatch sample
-policy require project-level decisions. A bitcell Monte Carlo sample count must
-not silently become the decoder's statistical acceptance criterion.
+clearance. The FF warning review found that ngspice changes `A2`/`A1` for the
+reported `A2 > 1` values but only warns on the negative `Eta0`/`Pdibl` values;
+PDK/model-owner acceptance and any required guardband are still needed before
+calling the sizing fully qualified. Noise injection and finite retention are
+measured experiments; an approved noise budget, clock-stop duration and
+mismatch sample policy require project-level decisions. A bitcell Monte Carlo
+sample count must not silently become the decoder's statistical acceptance
+criterion.
 
 ## Coordination and known integration dependency
 

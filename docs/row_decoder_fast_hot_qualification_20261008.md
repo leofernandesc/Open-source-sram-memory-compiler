@@ -49,17 +49,16 @@ Os 38 logs ngspice foram inspecionados. Não apresentam linhas `Error:`; todos
 os processos e manifests indicam conclusão sem erro. O ngspice registra,
 porém, avisos para parâmetros dos modelos FF, incluindo `A2 > 1` (o ngspice
 limita `A2` a 1 e define `A1` a 0), `Eta0 < 0` e alguns valores negativos de
-`Pdibl1`/`Pdibl2`. O código-fonte do ngspice confirma a correção de `A2` e os
-avisos dos demais parâmetros
-([checagens BSIM4 do ngspice](https://github.com/ngspice/ngspice/blob/master/src/spicelib/devices/bsim4v5/b4v5check.c#L2683-L2729)).
-Os 38 logs apresentaram os avisos: `A2` e `Pdibl1` nas bins PFET
+`Pdibl1`/`Pdibl2`. O [check BSIM4 do ngspice 44.2 para `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L435-L459)
+confirma que `A2` e `A1` são alterados; os [checks dos parâmetros negativos](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L521-L529)
+emitem avisos sem modificar `Eta0`, `Pdibl1` ou `Pdibl2` nessa rotina. Os 38
+logs da campanha selecionada apresentaram `A2` e `Pdibl1` nas bins PFET
 `pshort_model.32/.40`, `Pdibl2` em `pshort_model.32`, e `Eta0` nas bins NFET
-`nshort_model.40/.48`. Isso aponta para verificações dos parâmetros dos
-modelos BSIM4 selecionados para as geometrias usadas, e não para um erro de
-conectividade no esquemático. `A2` é alterado pelo ngspice; os avisos de
-parâmetros negativos não indicam que o simulador os corrige. Os checks da
-campanha passaram sob essa interpretação dos modelos, mas os avisos devem ser
-revistos antes de usar FF como qualificação final.
+`nshort_model.40/.48`. Isso identifica avisos de validação de parâmetros dos
+modelos BSIM4 para as geometrias usadas; não é evidência de erro de
+conectividade no esquemático. Os checks passaram sob o tratamento reportado
+pelo ngspice, mas esses avisos continuam como ressalva para qualificação FF e
+precisam da avaliação do responsável pelo modelo/PDK.
 
 ## Escopo e arquivos
 
@@ -73,6 +72,7 @@ completa nem a macro 4×8.
 - [Matriz FF a 5 ps](../sims/row_decoder/results/compact_decoder_fast_5ps/comparison.csv)
 - [Matriz FF a 1 ps](../sims/row_decoder/results/compact_decoder_fast_1ps/comparison.csv)
 - [Caso de maior excursão a 0,5 ps](../sims/row_decoder/results/compact_decoder_fast_peak_0p5ps/comparison.csv)
+- [Convergência PCLK a 0,5 ps nos três cantos](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json)
 - Cada deck e saída de ngspice estão sob `artifacts/`; cópias de texto dos
   logs estão nomeadas `ngspice_output.txt`. As waveforms binárias `.raw` não
   foram adicionadas ao Git.
@@ -119,10 +119,11 @@ de magnitude terminal é 1,878690 V em `10→01`.
 
 Entre 5 ps e 1 ps, os maiores deltas por par no PEX foram 0,130 ps em atraso
 de WL, 0,191 ps em pré-carga, 0,058 ps em slew de subida do WL e 0,373 mV em
-magnitude terminal. A energia por ciclo observada na fonte PCLK variou até
-0,502 fJ (11,39%); esse resultado depende mais do passo temporal que as
-métricas de atraso e tensão, por isso a análise usa 1 ps como referência e
-deixa a convergência de energia como revisão separada.
+magnitude terminal. A energia PCLK teve variação máxima de 0,502 fJ no par
+`01→00`. Na verificação direcionada a 0,5 ps, o PEX desse par foi
+3,897121 fJ, contra 3,907003 fJ a 1 ps (0,253%); no baseline `01→11`, a
+variação foi 0,576%. A revisão abrangeu também os casos mais sensíveis em TT
+e SS; consulte a [auditoria de convergência PCLK](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json).
 
 Os 64 logs ngspice desta matriz não contêm linhas `Error:`, mas todos mantêm
 os avisos dos modelos FF vistos na campanha selecionada: `A2 > 1` (o ngspice
@@ -152,6 +153,11 @@ SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_deco
 ```
 
 Esta execução fecha a matriz FF completa para o testbench e carga registrados.
-Ainda não cobre PVT amplo, wordline física, ruído, retenção, mismatch,
-captura/fanout de endereço ou comportamento da macro completa. Os avisos do
-modelo FF e a convergência da energia PCLK continuam como itens de revisão.
+A revisão direcionada de energia PCLK a 0,5 ps está concluída para os pares
+mais sensíveis de TT/SS/FF; entre 1 ps e 0,5 ps, o maior delta foi 0,889% no
+baseline e 0,503% no PEX. Isso sustenta 1 ps como referência para os casos
+registrados, sem substituir uma matriz completa a 0,5 ps ou medir dissipação
+de um driver PCLK físico. Ainda não cobre PVT amplo, wordline física,
+ruído, retenção, mismatch, captura/fanout de endereço ou comportamento da
+macro completa. Os avisos FF foram interpretados, mas permanecem como ressalva
+de qualificação dos modelos.

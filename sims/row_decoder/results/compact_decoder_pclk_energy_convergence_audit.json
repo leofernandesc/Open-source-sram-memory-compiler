@@ -1,0 +1,379 @@
+{
+  "title": "Dynamic decoder PCLK ideal-source energy timestep-convergence review",
+  "date": "2026-10-08",
+  "pex_sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+  "pex_components": {
+    "mos": 29,
+    "resistors": 762,
+    "capacitors": 389
+  },
+  "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+  "energy_definition": "Net energy delivered by each ideal source from first_fall to second_fall (falling-edge midpoints), trapezoidal integration with interpolated endpoints. Includes returned energy; not upstream-driver dissipation. Requires separate timestep convergence assessment.",
+  "full_16_pair_matrix_5ps_to_1ps": {
+    "tt": {
+      "baseline": {
+        "max_absolute_5ps_to_1ps": {
+          "case": "tt_11_to_01",
+          "energy_5ps_fj": 1.5830920208190382,
+          "energy_1ps_fj": 1.4571409381093872,
+          "absolute_difference_fj": 0.12595108270965105,
+          "relative_difference_percent": 8.643713138213673
+        },
+        "max_relative_5ps_to_1ps": {
+          "case": "tt_11_to_01",
+          "energy_5ps_fj": 1.5830920208190382,
+          "energy_1ps_fj": 1.4571409381093872,
+          "absolute_difference_fj": 0.12595108270965105,
+          "relative_difference_percent": 8.643713138213673
+        }
+      },
+      "pex": {
+        "max_absolute_5ps_to_1ps": {
+          "case": "tt_11_to_10",
+          "energy_5ps_fj": 4.3080981509756615,
+          "energy_1ps_fj": 3.8067094373556634,
+          "absolute_difference_fj": 0.5013887136199981,
+          "relative_difference_percent": 13.171184243793732
+        },
+        "max_relative_5ps_to_1ps": {
+          "case": "tt_01_to_00",
+          "energy_5ps_fj": 4.0455355145000045,
+          "energy_1ps_fj": 3.5447587098628044,
+          "absolute_difference_fj": 0.5007768046372001,
+          "relative_difference_percent": 14.127246609024683
+        }
+      }
+    },
+    "slow": {
+      "baseline": {
+        "max_absolute_5ps_to_1ps": {
+          "case": "slow_01_to_00",
+          "energy_5ps_fj": 1.058015260419004,
+          "energy_1ps_fj": 0.9680699228360685,
+          "absolute_difference_fj": 0.08994533758293555,
+          "relative_difference_percent": 9.291202573408198
+        },
+        "max_relative_5ps_to_1ps": {
+          "case": "slow_01_to_00",
+          "energy_5ps_fj": 1.058015260419004,
+          "energy_1ps_fj": 0.9680699228360685,
+          "absolute_difference_fj": 0.08994533758293555,
+          "relative_difference_percent": 9.291202573408198
+        }
+      },
+      "pex": {
+        "max_absolute_5ps_to_1ps": {
+          "case": "slow_10_to_10",
+          "energy_5ps_fj": 3.1839963483054703,
+          "energy_1ps_fj": 2.788561640915707,
+          "absolute_difference_fj": 0.3954347073897635,
+          "relative_difference_percent": 14.180597681172676
+        },
+        "max_relative_5ps_to_1ps": {
+          "case": "slow_01_to_00",
+          "energy_5ps_fj": 2.891963922152267,
+          "energy_1ps_fj": 2.4968168182171753,
+          "absolute_difference_fj": 0.3951471039350918,
+          "relative_difference_percent": 15.826035015946513
+        }
+      }
+    },
+    "fast": {
+      "baseline": {
+        "max_absolute_5ps_to_1ps": {
+          "case": "fast_01_to_11",
+          "energy_5ps_fj": 1.8624527250745173,
+          "energy_1ps_fj": 1.7180994258355837,
+          "absolute_difference_fj": 0.14435329923893359,
+          "relative_difference_percent": 8.401917669504403
+        },
+        "max_relative_5ps_to_1ps": {
+          "case": "fast_01_to_11",
+          "energy_5ps_fj": 1.8624527250745173,
+          "energy_1ps_fj": 1.7180994258355837,
+          "absolute_difference_fj": 0.14435329923893359,
+          "relative_difference_percent": 8.401917669504403
+        }
+      },
+      "pex": {
+        "max_absolute_5ps_to_1ps": {
+          "case": "fast_01_to_00",
+          "energy_5ps_fj": 4.409106719182133,
+          "energy_1ps_fj": 3.907002545657678,
+          "absolute_difference_fj": 0.5021041735244549,
+          "relative_difference_percent": 12.85139100005204
+        },
+        "max_relative_5ps_to_1ps": {
+          "case": "fast_01_to_00",
+          "energy_5ps_fj": 4.409106719182133,
+          "energy_1ps_fj": 3.907002545657678,
+          "absolute_difference_fj": 0.5021041735244549,
+          "relative_difference_percent": 12.85139100005204
+        }
+      }
+    }
+  },
+  "targeted_refinement_1ps_to_0p5ps": {
+    "tt": {
+      "corner": "tt",
+      "supply_v": 1.8,
+      "temperature_c": 27,
+      "selected_cases": [
+        {
+          "case": "tt_11_to_01",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.5830920208190382,
+            "energy_1ps_fj": 1.4571409381093872,
+            "energy_0p5ps_fj": 1.4466903378353946,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.010450600273992583,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.7171990025585335
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 4.179364384377513,
+            "energy_1ps_fj": 3.679634003115208,
+            "energy_0p5ps_fj": 3.66438970877767,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.015244294337538378,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.414288332063255
+          }
+        },
+        {
+          "case": "tt_11_to_10",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.5599713889970999,
+            "energy_1ps_fj": 1.4376958714073875,
+            "energy_0p5ps_fj": 1.4273304454093811,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.010365425998006383,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.7209748740433867
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 4.3080981509756615,
+            "energy_1ps_fj": 3.8067094373556634,
+            "energy_0p5ps_fj": 3.7914225324856976,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.015286904869965756,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.40157792764411326
+          }
+        },
+        {
+          "case": "tt_01_to_00",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.560209468500298,
+            "energy_1ps_fj": 1.4377084215281788,
+            "energy_0p5ps_fj": 1.4273493293923316,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.010359092135847181,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.7205280278483884
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 4.0455355145000045,
+            "energy_1ps_fj": 3.5447587098628044,
+            "energy_0p5ps_fj": 3.5294815036992913,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.015277206163513135,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.43098014319018124
+          }
+        }
+      ]
+    },
+    "slow": {
+      "corner": "ss",
+      "supply_v": 1.62,
+      "temperature_c": -40,
+      "selected_cases": [
+        {
+          "case": "slow_01_to_00",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.058015260419004,
+            "energy_1ps_fj": 0.9680699228360685,
+            "energy_0p5ps_fj": 0.9594683050386338,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.008601617797434735,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.8885326973319593
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 2.891963922152267,
+            "energy_1ps_fj": 2.4968168182171753,
+            "energy_0p5ps_fj": 2.484261783035097,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.012555035182078456,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.502841661850197
+          }
+        },
+        {
+          "case": "slow_10_to_10",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.0771151196594004,
+            "energy_1ps_fj": 0.9881793026227195,
+            "energy_0p5ps_fj": 0.9795994258891035,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.008579876733615932,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.8682510057480605
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 3.1839963483054703,
+            "energy_1ps_fj": 2.788561640915707,
+            "energy_0p5ps_fj": 2.7759632348658374,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.012598406049869393,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.4517886879392178
+          }
+        }
+      ]
+    },
+    "fast": {
+      "corner": "ff",
+      "supply_v": 1.8,
+      "temperature_c": 125,
+      "selected_cases": [
+        {
+          "case": "fast_01_to_00",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.8307296163079252,
+            "energy_1ps_fj": 1.6953665782736516,
+            "energy_0p5ps_fj": 1.6856514812986172,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.009715096975034365,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.573038132256152
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 4.409106719182133,
+            "energy_1ps_fj": 3.907002545657678,
+            "energy_0p5ps_fj": 3.8971211888177533,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.009881356839924749,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.2529140107908834
+          }
+        },
+        {
+          "case": "fast_01_to_11",
+          "baseline": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 104,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 1.8624527250745173,
+            "energy_1ps_fj": 1.7180994258355837,
+            "energy_0p5ps_fj": 1.7082113511986394,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.0098880746369443,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.5755240056689568
+          },
+          "pex": {
+            "result_0p5ps": "PASS",
+            "check_pass_0p5ps": 160,
+            "check_fail_0p5ps": 0,
+            "energy_5ps_fj": 4.583367902855095,
+            "energy_1ps_fj": 4.083264675657717,
+            "energy_0p5ps_fj": 4.073279594430034,
+            "abs_delta_0p5ps_vs_1ps_fj": 0.009985081227682713,
+            "relative_delta_0p5ps_vs_1ps_percent": 0.2445367131650449
+          }
+        }
+      ]
+    }
+  },
+  "targeted_run_summary": {
+    "tt": {
+      "baseline": {
+        "selected_cases": 5,
+        "passed_cases": 5,
+        "check_failures": 0,
+        "error_lines": [],
+        "ngspice_logs": 5
+      },
+      "pex": {
+        "selected_cases": 5,
+        "passed_cases": 5,
+        "check_failures": 0,
+        "error_lines": [],
+        "ngspice_logs": 5
+      }
+    },
+    "slow": {
+      "baseline": {
+        "selected_cases": 5,
+        "passed_cases": 5,
+        "check_failures": 0,
+        "error_lines": [],
+        "ngspice_logs": 5
+      },
+      "pex": {
+        "selected_cases": 5,
+        "passed_cases": 5,
+        "check_failures": 0,
+        "error_lines": [],
+        "ngspice_logs": 5
+      }
+    },
+    "fast": {
+      "baseline": {
+        "selected_cases": 2,
+        "passed_cases": 2,
+        "check_failures": 0,
+        "error_lines": [],
+        "ngspice_logs": 2
+      },
+      "pex": {
+        "selected_cases": 2,
+        "passed_cases": 2,
+        "check_failures": 0,
+        "error_lines": [],
+        "ngspice_logs": 2
+      }
+    }
+  },
+  "max_targeted_0p5ps_vs_1ps_delta": {
+    "baseline": {
+      "profile": "slow",
+      "case": "slow_01_to_00",
+      "relative_delta_percent": 0.8885326973319593,
+      "absolute_delta_fj": 0.008601617797434735
+    },
+    "pex": {
+      "profile": "slow",
+      "case": "slow_01_to_00",
+      "relative_delta_percent": 0.502841661850197,
+      "absolute_delta_fj": 0.012555035182078456
+    }
+  },
+  "waveforms": {
+    "count": 14,
+    "bytes": 615331713,
+    "git_ignored": true
+  },
+  "interpretation": [
+    "Across complete TT, SS and FF 16-pair matrices, 5 ps-to-1 ps PCLK source energy differences are larger than timing and terminal-magnitude deltas; the largest absolute PEX delta is 0.5021 fJ (FF 01-to-00), and the largest relative PEX delta is 15.83% (SS 01-to-00).",
+    "The selected 0.5 ps reruns include each profile/stage maximum or a worst-case companion from the 5 ps-to-1 ps comparison. All targeted baseline and PEX cases passed, with no contract failures or ngspice Error lines.",
+    "Among the selected refinements, the maximum 1 ps-to-0.5 ps energy change is below 0.89% for the schematic baseline and below 0.51% for PEX. This supports using the 1 ps value as the reference for the recorded setup; it is a targeted convergence check, not a full 0.5 ps matrix.",
+    "Energy is net energy delivered by an ideal VPCLK source over one cycle window, including returned energy. It is not dissipation of a physical PCLK source/driver. The model uses schematic WL buffers and estimated 17.4 fF row loads."
+  ],
+  "reproduction": [
+    "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles fast --cases fast_01_to_00 fast_01_to_11 --max-step-ps 0.5 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_fast_pclk_energy_0p5ps",
+    "SRAM_EDA_CONTAINER=sram-pex-diag-20261008 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py --profiles tt slow --cases tt_11_to_01 tt_11_to_10 tt_01_to_00 slow_01_to_00 slow_10_to_10 --max-step-ps 0.5 --workers 1 --timeout-s 900 --output-root sims/row_decoder/results/compact_decoder_ttslow_pclk_energy_0p5ps"
+  ]
+}
