@@ -1320,3 +1320,42 @@ driver. The [machine-readable audit](../sims/row_decoder/results/compact_decoder
 contains the per-case 5 ps, 1 ps and 0.5 ps values, screens, hashes and
 reproduction commands. Detailed 0.5 ps outputs are in the [FF](../sims/row_decoder/results/compact_decoder_fast_pclk_energy_0p5ps/)
 and [TT/SS](../sims/row_decoder/results/compact_decoder_ttslow_pclk_energy_0p5ps/) result roots.
+
+## 2026-10-08: signed device-bias and transient-initialization audit
+
+The new signed-bias postprocessor reviewed the archived 1 ps FF and SS
+baseline/PEX waveforms across all 16 ordered address pairs. It compares
+polarity-oriented `VGS`, `VDS` and `VBS` with the published SKY130 1.8 V
+device ranges. All existing functional checks remain passing; this audit
+found no new logic or wiring failure. It did find that the previous absolute
+terminal-magnitude screen does not answer whether signed device biases are
+inside the published ranges.
+
+In the post-startup PEX window (samples at or after 1 ns), FF/SS `VDS` and
+`VBS` stayed within the published ranges. The SS PFET `VBS` minimum was
+−0.096479 V, only 3.521 mV above the documented −0.10 V boundary. Signed
+`VGS` fell outside the published ranges in both corners: NFET `VGS` reached
+−1.532192 V (FF) and −1.084485 V (SS), while PFET `VGS` reached +0.079892 V
+(FF) and +0.096479 V (SS). These are measured screening results under the
+documented source/drain orientation convention; their applicability to
+model qualification needs review. They do not, by themselves, indicate a
+logic failure or a schematic connection error.
+
+The original decks use `uic`. During the first sub-ns PEX startup, local VDD
+taps are not yet at 1.8 V and PFET `VBS` reaches −0.611637 V in FF. One FF
+`00→00` case was rerun with operating-point initialization: its full-waveform
+PEX PFET `VBS` was −0.077979 to +0.057088 V, and functional checks passed.
+However, NFET `VGS` still reached −1.479475 V and PFET `VGS` +0.078286 V.
+This single case supports the UIC-startup-artifact interpretation for the
+large PFET `VBS` excursion, but it does not establish that result for every
+address pair or corner.
+
+The audit script, full FF/SS CSV/JSON, the one-case operating-point artifacts,
+source/model hashes and reproduction instructions are documented in the
+[signed-bias audit report](row_decoder_signed_bias_domain_audit_20261008.md).
+No extraction was run; the audited PEX hash is unchanged. TT raw waveforms are
+not retained, and the complete operating-point matrix (96 baseline/PEX
+simulations across TT, SS and FF) remains a high-compute follow-up for the
+stronger machine. The decoder's signed model-domain qualification remains
+open pending that analysis and authoritative interpretation of the signed
+`VGS` excursions.

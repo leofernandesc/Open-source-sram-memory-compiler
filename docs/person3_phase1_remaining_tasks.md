@@ -20,10 +20,15 @@ baseline/PEX matrices now cover all 16 ordered address pairs in TT, SS and FF
 at 5 ps and 1 ps; all cases pass with zero contract findings. The targeted
 PCLK energy refinement also passed its selected high-sensitivity pairs at
 0.5 ps, and the FF model warnings have been traced to ngspice's BSIM4 parameter
-checks. This closes the recorded leaf-level matrix, not physical-row or
-full-macro qualification. See the [compaction handoff](row_decoder_layout_compaction_20261008.md),
-[validation log](feature_peripherals_validation_log.md), and
-[PCLK convergence audit](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json).
+checks. A signed-bias audit then found `VGS` excursions outside the published
+signed ranges under its effective-source convention; one operating-point
+probe removes the large UIC-startup PFET `VBS` excursion, but the full
+operating-point matrix and model-range interpretation remain open. Therefore,
+the functional leaf matrix is complete while electrical/model-domain
+qualification is not. This is also not physical-row or full-macro
+qualification. See the [compaction handoff](row_decoder_layout_compaction_20261008.md),
+[validation log](feature_peripherals_validation_log.md), [PCLK convergence audit](../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json),
+and [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md).
 
 **Historical evidence:** B7 pre-layout qualification (264 cases), the 204-case
 contract campaign, 15 numerical comparisons and the captured-address budget
@@ -59,12 +64,12 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 
 | ID | Task | Dependency | Status and next action | Completion evidence |
 |---|---|---|---|---|
-| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Complete for full TT/SS/FF 16-pair baseline/PEX matrices at 5 ps and 1 ps; targeted PCLK convergence and FF-warning interpretation recorded.** | All 16 ordered pairs pass baseline and current PEX checks at both timesteps in all three corners. Selected 0.5 ps PCLK refinements differ from 1 ps by at most 0.889% in baseline and 0.503% in PEX. The baseline FF `VGD` peak remains only 0.963 mV below the runner's absolute 1.95 V screen, not a signed model-domain margin; FF model warnings remain a qualification caveat. See the full-matrix audits and `row_decoder_fast_hot_qualification_20261008.md`; do not extend this to physical-row loading, reliability or full model-domain qualification. |
+| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Functional matrix complete; signed model-domain review open.** | All 16 ordered pairs pass baseline and current PEX checks at 5 ps and 1 ps in all three corners. Selected 0.5 ps PCLK refinements differ from 1 ps by at most 0.889% in baseline and 0.503% in PEX. The signed-bias audit and FF model warnings still need authoritative interpretation; see [audit report](row_decoder_signed_bias_domain_audit_20261008.md). No physical-row or reliability qualification is claimed. |
 | P3-2 | Establish captured-address/PCLK timing budget | P3-1; control interface coordination | **Historical provisional budget; requalification pending.** Repeat capture/fanout tests with the current W=0.84 um address inverters and agree the physical PCLK source. | Archived 72/72 selected-point cases and 431.2 ps worst lead belong to their original schematic. No current setup/hold or Fmax claim. |
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
-| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Selected compact-layout closure complete.** Magic 8.3.684 extracted current R-C and provenance; matched 5 ps and 1 ps matrices both pass 13/13. | `layout/row_decoder/pex/extraction_manifest.json`, `pex/provenance.json`, and `sims/row_decoder/results/compact_decoder_{5ps,1ps}/`. WL buffers remain schematic and the row load is estimated at 17.4 fF; broad PVT, noise/retention and captured-address/fanout requalification remain open. |
+| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **PEX extraction and functional matrices complete; signed-bias qualification pending.** | Current PEX is 29 MOS / 762 R / 389 C. Matched 16-pair baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF; selected PCLK convergence also passes. FF/SS post-startup signed `VGS` screens have excursions outside published ranges; only one FF operating-point case is available and TT raw waveforms are absent. Run the full operating-point matrix on the stronger machine, review PDK/model interpretation and FF warnings, then decide whether sizing/topology changes are required. WL buffers remain schematic and row load is estimated at 17.4 fF. |
 | P3-7 | Review row loads and WL behavior with physical row | P3-6; Danilo's bitcell interface | **Blocked by missing physical input.** No `layout/bitcell_6t/` layout is present on this branch. | After Danilo supplies/reviews the physical bitcell: decoder → four WL buffers → row for every address, coupling and 50 fF stress; replace the 17.4 fF estimate with extracted data. |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
@@ -84,6 +89,26 @@ measured experiments; an approved noise budget, clock-stop duration and
 mismatch sample policy require project-level decisions. A bitcell Monte Carlo
 sample count must not silently become the decoder's statistical acceptance
 criterion.
+
+### Decoder closure sequence after the signed-bias audit
+
+1. Run the complete 1 ps operating-point baseline/PEX matrices at TT, SS and
+   FF on the stronger machine (96 ngspice invocations total). The audit report
+   contains exact commands and new result-root names. Do not replace or
+   overwrite the archived UIC matrices.
+2. Review the signed `VGS` convention, SKY130 range interpretation and FF
+   BSIM4 warnings with the model maintainer/advisors. Agree the acceptance
+   criteria and required margin before deciding whether the schematic needs
+   a sizing or topology change.
+3. If a design change is needed, run sizing/circuit simulations and then
+   update layout, DRC, LVS and PEX. If there is no layout change, the current
+   extraction need not be repeated.
+4. Obtain the approved extracted bitcell/row load and evaluate the four
+   decoder-to-WL-driver paths using that load. The present 17.4 fF is an
+   estimate and does not represent an extracted row.
+5. Repeat the captured-address/PCLK timing budget with the current sizing and
+   agreed physical PCLK interface; then close the integrated 4×8 control and
+   write/read interface with the other owners.
 
 ## Coordination and known integration dependency
 
