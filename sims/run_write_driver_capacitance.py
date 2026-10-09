@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import math
 import re
@@ -138,6 +139,14 @@ def main() -> int:
     if args.frequency_hz <= 0 or any(not 0 < v <= 1.8 for v in args.vdd_values):
         raise SystemExit("invalid frequency/VDD; characterization is limited to VDD <= 1.8 V")
     root = Path(__file__).resolve().parent.parent
+    source_path = (
+        args.pex_netlist.resolve()
+        if args.pex_netlist is not None
+        else root / "layout" / "write_driver" / "pex" / "write_driver_pex.spice"
+        if args.pex
+        else args.schematic.resolve()
+    )
+    source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
     subckt = extract_write_driver_pex(root, args.pex_netlist) if args.pex or args.pex_netlist else extract_write_driver(args.schematic)
     rows: list[dict[str, object]] = []
     for corner, vdd, temp_c, data, probe in itertools.product(
@@ -147,6 +156,8 @@ def main() -> int:
             "corner": corner, "vdd_v": vdd, "temp_c": temp_c, "data": data,
             "probe": probe, "we": 0, "frequency_hz": args.frequency_hz,
             "ceff_ff": "", "status": "ERROR", "error": "",
+            "write_source_path": str(source_path),
+            "write_source_sha256": source_sha256,
         }
         try:
             row["ceff_ff"] = f"{run_deck(make_deck(subckt=subckt, corner=corner, vdd=vdd, temp_c=temp_c, data=data, probe=probe, frequency_hz=args.frequency_hz), args.timeout_s):.9f}"

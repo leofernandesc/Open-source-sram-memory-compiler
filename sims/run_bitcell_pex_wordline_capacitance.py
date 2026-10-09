@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Measure WL input capacitance of the extracted selected 6T bitcell."""
 from __future__ import annotations
-import argparse,csv,itertools,re,subprocess
+import argparse,csv,hashlib,itertools,re,subprocess
 from concurrent.futures import ThreadPoolExecutor,as_completed
 from pathlib import Path
 from run_cbl_device_capacitance import MODEL_LIB,run_deck
+from pex_access_nodes import storage_output_node
 
 def load_pex(root):
  p=root/'layout'/'bitcell_6t'/'pex'/'bitcell_6t_pex.spice'; t=p.read_text()
@@ -19,7 +20,8 @@ def load_pex(root):
   if first.split('.')[0] in ('BL','BLB'): access[first.split('.')[0]]=third
   elif third.split('.')[0] in ('BL','BLB'): access[third.split('.')[0]]=first
  if set(access)!= {'BL','BLB'}: raise RuntimeError(f'expected two bitcell access nodes, got {access}')
- return t,m.group(1),access
+ storage={bitline:storage_output_node(node) for bitline,node in access.items()}
+ return t,m.group(1),storage,p.resolve()
 
 def deck(text,name,access,corner,vdd,temp,state,freq):
  q=vdd if state else 0.0; qb=0.0 if state else vdd
@@ -28,10 +30,10 @@ def deck(text,name,access,corner,vdd,temp,state,freq):
 def main():
  root=Path(__file__).resolve().parent.parent; p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('--corners',nargs='+',default=['tt','ff','ss','fs','sf']); p.add_argument('--vdd-values',nargs='+',type=float,default=[1.62,1.80]); p.add_argument('--temps-c',nargs='+',type=float,default=[-40.0,27.0,125.0]); p.add_argument('--states',nargs='+',type=int,choices=[0,1],default=[0,1]); p.add_argument('--frequency-hz',type=float,default=1e6); p.add_argument('--timeout-s',type=float,default=60); p.add_argument('--workers',type=int,default=4); p.add_argument('--output',type=Path,default=root/'sims'/'bitcell_pex_wordline_capacitance_pvt.csv'); a=p.parse_args()
- text,name,access=load_pex(root); cases=list(itertools.product(a.corners,a.vdd_values,a.temps_c,a.states))
+ text,name,storage,pex_path=load_pex(root); pex_sha256=hashlib.sha256(pex_path.read_bytes()).hexdigest(); cases=list(itertools.product(a.corners,a.vdd_values,a.temps_c,a.states))
  def ex(c):
-  corner,vdd,temp,state=c; r={'corner':corner,'vdd_v':vdd,'temp_c':temp,'state':state,'frequency_hz':a.frequency_hz,'cwl_bitcell_pex_ff':'','status':'ERROR','error':''}
-  try: x,_=run_deck('ngspice',deck(text,name,access,corner,vdd,temp,state,a.frequency_hz),a.timeout_s); r['cwl_bitcell_pex_ff']=f'{x:.9f}'; r['status']='PASS'
+  corner,vdd,temp,state=c; r={'corner':corner,'vdd_v':vdd,'temp_c':temp,'state':state,'frequency_hz':a.frequency_hz,'cwl_bitcell_pex_ff':'','status':'ERROR','error':'','pex_netlist_path':str(pex_path),'pex_netlist_sha256':pex_sha256}
+  try: x,_=run_deck('ngspice',deck(text,name,storage,corner,vdd,temp,state,a.frequency_hz),a.timeout_s); r['cwl_bitcell_pex_ff']=f'{x:.9f}'; r['status']='PASS'
   except (RuntimeError,subprocess.TimeoutExpired) as e:r['error']=str(e).replace('\n',' | ')[:1000]
   return r
  rows=[]

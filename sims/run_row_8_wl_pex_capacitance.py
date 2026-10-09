@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Measure extracted WL capacitance of the representative physical 8-bit SRAM row."""
 from __future__ import annotations
-import argparse, csv, itertools, re, subprocess
+import argparse, csv, hashlib, itertools, re, subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from run_cbl_device_capacitance import MODEL_LIB, run_deck
@@ -12,7 +12,7 @@ ACCESS_RE = re.compile(
     re.MULTILINE,
 )
 
-def load_pex(root: Path) -> tuple[str, str, dict[str, str]]:
+def load_pex(root: Path) -> tuple[str, str, dict[str, str], Path]:
     path = root / 'layout' / 'row_8_wl' / 'pex' / 'row_8_wl_pex.spice'
     text = path.read_text(encoding='utf-8')
     header = re.search(r"^\.subckt\s+(\S+)\s+(.+?)(?=\n[^+])", text, re.MULTILINE | re.DOTALL)
@@ -35,7 +35,7 @@ def load_pex(root: Path) -> tuple[str, str, dict[str, str]]:
         access[bitline.split('.')[0]] = storage_output_node(storage)
     if len(access) != 16:
         raise RuntimeError(f'expected 16 access storage nodes, got {len(access)}')
-    return text, header.group(1), access
+    return text, header.group(1), access, path.resolve()
 
 def make_deck(text: str, name: str, access: dict[str,str], corner: str, vdd: float, temp_c: float, state: int, freq: float) -> str:
     q = vdd if state else 0.0
@@ -63,11 +63,12 @@ def main() -> int:
     p.add_argument('--workers', type=int, default=4)
     p.add_argument('--output', type=Path, default=root/'sims'/'row_8_wl_pex_capacitance_pvt.csv')
     a=p.parse_args()
-    text,name,access=load_pex(root)
+    text,name,access,pex_path=load_pex(root)
+    pex_sha256=hashlib.sha256(pex_path.read_bytes()).hexdigest()
     cases=list(itertools.product(a.corners,a.vdd_values,a.temps_c,a.states))
     def execute(case):
         corner,vdd,temp,state=case
-        row={'corner':corner,'vdd_v':vdd,'temp_c':temp,'state':state,'frequency_hz':a.frequency_hz,'cwl_pex_ff':'','status':'ERROR','error':''}
+        row={'corner':corner,'vdd_v':vdd,'temp_c':temp,'state':state,'frequency_hz':a.frequency_hz,'cwl_pex_ff':'','status':'ERROR','error':'','pex_netlist_path':str(pex_path),'pex_netlist_sha256':pex_sha256}
         try:
             c,_=run_deck('ngspice', make_deck(text,name,access,corner,vdd,temp,state,a.frequency_hz), a.timeout_s)
             row['cwl_pex_ff']=f'{c:.9f}'; row['status']='PASS'

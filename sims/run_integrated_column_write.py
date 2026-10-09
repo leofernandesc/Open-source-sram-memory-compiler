@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integrated pre-layout SRAM write path using the canonical Xschem leaves."""
+"""Integrated SRAM write path with schematic or extracted PEX leaves."""
 
 from __future__ import annotations
 
@@ -103,8 +103,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--precharge-recovery-window-ns",
         type=float,
-        default=4.0,
+        default=4.2,
         help="Observation window after precharge is re-enabled.",
+    )
+    p.add_argument(
+        "--recovery-max-ns",
+        type=float,
+        default=4.0,
+        help="Maximum accepted BL/BLB recovery time after precharge reaches 50%.",
     )
     p.add_argument("--edge-ps", type=float, default=50.0)
     p.add_argument("--tran-step-ps", type=float, default=10.0)
@@ -128,6 +134,24 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help="Optional wordline-driver PEX override; implies PEX for all leaves.",
+    )
+    p.add_argument(
+        "--bitcell-capacitance-csv",
+        type=Path,
+        default=None,
+        help="Optional PEX Ceff provenance used for per-corner, per-line load accounting.",
+    )
+    p.add_argument(
+        "--precharge-capacitance-csv",
+        type=Path,
+        default=None,
+        help="Optional precharge PEX Ceff provenance used for per-corner load accounting.",
+    )
+    p.add_argument(
+        "--write-capacitance-csv",
+        type=Path,
+        default=None,
+        help="Optional disabled write-driver PEX Ceff provenance used for load accounting.",
     )
     p.add_argument(
         "--resume",
@@ -352,6 +376,153 @@ def source_metadata(args: argparse.Namespace, key: str) -> tuple[str, str]:
     return str(path), hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def load_capacitance_rows(path: Path, block: str) -> tuple[dict[tuple, float], list[dict[str, str]]]:
+    rows: list[dict[str, str]] = []
+    with path.open(newline="", encoding="utf-8") as stream:
+        for row in csv.DictReader(stream):
+            if row.get("block") not in (None, "", block):
+                continue
+            if row.get("status") != "PASS":
+                raise ValueError(f"non-PASS {block} capacitance row in {path}: {row}")
+            rows.append(row)
+
+    values: dict[tuple, float] = {}
+    for row in rows:
+        corner = row["corner"].lower()
+        vdd = float(row["vdd_v"])
+        temp_c = float(row["temp_c"])
+        if block == "bitcell":
+            match = re.fullmatch(r"q([01]):(BL|BLB)", row["scenario"])
+            if match is None:
+                raise ValueError(f"unexpected bitcell scenario in {path}: {row['scenario']}")
+            key = (corner, vdd, temp_c, int(match.group(1)), match.group(2))
+        elif block == "precharge":
+            key = (corner, vdd, temp_c, row["scenario"])
+        elif block == "write_driver":
+            key = (corner, vdd, temp_c, int(row["data"]), row["probe"])
+            if row.get("we") != "0":
+                raise ValueError(f"write capacitance must be measured with WE=0: {row}")
+        else:
+            raise ValueError(f"unsupported capacitance block: {block}")
+        if key in values:
+            raise ValueError(f"duplicate {block} capacitance key in {path}: {key}")
+        values[key] = float(row["ceff_ff"])
+    if not values:
+        raise ValueError(f"no {block} capacitance rows found in {path}")
+    return values, rows
+
+
+def validate_capacitance_provenance(
+    args: argparse.Namespace,
+) -> tuple[dict[str, dict[tuple, float]] | None, dict[str, str]]:
+    cap_paths = {
+        "bitcell": args.bitcell_capacitance_csv,
+        "precharge": args.precharge_capacitance_csv,
+        "write_driver": args.write_capacitance_csv,
+    }
+    supplied = [path is not None for path in cap_paths.values()]
+    if not any(supplied):
+        return None, {}
+    if not all(supplied):
+        raise ValueError("provide all three per-corner capacitance CSVs together")
+    if not args.pex:
+        raise ValueError("per-corner capacitance CSVs require --pex")
+
+    pex_paths = pex_source_paths(args)
+    expected_hashes = {
+        key: hashlib.sha256(path.read_bytes()).hexdigest()
+        for key, path in pex_paths.items()
+    }
+    cap_maps: dict[str, dict[tuple, float]] = {}
+    metadata: dict[str, str] = {}
+    for key, path in cap_paths.items():
+        assert path is not None
+        path = path.resolve()
+        cap_map, rows = load_capacitance_rows(path, key)
+        expected_column = {
+            "bitcell": ("bitcell_pex_sha256", "bitcell"),
+            "precharge": ("precharge_pex_sha256", "precharge"),
+            "write_driver": ("write_source_sha256", "write_driver"),
+        }[key]
+        hash_column, pex_key = expected_column
+        observed_hashes = {row.get(hash_column, "") for row in rows}
+        if observed_hashes != {expected_hashes[pex_key]}:
+            raise ValueError(
+                f"{key} capacitance provenance does not match current PEX: "
+                f"expected {expected_hashes[pex_key]}, found {sorted(observed_hashes)}"
+            )
+        if key in ("bitcell", "precharge"):
+            for provenance_column, source_key in (
+                ("bitcell_pex_sha256", "bitcell"),
+                ("precharge_pex_sha256", "precharge"),
+            ):
+                observed = {row.get(provenance_column, "") for row in rows}
+                if observed != {expected_hashes[source_key]}:
+                    raise ValueError(
+                        f"{key} capacitance rows reference a different "
+                        f"{source_key} PEX: expected {expected_hashes[source_key]}, "
+                        f"found {sorted(observed)}"
+                    )
+        cap_maps[key] = cap_map
+        metadata[f"{key}_capacitance_source"] = str(path)
+        metadata[f"{key}_capacitance_source_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return cap_maps, metadata
+
+
+def case_capacitances(
+    cap_maps: dict[str, dict[tuple, float]] | None,
+    corner: str,
+    vdd: float,
+    temp_c: float,
+    old_q: int,
+) -> dict[str, float] | None:
+    if cap_maps is None:
+        return None
+    base = (corner.lower(), float(vdd), float(temp_c))
+    data = 1 - old_q
+    try:
+        return {
+            "cell_bl": cap_maps["bitcell"][(*base, old_q, "BL")],
+            "cell_blb": cap_maps["bitcell"][(*base, old_q, "BLB")],
+            "precharge_bl": cap_maps["precharge"][(*base, "BL")],
+            "precharge_blb": cap_maps["precharge"][(*base, "BLB")],
+            "write_bl": cap_maps["write_driver"][(*base, data, "BL")],
+            "write_blb": cap_maps["write_driver"][(*base, data, "BLB")],
+        }
+    except KeyError as exc:
+        raise ValueError(f"missing PEX capacitance data for {base}, stored_q={old_q}: {exc}") from exc
+
+
+def bitline_load_accounting(
+    args: argparse.Namespace,
+    caps: dict[str, float] | None,
+) -> dict[str, float]:
+    if caps is None:
+        cell = args.pex_cell_access_ceff_ff if args.pex else args.cell_access_ceff_ff
+        precharge = args.pex_precharge_ceff_ff if args.pex else args.precharge_ceff_ff
+        write = args.pex_write_ceff_ff if args.pex else args.write_ceff_ff
+        bl_explicit = blb_explicit = cell + precharge + write
+        caps = {
+            "cell_bl": cell, "cell_blb": cell,
+            "precharge_bl": precharge, "precharge_blb": precharge,
+            "write_bl": write, "write_blb": write,
+        }
+    else:
+        bl_explicit = caps["cell_bl"] + caps["precharge_bl"] + caps["write_bl"]
+        blb_explicit = caps["cell_blb"] + caps["precharge_blb"] + caps["write_blb"]
+    bl_extra = args.cbl_total_ff - bl_explicit
+    blb_extra = args.cbl_total_ff - blb_explicit
+    if min(bl_extra, blb_extra) <= 0:
+        raise ValueError("C_BL target is smaller than the explicitly modeled leaf capacitance")
+    return {
+        **caps,
+        "bl_explicit": bl_explicit,
+        "blb_explicit": blb_explicit,
+        "bl_extra": bl_extra,
+        "blb_extra": blb_extra,
+    }
+
+
 def extracted_width_um(path: Path) -> float:
     widths = [
         float(value)
@@ -367,6 +538,7 @@ def extracted_width_um(path: Path) -> float:
 def make_deck(
     *, args: argparse.Namespace, leafs: dict[str, str], corner: str,
     vdd: float, temp_c: float, old_q: int,
+    caps: dict[str, float] | None = None,
 ) -> str:
     new_q = 1 - old_q
     edge_ns = args.edge_ps * 1e-3
@@ -379,16 +551,7 @@ def make_deck(
     # and disabled write-driver output capacitances. The sense input and wire
     # remain in this lumped remainder because the sense leaf is not instantiated
     # in the write bench.
-    explicit_ceff_ff = (
-        args.pex_cell_access_ceff_ff
-        + args.pex_precharge_ceff_ff
-        + args.pex_write_ceff_ff
-        if args.pex
-        else args.cell_access_ceff_ff + args.precharge_ceff_ff + args.write_ceff_ff
-    )
-    lumped_extra_ff = args.cbl_total_ff - explicit_ceff_ff
-    if lumped_extra_ff <= 0:
-        raise ValueError("cbl-total-ff is smaller than the explicitly modeled leaf capacitance")
+    loads = bitline_load_accounting(args, caps)
 
     q0 = vdd if old_q else 0.0
     qb0 = 0.0 if old_q else vdd
@@ -409,10 +572,12 @@ def make_deck(
         if args.wl_extra_ff > 0
         else "* no additional WL lumped capacitance"
     )
+    mode_desc = "post-layout PEX" if args.pex else "schematic"
 
-    return f"""* Integrated pre-layout SRAM column write.
-* Canonical Xschem precharge, write driver, WL driver and bitcell leaves.
-* Total C_BL={args.cbl_total_ff:g} fF; external remainder={lumped_extra_ff:.6f} fF.
+    return f"""* Integrated {mode_desc} SRAM column write.
+* Precharge, write driver, WL driver and bitcell leaves selected by the run mode.
+* Total C_BL={args.cbl_total_ff:g} fF; BL remainder={loads['bl_extra']:.6f} fF;
+* BLB remainder={loads['blb_extra']:.6f} fF.
 .title integrated_column_write_{corner}_{vdd:g}V_{temp_c:g}C_q{old_q}
 .lib "{MODEL_LIB}" {corner}
 .temp {temp_c:g}
@@ -431,8 +596,8 @@ XPRE vdd bl blb prech 0 precharge_core
 XWR data data_b we bl blb vdd 0 write_driver_core
 XWL vdd 0 wl_in wl wl_driver_core
 XCELL vdd bl blb 0 wl bitcell_core
-CBL_EXTRA bl 0 {lumped_extra_ff:.6f}f
-CBLB_EXTRA blb 0 {lumped_extra_ff:.6f}f
+CBL_EXTRA bl 0 {loads['bl_extra']:.9f}f
+CBLB_EXTRA blb 0 {loads['blb_extra']:.9f}f
 {wl_extra}
 .ic {q_ref}={q0:.12g} {qb_ref}={qb0:.12g} v(bl)={vdd:.12g} v(blb)={vdd:.12g}
 .options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-7 iabstol=1e-10
@@ -465,9 +630,12 @@ quit
 def run_case(
     *, args: argparse.Namespace, leafs: dict[str, str], corner: str,
     vdd: float, temp_c: float, old_q: int,
+    caps: dict[str, float] | None = None,
+    cap_source_fields: dict[str, str] | None = None,
 ) -> dict[str, object]:
     deck_text = make_deck(
-        args=args, leafs=leafs, corner=corner, vdd=vdd, temp_c=temp_c, old_q=old_q
+        args=args, leafs=leafs, corner=corner, vdd=vdd, temp_c=temp_c,
+        old_q=old_q, caps=caps,
     )
     with tempfile.TemporaryDirectory(prefix="integrated-write-") as td:
         deck = Path(td) / "integrated_write.spice"
@@ -566,26 +734,19 @@ def run_case(
     passed = bool(
         complete and initialized and bitlines_ready and full_flip_ns is not None
         and full_flip_ns >= 0.0 and margin_ns is not None and margin_ns >= 0.0
-        and final_ok and recovered
+        and wl_high_ns is not None and wl_high_ns >= 1.30 * full_flip_ns
+        and final_ok and recovered and precharge_recovery_ns is not None
+        and precharge_recovery_ns <= args.recovery_max_ns
     )
+    loads = bitline_load_accounting(args, caps)
     if args.pex:
         pex_paths = pex_source_paths(args)
         wpre_um = extracted_width_um(pex_paths["precharge"])
         wwrite_out_um = extracted_width_um(pex_paths["write_driver"])
-        explicit_leaf_ceff_ff = (
-            args.pex_cell_access_ceff_ff
-            + args.pex_precharge_ceff_ff
-            + args.pex_write_ceff_ff
-        )
     else:
         pex_paths = {}
         wpre_um = args.precharge_width_um
         wwrite_out_um = args.write_output_width_um
-        explicit_leaf_ceff_ff = (
-            args.cell_access_ceff_ff
-            + args.precharge_ceff_ff
-            + args.write_ceff_ff
-        )
     source_fields = {
         "simulation_mode": "post_layout_pex" if args.pex else "schematic_screen"
     }
@@ -605,23 +766,38 @@ def run_case(
         "wpre_um": wpre_um,
         "wwrite_out_um": wwrite_out_um,
         "cbl_total_ff": args.cbl_total_ff,
-        "pex_cell_access_ceff_ff": args.pex_cell_access_ceff_ff if args.pex else args.cell_access_ceff_ff,
-        "pex_precharge_ceff_ff": args.pex_precharge_ceff_ff if args.pex else args.precharge_ceff_ff,
-        "pex_write_ceff_ff": args.pex_write_ceff_ff if args.pex else args.write_ceff_ff,
-        "explicit_leaf_ceff_sum_ff": explicit_leaf_ceff_ff,
-        "lumped_bitline_remainder_ff": args.cbl_total_ff - explicit_leaf_ceff_ff,
+        "pex_cell_access_ceff_ff": min(loads["cell_bl"], loads["cell_blb"]),
+        "pex_precharge_ceff_ff": min(loads["precharge_bl"], loads["precharge_blb"]),
+        "pex_write_ceff_ff": min(loads["write_bl"], loads["write_blb"]),
+        "cell_bl_ceff_ff": loads["cell_bl"],
+        "cell_blb_ceff_ff": loads["cell_blb"],
+        "precharge_bl_ceff_ff": loads["precharge_bl"],
+        "precharge_blb_ceff_ff": loads["precharge_blb"],
+        "write_bl_ceff_ff": loads["write_bl"],
+        "write_blb_ceff_ff": loads["write_blb"],
+        "bl_explicit_leaf_ceff_sum_ff": loads["bl_explicit"],
+        "blb_explicit_leaf_ceff_sum_ff": loads["blb_explicit"],
+        "explicit_leaf_ceff_sum_ff": min(loads["bl_explicit"], loads["blb_explicit"]),
+        "lumped_bitline_remainder_bl_ff": loads["bl_extra"],
+        "lumped_bitline_remainder_blb_ff": loads["blb_extra"],
+        "lumped_bitline_remainder_ff": min(loads["bl_extra"], loads["blb_extra"]),
         "wl_extra_ff": args.wl_extra_ff,
         "wl_in_width_ns": args.wl_in_width_ns,
         "actual_wl_high_ns": "" if wl_high_ns is None else wl_high_ns,
         "full_flip_from_wl50_ns": "" if full_flip_ns is None else full_flip_ns,
         "full_flip_margin_to_wl_fall_ns": "" if margin_ns is None else margin_ns,
         "wl_min_30pct_ns": "" if full_flip_ns is None else 1.30 * full_flip_ns,
+        "wl_margin_30pct_ns": (
+            "" if wl_high_ns is None or full_flip_ns is None
+            else wl_high_ns - 1.30 * full_flip_ns
+        ),
         "bl_at_wl_v": m.get("bl_at_wl", ""),
         "blb_at_wl_v": m.get("blb_at_wl", ""),
         "q_after_v": m.get("q_after", ""),
         "qb_after_v": m.get("qb_after", ""),
         "bl_recovery_v": m.get("bl_recovery", ""),
         "blb_recovery_v": m.get("blb_recovery", ""),
+        "precharge_recovery_limit_ns": args.recovery_max_ns,
         "precharge_recovery_ns": (
             "" if precharge_recovery_ns is None else precharge_recovery_ns
         ),
@@ -629,6 +805,7 @@ def run_case(
         "returncode": rc,
         "error": "" if rc == 0 else output[-800:].replace("\n", " | "),
         **source_fields,
+        **(cap_source_fields or {}),
     }
 
 
@@ -639,7 +816,7 @@ def main() -> int:
     if (
         args.workers < 1 or args.cbl_total_ff <= 0 or args.wl_extra_ff < 0
         or args.wl_in_width_ns <= 0 or args.tran_step_ps <= 0
-        or args.precharge_recovery_window_ns <= 0
+        or args.precharge_recovery_window_ns <= 0 or args.recovery_max_ns <= 0
         or args.write_output_width_um <= 0
         or args.precharge_width_um <= 0
     ):
@@ -652,6 +829,10 @@ def main() -> int:
         or args.wl_driver_pex_netlist is not None
     )
     args.pex = use_pex
+    try:
+        cap_maps, cap_source_fields = validate_capacitance_provenance(args)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(str(exc)) from exc
     leafs = {
         key: (
             pex_leaf(
@@ -694,6 +875,8 @@ def main() -> int:
             executor.submit(
                 run_case, args=args, leafs=leafs, corner=corner,
                 vdd=vdd, temp_c=temp_c, old_q=state,
+                caps=case_capacitances(cap_maps, corner, vdd, temp_c, state),
+                cap_source_fields=cap_source_fields,
             )
             for corner, vdd, temp_c, state in pending
         ]

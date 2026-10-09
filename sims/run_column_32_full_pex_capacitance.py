@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import re
 import subprocess
@@ -25,7 +26,7 @@ COORD_RE = re.compile(r"^a_\d+_(-?\d+)(?:\.t\d+)?$")
 
 def load_full_column_pex(
     root: Path, pex_netlist: Path | None = None
-) -> tuple[str, str, list[tuple[str, str]]]:
+) -> tuple[str, str, list[tuple[str, str]], Path]:
     path = (
         pex_netlist.resolve()
         if pex_netlist is not None
@@ -69,7 +70,7 @@ def load_full_column_pex(
         if abs(qy - qby) > 200:
             raise RuntimeError(f"row pairing mismatch: {q}@{qy} vs {qb}@{qby}")
         pairs.append((q, qb))
-    return text, header.group(1), pairs
+    return text, header.group(1), pairs, path
 
 
 def make_deck(
@@ -126,7 +127,8 @@ def main() -> int:
     if args.workers < 1 or args.frequency_hz <= 0 or any(not 0 < v <= 1.8 for v in args.vdd_values):
         p.error("invalid workers/frequency/VDD")
 
-    text, name, pairs = load_full_column_pex(root, args.pex_netlist)
+    text, name, pairs, pex_path = load_full_column_pex(root, args.pex_netlist)
+    pex_sha256 = hashlib.sha256(pex_path.read_bytes()).hexdigest()
     cases = list(itertools.product(args.corners, args.vdd_values, args.temps_c, args.states, ("BL", "BLB")))
 
     def execute(case: tuple[str, float, float, int, str]) -> dict[str, object]:
@@ -135,6 +137,7 @@ def main() -> int:
             "corner": corner, "vdd_v": vdd, "temp_c": temp_c, "state": state,
             "probe": probe, "frequency_hz": args.frequency_hz, "ceff_ff": "",
             "status": "ERROR", "error": "",
+            "pex_netlist_path": str(pex_path), "pex_netlist_sha256": pex_sha256,
         }
         deck = make_deck(
             text=text, name=name, pairs=pairs, corner=corner, vdd=vdd,

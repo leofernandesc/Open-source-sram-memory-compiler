@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import subprocess
 from pathlib import Path
@@ -62,6 +63,14 @@ def main() -> int:
         parser.error("VDD must be within the 1.80 V qualification ceiling")
     if any(delta < 0 or delta >= 1000 * min(args.vdd_values) for delta in args.delta_mv):
         parser.error("each discharge delta must be >=0 and below the minimum VDD")
+    source_path = (
+        args.pex_netlist.resolve()
+        if args.pex_netlist is not None
+        else root / "layout" / "sense_amp" / "pex" / "sense_amp_pex.spice"
+        if args.pex
+        else args.schematic.resolve()
+    )
+    source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
     if args.pex or args.pex_netlist is not None:
         subckt, _ = sense_pex_subckt(root, args.pex_netlist)
     else:
@@ -76,6 +85,8 @@ def main() -> int:
             "probe": probe, "discharge": discharge, "delta_mv": delta_mv,
             "frequency_hz": args.frequency_hz,
             "ceff_ff": "", "status": "ERROR", "error": "",
+            "sense_source_path": str(source_path),
+            "sense_source_sha256": source_sha256,
         }
         try:
             ceff_ff, _ = run_deck(
