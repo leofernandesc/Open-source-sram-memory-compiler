@@ -1,0 +1,39 @@
+v {xschem version=3.4.6 file_version=1.2}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+G {}
+V {}
+S {}
+E {}
+P 4 5 -130 -125 130 -125 130 125 -130 125 -130 -125 {}
+B 5 -152.5 -92.5 -147.5 -87.5 {name=CLK dir=in clock=1}
+L 4 -150 -90 -130 -90 {}
+T {CLK} -122 -94 0 0 0.2 0.2 {}
+B 5 -152.5 -52.5 -147.5 -47.5 {name=CSb dir=in}
+L 4 -150 -50 -130 -50 {}
+T {CSb} -122 -54 0 0 0.2 0.2 {}
+B 5 -152.5 -12.5 -147.5 -7.5 {name=OEb dir=in}
+L 4 -150 -10 -130 -10 {}
+T {OEb} -122 -14 0 0 0.2 0.2 {}
+B 5 -152.5 27.5 -147.5 32.5 {name=WEb dir=in}
+L 4 -150 30 -130 30 {}
+T {WEb} -122 26 0 0 0.2 0.2 {}
+B 5 -2.5 -137.5 2.5 -132.5 {name=VDD dir=inout}
+L 7 0 -135 0 -125 {}
+T {VDD} 5 -127 0 0 0.2 0.2 {}
+B 5 -2.5 132.5 2.5 137.5 {name=VSS dir=inout}
+L 7 0 125 0 135 {}
+T {VSS} 5 135 0 0 0.2 0.2 {}
+B 5 147.5 -42.5 152.5 -37.5 {name=VALID_ACCESS_Q dir=out}
+L 4 130 -40 150 -40 {}
+T {VALID_ACCESS_Q} 122 -44 0 1 0.2 0.2 {}
+B 5 147.5 -2.5 152.5 2.5 {name=PCLK dir=out}
+L 4 130 0 150 0 {}
+T {PCLK} 122 -4 0 1 0.2 0.2 {}
+B 5 147.5 37.5 152.5 42.5 {name=PRECH dir=out}
+L 4 130 40 150 40 {}
+T {PRECH} 122 36 0 1 0.2 0.2 {}
+T {captured_pclk_phase_source} -122 -150 0 0 0.25 0.25 {}
+T {@name} 115 -150 0 0 0.2 0.2 {}

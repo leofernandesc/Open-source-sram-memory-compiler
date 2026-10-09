@@ -1,0 +1,82 @@
+{
+  "campaign": "valid_access_capture_functional",
+  "started_utc": "2026-10-09T21:33:00.995078+00:00",
+  "complete": true,
+  "scope": "Xschem-generated structural Verilog with SKY130 FD SC HD functional models; checks control truth table and rising-edge capture/hold only; no analog timing, setup/hold, metastability, or transistor-level standard-cell simulation.",
+  "control_equation": "VALID_ACCESS_D = !CSb AND (OEb XOR WEb)",
+  "capture_edge": "rising edge of CLK",
+  "reset": "none; Q is unspecified until first rising edge",
+  "generated_output_postprocess": "trailing whitespace stripped from generated Verilog lines; trailing blank lines stripped from tool logs",
+  "checks": {
+    "control_vectors_covered": 8,
+    "rising_edge_capture_passes": 8,
+    "hold_while_high_after_live_input_change": 8,
+    "hold_after_falling_edge": 8
+  },
+  "source_sha256": {
+    "cells/control/valid_access_capture.sch": "dbcec10f951a18936a920e9a854a1b8512851a0584e867edb38bfca2b4291e43",
+    "cells/control/valid_access_capture.sym": "f77b9cecc2f80e0ff8dbe78d50c820b4c0243d9e7e6e853439f323add2d16791",
+    "sims/row_decoder/tb_valid_access_capture.v": "25bb795e20034c8179e76ecc58c9412b9e2cca708dcead8d1e57c68cbfccb512",
+    "cells/control/captured_pclk_phase_source.sch": "806c01c2ff0d477a8a0c66d88da3cec04d3f8e6bd293f0023867d23b7a6daf1d",
+    "cells/control/captured_pclk_phase_source.sym": "b3ff6d9ec0461e0aba5c48c1ea99255b44d84551b30f08475672c269b77063be",
+    "cells/control/pclk_phase_source.sch": "c78996b99abadbc7a9c0c6e1db5ad50fb7b720df5921349021b7cb7b17ae4b09",
+    "cells/control/pclk_phase_source.sym": "44bc6e7e4e62c3aa54a7a8bbc20c92293c48ebb0633aa03a51b8189c69d50e1f",
+    "sims/row_decoder/run_valid_access_capture.py": "e86259e46dd0fbab6f5e1861f7d1370e38496c1000b4eb267337f1b8f38e2dad"
+  },
+  "pdk_model_sha256": {
+    "sky130_fd_sc_hd.v": "fbf3b406a2ee7b47e4d28ab3f2ebf80e2a755a316fe8fb1f4b1873f71b563f3b",
+    "primitives.v": "7d4b1441d06b0f2b9662befa675a0484d77149e04eb42a5f1fa2d4cfded7b2ce"
+  },
+  "finished_utc": "2026-10-09T21:33:01.559435+00:00",
+  "xschem_command": [
+    "xschem",
+    "-w",
+    "-n",
+    "-q",
+    "-o",
+    "/work/sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z",
+    "/work/cells/control/valid_access_capture.sch"
+  ],
+  "phase_source_xschem_command": [
+    "xschem",
+    "--tcl",
+    "append XSCHEM_LIBRARY_PATH :/work/cells/control",
+    "-n",
+    "-q",
+    "-o",
+    "/work/sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/phase_source",
+    "/work/cells/control/captured_pclk_phase_source.sch"
+  ],
+  "iverilog_command": [
+    "iverilog",
+    "-g2012",
+    "-DFUNCTIONAL",
+    "-DUNIT_DELAY=#0",
+    "-s",
+    "tb_valid_access_capture",
+    "-o",
+    "/work/sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/simv",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+    "/work/sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/valid_access_capture.v",
+    "/work/sims/row_decoder/tb_valid_access_capture.v"
+  ],
+  "vvp_command": [
+    "vvp",
+    "/work/sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/simv"
+  ],
+  "results": {
+    "status": "PASS",
+    "failures": 0
+  },
+  "artifacts": [
+    "valid_access_capture.v",
+    "xschem.log",
+    "iverilog.log",
+    "simulation.log",
+    "capture.vcd",
+    "vectors.csv",
+    "phase_source/captured_pclk_phase_source.spice",
+    "phase_source_xschem.log"
+  ]
+}

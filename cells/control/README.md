@@ -20,6 +20,36 @@ glitch-free `VALID_ACCESS_Q` from upstream control capture. The simulation
 runner currently models `CLK` and `VALID_ACCESS_Q` as ideal sources, so this
 cell alone is not a complete SRAM control path.
 
+## Captured access qualifier
+
+`valid_access_capture.sch` implements the control condition with SKY130 FD SC
+HD standard cells:
+
+```text
+VALID_ACCESS_D = !CSb AND (OEb XOR WEb)
+VALID_ACCESS_Q = capture(VALID_ACCESS_D, rising edge of CLK)
+```
+
+This enables exactly one of read or write when `CSb` is active low, and rejects
+idle, simultaneous read/write, and chip-disabled controls. It captures only the
+qualified access bit; address and write-data capture are outside this cell. The
+cell has no reset, so `VALID_ACCESS_Q` is unspecified until the first rising
+clock edge.
+
+`captured_pclk_phase_source.sch` hierarchically connects this qualifier to the
+existing `pclk_phase_source.sch`; it leaves the phase-source implementation
+unchanged. Reproduce the logic-only functional check with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture.py
+```
+
+The eight input vectors and edge/hold behavior pass using the PDK's functional
+Verilog models. This is not an analog timing simulation of the standard-cell
+path or a simulation of the assembled qualifier plus transistor-level phase
+source. See the [captured qualifier report](../../docs/row_decoder_valid_access_capture_20261009.md)
+for the evidence and remaining limits.
+
 ## Experimental topology
 
 An 80-stage chain of CMOS inverters provides taps at stages 24, 60, and 80:

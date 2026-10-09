@@ -2079,3 +2079,35 @@ Machine-readable results are in
 and the [manifest](../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_20261009/manifest.json). The
 representative [invalid-vector checks](../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_invalid_tt_20261009/checks.csv)
 are archived separately.
+
+## 2026-10-09 UTC: captured valid-access qualifier functional check
+
+Added `cells/control/valid_access_capture.sch`, a SKY130 FD SC HD standard-cell
+implementation of `VALID_ACCESS_D = !CSb AND (OEb XOR WEb)`, captured by a
+positive-edge `dfxtp_1`. The equation enables a selected read or write, while
+rejecting idle, simultaneous read/write, and all chip-disabled vectors. No
+reset is present; Q is undefined before the first rising edge. Address and
+write-data capture are not part of this cell.
+
+The Xschem structural Verilog was checked with the PDK functional models in
+Icarus. All eight control vectors were captured correctly at the rising edge;
+eight checks retained Q after live controls changed during the high phase, and
+eight checks retained Q across the falling edge. Result: **8/8 captures and
+16/16 hold checks passed**. Xschem also generated the structural netlist without
+missing symbols. The new `captured_pclk_phase_source.sch` wrapper netlists the
+qualifier to the existing `pclk_phase_source.sch` hierarchy without modifying
+the phase source.
+
+Reproduce with `./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture.py`.
+The testbench, runner, manifest, vectors, VCD, netlists and tool logs are under
+[`sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/`](../sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/);
+the [report](row_decoder_valid_access_capture_20261009.md) records the control
+truth table, schematic image, commands and limits.
+
+This is a zero-delay Boolean/edge-functional check, not an analog standard-cell
+timing simulation. The wrapper was netlisted but not simulated as a complete
+qualifier-to-PCLK/PRECH electrical path. Existing phase timing matrices still
+use ideal or Liberty-derived `VALID_ACCESS_Q`; their delay results do not
+measure this new gate/DFF path. Setup/hold, metastability, startup before the
+first clock, PVT timing, address/data capture, layout, DRC/LVS, and integrated
+bitcell read/write/readback remain open. No extraction was run.

@@ -1,0 +1,33 @@
+v {xschem version=3.4.6 file_version=1.2}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+G {}
+V {}
+S {}
+E {}
+P 4 5 -120 -100 120 -100 120 100 -120 100 -120 -100 {}
+B 5 -142.5 -72.5 -137.5 -67.5 {name=CLK dir=in clock=1}
+L 4 -140 -70 -120 -70 {}
+T {CLK} -112 -74 0 0 0.2 0.2 {}
+B 5 -142.5 -32.5 -137.5 -27.5 {name=CSb dir=in}
+L 4 -140 -30 -120 -30 {}
+T {CSb} -112 -34 0 0 0.2 0.2 {}
+B 5 -142.5 7.5 -137.5 12.5 {name=OEb dir=in}
+L 4 -140 10 -120 10 {}
+T {OEb} -112 6 0 0 0.2 0.2 {}
+B 5 -142.5 47.5 -137.5 52.5 {name=WEb dir=in}
+L 4 -140 50 -120 50 {}
+T {WEb} -112 46 0 0 0.2 0.2 {}
+B 5 -2.5 -112.5 2.5 -107.5 {name=VDD dir=inout}
+L 7 0 -110 0 -100 {}
+T {VDD} 5 -102 0 0 0.2 0.2 {}
+B 5 -2.5 107.5 2.5 112.5 {name=VSS dir=inout}
+L 7 0 100 0 110 {}
+T {VSS} 5 110 0 0 0.2 0.2 {}
+B 5 137.5 -12.5 142.5 -7.5 {name=VALID_ACCESS_Q dir=out}
+L 4 120 -10 140 -10 {}
+T {VALID_ACCESS_Q} 112 -14 0 1 0.2 0.2 {}
+T {valid_access_capture} -100 -125 0 0 0.3 0.3 {}
+T {@name} 100 -125 0 0 0.2 0.2 {}
