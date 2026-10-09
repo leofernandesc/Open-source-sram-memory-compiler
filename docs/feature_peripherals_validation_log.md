@@ -1353,9 +1353,44 @@ address pair or corner.
 The audit script, full FF/SS CSV/JSON, the one-case operating-point artifacts,
 source/model hashes and reproduction instructions are documented in the
 [signed-bias audit report](row_decoder_signed_bias_domain_audit_20261008.md).
-No extraction was run; the audited PEX hash is unchanged. TT raw waveforms are
-not retained, and the complete operating-point matrix (96 baseline/PEX
-simulations across TT, SS and FF) remains a high-compute follow-up for the
-stronger machine. The decoder's signed model-domain qualification remains
-open pending that analysis and authoritative interpretation of the signed
-`VGS` excursions.
+No extraction was run; the audited PEX hash is unchanged. The complete
+three-corner operating-point matrix has since been run on the available
+machine, and the focused FF 0.5 ps refinement confirms the small baseline
+screen excess is repeatable. The signed model-domain qualification remains
+open pending authoritative interpretation of the signed `VGS` excursions
+and the FF model warnings. See the [matrix and refinement report](row_decoder_opinit_matrix_20261008.md).
+
+## 2026-10-08: complete operating-point decoder matrix
+
+The complete 1 ps baseline/PEX matrix ran all 16 ordered address pairs at TT,
+SS and FF (96 ngspice runs). Every logic/contract check passed, and no
+ngspice log contains an Error line. TT and SS passed the 1.95 V terminal
+screen in baseline and PEX. At FF, all 16 PEX cases passed; 10 of 16
+schematic-baseline cases exceeded the magnitude screen, peaking at 1.954645 V
+on VGD. The FF runner's nonzero exit reflects those screen findings; the
+simulations themselves completed and had zero contract failures.
+
+A 0.5 ps refinement reran the 10 affected FF transitions in both stages. The
+same 10 baseline transitions remained above the screen (maximum 1.954674 V),
+while all 10 PEX transitions passed (maximum 1.879681 V). The largest 1 ps to
+0.5 ps change was 0.037 mV in baseline and 0.014 mV in PEX. For the worst
+baseline sample, FF 11→00 on x1.m12 at 5.03325 ns, measured VGD was −1.954674 V;
+A1B was −34.741 mV, N1 was 1.919933 V and EVAL_GND was 0.436868 V. The case
+deck finishes the PCLK rise at 5.025 ns while A0/A1 remain high until 17.95 ns,
+so this sample is near the start of evaluation rather than an address change.
+It is a repeatable transient, not a functional decoder failure. Whether the
+screen indicates an accepted model-domain or reliability issue requires
+review with the model maintainer/advisors.
+
+The post-startup signed-bias audit is now available for all three corners.
+PEX VDS/VBS remained within the published ranges; signed VGS still falls
+outside the published table under the audit's effective-source convention.
+The schematic baseline PFET VBS also crosses its −0.10 V lower published
+boundary at all three corners. These are conservative engineering screens,
+not signoff findings.
+
+The result roots retain the comparison CSVs, manifests, scripts, signed-bias
+audits and waveform hashes. Raw waveforms and simulator logs remain local and
+ignored by Git. No new PEX extraction was performed. See the [full report](row_decoder_opinit_matrix_20261008.md)
+for per-corner numbers, device ranges, evidence links, commands and remaining
+closure tasks.

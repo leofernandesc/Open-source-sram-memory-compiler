@@ -166,57 +166,32 @@ and [signed-bias audit](../sims/row_decoder/results/row_decoder_op_init_probe_fa
 Raw `.raw` files remain ignored by Git; their SHA-256 values are recorded in
 the JSON audit.
 
-The TT full-matrix raw waveforms are not present in the archived results. A
-full three-corner operating-point matrix would run 96 ngspice cases and should
-be done on the stronger machine before making a cross-corner signed-domain
-claim. For each profile, use a separate output root, then run the audit with
-`--matrix-root <root> --expected-cases 16`. Current PEX hash remains
-`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`; this
-audit did not perform a new extraction.
+At the time this audit was first drafted, the TT raw waveforms and full
+operating-point matrix were still missing. The complete 96-simulation,
+three-corner baseline/PEX matrix has since been run at 1 ps, with a targeted
+0.5 ps refinement of the FF screen cases. Results and reproduction details
+are in the [completed operating-point matrix report](row_decoder_opinit_matrix_20261008.md).
+The PEX hash remains
+`8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`; no
+new extraction was performed.
 
 ## Remaining work before electrical closure
 
-1. On the stronger machine, generate the full 1 ps operating-point matrices
-   for TT, SS and FF. Each profile runs 16 ordered address pairs for both
-   baseline and PEX (32 ngspice runs); all three profiles total 96 runs. Keep
-   the current PEX hash and 17.4 fF WL testbench load, and use new output roots
-   so the original UIC evidence is preserved. This sequential loop runs each
-   profile and audits it before moving on:
-
-   ```bash
-   for profile in tt slow fast; do
-     root="sims/row_decoder/results/compact_decoder_full_${profile}_opinit_matrix_1ps"
-     ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_pex_contract.py \
-       --profiles "$profile" --all-address-pairs --max-step-ps 1 --workers 1 \
-       --timeout-s 900 --initial-operating-point --output-root "$root"
-     ./tools/sram-eda python3 sims/row_decoder/audit_signed_device_domain.py \
-       --profiles "$profile" --matrix-root "$root" --expected-cases 16 \
-       --output-json "$root/signed_domain_audit.json" \
-       --output-csv "$root/signed_domain_audit.csv"
-   done
-   ```
-
-   `tools/sram-eda` uses the `sram-xschem` container by default. If that
-   container is named differently on the stronger machine, set
-   `SRAM_EDA_CONTAINER` to the project container that mounts this checkout at
-   `/work`; the tool's environment requirements are in `tools/ENVIRONMENT.md`.
-
-2. Review the effective-source convention, the PDK's published bias ranges,
-   and the FF BSIM4 parameter warnings with the SKY130 model maintainer or
-   project advisors. Record an agreed interpretation and acceptance margin.
-   The present screen is a conservative engineering interpretation, not a
-   signoff rule. Do not change transistor sizes solely to make this report
-   green before that review; if the review confirms a real operating-range
-   issue, investigate the devices and transitions identified in the CSV/JSON,
-   then rerun the affected functional and PEX matrices.
-
+1. Review the effective-source convention, signed PDK bias ranges, the FF
+   BSIM4 parameter warnings, and the small baseline FF `VGD` screen excess
+   with the SKY130 model maintainer or project advisors. Record an agreed
+   interpretation and acceptance margin. Do not change transistor sizes
+   solely to make the conservative screen green before that review.
+2. If review confirms a real operating-range issue or sets a stricter
+   acceptance criterion, investigate the identified devices and transitions,
+   then rerun the affected functional/electrical matrices. Update layout,
+   DRC/LVS and PEX only if the physical design changes.
 3. Keep the 4×8 physical-row check separate from decoder-leaf closure. The
    current PEX replaces only the decoder; four WL drivers and 17.4 fF per-row
-   loads remain in the testbench. Replace that estimated load with the
-   bitcell-row extracted load when Danilo's approved physical bitcell is
-   available. No new extraction is needed unless the decoder layout changes
-   or the physical row is added to the extraction scope.
+   loads remain in the testbench. Replace that estimate with the extracted
+   bitcell-row load when the approved physical bitcell is available.
 
-Until these items are addressed, the supported conclusion is: **the retained
-decoder passes its recorded functional 16-pair matrices and current DRC/LVS,
-but full signed model-domain and physical-row electrical closure remain open.**
+The supported conclusion is: **all three corners pass the recorded
+functional operating-point matrices, and the current DRC/LVS/PEX artifacts
+are unchanged; signed model-domain acceptance and physical-row electrical
+closure remain open.**
