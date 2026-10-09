@@ -119,13 +119,16 @@ current physical-row capture result.
 **Precharge/PCLK interface review, 2026-10-09:** a fresh read-only Xschem
 netlist of the existing precharge draft has no subcircuit ports and shows all
 three PMOS devices disconnected; its drawn BL, BLB, and PRECH wires also meet
-at one junction. The owner source remains untouched. The proposed phase path
+at one junction. That older source was left untouched. The proposed phase path
 separates decoder `PCLK` from active-low bitline `PRECH` and waits for wordline
 turn-off before reasserting bitline precharge. This is an integration proposal,
-not a frozen specification or measured phase generator. See the
-[precharge/PCLK review](precharge_pclk_interface_review_20261009.md). P3-7
-integration remains blocked on the owner-corrected precharge leaf, an actual
-phase generator, and bitcell read/write verification.
+not a frozen specification or measured phase generator. A follow-up found
+Danilo's corrected schematic and physically qualified W2.52 leaf on
+`origin/feat/sram-6t-cell`, but that branch is not integrated into `develop` or
+this branch; coordinate with André to agree the shared source and interface.
+See the [precharge/PCLK review](precharge_pclk_interface_review_20261009.md).
+P3-7 integration still depends on that handoff, an actual phase generator,
+and bitcell read/write verification.
 
 ## Ordered work and acceptance evidence
 

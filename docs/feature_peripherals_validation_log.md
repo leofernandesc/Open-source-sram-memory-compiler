@@ -1800,3 +1800,25 @@ proposal and its PVT/PEX limits are recorded in the
 [precharge/PCLK review](precharge_pclk_interface_review_20261009.md). No
 electrical simulation was run because the current precharge netlist is
 disconnected.
+
+## 2026-10-09 UTC: cross-branch correction — Danilo's precharge candidate
+
+The readiness review above checked `origin/feature/sense-precharge` and the
+older precharge source on `feature/peripherals`, but did not check Danilo's
+`origin/feat/sram-6t-cell` branch. That branch contains a corrected
+`cells/precharge.sch` and `cells/precharge.spice`; a read-only Xschem netlist of
+a temporary copy produced a connected three-PMOS subcircuit with formal
+`VDD`, `BL`, `BLB`, `PRECH`, and `VSS` ports. The branch also contains the
+physical `Wpre=2.52 µm` candidate, PEX, and the G6/G7 results summarized in
+`docs/phase1_leaf_cell_closure.md`: DRC zero, unique LVS, precharge Ceff PVT
+`60/60`, and integrated PEX read/write `60/60` each. These are Danilo's
+recorded branch results, not checks rerun here.
+
+The corrected candidate is not in `origin/develop` or `feature/peripherals`;
+the branch tip `5dc00fe` is not an ancestor of `origin/develop`. The previous
+netlist finding applies to the older copy in this checkout and remains true,
+but the statement that the cell must be corrected from scratch is withdrawn.
+Coordinate with André to review and select Danilo's candidate for the shared
+precharge interface. The candidate still has no actual PCLK phase generator
+for the dynamic decoder on `feature/peripherals`. See the updated
+[precharge/PCLK review](precharge_pclk_interface_review_20261009.md).
