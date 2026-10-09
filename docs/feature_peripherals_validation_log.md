@@ -1631,3 +1631,62 @@ they do not establish a noise budget, clock-stop limit, safe period or Fmax.
 See the [current-sizing report](row_decoder_current_sizing_contract_20261009.md)
 and its per-case summaries/manifests. Broader crossed-PVT and actual-PCLK
 integration remain open.
+
+## 2026-10-09 UTC: decoder, WL-driver and distributed physical-row PEX screen
+
+The selected-row screen now instantiates the current decoder R-C PEX, four
+current WL-driver R-C PEX instances, and four copies of the extracted physical
+eight-bit row from Danilo's `feat/sram-6t-cell` commit
+`95c23c03ddc29f0d4bf40adf5fe7adb1b4af0a6a`. The row PEX was copied byte-for-byte
+to the Person 3 test inputs; its SHA-256 is
+`160b65544e12481aa99b287329ef2798e80c184c8f91566a23177ed8f0fb2dd6` (48 MOS,
+786 resistors, 349 capacitors per row). Source branch files were not changed,
+and no extraction was run.
+
+The 12-case matrix selects each of the four rows once in TT/1.80 V/27 °C,
+SS/1.62 V/−40 °C and FF/1.80 V/125 °C. With a 5 ps maximum transient step,
+all 4,992 decoder-output and distributed row-tap checks pass. The selected-row
+WL90 range across the 16 physical taps is 2.142–2.149 ns (TT), 3.221–3.224 ns
+(SS), and 1.834–1.840 ns (FF). A targeted 1 ps rerun of SS, row 3, passes 416
+checks and measures 3.224141–3.224215 ns; it is 0.131 ps below the 5 ps
+maximum and leaves 75.785 ps before the exploratory 3.3 ns settling screen.
+The latter is not an approved SRAM timing requirement or margin.
+
+The test shares all eight BL/BLB pairs among the rows and clamps each line to
+ideal VDD for the complete transient. It therefore screens selected WL assertion,
+unselected-row isolation and recovery through the distributed row model; it
+does not model release of bitline precharge for evaluation, precharge/equalizer
+devices, sense amplification, write drive, or stored-data readback. The PCLK
+and the address capture phase are idealized bench inputs. Bitcell-row device
+terminal model-domain limits are not qualified. These results are physical
+row-load path evidence, not full 4×8 read/write or timing closure.
+
+The copied PEX and source commit/hash are recorded in
+[`row_8_wl_pex_95c23c0.provenance.json`](../sims/row_decoder/inputs/row_8_wl_pex_95c23c0.provenance.json).
+There is also an unresolved row-Ceff discrepancy: the `.t0` table records
+102.873935496 fF full-row Ceff, while the detailed bitcell report gives
+98.914001 fF; both associate their data with the same row PEX hash. The
+distributed simulation uses the PEX directly and does not adjudicate those
+measurements. Reconcile with the bitcell owner before treating either as the
+official lumped integration load. See the
+[distributed-row report](row_decoder_distributed_row_pex_20261009.md).
+
+Reproduction commands:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_distributed_row.py \
+  --profiles tt slow fast --loads nominal \
+  --phase-ps 1950 --clk-fall-ps 20700 \
+  --settling-allowance-ns 3.3 --step-ps 5 \
+  --output-dir sims/row_decoder/results/distributed_row_pex_selection_matrix_20261009
+
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_distributed_row.py \
+  --profiles slow --transitions 0:3 --loads nominal \
+  --phase-ps 1950 --clk-fall-ps 20700 \
+  --settling-allowance-ns 3.3 --step-ps 1 --timeout-s 300 \
+  --output-dir sims/row_decoder/results/distributed_row_pex_slow_row3_refine_1ps_20261009
+```
+
+The manifests, per-case decks, checks, sampled WL taps and terminal traces are
+under the two output directories above. No schematic, owner source, layout,
+DRC/LVS result or PEX extraction was changed or regenerated for this campaign.

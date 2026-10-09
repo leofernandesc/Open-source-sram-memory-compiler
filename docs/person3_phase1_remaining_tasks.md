@@ -116,7 +116,7 @@ current physical-row capture result.
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
 | P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Current decoder PEX, combined decoder/WL PEX capture matrix, and four-point full SS phase sweep complete; model acceptance and actual PCLK integration pending.** | Current decoder PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix and targeted 0.5 ps FF refinement are complete. In the original combined capture run (20.00 ns fall and 3 ns settling), TT/FF pass 24/24 while all 24 SS cases miss the settling contract. The follow-up SS sweep uses four WL-driver PEX instances and corrected lumped row Ceff: it passes all 3,840 waveform checks at each of four phases, with 2/24, 13/24, 24/24 and 24/24 cases passing the separate 250 ps guard. Voltage screens pass but are not reliability signoff. External-terminal model-domain review remains open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md). |
-| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Corrected row-capacitance evidence is used with decoder and WL-driver PEX as a lumped load; isolated WL leaf also passes the maximum Ceff screen. Distributed row integration and owner acceptance remain pending.** Danilo's `95c23c0` provides 60/60 PASS `.t0` data, with maximum full-row Ceff 102.873935496 fF and maximum paired additional load 93.351918068 fF. The current WL leaf passes 1/1 schematic and 1/1 PEX at SS/1.62 V/−40 °C with that lumped load. | Join decoder → four WL drivers → physical row or reviewed distributed model for each address and coupling condition. Check all four WL paths and deassertion against actual CLK/PCLK, access enable and BL/BLB precharge. Preserve the captured CSV/hash; the combined leaf-PEX plus lumped-C bench is not completed physical integration. See the [WL pin-order audit and requalification](wl_driver_pin_order_and_full_row_requalification_20261009.md). |
+| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Distributed WL-path screen complete under ideal bitline clamps; full electrical integration and owner acceptance remain open.** A 12-case matrix covers each selected row in TT/SS/FF and passes 4,992 decoder and physical-row tap checks; a targeted 1 ps SS/WL3 refinement passes 416 checks. The worst selected-row WL90 is 3.224215 ns; this is 75.8 ps below the exploratory 3.3 ns screen. The test uses the physical row PEX directly, but ideal VDD sources hold every BL/BLB high throughout the transient. | Review/reconcile row Ceff source values with Danilo; agree PCLK/access-enable and precharge/equalization behavior with block owners; release BL/BLB for evaluation and add bitcell-state/read/write readback checks. Repeat the four-row path at the agreed interface timing. The 3.3 ns criterion is experimental, not a specification. See the [distributed-row PEX report](row_decoder_distributed_row_pex_20261009.md), its [provenance](../sims/row_decoder/inputs/row_8_wl_pex_95c23c0.provenance.json), and the [WL pin-order audit](wl_driver_pin_order_and_full_row_requalification_20261009.md). |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
 | P3-10 | Package Person 3 Phase 1 delivery | P3-4 through P3-9, or documented blocker | **Pending.** | Schematics/symbols, benches, layouts, extraction/DRC/LVS, selected CSVs, reports, dimensions, reproducible environment and limitations. |
@@ -158,12 +158,15 @@ criterion.
    criteria for model-domain and margin findings. This decision gates final
    qualification, not further exploratory simulation. The existing source
    review and one-case probe are in the [review report](row_decoder_analysis_review_20261008.md).
-4. Integrate the corrected extracted bitcell/row load and evaluate all four
-   decoder-to-WL paths. The maximum full-row Ceff is available and has been
-   modeled as a lumped load; check distributed coupling and WL deassertion
-   against actual CLK/PCLK, access enable and BL/BLB precharge. The 1 ns and
-   exploratory 3 ns settling allowances are not project specifications.
-   Coordinate the integrated read/write interface with the owners.
+4. **Distributed decoder → WL-driver → physical-row path screened:** four
+   extracted eight-bit row instances were simulated for all selected rows in
+   TT/SS/FF; the 12-case matrix and targeted 1 ps SS/WL3 refinement pass the
+   stated tap checks. This screen holds BL/BLB at ideal VDD for the full
+   transient and does not exercise precharge release, read/write, or data
+   readback. Reconcile the conflicting row-Ceff report values with Danilo,
+   agree the actual PCLK/access-enable/precharge interface with the owners,
+   then rerun with that interface and bitline behavior. The 3.3 ns settling
+   allowance is experimental, not a project requirement.
 5. If a defined condition fails or agreed margin is insufficient, review the
    responsible sizing/topology, then update affected physical checks and PEX
    when geometry changes. Otherwise retain the current decoder PEX. Package
@@ -175,14 +178,18 @@ The last recorded integrated-read attempt failed while netlisting the
 precharge leaf, before ngspice. Recheck the owner's latest source during the
 interface review; this historical blocker is not proof that the current remote
 version still fails. André owns that block. No physical bitcell layout is
-integrated on this branch. Danilo's `95c23c0` checkpoint now supplies the
-corrected latch-initialized (`.t0`) eight-bit row Ceff matrix; its source and
-hash are recorded in the [load report](row_decoder_capture_load_requalification_20261008.md).
-Owner acceptance and connection to the physical row remain pending. The
-provisional 08/10 and superseded 07/10 values are not final decoder limits.
-Do not silently modify either owner's source. Preserve Danilo's
-bitcell sizes, testbenches, reports and layouts while consuming approved
-interfaces and capacitance data.
+integrated on this branch. Danilo's `95c23c0` checkpoint supplies an extracted
+eight-bit row PEX, now connected to decoder/WL PEX in a bounded ideal-bitline
+screen. The `.t0` Ceff matrix and the detailed bitcell report still disagree on
+the maximum full-row value (102.873935496 fF versus 98.914001 fF); see the
+[load report](row_decoder_capture_load_requalification_20261008.md) and
+[distributed-row report](row_decoder_distributed_row_pex_20261009.md).
+Resolve that value with the owner before treating a lumped maximum as the
+official integration input. PCLK, precharge release, and read/write interface
+acceptance remain pending. The provisional 08/10 and superseded 07/10 values
+are not final decoder limits. Do not silently modify either owner's source.
+Preserve Danilo's bitcell sizes, testbenches, reports and layouts while
+consuming approved interfaces and physical views.
 
 ## Proposed dates
 
@@ -190,9 +197,9 @@ interfaces and capacitance data.
 |---|---|
 | 07/10 | Capture/PCLK pre-layout timing budget measured; retain B7 and limits |
 | 08/10 | Current decoder DRC/LVS/PEX and selected OP matrices complete; corrected row Ceff received; current-schematic capture/PCLK measured at both loads |
-| 09/10 | Combined decoder/WL-driver PEX matrix and four-point SS phase sweep at fixed falling edge complete |
-| 10/10 | Review actual PCLK/control timing if interfaces are available; continue current-sizing noise/retention/phase-duration and model-criteria review |
-| 11/10 | P3-7 physical row/WL and P3-8 write integration after review of corrected owner inputs |
+| 09/10 | Combined decoder/WL-driver PEX matrix, four-point SS phase sweep, and distributed physical-row WL screen complete; bitlines remain ideal high |
+| 10/10 | Review actual PCLK/control timing if interfaces are available; reconcile row-Ceff report values; continue model-criteria review |
+| 11/10 | Agree precharge release and row/write interfaces with owners; continue integration where current owner inputs permit |
 | 12/10 | P3-9 team interface review, reproduce critical results, assemble handoff |
 | 13/10 | P3-10 Phase 1 handoff with explicit completed/pending status |
 
