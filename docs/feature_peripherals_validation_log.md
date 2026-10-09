@@ -1690,3 +1690,55 @@ Reproduction commands:
 The manifests, per-case decks, checks, sampled WL taps and terminal traces are
 under the two output directories above. No schematic, owner source, layout,
 DRC/LVS result or PEX extraction was changed or regenerated for this campaign.
+
+## 2026-10-09 UTC: full physical-row address and access-control matrices
+
+The dynamic 2-to-4 decoder on `feature/peripherals` remains Leonardo's Person
+3 Phase 1 deliverable. It will be completed through characterization, layout,
+DRC and LVS. A separate SPICE candidate on Danilo's branch does not replace or
+reassign this decoder. Danilo's physical-row PEX was consumed as a read-only
+input; his source branch was not modified.
+
+The distributed-row runner was extended to accept same-address pairs and to
+exercise all **16 ordered old/new address combinations**. The full physical
+matrix used decoder and four WL-driver PEX instances, four extracted eight-bit
+row PEX instances, TT/SS/FF, nominal Liberty Q load, 1.950 ns capture-to-PCLK,
+20.700 ns CLK falling edge, a 3.3 ns exploratory settling screen and a 5 ps
+maximum transient step. It completed **48/48 cases** and **19,968/19,968
+checks**, with no rejected cases. The observed WL90 ranges across all physical
+row taps and old-address values were 2.142469–2.150495 ns in TT,
+3.220558–3.228800 ns in SS, and 1.833842–1.841717 ns in FF. The slowest point
+was SS, address `1→2`, at 3.228800 ns, 71.2 ps below the experimental 3.3 ns
+screen. This is not an approved system timing limit.
+
+A separate physical-row access-policy matrix covered all eight static
+`CSb/OEb/WEb` vectors at address `2→2` in all three profiles. It completed
+**24/24 cases and 3,882/3,882 checks**. `001` (read) and `010` (write) both
+evaluate row 2. `000` (invalid), `011` (idle), and all four `1XX` disabled
+vectors keep PCLK low and pass checks for precharged internal nodes, inactive
+DEC/WL outputs, and all 64 physical-row taps. Each denied vector/corner case
+contributes 77 checks. The valid-control SS WL90 maximum is 3.223037 ns.
+
+This access-policy screen maps a static truth-table vector to an ideal PCLK
+source in the testbench. It does not instantiate the control block, capture
+the control inputs, or model a physical PCLK generator. BL/BLB are clamped to
+ideal VDD throughout both matrices, so neither matrix verifies bitcell read,
+write, precharge release, sense amplification, or data readback. The row-Ceff
+discrepancy between the `.t0` input table and the detailed bitcell report is
+still open for owner reconciliation.
+
+The access run completed every ngspice case, but its initial final-summary
+writer rejected the mixed result columns from selected and denied accesses.
+The per-case passing results were preserved; summary/check artifacts and the
+manifest were reconstructed from those outputs without rerunning simulations.
+The runner now writes union columns, and the fix passed a mixed two-case TT
+smoke (`000` denied, `001` read): 2/2 cases and 493/493 checks passed. The
+recoverable manifest records this summary repair. The generated all-transition
+plot is `docs/assets/row_decoder_distributed_row_full_transition_pex_20261009.svg`.
+
+Reproduction commands and the complete limitations are in the
+[distributed-row report](row_decoder_distributed_row_pex_20261009.md). The
+full simulation artifacts are under
+[`distributed_row_pex_full_transition_matrix_20261009`](../sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009/manifest.json)
+and
+[`distributed_row_pex_access_control_matrix_20261009`](../sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009/manifest.json).

@@ -9,6 +9,16 @@ read-only for this work.
 See the [HTML status presentation](person3_phase1_status.html) for a concise
 visual handoff of completed work and remaining tasks.
 
+## Confirmed decoder ownership and Phase 1 scope
+
+The decoder is Leonardo's Person 3 block for Phase 1. The dynamic 2-to-4
+implementation already maintained on `feature/peripherals` remains the
+implementation to finish through schematic, electrical characterization,
+layout, DRC and LVS. Its current schematic is the 29-MOS design bound to the
+layout and PEX documented below. The separate SPICE candidate introduced on
+Danilo's branch is not a replacement for this block and does not move its
+ownership or Phase 1 deliverable.
+
 ## Current task and retained evidence
 
 **Current decoder closure, 2026-10-08:** commit `d20f509` preserves the
@@ -116,7 +126,7 @@ current physical-row capture result.
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
 | P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Current decoder PEX, combined decoder/WL PEX capture matrix, and four-point full SS phase sweep complete; model acceptance and actual PCLK integration pending.** | Current decoder PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix and targeted 0.5 ps FF refinement are complete. In the original combined capture run (20.00 ns fall and 3 ns settling), TT/FF pass 24/24 while all 24 SS cases miss the settling contract. The follow-up SS sweep uses four WL-driver PEX instances and corrected lumped row Ceff: it passes all 3,840 waveform checks at each of four phases, with 2/24, 13/24, 24/24 and 24/24 cases passing the separate 250 ps guard. Voltage screens pass but are not reliability signoff. External-terminal model-domain review remains open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md). |
-| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Distributed WL-path screen complete under ideal bitline clamps; full electrical integration and owner acceptance remain open.** A 12-case matrix covers each selected row in TT/SS/FF and passes 4,992 decoder and physical-row tap checks; a targeted 1 ps SS/WL3 refinement passes 416 checks. The worst selected-row WL90 is 3.224215 ns; this is 75.8 ps below the exploratory 3.3 ns screen. The test uses the physical row PEX directly, but ideal VDD sources hold every BL/BLB high throughout the transient. | Review/reconcile row Ceff source values with Danilo; agree PCLK/access-enable and precharge/equalization behavior with block owners; release BL/BLB for evaluation and add bitcell-state/read/write readback checks. Repeat the four-row path at the agreed interface timing. The 3.3 ns criterion is experimental, not a specification. See the [distributed-row PEX report](row_decoder_distributed_row_pex_20261009.md), its [provenance](../sims/row_decoder/inputs/row_8_wl_pex_95c23c0.provenance.json), and the [WL pin-order audit](wl_driver_pin_order_and_full_row_requalification_20261009.md). |
+| P3-7 | Review row loads, access policy, and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Measured screens complete for all ordered address pairs and the access truth table; physical read/write integration remains open.** The 48-case address matrix passes 19,968/19,968 checks across TT/SS/FF, and the 24-case control matrix passes 3,882/3,882 checks for all eight `CSb/OEb/WEb` vectors. Worst distributed WL90 is 3.228800 ns at SS, 71.2 ps below the exploratory 3.3 ns screen. Access qualification is idealized at PCLK; it is not a controller implementation or capture-timing signoff. BL/BLB are held at ideal VDD. | Reconcile row Ceff values with Danilo; agree actual PCLK/access-enable and precharge/equalization interfaces; release BL/BLB during evaluation and add bitcell-state/read/write/readback tests. The 3.3 ns criterion is experimental. See the [distributed-row and control report](row_decoder_distributed_row_pex_20261009.md), [48-case manifest](../sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009/manifest.json), [control manifest](../sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009/manifest.json), and [row PEX provenance](../sims/row_decoder/inputs/row_8_wl_pex_95c23c0.provenance.json). |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
 | P3-10 | Package Person 3 Phase 1 delivery | P3-4 through P3-9, or documented blocker | **Pending.** | Schematics/symbols, benches, layouts, extraction/DRC/LVS, selected CSVs, reports, dimensions, reproducible environment and limitations. |
@@ -159,14 +169,14 @@ criterion.
    qualification, not further exploratory simulation. The existing source
    review and one-case probe are in the [review report](row_decoder_analysis_review_20261008.md).
 4. **Distributed decoder → WL-driver → physical-row path screened:** four
-   extracted eight-bit row instances were simulated for all selected rows in
-   TT/SS/FF; the 12-case matrix and targeted 1 ps SS/WL3 refinement pass the
-   stated tap checks. This screen holds BL/BLB at ideal VDD for the full
-   transient and does not exercise precharge release, read/write, or data
-   readback. Reconcile the conflicting row-Ceff report values with Danilo,
-   agree the actual PCLK/access-enable/precharge interface with the owners,
-   then rerun with that interface and bitline behavior. The 3.3 ns settling
-   allowance is experimental, not a project requirement.
+   extracted eight-bit row instances pass the 48-case all-transition matrix in
+   TT/SS/FF; all eight control vectors also pass the truth-table screen. The
+   qualification uses an ideal PCLK decision and ideal VDD clamps on BL/BLB;
+   it does not exercise actual control capture, precharge release, read/write,
+   or data readback. Reconcile the conflicting row-Ceff report values with
+   Danilo, agree the actual PCLK/access-enable/precharge interface, then rerun
+   with that interface and bitline behavior. The 3.3 ns screen is exploratory,
+   not a project requirement.
 5. If a defined condition fails or agreed margin is insufficient, review the
    responsible sizing/topology, then update affected physical checks and PEX
    when geometry changes. Otherwise retain the current decoder PEX. Package

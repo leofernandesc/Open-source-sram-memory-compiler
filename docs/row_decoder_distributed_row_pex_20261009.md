@@ -1,6 +1,6 @@
 # Decoder-to-distributed-row PEX screen — 2026-10-09
 
-## Result
+## Initial 12-case subset (historical)
 
 A new transient screen connects the current dynamic decoder PEX, four current
 wordline-driver PEX instances, and four extracted eight-bit row instances. The
@@ -30,6 +30,58 @@ physical row:
 
 ![Selected-row WL90 delay from PCLK across distributed row taps](assets/row_decoder_distributed_row_pex_20261009.svg)
 
+## Full address-transition matrix and access-control screen
+
+The initial subset above has now been expanded to all **16 ordered address
+pairs** (`OLD:NEW`), including same-address accesses, in TT, SS, and FF. The
+full physical-row matrix completed **48/48 cases** with **19,968/19,968
+decoder and physical-row checks passing**. No case was rejected and the runner
+manifest is complete.
+
+| Profile | Selected-row WL90 across all 16 taps and old addresses | Highest unselected tap | Highest recovery tap |
+|---|---:|---:|---:|
+| TT, 1.80 V, 27 °C | 2.142469–2.150495 ns | 16.2 µV | 0.330 µV |
+| SS, 1.62 V, −40 °C | 3.220558–3.228800 ns | 12.8 µV | 0.577 µV |
+| FF, 1.80 V, 125 °C | 1.833842–1.841717 ns | 170.4 µV | 151.3 µV |
+
+The slowest point is **3.228800 ns** at SS, selected row 2, transition
+`1→2`. It is 71.2 ps below the bench's 3.3 ns settling screen. That screen is
+an exploratory allowance, not a specified SRAM requirement or approved timing
+margin. The earlier targeted 1 ps SS/WL3 refinement remains timestep evidence
+for its original `0→3` case; it is not a refinement of this newly identified
+worst transition.
+
+![WL90 delay range across all address pairs, process corners, and physical row taps](assets/row_decoder_distributed_row_full_transition_pex_20261009.svg)
+
+The access-control truth-table screen used fixed address `2→2` for every
+combination of `CSb/OEb/WEb` in all three corners: **24/24 cases and
+3,882/3,882 checks passed**. The two valid operations (`001` read and `010`
+write) evaluate row 2. For each of the six other vectors, the bench holds the
+ideal PCLK input in precharge and verifies PCLK low, all four internal dynamic
+nodes precharged, all DEC/WL outputs low, and all 64 physical-row taps
+inactive. Each denied case contributes 77 checks.
+
+| CSb/OEb/WEb | Specification meaning | Bench expectation | TT/SS/FF |
+|---|---|---|---:|
+| `001` | Read | Evaluate row 2 | 3/3 PASS |
+| `010` | Write | Evaluate row 2 | 3/3 PASS |
+| `011` | Idle | Suppress evaluation | 3/3 PASS |
+| `000` | Invalid | Suppress evaluation | 3/3 PASS |
+| `1XX` | Disabled | Suppress evaluation | All four `OEb/WEb` pairs pass in each corner |
+
+The largest selected-row WL90 delay in the valid-control matrix is 3.223037 ns
+at SS. The control vectors are classified as static test cases and PCLK is an
+ideal testbench source. This checks the specified access policy at the decoder
+interface; it does **not** instantiate or qualify a transistor-level control
+block, capture timing for `CSb/OEb/WEb`, or a physical PCLK generator. The
+result does not establish read/write data behavior because BL/BLB remain held
+at ideal VDD throughout the transient.
+
+Both complete matrices and their per-case summaries/checks are archived at
+[`physical-row transition matrix`](../sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009/manifest.json)
+and
+[`access-control matrix`](../sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009/manifest.json).
+
 ## PEX input and provenance
 
 The physical-row source is a byte-for-byte copy of Danilo's existing
@@ -54,8 +106,11 @@ BL/BLB pair is shared by the four row instances.
 - Address launch: `dfxtp_1` Liberty clock-to-Q PWL, nominal Q load 3.434554 fF.
 - Capture-to-PCLK delay: 1.950 ns; ideal CLK falling edge: 20.700 ns.
 - Settling screen: 3.3 ns after PCLK evaluation begins.
-- Maximum transient step: 5 ps for the 12-case matrix; 1 ps for SS/WL3.
-- Transitions select rows 0–3 once: `1→0`, `0→1`, `0→2`, `0→3`.
+- Maximum transient step: 5 ps for the 48-case transition matrix and the
+  24-case access-control matrix; the earlier SS/WL3 refinement used 1 ps.
+- The full transition matrix covers all 16 ordered `OLD:NEW` address pairs.
+- Access-control vectors are static per case; the ideal qualifier evaluates
+  `001` and `010`, and holds PCLK low for `000`, `011`, and all `1XX` vectors.
 - Every BL and BLB is clamped to VDD for the entire transient. This holds the
   line pair at a stiff high level to keep the simulation numerically defined.
 
@@ -91,10 +146,20 @@ Run from the repository root in the configured EDA environment:
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_distributed_row.py \
-  --profiles tt slow fast --loads nominal \
+  --profiles tt slow fast \
+  --transitions 0:0 0:1 0:2 0:3 1:0 1:1 1:2 1:3 \
+                2:0 2:1 2:2 2:3 3:0 3:1 3:2 3:3 \
+  --loads nominal \
   --phase-ps 1950 --clk-fall-ps 20700 \
   --settling-allowance-ns 3.3 --step-ps 5 \
-  --output-dir sims/row_decoder/results/distributed_row_pex_selection_matrix_20261009
+  --output-dir sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009
+
+./tools/sram-eda python3 sims/row_decoder/run_row_decoder_distributed_row.py \
+  --profiles tt slow fast --transitions 2:2 \
+  --control-vectors 000 001 010 011 100 101 110 111 \
+  --loads nominal --phase-ps 1950 --clk-fall-ps 20700 \
+  --settling-allowance-ns 3.3 --step-ps 5 \
+  --output-dir sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009
 
 ./tools/sram-eda python3 sims/row_decoder/run_row_decoder_distributed_row.py \
   --profiles slow --transitions 0:3 --loads nominal \
@@ -107,9 +172,15 @@ Run from the repository root in the configured EDA environment:
 
 The matrices, per-case decks/logs, checks, tap samples, terminal samples,
 manifests, and executed runner snapshots are archived under
-`sims/row_decoder/results/distributed_row_pex_*_20261009/`. The runner and plot
-generator are `sims/row_decoder/run_row_decoder_distributed_row.py` and
-`sims/row_decoder/plot_distributed_row_pex.py`.
+`sims/row_decoder/results/distributed_row_pex_*_20261009/`. The access-control
+matrix summary was reconstructed from its passing per-case artifacts after
+the first CSV aggregation encountered heterogeneous fields; the runner's
+union-column writer was fixed and verified with a two-case mixed-control
+simulation. No transistor simulation was repeated for that recovery. The
+runner and plot generator are `sims/row_decoder/run_row_decoder_distributed_row.py`
+and `sims/row_decoder/plot_distributed_row_pex.py`.
+The runner refuses to overwrite an existing output directory; use a fresh
+directory name when repeating either command.
 
 ## Next required work
 

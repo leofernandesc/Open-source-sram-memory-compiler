@@ -9,9 +9,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MATRIX = ROOT / "sims/row_decoder/results/distributed_row_pex_selection_matrix_20261009"
+DEFAULT_MATRIX = ROOT / "sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009"
 DEFAULT_REFINE = ROOT / "sims/row_decoder/results/distributed_row_pex_slow_row3_refine_1ps_20261009"
-DEFAULT_OUTPUT = ROOT / "docs/assets/row_decoder_distributed_row_pex_20261009.svg"
+DEFAULT_OUTPUT = ROOT / "docs/assets/row_decoder_distributed_row_full_transition_pex_20261009.svg"
 PROFILE_LABELS = {"tt": "TT · 1.80 V / 27 °C",
                   "slow": "SS · 1.62 V / −40 °C",
                   "fast": "FF · 1.80 V / 125 °C"}
@@ -33,18 +33,23 @@ def main() -> int:
 
     matrix = rows(args.matrix_dir / "summary.csv")
     refine = rows(args.refine_dir / "summary.csv")
-    if len(matrix) != 12 or any(row.get("status") != "PASS" for row in matrix):
-        raise SystemExit("Expected the complete 12-case PASS matrix")
+    if len(matrix) != 48 or any(row.get("status") != "PASS" for row in matrix):
+        raise SystemExit("Expected the complete 48-case all-transition PASS matrix")
     if len(refine) != 1 or refine[0].get("status") != "PASS":
         raise SystemExit("Expected the one-case 1 ps slow/WL3 refinement to pass")
 
     fig, ax = plt.subplots(figsize=(9.4, 4.8), dpi=140)
     x = [0, 1, 2, 3]
     for profile in ("tt", "slow", "fast"):
-        selected = sorted((row for row in matrix if row["profile"] == profile),
-                          key=lambda row: int(row["selected_physical_row"]))
-        low = [float(row["selected_row_wl90_delay_min_ps"]) / 1000 for row in selected]
-        high = [float(row["selected_row_wl90_delay_max_ps"]) / 1000 for row in selected]
+        profile_rows = [row for row in matrix if row["profile"] == profile]
+        selected = [[row for row in profile_rows
+                     if int(row["selected_physical_row"]) == target] for target in x]
+        if any(len(group) != 4 for group in selected):
+            raise SystemExit(f"Expected four old-address values per selected row in {profile}")
+        low = [min(float(row["selected_row_wl90_delay_min_ps"]) for row in group) / 1000
+               for group in selected]
+        high = [max(float(row["selected_row_wl90_delay_max_ps"]) for row in group) / 1000
+                for group in selected]
         center = [(lo + hi) / 2 for lo, hi in zip(low, high)]
         errors = [[mid - lo for mid, lo in zip(center, low)],
                   [hi - mid for mid, hi in zip(center, high)]]
@@ -72,7 +77,7 @@ def main() -> int:
     ax.grid(axis="y", color="#d8dee8", alpha=0.65, linewidth=0.8)
     ax.legend(frameon=False, ncols=2, loc="upper left", fontsize=8.5)
     fig.text(0.01, 0.015,
-             "12 cases: 5 ps maximum step; SS/WL3 repeated at 1 ps. "
+             "48 cases: all 16 address pairs in TT/SS/FF at 5 ps; prior SS/WL3 subset refined at 1 ps. "
              "BL/BLB held at ideal VDD throughout. Experimental screen, not macro timing signoff.",
              ha="left", va="bottom", fontsize=8.5, color="#465365")
     fig.tight_layout(rect=(0, 0.055, 1, 1))

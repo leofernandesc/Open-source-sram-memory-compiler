@@ -5,6 +5,8 @@ This is a transistor-level PEX simulation of the decoder, four WL drivers and
 four identical extracted 8-bit physical rows. Bitlines are held at an ideal
 precharged VDD level, so this isolates wordline loading; it is not a read/write
 macro simulation or a substitute for the actual precharge/sense interface.
+Optional static CSb/OEb/WEb vectors test access policy through ideal PCLK
+qualification; they do not instantiate the control circuit.
 """
 from __future__ import annotations
 
@@ -33,6 +35,8 @@ ROW_PEX_SHA256 = "160b65544e12481aa99b287329ef2798e80c184c8f91566a23177ed8f0fb2d
 ROW_CEFF_SIDECAR = ROOT / "sims/row_decoder/inputs/row_8_wl_pex_capacitance_latch_t0_requal_20261008.provenance.json"
 CAPTURE_NS = 15.0
 DEFAULT_TRANSITIONS = ("1:0", "0:1", "0:2", "0:3")
+CONTROL_VECTORS = ("000", "001", "010", "011", "100", "101", "110", "111")
+ACCESS_CONTROL = {"001": "read", "010": "write"}
 
 
 def require(condition: bool, message: str) -> None:
@@ -191,10 +195,68 @@ def row_tap_checks(raw: dict, case: dict, schedule: dict) -> tuple[list[dict], l
     return checks, measurements
 
 
+def suppress_evaluation_pclk(deck: str, schedule: dict) -> str:
+    """Keep only the priming pulse; denied controls must leave PCLK precharging."""
+    vdd = float(schedule["vdd"])
+    rise, fall = float(schedule["rise"]), float(schedule["fall"])
+    stop = float(schedule["stop"])
+    pulse = contract.pwl(0.0, [
+        (float(schedule["first_rise"]) - rise / 2,
+         float(schedule["first_rise"]) + rise / 2, vdd),
+        (float(schedule["first_fall"]) - fall / 2,
+         float(schedule["first_fall"]) + fall / 2, 0.0),
+    ], stop)
+    deck, count = re.subn(r"(?im)^(VPCLK\s+\S+\s+\S+)\s+[^\n]+$",
+                          lambda match: match.group(1) + " " + pulse, deck, count=1)
+    require(count == 1, "Could not hold PCLK in precharge for a denied access vector")
+    return deck
+
+
+def access_suppression_checks(raw: dict, case: dict, schedule: dict,
+                              nodes: dict, ports: dict) -> list[dict]:
+    """Check that an ideal access qualifier suppresses all DEC/WL activity."""
+    time = raw["time"]
+    vdd = float(schedule["vdd"])
+    start = float(schedule["second_rise"])
+    end = float(schedule["second_fall"] - schedule["fall"] / 2)
+    region = (time >= start) & (time <= end)
+    require(region.any(), "Missing high-clock window for access suppression checks")
+    checks = []
+
+    def trace(name: str) -> np.ndarray:
+        key = name.lower()
+        if not key.startswith("v("):
+            key = f"v({key})"
+        require(key in raw, f"Missing waveform {key} for access suppression")
+        return raw[key]
+
+    def add(output: str, metric: str, value: float,
+            low: float | None = None, high: float | None = None) -> None:
+        passed = math.isfinite(value) and (low is None or value >= low) and (high is None or value <= high)
+        checks.append({"case": case["label"], "phase": "denied_access_window",
+                       "output": output, "metric": metric, "value": value,
+                       "low": "" if low is None else low,
+                       "high": "" if high is None else high,
+                       "result": "PASS" if passed else "FAIL"})
+
+    add("PCLK", "maximum_v", float(trace(ports["PCLK"])[region].max()), high=0.1 * vdd)
+    for row in range(4):
+        internal = trace(f"x1.n{row}")
+        add(f"N{row}", "minimum_precharged_v", float(internal[region].min()), low=0.9 * vdd)
+        for name in (f"DEC{row}", f"WL{row}"):
+            signal = trace(nodes[name])
+            add(name, "maximum_inactive_v", float(signal[region].max()), high=0.1 * vdd)
+        for tap in range(16):
+            signal = trace(f"xrow{row}.wl.t{tap}")
+            add(f"ROW{row}.WL_TAP{tap}", "maximum_inactive_v",
+                float(signal[region].max()), high=0.1 * vdd)
+    return checks
+
+
 def parse_transition(text: str) -> tuple[int, int]:
     match = re.fullmatch(r"([0-3]):([0-3])", text)
-    if not match or match[1] == match[2]:
-        raise argparse.ArgumentTypeError("use two distinct addresses from 0 to 3, e.g. 0:3")
+    if not match:
+        raise argparse.ArgumentTypeError("use addresses from 0 to 3, e.g. 0:3 or 2:2")
     return int(match[1]), int(match[2])
 
 
@@ -213,6 +275,10 @@ def execute_case(case: dict, netlist: str, row_evidence: dict,
         f"v(xrow{row}.wl.t{tap})" for row in range(4) for tap in range(16)) + "\n"
     deck, count = re.subn(r"(?im)^(\.tran\s+)", lambda match: save + match.group(1), deck, count=1)
     require(count == 1, "Could not add all physical WL taps to the waveform save list")
+    control_vector = case.get("control_vector")
+    access_allowed = control_vector is None or control_vector in ACCESS_CONTROL
+    if control_vector is not None and not access_allowed:
+        deck = suppress_evaluation_pclk(deck, schedule)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     deck_path = out_dir / "case.spice"
@@ -233,13 +299,21 @@ def execute_case(case: dict, netlist: str, row_evidence: dict,
                 "error": "ngspice failed or produced no complete waveform"}
 
     raw = capture.read_raw(raw_path)
-    decoder_run, decoder_checks, terminals_rows = capture.contract.analyze(
-        raw, sim_case, nodes, devices, terminals, schedule)
-    row_checks, taps = row_tap_checks(raw, case, schedule)
-    timing = capture.edge_metrics(raw, case, nodes, terminals,
-                                  capture.top_pin_map(netlist), arc,
-                                  float(schedule["vdd"]),
-                                  capture.CAPTURE_LITERAL_NODES or None)
+    if control_vector is not None and not access_allowed:
+        decoder_run = None
+        decoder_checks = []
+        terminals_rows = []
+        row_checks = access_suppression_checks(raw, case, schedule, nodes, ports)
+        taps = []
+        timing = {}
+    else:
+        decoder_run, decoder_checks, terminals_rows = capture.contract.analyze(
+            raw, sim_case, nodes, devices, terminals, schedule)
+        row_checks, taps = row_tap_checks(raw, case, schedule)
+        timing = capture.edge_metrics(raw, case, nodes, terminals,
+                                      capture.top_pin_map(netlist), arc,
+                                      float(schedule["vdd"]),
+                                      capture.CAPTURE_LITERAL_NODES or None)
     all_checks = decoder_checks + row_checks
     failed_checks = sum(row["result"] != "PASS" for row in all_checks)
     row_delays = [float(row["wl90_delay_from_pclk_edge_ps"])
@@ -250,25 +324,36 @@ def execute_case(case: dict, netlist: str, row_evidence: dict,
         "case": case["label"], "profile": case["profile"],
         "old_address": case["old"], "new_address": case["new"],
         "selected_physical_row": case["new"],
+        "control_vector_csb_oeb_web": control_vector or "not_modeled",
+        "control_operation": (ACCESS_CONTROL.get(control_vector, "denied")
+                              if control_vector is not None else "independent_ideal_pclk"),
+        "access_allowed_by_spec": access_allowed if control_vector is not None else "not_modeled",
         "row_pex_sha256": row_evidence["sha256"],
         "simulation_step_ps": step_ps,
         "bitline_assumption": row_evidence["bitline_mode"],
         **timing,
-        "decoder_logic_pass": decoder_run["check_fail"] == 0,
-        "decoder_voltage_screens_pass": (decoder_run["model_upper_result"] == "PASS"
+        "decoder_logic_pass": None if decoder_run is None else decoder_run["check_fail"] == 0,
+        "decoder_voltage_screens_pass": (None if decoder_run is None else
+                                          decoder_run["model_upper_result"] == "PASS"
                                           and decoder_run["magnitude_result"] == "PASS"),
-        "decoder_checks_pass": decoder_run["check_pass"],
-        "decoder_checks_fail": decoder_run["check_fail"],
-        "row_tap_checks_pass": len(row_checks) - sum(r["result"] != "PASS" for r in row_checks),
-        "row_tap_checks_fail": sum(r["result"] != "PASS" for r in row_checks),
+        "decoder_checks_pass": 0 if decoder_run is None else decoder_run["check_pass"],
+        "decoder_checks_fail": 0 if decoder_run is None else decoder_run["check_fail"],
+        "access_control_checks_pass": sum(r["result"] == "PASS" for r in row_checks)
+        if control_vector is not None and not access_allowed else 0,
+        "access_control_checks_fail": sum(r["result"] != "PASS" for r in row_checks)
+        if control_vector is not None and not access_allowed else 0,
+        "row_tap_checks_pass": (0 if control_vector is not None and not access_allowed else
+                                len(row_checks) - sum(r["result"] != "PASS" for r in row_checks)),
+        "row_tap_checks_fail": (0 if control_vector is not None and not access_allowed else
+                                sum(r["result"] != "PASS" for r in row_checks)),
         "selected_row_wl90_delay_min_ps": min(row_delays) if row_delays else "",
         "selected_row_wl90_delay_max_ps": max(row_delays) if row_delays else "",
-        "unselected_row_peak_max_v": max(float(row["value"]) for row in row_checks
-                                           if row["metric"] == "unselected_peak_v"),
-        "recovery_tap_peak_max_v": max(float(row["value"]) for row in row_checks
-                                        if row["metric"] == "deasserted_peak_v"),
-        "terminal_magnitude_max_v": decoder_run["terminal_magnitude_max_v"],
-        "terminal_magnitude_device": decoder_run["terminal_magnitude_device"],
+        "unselected_row_peak_max_v": max((float(row["value"]) for row in row_checks
+                                           if row["metric"] == "unselected_peak_v"), default=""),
+        "recovery_tap_peak_max_v": max((float(row["value"]) for row in row_checks
+                                         if row["metric"] == "deasserted_peak_v"), default=""),
+        "terminal_magnitude_max_v": "" if decoder_run is None else decoder_run["terminal_magnitude_max_v"],
+        "terminal_magnitude_device": "" if decoder_run is None else decoder_run["terminal_magnitude_device"],
         "screen_pass": failed_checks == 0,
         "status": "PASS" if failed_checks == 0 else "REJECTED_SCREEN",
         "ngspice_returncode": proc.returncode,
@@ -284,8 +369,10 @@ def execute_case(case: dict, netlist: str, row_evidence: dict,
                if key not in {"checks", "tap_measurements", "terminals"}}
     (out_dir / "case.json").write_text(json.dumps(compact, indent=2) + "\n", encoding="utf-8")
     write_union_csv(out_dir / "checks.csv", all_checks)
-    screen.write_csv(out_dir / "row_taps.csv", taps)
-    screen.write_csv(out_dir / "terminals.csv", terminals_rows)
+    if taps:
+        screen.write_csv(out_dir / "row_taps.csv", taps)
+    if terminals_rows:
+        screen.write_csv(out_dir / "terminals.csv", terminals_rows)
     return result
 
 
@@ -294,7 +381,10 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--profiles", nargs="+", choices=tuple(capture.LIBRARIES), default=["tt"])
     parser.add_argument("--transitions", nargs="+", type=parse_transition, default=None,
-                        metavar="OLD:NEW", help="default selects each of the four physical rows once")
+                        metavar="OLD:NEW", help="include all 16 pairs (OLD may equal NEW) for full row coverage")
+    parser.add_argument("--control-vectors", nargs="+", choices=CONTROL_VECTORS, default=None,
+                        metavar="CSbOEbWEb",
+                        help="also screen access policy; 001=read, 010=write, others must suppress PCLK")
     parser.add_argument("--loads", nargs="+", choices=tuple(capture.LIBERTY_LOADS_PF), default=["nominal"])
     parser.add_argument("--phase-ps", type=float, default=1950.0,
                         help="experimental capture-to-PCLK delay; not an approved interface limit")
@@ -308,10 +398,13 @@ def main() -> int:
     args = parser.parse_args()
     transitions = (args.transitions if args.transitions is not None
                    else [parse_transition(value) for value in DEFAULT_TRANSITIONS])
+    control_vectors = args.control_vectors if args.control_vectors is not None else [None]
     output = args.output_dir.resolve()
     require(not output.exists(), "Choose a new output directory for this campaign")
     require(bool(transitions), "At least one address transition is required")
     require(len(set(transitions)) == len(transitions), "Duplicate address transitions")
+    require(args.control_vectors is None or len(set(args.control_vectors)) == len(args.control_vectors),
+            "Duplicate access-control vectors")
     require(math.isfinite(args.phase_ps) and args.phase_ps >= 0
             and args.phase_ps < args.clk_fall_ps - CAPTURE_NS * 1000,
             "Capture-to-PCLK delay must leave a positive CLK high phase")
@@ -356,17 +449,24 @@ def main() -> int:
         upper = float(re.search(r"slew_upper_threshold_pct_rise\s*:\s*([\d.]+)", libtext)[1])
         for load in args.loads:
             for old, new in transitions:
-                cases.append({
-                    "label": f"{profile}_{load}_row{new}_a{old}_to_{new}_p{args.phase_ps:g}ps",
-                    "profile": profile, "old": old, "new": new,
-                    "capture_to_pclk_ps": args.phase_ps,
-                    "dff_load_label": load,
-                    "dff_load_pf": capture.LIBERTY_LOADS_PF[load],
-                    "dff_liberty": arcs[profile][load]["library"],
-                    "clk_fall_ps": args.clk_fall_ps,
-                    "settling_allowance_ns": args.settling_allowance_ns,
-                    "slew_lower_pct": lower, "slew_upper_pct": upper,
-                })
+                for vector in control_vectors:
+                    suffix = "" if vector is None else f"_ctl{vector}"
+                    case = {
+                        "label": f"{profile}_{load}_row{new}_a{old}_to_{new}_p{args.phase_ps:g}ps{suffix}",
+                        "profile": profile, "old": old, "new": new,
+                        "capture_to_pclk_ps": args.phase_ps,
+                        "dff_load_label": load,
+                        "dff_load_pf": capture.LIBERTY_LOADS_PF[load],
+                        "dff_liberty": arcs[profile][load]["library"],
+                        "clk_fall_ps": args.clk_fall_ps,
+                        "settling_allowance_ns": args.settling_allowance_ns,
+                        "slew_lower_pct": lower, "slew_upper_pct": upper,
+                    }
+                    if vector is not None:
+                        case.update(control_vector=vector,
+                                    control_operation=ACCESS_CONTROL.get(vector, "denied"),
+                                    access_allowed=vector in ACCESS_CONTROL)
+                    cases.append(case)
 
     model_hashes = contract.model_dependencies(model)
     for path in libraries.values():
@@ -391,7 +491,18 @@ def main() -> int:
         "started_utc": datetime.now(timezone.utc).isoformat(),
         "stage": "current decoder and four WL-driver RC PEX plus four physical 8-bit row PEX instances",
         "candidate": "current B7 decoder, current WL-driver PEX and Danilo's extracted 8-bit row PEX",
-        "evidence_scope": "selected-row WL assertion/deassertion and one-hot taps; no bitline read/write or sense qualification",
+        "evidence_scope": ("specified CSb/OEb/WEb truth-table screen plus selected physical WL assertion/deassertion; ideal access-qualified PCLK, no read/write bitline activity or sense qualification"
+                           if args.control_vectors is not None else
+                           "selected-row WL assertion/deassertion and one-hot taps; no bitline read/write or sense qualification"),
+        "access_control_interface": ({
+            "vectors_csb_oeb_web": args.control_vectors,
+            "read_vector": "001", "write_vector": "010",
+            "all_other_vectors": "PCLK held low through the high-clock window; check DEC, WL and all physical row taps inactive",
+            "implementation_model": "Ideal testbench PCLK qualification based on each static truth-table vector; control capture and transistor-level controller/gate are not instantiated",
+        } if args.control_vectors is not None else {
+            "vectors_csb_oeb_web": None,
+            "implementation_model": "PCLK is an independent ideal source; external access qualification is not screened",
+        }),
         "timing_assumptions": {"address_capture_ns": CAPTURE_NS,
                                "capture_to_pclk_ps": args.phase_ps,
                                "clk_fall_ps": args.clk_fall_ps,
@@ -445,10 +556,12 @@ def main() -> int:
         print(f"distributed row: {index}/{len(cases)} {case['label']} {result['status']}", flush=True)
 
     if results:
-        screen.write_csv(output / "summary.csv", results)
+        write_union_csv(output / "summary.csv", results)
         write_union_csv(output / "checks.csv", all_checks)
-        screen.write_csv(output / "row_taps.csv", all_taps)
-        screen.write_csv(output / "terminals.csv", all_terminals)
+        if all_taps:
+            screen.write_csv(output / "row_taps.csv", all_taps)
+        if all_terminals:
+            screen.write_csv(output / "terminals.csv", all_terminals)
     complete = not errors and len(results) == len(cases)
     manifest.update(complete=complete, completed_cases=len(results), errors=errors,
                     pass_cases=sum(row.get("status") == "PASS" for row in results),

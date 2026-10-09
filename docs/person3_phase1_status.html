@@ -219,25 +219,26 @@
   <section class="slide">
     <div class="eyebrow">08 · Decoder → WL · linha física distribuída · 09/10</div>
     <h2>Quatro linhas extraídas no caminho da wordline</h2>
-    <p>A matriz conecta o PEX do decoder e dos quatro WL drivers ao PEX de quatro linhas físicas de oito bits. Cada transição seleciona uma linha em TT, SS e FF; os 16 taps da linha selecionada são acompanhados até a célula.</p>
+    <p>A matriz conecta o PEX do decoder e dos quatro WL drivers ao PEX das quatro linhas físicas de oito bits. Foram cobertos os 16 pares ordenados de endereço em TT, SS e FF. Uma segunda matriz aplica os oito vetores de <code>CSb/OEb/WEb</code> com a linha física conectada.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">12/12</div><div class="label">casos concluídos; 4.992 checks passaram</div></div>
-      <div class="card"><div class="metric">3,224 ns</div><div class="label">pior WL90 nos taps distribuídos, SS, refinado a 1 ps</div></div>
-      <div class="card"><div class="metric">75,8 ps</div><div class="label">até a tela exploratória de 3,3 ns</div></div>
+      <div class="card"><div class="metric">48/48</div><div class="label">transições físicas; 19.968 checks passaram</div></div>
+      <div class="card"><div class="metric">24/24</div><div class="label">vetores/cantos de acesso; 3.882 checks passaram</div></div>
+      <div class="card"><div class="metric">3,2288 ns</div><div class="label">pior WL90 em SS, transição 1→2</div></div>
     </div>
     <table><thead><tr><th>Perfil</th><th>WL90 nos 16 taps</th><th>Maior tap não selecionado</th><th>Recuperação</th></tr></thead><tbody>
-      <tr><td>TT · 1,80 V · 27 °C</td><td>2,142–2,149 ns</td><td>16,2 µV</td><td>0,330 µV</td></tr>
-      <tr><td>SS · 1,62 V · −40 °C</td><td>3,221–3,224 ns</td><td>12,8 µV</td><td>0,577 µV</td></tr>
-      <tr><td>FF · 1,80 V · 125 °C</td><td>1,834–1,840 ns</td><td>170,4 µV</td><td>151,3 µV</td></tr>
+      <tr><td>TT · 1,80 V · 27 °C</td><td>2,142469–2,150495 ns</td><td>16,2 µV</td><td>0,330 µV</td></tr>
+      <tr><td>SS · 1,62 V · −40 °C</td><td>3,220558–3,228800 ns</td><td>12,8 µV</td><td>0,577 µV</td></tr>
+      <tr><td>FF · 1,80 V · 125 °C</td><td>1,833842–1,841717 ns</td><td>170,4 µV</td><td>151,3 µV</td></tr>
     </tbody></table>
-    <figure class="evidence"><a href="assets/row_decoder_distributed_row_pex_20261009.svg"><img src="assets/row_decoder_distributed_row_pex_20261009.svg" alt="Faixas medidas do atraso WL90 nos 16 taps distribuídos de cada linha física selecionada, nos perfis TT, SS e FF"></a><figcaption>Faixas dos 16 taps de cada linha selecionada. A linha pontilhada marca 3,3 ns, uma tela experimental. <a href="row_decoder_distributed_row_pex_20261009.md">Relatório e limitações</a> · <a href="../sims/row_decoder/results/distributed_row_pex_selection_matrix_20261009/summary.csv">Matriz 12 casos</a> · <a href="../sims/row_decoder/results/distributed_row_pex_slow_row3_refine_1ps_20261009/summary.csv">refinamento 1 ps</a>.</figcaption></figure>
-    <p class="warn">BL/BLB ficaram presos a VDD ideal durante todo o transiente. O ensaio não verifica liberação da pré-carga, leitura, escrita ou readback. O PCLK é ideal e 3,3 ns não é requisito especificado. O Ceff citado pela tabela .t0 ainda diverge do valor no relatório detalhado da bitcell.</p>
+    <figure class="evidence"><a href="assets/row_decoder_distributed_row_full_transition_pex_20261009.svg"><img src="assets/row_decoder_distributed_row_full_transition_pex_20261009.svg" alt="Faixa de atraso WL90 em todos os pares de endereço, corners e taps das linhas físicas"></a><figcaption>A linha pontilhada marca 3,3 ns, uma tela experimental. <a href="row_decoder_distributed_row_pex_20261009.md">Relatório completo e limitações</a> · <a href="../sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009/summary.csv">matriz 48 casos</a> · <a href="../sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009/summary.csv">matriz de controle 24 casos</a>.</figcaption></figure>
+    <p class="warn">Na matriz de controle, leitura e escrita habilitam a linha 2; idle, inválido e desabilitado mantêm as linhas baixas sob PCLK ideal qualificado pelo testbench. Os controles são vetores estáticos: captura de controle e circuito gerador de PCLK não foram implementados. BL/BLB ficaram presos a VDD ideal, então não há validação de leitura, escrita ou readback. O Ceff na tabela .t0 ainda diverge do valor do relatório detalhado da bitcell.</p>
     <p class="source">A linha PEX veio byte a byte do commit `95c23c0` da branch de Danilo; sua procedência e hash estão no <a href="../sims/row_decoder/inputs/row_8_wl_pex_95c23c0.provenance.json">sidecar de origem</a>. Registro: <a href="feature_peripherals_validation_log.md#2026-10-09-utc-decoder-wl-driver-and-distributed-physical-row-pex-screen">log de validação</a>.</p>
   </section>
 
   <section class="slide">
     <div class="eyebrow">09 · Estado físico e integração</div>
     <h2>O que está concluído e o que falta</h2>
+    <p><strong>Escopo confirmado da Fase 1:</strong> o decoder dinâmico 2→4 atual em <code>feature/peripherals</code> é o bloco da Pessoa 3 e segue até caracterização, layout, DRC e LVS. O candidato SPICE mantido na branch do Danilo não substitui essa implementação.</p>
     <div class="grid">
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
       <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>A aceitação final dos critérios de bias/modelo segue em revisão.</li><li>Definir a origem de PCLK e repetir o orçamento na janela do sistema; a varredura SS ideal de quatro fases está registrada.</li><li>Validar consumo com driver e fonte real de PCLK.</li><li>Repetir o caminho distribuído com a pré-carga liberada para avaliação e interface acordada.</li><li>Executar escrita integrada com bitcell, precharge e readback.</li></ul></div>
@@ -253,7 +254,7 @@
     <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Captura/PCLK no esquemático atual, cargas 17,4 e 102,874 fF</td><td>Matriz medida; tela de 1,95 V ainda parcial</td></tr>
-      <tr><td>09/10</td><td>Matriz distribuída de decoder → WL → quatro linhas extraídas</td><td>12 casos e refinamento SS/WL3 a 1 ps; bitlines idealmente mantidas em VDD</td></tr>
+      <tr><td>09/10</td><td>Matriz de endereços e controle com decoder → WL → quatro linhas extraídas</td><td>48 transições e 24 vetores/cantos aprovados; controles e PCLK idealizados, BL/BLB presos em VDD</td></tr>
       <tr><td>10/10</td><td>Revisar janela de PCLK e reconciliar os valores de Ceff com os responsáveis</td><td>Limites e dependências de interface registrados; nenhum critério experimental tratado como especificação</td></tr>
       <tr><td>11/10</td><td>Definir pré-carga/equalização e liberar BL/BLB durante avaliação; avançar a integração de escrita se interfaces estiverem acordadas</td><td>Sequência de controle validada com os donos dos blocos; readback ainda depende do bench completo</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir os testes físicos/elétricos disponíveis</td><td>Checks integrados com estados, fases e rails explícitos; pendências externas listadas</td></tr>
