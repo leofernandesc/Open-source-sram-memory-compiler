@@ -50,6 +50,21 @@ path or a simulation of the assembled qualifier plus transistor-level phase
 source. See the [captured qualifier report](../../docs/row_decoder_valid_access_capture_20261009.md)
 for the evidence and remaining limits.
 
+The isolated qualifier also has a transistor-level ngspice screen using the
+official SKY130 FD SC HD SPICE subcircuits and the PDK native PM3 corner
+library. Reproduce it with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture_spice.py
+```
+
+This screen passes the sampled control captures and holds in TT/SS/FF and
+measures clock-to-Q threshold crossings. It logs missing OSDI library warnings
+and observes Q excursions beyond VSS/VDD, which have no acceptance criterion
+in this test. It does not simulate the actual qualifier-to-PCLK/PRECH path or
+establish setup/hold, clock-frequency, reliability, or signoff limits. Results
+and per-run provenance are in the [captured qualifier report](../../docs/row_decoder_valid_access_capture_20261009.md).
+
 ## Experimental topology
 
 An 80-stage chain of CMOS inverters provides taps at stages 24, 60, and 80:

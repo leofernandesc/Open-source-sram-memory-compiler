@@ -2111,3 +2111,46 @@ use ideal or Liberty-derived `VALID_ACCESS_Q`; their delay results do not
 measure this new gate/DFF path. Setup/hold, metastability, startup before the
 first clock, PVT timing, address/data capture, layout, DRC/LVS, and integrated
 bitcell read/write/readback remain open. No extraction was run.
+
+## 2026-10-09 UTC: captured valid-access qualifier transistor-level screen
+
+The isolated `valid_access_capture.sch` cell was simulated using the official
+SKY130 FD SC HD transistor subcircuits with the PDK's native ngspice PM3 model
+library. The test sequence applies 50 ps control edges with 500 ps setup before
+the rising clock edge, changes live controls 800 ps after capture, and checks Q
+at 700 ps, 1,000 ps, and 1,250 ps after the edge. An explicit 3.434554 fF
+output load was used, matching a nominal `dfxtp_1` Liberty lookup point; it is
+not an extracted phase-source load.
+
+| Profile | Captures | Holds while high | Holds after falling edge | tCQ 90% rise / 10% fall | Observed Q minimum / maximum |
+|---|---:|---:|---:|---:|---:|
+| TT, 1.80 V, 27 °C | 8/8 | 8/8 | 8/8 | 223.265 / 180.537 ps | −0.0648 / 1.9092 V |
+| SS, 1.62 V, −40 °C | 8/8 | 8/8 | 8/8 | 480.021 / 333.448 ps | −0.1022 / 1.7590 V |
+| FF, 1.80 V, 125 °C | 8/8 | 8/8 | 8/8 | 159.007 / 141.591 ps | −0.0340 / 1.8753 V |
+
+The measured delay is relative to the 50% clock crossing and ends at the first
+90% VDD Q crossing on a rise or 10% VDD crossing on a fall. This is a sampled
+cell-level screen, not an external setup/hold sweep, frequency limit,
+metastability or reliability qualification. Q excursions beyond both supply
+rails were measured. The largest are −102.2 mV below VSS and +139.0 mV above
+VDD in SS; this runner defines no acceptance limit for those excursions, so
+they remain an electrical review item.
+
+All three ngspice logs also record four unavailable OSDI files and
+`No compatibility mode selected!`. The native PM3 simulation completed without
+model-resolution failures, but these warnings remain a model/environment
+acceptance limitation. The earlier attempt with the continuous decoder model
+family remains excluded for the standard-cell DFF because its width bins do
+not include the 0.36 µm special NFET. The native PM3 run is a separate model
+flow, not a mixed-model decoder timing result.
+
+Reproduce with `./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture_spice.py`.
+The current result, including the PNG waveform, checks CSV, raw Q samples,
+decks, generated Xschem netlist, manifest hashes, and logs, is under
+[`sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/`](../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/).
+The [qualifier report](row_decoder_valid_access_capture_20261009.md) describes
+the circuit and evidence. The phase timing matrices still use ideal or
+Liberty-derived `VALID_ACCESS_Q`; this run did not connect the real qualifier
+output to PCLK/PRECH, the decoder, the row, or precharge. Setup/hold,
+metastability, startup before the first edge, phase-source PEX, read/write
+integration, and extraction remain open. No extraction was run.

@@ -1,4 +1,4 @@
-# Captured valid-access qualifier: schematic and functional check
+# Captured valid-access qualifier: schematic and electrical checks
 
 Date: 2026-10-09 · Branch: `feature/peripherals` · Scope: Person 3 control-path work for the dynamic 2-to-4 row decoder.
 
@@ -66,22 +66,65 @@ the manifest records input and PDK model hashes; `vectors.csv` records each
 control vector; `capture.vcd` is the event trace; and the generated Verilog and
 hierarchical SPICE are preserved alongside tool logs.
 
+## Transistor-level cell screen
+
+The isolated standard-cell path was then simulated with the official SKY130 FD
+SC HD transistor subcircuits and the PDK's native ngspice PM3 corner library.
+The controls change with 50 ps edges, settle 500 ps before each rising clock
+edge, and change again 800 ps after capture. Q is sampled at 700 ps after the
+edge, at 1,000 ps while CLK is still high, and at 1,250 ps after the falling
+edge. The isolated output has a 3.434554 fF load, a nominal `dfxtp_1` Liberty
+table lookup point; it is not an extracted phase-source fanout.
+
+| Profile | VDD / temperature | Captures | High-phase holds | Falling-edge holds | Measured tCQ 90% rise / 10% fall | Observed Q minimum / maximum |
+|---|---:|---:|---:|---:|---:|---:|
+| TT | 1.80 V / 27 °C | 8/8 | 8/8 | 8/8 | 223.265 / 180.537 ps | −0.0648 / 1.9092 V |
+| SS | 1.62 V / −40 °C | 8/8 | 8/8 | 8/8 | 480.021 / 333.448 ps | −0.1022 / 1.7590 V |
+| FF | 1.80 V / 125 °C | 8/8 | 8/8 | 8/8 | 159.007 / 141.591 ps | −0.0340 / 1.8753 V |
+
+The delay is measured from the 50% clock crossing to the first Q crossing of
+90% VDD on a rising transition or 10% VDD on a falling transition. The
+waveform also shows transient excursions below VSS and above VDD: the largest
+measured values are −102.2 mV and +139.0 mV beyond the rails in SS. This
+campaign has no rail-excursion acceptance criterion, so these values require
+electrical review and are not treated as passes. The sampled capture and hold
+checks pass; this does not establish setup/hold limits, metastability behavior,
+or a legal SRAM clock period.
+
+![VALID_ACCESS_Q in transistor-level SPICE across TT, SS, and FF](../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/capture_q_pvt.png)
+
+Machine-readable samples, threshold-crossing delays, observed rail extrema,
+input deck, generated cell netlist, hashes, and ngspice logs are in the
+[electrical campaign directory](../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/).
+Reproduce it with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture_spice.py
+```
+
+Ngspice completed all three profiles using the native PM3 model library, but
+each log also reports four unavailable PDK OSDI libraries and
+`No compatibility mode selected!`. These warnings are recorded in the
+manifest and remain an environment/model-acceptance limitation for broader
+qualification.
+
 ## Limits and follow-up
 
-This check uses the PDK's functional Verilog models with zero unit delay. It
-verifies Boolean behavior and edge-triggered state only. It does not measure
-analog delay, slew, setup/hold, power, metastability, PVT behavior, or the
-electrical interaction of the qualifier with PCLK/PRECH. The wrapper's
-hierarchy has been netlisted, but the wrapper has not yet been simulated as a
-complete event or transistor-level phase path.
+The Icarus check uses functional Verilog models with zero unit delay and
+verifies Boolean behavior only. The ngspice check supplies limited transistor-
+level evidence for the isolated qualifier at three selected profiles and
+measures two Q transitions. It does not simulate setup/hold sweeps, clock
+frequency, power, metastability, mismatch, or the interaction of the captured
+Q output with PCLK/PRECH. The wrapper's hierarchy has been netlisted, but the
+wrapper has not yet been simulated as a complete transistor-level phase path.
 
 The prior phase-timing matrices still use an ideal or Liberty-derived
 `VALID_ACCESS_Q` waveform. Their timing results are separate evidence and are
-not measurements of this new gate/DFF path. Direct ngspice simulation of the
-standard-cell DFF remains unresolved because the continuous SKY130 SPICE model
-deck does not cover the DFF's 0.36 µm special NFET width at the relevant
-channel length; widening the device for diagnosis was not accepted as a
-standard-cell simulation result.
+not measurements of the real captured-Q-to-PCLK path. The earlier attempt to
+simulate `dfxtp_1` with the continuous MOS model deck remains excluded because
+its width bins do not cover the cell's 0.36 µm special NFET. The current
+isolated-cell screen uses the PDK's native PM3 model family instead; it is a
+different model flow and retains the startup warnings listed above.
 
 There is no reset, so startup behavior before the first rising clock edge must
 be handled or bounded by the surrounding SRAM sequence. Address capture,

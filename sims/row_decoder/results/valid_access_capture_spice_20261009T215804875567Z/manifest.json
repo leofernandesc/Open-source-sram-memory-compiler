@@ -1,0 +1,160 @@
+{
+  "campaign": "valid_access_capture_spice_functional",
+  "started_utc": "2026-10-09T21:58:04.875806+00:00",
+  "complete": true,
+  "model_family": "SKY130 native ngspice PM3 models; separate from the continuous model library used by decoder campaigns",
+  "scope": "Transistor-level SPICE of the SKY130 FD SC HD standard-cell qualifier; checks sampled capture/hold behavior and measures Q threshold-crossing delay for one rising and one falling transition.",
+  "control_equation": "VALID_ACCESS_D = !CSb AND (OEb XOR WEb)",
+  "capture_edge": "rising edge of CLK",
+  "control_setup_before_edge_ps": 500.0,
+  "live_control_change_after_edge_ps": 800.0,
+  "control_transition_slew_ps": 50.0,
+  "sample_times_after_rising_edge_ps": {
+    "capture": 700.0,
+    "hold_while_high": 1000.0,
+    "hold_after_falling_edge": 1250.0
+  },
+  "clock_to_q_thresholds": "first Q crossing of 0.9*VDD on a rising transition or 0.1*VDD on a falling transition, relative to the 50% clock crossing",
+  "output_load_ff": 3.434554,
+  "output_load_basis": "Nominal dfxtp_1 Liberty table load; the actual phase-source fanout has not been extracted or included in this isolated-cell check.",
+  "reset": "none; initial Q before first capture is not checked",
+  "corners": [
+    "tt",
+    "ss",
+    "ff"
+  ],
+  "source_sha256": {
+    "cells/control/valid_access_capture.sch": "dbcec10f951a18936a920e9a854a1b8512851a0584e867edb38bfca2b4291e43",
+    "sims/row_decoder/run_valid_access_capture_spice.py": "6580d68eff916ebf7cfb40139d54ae4fc440b0cce560ba3c509f9cea67bb2faf"
+  },
+  "pdk_sha256": {
+    "sky130_fd_sc_hd.spice": "304da9725492089107bb20840a4020558b028487d300f8df79bbbad5332aaa99",
+    "sky130.lib.spice": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e"
+  },
+  "results": {
+    "tt": {
+      "status": "PASS",
+      "control_vector_captures": 8,
+      "hold_after_live_change_while_high": 8,
+      "hold_after_falling_edge": 8,
+      "failures": 0,
+      "supply_v": 1.8,
+      "temperature_c": 27,
+      "sample_count": 3600,
+      "clock_to_q_rise_90_percent_ps": [
+        223.26466779665412
+      ],
+      "clock_to_q_fall_10_percent_ps": [
+        180.53701303974276
+      ],
+      "q_min_v": -0.0648267257,
+      "q_min_time_ns": 3.1725,
+      "q_max_v": 1.90923908,
+      "q_max_time_ns": 7.1575,
+      "peak_below_vss_v": 0.0648267257,
+      "peak_above_vdd_v": 0.10923908000000004
+    },
+    "ss": {
+      "status": "PASS",
+      "control_vector_captures": 8,
+      "hold_after_live_change_while_high": 8,
+      "hold_after_falling_edge": 8,
+      "failures": 0,
+      "supply_v": 1.62,
+      "temperature_c": -40,
+      "sample_count": 3602,
+      "clock_to_q_rise_90_percent_ps": [
+        480.02134513875114
+      ],
+      "clock_to_q_fall_10_percent_ps": [
+        333.4483720822542
+      ],
+      "q_min_v": -0.102196724,
+      "q_min_time_ns": 3.3525,
+      "q_max_v": 1.7589531,
+      "q_max_time_ns": 7.2825,
+      "peak_below_vss_v": 0.102196724,
+      "peak_above_vdd_v": 0.13895309999999994
+    },
+    "ff": {
+      "status": "PASS",
+      "control_vector_captures": 8,
+      "hold_after_live_change_while_high": 8,
+      "hold_after_falling_edge": 8,
+      "failures": 0,
+      "supply_v": 1.8,
+      "temperature_c": 125,
+      "sample_count": 3603,
+      "clock_to_q_rise_90_percent_ps": [
+        159.00717027694944
+      ],
+      "clock_to_q_fall_10_percent_ps": [
+        141.5910793874384
+      ],
+      "q_min_v": -0.0340495277,
+      "q_min_time_ns": 3.1225,
+      "q_max_v": 1.87532085,
+      "q_max_time_ns": 7.1225,
+      "peak_below_vss_v": 0.0340495277,
+      "peak_above_vdd_v": 0.07532085
+    }
+  },
+  "warnings": {
+    "tt": {
+      "missing_osdi_libraries": [
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/mosvar.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/psp103.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/r3_cmc.osdi"
+      ],
+      "no_compatibility_mode_notice": true
+    },
+    "ss": {
+      "missing_osdi_libraries": [
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/mosvar.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/psp103.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/r3_cmc.osdi"
+      ],
+      "no_compatibility_mode_notice": true
+    },
+    "ff": {
+      "missing_osdi_libraries": [
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/mosvar.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/psp103.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/psp103_nqs.osdi",
+        "/opt/pdks/sky130A/libs.tech/ngspice/osdi/r3_cmc.osdi"
+      ],
+      "no_compatibility_mode_notice": true
+    }
+  },
+  "xschem_command": [
+    "xschem",
+    "-s",
+    "-n",
+    "-q",
+    "-o",
+    "/work/sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z",
+    "/work/cells/control/valid_access_capture.sch"
+  ],
+  "generated_cell_netlist_sha256": "aceefa7c50f32c67f8d03441b7fe457dc4fe631fa75ed7f95ef581b2d2c878e6",
+  "finished_utc": "2026-10-09T21:58:37.677112+00:00",
+  "status": "PASS",
+  "failures": [],
+  "artifacts": [
+    "valid_access_capture.spice",
+    "valid_access_capture_cell.spice",
+    "xschem.log",
+    "checks.csv",
+    "tt/case.spice",
+    "ss/case.spice",
+    "ff/case.spice",
+    "tt/ngspice.log",
+    "ss/ngspice.log",
+    "ff/ngspice.log",
+    "tt/valid_access_q.dat",
+    "ss/valid_access_q.dat",
+    "ff/valid_access_q.dat",
+    "capture_q_pvt.png"
+  ]
+}
