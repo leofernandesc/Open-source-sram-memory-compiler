@@ -47,6 +47,7 @@ def main() -> int:
     wl = v(nodes[f"WL{selected}"])
     bl, blb = v(nodes["BL0"]), v(nodes["BLB0"])
     timing = metadata["precharge_timing"]
+    phase_source = metadata.get("phase_source", "ideal")
     pre_release = timing["precharge_releases"][-1]["precharge_release_s"] * 1e9
     pclk_rise = timing["precharge_releases"][-1]["pclk_rise_s"] * 1e9
     pclk_fall = timing["precharge_reassertions"][-1]["pclk_fall_s"] * 1e9
@@ -88,17 +89,27 @@ def main() -> int:
     axes[0].text(pre_assert, 0.70*vdd,
                  f" PRECH reassert {pre_assert:.2f} ns", va="top", fontsize=8)
     axes[0].set_xlim(0, t_ns[-1])
+    source_label = ("transistor-level tapped phase candidate"
+                    if phase_source == "tapped-delay-chain" else "ideal PCLK/PRECH")
     fig.suptitle("Dynamic row decoder and precharge phase interface\n"
-                 f"{metadata['profile']} · {metadata['operation']} · address {metadata['old_address']}→{metadata['new_address']}",
+                 f"{metadata['profile']} · {metadata['operation']} · address {metadata['old_address']}→{metadata['new_address']} · {source_label}",
                  y=0.99)
+    if phase_source == "tapped-delay-chain":
+        source_note = ("24/60/80-stage transistor phase; ideal CLK/VALID_ACCESS_Q. Decoder, WL and 8 precharge use PEX; "
+                       "lumped BL loads; no 6T read/write path.")
+    else:
+        source_note = ("Ideal PCLK/PRECH sources; decoder, WL driver and eight precharge leaves use SKY130A PEX. "
+                       "Bitlines use capacitive loads; no 6T array/read/write path is included.")
     fig.text(0.5, 0.005,
-             "Ideal PCLK/PRECH sources; decoder, WL driver and eight precharge leaves use SKY130A PEX. "
-             "Bitlines use capacitive loads; no 6T array/read/write path is included.",
-             ha="center", fontsize=8)
+             source_note,
+             ha="center", fontsize=7)
     fig.tight_layout(rect=(0, 0.035, 1, 0.94))
     args.output_svg.parent.mkdir(parents=True, exist_ok=True)
     args.output_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.output_svg)
+    svg_lines = args.output_svg.read_text(encoding="utf-8").splitlines()
+    args.output_svg.write_text("\n".join(line.rstrip() for line in svg_lines) + "\n",
+                               encoding="utf-8")
     fig.savefig(args.output_png, dpi=180)
     print(args.output_svg)
     print(args.output_png)

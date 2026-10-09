@@ -222,3 +222,16 @@ ideal testbench inputs because the transistor-level control generator is not
 implemented. Neither this screen nor Danilo's separate G7 results establish
 integrated SRAM timing or qualify the dynamic decoder with real control capture
 and bitcell read/write behavior.
+
+### Follow-up — transistor-level simulation candidate, 2026-10-09
+
+The simulation runner now generates a transistor-level 24/60/80-tap phase
+candidate in each SPICE deck. It drives PCLK and PRECH from transistor logic,
+but its external CLK and `VALID_ACCESS_Q` remain ideal PWL inputs. The
+candidate passed 26/26 cases and 3,540/3,540 checks across the sampled TT, SS,
+and FF profiles with Danilo's pinned W2.52 PEX. It does not change the
+recommendation above: capture the access qualifier without glitches, then
+generate separate non-overlapping PCLK and PRECH phases. The tap-chain result
+is a baseline for a dedicated Xschem implementation, not a completed phase
+source. Its area, timing spread, actual capture circuit, phase windows, layout,
+and PEX remain to be reviewed. See the [candidate report](row_decoder_tapped_phase_generator_screen_20261009.md).

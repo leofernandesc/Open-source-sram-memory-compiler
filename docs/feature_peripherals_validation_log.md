@@ -1954,3 +1954,49 @@ Corrected results and reproduction commands:
 - [corrected TT invalid matrix](../sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_release250_20261009/manifest.json)
 - [corrected slow matrix](../sims/row_decoder/results/precharge_phase_interface_slow_phase2100_release250_20261009/manifest.json)
 - [corrected fast matrix](../sims/row_decoder/results/precharge_phase_interface_ff_phase2100_release250_20261009/manifest.json)
+
+## 2026-10-09 UTC: transistor-level PCLK/PRECH phase-chain candidate
+
+The phase-interface runner now has an experimental `tapped-delay-chain`
+source. It builds a shared 80-stage SKY130A inverter chain in the SPICE deck,
+with taps at 24, 60, and 80 stages. The generated logic follows
+`PCLK = VALID_ACCESS_Q AND CLK AND DLY60` and
+`PRECH = VALID_ACCESS_Q AND ((CLK AND DLY24) OR DLY80)`. This delays evaluation
+after the captured access edge and holds bitline precharge released until the
+decoder evaluation and selected wordline have turned off. The proposed
+implementation path remains captured, glitch-free access qualification from
+`CLK` and registered controls, followed by separate non-overlapping `PCLK`
+and active-low `PRECH` outputs. The tapped chain is a simulation candidate for
+that path, not a finalized circuit choice.
+
+The valid qualifier and external `CLK` are still ideal PWL sources in this
+bench. The qualifier rises at the nominal capture edge; its actual capture
+and glitch suppression are not transistor-level. The runner's phase generator
+is not yet an Xschem cell and has no layout, DRC/LVS, or PEX. This candidate
+therefore provides measured phase behavior for the decoder/WL/precharge
+interface, not physical phase-source signoff or a supported frequency.
+
+Four fresh PVT campaigns completed **26/26 cases and 3,540/3,540 checks**:
+TT valid read/write (8 cases), TT invalid/idle (6), SS at 1.62 V/−40 °C
+(4 selected transitions), and FF at 1.80 V/125 °C (8). The 980 phase checks
+and 2,560 decoder checks all passed. The minimum measured interval from the
+selected WL falling below 10% VDD to PRECH reaching the conservative 75% VDD
+conduction threshold is 637.024 ps in FF. The minimum bitline sample before
+evaluation is 1.624971 V in SS, above the test's 90% VDD screen. These sampled
+checks do not establish an approved timing guard or clock period.
+
+The nominal ideal-source targets of 250 ps PRECH release lead and 1.80 ns
+PCLK-fall-to-precharge delay are not enforced by the transistor chain. Measured
+release lead ranges from 168.051 ps (FF) to 444.348 ps (SS); measured
+PCLK-fall-to-precharge intervals range from 1.694 ns (FF) to 2.979 ns (SS).
+The measured selected-WL-off clearance is positive in every valid case, with
+the 637.024 ps minimum above. The maximum absolute decoder terminal voltage is
+1.867033 V, below the project's 1.95 V numerical screen only; this is not a
+reliability or model-domain signoff.
+
+The detailed method, exact commands, pinned Danilo W2.52 PEX provenance,
+waveform and limitations are in the
+[phase-chain candidate report](row_decoder_tapped_phase_generator_screen_20261009.md).
+The four manifests are linked there. The representative waveform is
+[`row_decoder_precharge_phase_chain_20261009.png`](assets/row_decoder_precharge_phase_chain_20261009.png).
+No extraction was run for this phase-source candidate.

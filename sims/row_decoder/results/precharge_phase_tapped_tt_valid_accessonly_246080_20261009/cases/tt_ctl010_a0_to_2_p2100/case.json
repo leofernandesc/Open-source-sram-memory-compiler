@@ -1,0 +1,100 @@
+{
+  "case": "tt_ctl010_a0_to_2_p2100",
+  "profile": "tt",
+  "control_vector_csb_oeb_web": "010",
+  "operation": "write",
+  "old_address": 0,
+  "new_address": 2,
+  "selected_row": 2,
+  "phase_ps": 2100.0,
+  "clk_fall_ps": 20700.0,
+  "wl_cap_ff": 102.873935496,
+  "bitline_external_load_ff": 583.992055,
+  "bitline_target_effective_ceiling_ff": 597.056241,
+  "phase_checks_pass": 40,
+  "phase_checks_fail": 0,
+  "decoder_logic_checks_fail": 0,
+  "decoder_model_upper_result": "PASS",
+  "decoder_terminal_magnitude_result": "PASS",
+  "status": "PASS",
+  "ngspice_returncode": 0,
+  "signal_nodes": {
+    "PCLK": "net2",
+    "DEC0": "DEC0",
+    "DEC1": "DEC1",
+    "DEC2": "DEC2",
+    "DEC3": "DEC3",
+    "WL0": "net5",
+    "WL1": "net6",
+    "WL2": "net7",
+    "WL3": "net8",
+    "PRECH": "PRECH",
+    "BL0": "BL0",
+    "BLB0": "BLB0"
+  },
+  "precharge_timing": {
+    "bitline_external_load_ff": 583.992055,
+    "bitline_target_effective_ceiling_ff": 597.056241,
+    "precharge_releases": [
+      {
+        "cycle": "access",
+        "precharge_release_s": 1.635464636615071e-08,
+        "pclk_rise_s": 1.6609809171061897e-08,
+        "lead_ps": 255.1628049111866
+      }
+    ],
+    "precharge_reassertions": [
+      {
+        "cycle": "access",
+        "pclk_fall_s": 2.0828365407582963e-08,
+        "precharge_assert_s": 2.279109932111173e-08,
+        "turnoff_margin_ps": 1962.733913528766,
+        "selected_wl_below_10pct_s": 2.197488130540912e-08
+      }
+    ],
+    "bitline_minimum_at_end_v": 1.7999466769626091
+  },
+  "initial_precharge": {
+    "phase_source": "tapped_transistor_inverter_chain",
+    "prime_clk_input_rise_ns": 5.0,
+    "prime_clk_input_fall_ns": 10.0,
+    "prime_access_suppressed": true,
+    "bitline_precharge_remains_active_until_access": true
+  },
+  "phase_source": "tapped-delay-chain",
+  "phase_source_timing": {
+    "capture_to_pclk_rise_ps": 1609.809171061898,
+    "prime_pclk_rise_ns": null,
+    "pclk_rise_ns": 16.609809171061897,
+    "pclk_fall_ns": 20.828365407582965,
+    "precharge_release_ns": 16.35464636615071,
+    "precharge_reassert_ns": 22.79109932111173,
+    "prime_clock_suppressed_until_access": true,
+    "phase_source": "tapped_transistor_inverter_chain",
+    "delay_tap_stages": {
+      "release": 24,
+      "evaluation": 60,
+      "reassert": 80
+    },
+    "delay_tap_timing": {
+      "24": {
+        "prime_rise_delay_ps": 554.0581766593982,
+        "prime_fall_delay_ps": 555.0811609434334,
+        "access_rise_delay_ps": 553.813397680883,
+        "access_fall_delay_ps": 555.0480627589369
+      },
+      "60": {
+        "prime_rise_delay_ps": 1392.6041684414995,
+        "prime_fall_delay_ps": 1391.1905893867784,
+        "access_rise_delay_ps": 1392.2002652714336,
+        "access_fall_delay_ps": 1391.1313950445408
+      },
+      "80": {
+        "prime_rise_delay_ps": 1854.7754990995754,
+        "prime_fall_delay_ps": 1857.1184311746715,
+        "access_rise_delay_ps": 1854.425459860091,
+        "access_fall_delay_ps": 1857.1200596269405
+      }
+    }
+  }
+}

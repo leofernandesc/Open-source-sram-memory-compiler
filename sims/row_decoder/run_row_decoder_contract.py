@@ -372,8 +372,12 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
     delays = {"DEC": [], "WL": []}
     pre_delays = {"DEC": [], "WL": []}
     finaldelays = {"DEC": [], "WL": []}
-    for tag, address, begin, end in (("prime", case["old"], schedule["first_rise"], schedule["first_fall"]),
-                                    ("test", case["new"], schedule["second_rise"], schedule["second_fall"])):
+    phases = [("test", case["new"], schedule["second_rise"], schedule["second_fall"])] \
+        if case.get("skip_prime", False) else [
+            ("prime", case["old"], schedule["first_rise"], schedule["first_fall"]),
+            ("test", case["new"], schedule["second_rise"], schedule["second_fall"]),
+        ]
+    for tag, address, begin, end in phases:
         finish = end-schedule["fall"]/2
         for out, node in nodes.items():
             if out == "PCLK":
