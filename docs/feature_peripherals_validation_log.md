@@ -1761,3 +1761,20 @@ PEX and adds no lumped row capacitance. Therefore, no electrical result needed
 to be rerun for this source clarification. Existing result manifests remain
 unchanged as snapshots of what was known when those runs were recorded. No
 Danilo-owned source files were modified.
+
+## 2026-10-09 UTC: precharge and PCLK integration readiness
+
+A read-only check of `origin/feature/sense-precharge` found only `.gitkeep`
+placeholders under `cells/precharge/` and `sims/precharge/`; the branch has no
+review-ready precharge/equalization schematic, netlist, or physical view to
+integrate. The precharge draft currently present on `feature/peripherals` is
+owned by André and remains unchanged. Its prior Xschem netlisting attempt,
+recorded above, stopped before ngspice with open nets, BL/BLB/PRECH shorts and
+disconnected MOS devices.
+
+No transistor-level PCLK qualifier/generator is present under `cells/`; the
+decoder matrices continue to use ideal PCLK sources. Therefore the next
+decoder-to-bitline electrical test requires the owner-reviewed precharge
+interface and an agreed PCLK/access-enable source. No new electrical
+simulation was run in this readiness audit, and no other owner's files were
+changed.

@@ -173,10 +173,11 @@ criterion.
    TT/SS/FF; all eight control vectors also pass the truth-table screen. The
    qualification uses an ideal PCLK decision and ideal VDD clamps on BL/BLB;
    it does not exercise actual control capture, precharge release, read/write,
-   or data readback. Reconcile the conflicting row-Ceff report values with
-   Danilo, agree the actual PCLK/access-enable/precharge interface, then rerun
-   with that interface and bitline behavior. The 3.3 ns screen is exploratory,
-   not a project requirement.
+   or data readback. The Ceff interpretation is now aligned with Danilo's
+   current owner closure. Next, obtain a review-ready precharge/equalizer leaf
+   and agree the actual PCLK/access-enable interface, then rerun with those
+   interfaces and bitline behavior. The 3.3 ns screen is exploratory, not a
+   project requirement.
 5. If a defined condition fails or agreed margin is insufficient, review the
    responsible sizing/topology, then update affected physical checks and PEX
    when geometry changes. Otherwise retain the current decoder PEX. Package
@@ -185,16 +186,22 @@ criterion.
 ## Coordination and known integration dependency
 
 The last recorded integrated-read attempt failed while netlisting the
-precharge leaf, before ngspice. Recheck the owner's latest source during the
-interface review; this historical blocker is not proof that the current remote
-version still fails. André owns that block. No physical bitcell layout is
-integrated on this branch. Danilo's `95c23c0` checkpoint supplies an extracted
-eight-bit row PEX, now connected to decoder/WL PEX in a bounded ideal-bitline
-screen. The latest owner closure on `origin/feat/sram-6t-cell` (`5dc00fe`)
+precharge leaf, before ngspice. The current `origin/feature/sense-precharge`
+ref contains only `.gitkeep` placeholders under `cells/precharge/` and
+`sims/precharge/`; it does not yet provide a review-ready owner implementation.
+The precharge schematic present on this branch is a draft and the recorded
+netlisting attempt reported open nets, BL/BLB/PRECH shorts, and disconnected
+MOS devices. It remains untouched. André owns that block; do not use this draft
+as a qualified integration model or modify it as part of Person 3 work. No
+physical bitcell layout is integrated on this branch. Danilo's `95c23c0`
+checkpoint supplies an extracted eight-bit row PEX, now connected to decoder/WL
+PEX in a bounded ideal-bitline screen. The latest owner closure on
+`origin/feat/sram-6t-cell` (`5dc00fe`)
 aligns the current `.t0` table with the full-row maximum of 102.873935 fF and
 the paired extra load of 93.351918 fF. The 98.914001/89.925201 fF values are
 retained as superseded 07/10 history. Decoder tests without an explicit row
 use the full-row value; the distributed-row test models the row PEX directly.
+The repository has no transistor-level PCLK qualifier/generator cell yet.
 PCLK, precharge release, and read/write interface acceptance remain pending.
 The 3.3 ns settling screen remains exploratory and is not a final decoder
 timing limit. Do not silently modify either owner's source.
@@ -208,7 +215,7 @@ consuming approved interfaces and physical views.
 | 07/10 | Capture/PCLK pre-layout timing budget measured; retain B7 and limits |
 | 08/10 | Current decoder DRC/LVS/PEX and selected OP matrices complete; corrected row Ceff received; current-schematic capture/PCLK measured at both loads |
 | 09/10 | Combined decoder/WL-driver PEX matrix, four-point SS phase sweep, and distributed physical-row WL screen complete; bitlines remain ideal high |
-| 10/10 | Review actual PCLK/control timing if interfaces are available; reconcile row-Ceff report values; continue model-criteria review |
+| 10/10 | Review actual PCLK/control and precharge interfaces if available; continue model-criteria review |
 | 11/10 | Agree precharge release and row/write interfaces with owners; continue integration where current owner inputs permit |
 | 12/10 | P3-9 team interface review, reproduce critical results, assemble handoff |
 | 13/10 | P3-10 Phase 1 handoff with explicit completed/pending status |
