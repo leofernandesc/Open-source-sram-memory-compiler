@@ -10,6 +10,7 @@ time instead of shifting the entire PCLK pulse.
 from __future__ import annotations
 
 import argparse
+import csv
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import hashlib
@@ -153,20 +154,70 @@ def top_pin_map(netlist: str) -> dict[str, str]:
     return dict(zip(pins, instance[1:-1]))
 
 
+def load_wl_capacitance_evidence(path: Path | None, requested_ff: float) -> dict:
+    if path is None:
+        return {"path": None, "sha256": None, "rows": None,
+                "measured_max_ff": None, "interpretation": "load supplied as an explicit simulation parameter"}
+    path = path.resolve()
+    screen.require(path.is_file(), f"Wordline capacitance evidence not found: {path}")
+    with path.open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    expected_cases = {
+        (corner, vdd, temp, state)
+        for corner in ("tt", "ff", "ss", "fs", "sf")
+        for vdd in ("1.62", "1.8")
+        for temp in ("-40.0", "27.0", "125.0")
+        for state in ("0", "1")
+    }
+    observed_cases = {
+        (row.get("corner", "").lower(), row.get("vdd_v", ""),
+         row.get("temp_c", ""), row.get("state", ""))
+        for row in rows
+    }
+    screen.require(len(rows) == 60 and observed_cases == expected_cases,
+                   f"Expected the complete 60-case 5-corner WL capacitance matrix: {path}")
+    screen.require(all(row.get("status") == "PASS" for row in rows),
+                   f"Wordline capacitance evidence contains non-PASS rows: {path}")
+    try:
+        values = [float(row["cwl_pex_ff"]) for row in rows]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError(f"Invalid cwl_pex_ff data in {path}") from exc
+    maximum = max(values)
+    screen.require(math.isfinite(requested_ff) and abs(maximum-requested_ff) <= 5e-7,
+                   f"Requested WL load {requested_ff:g} fF does not match evidence maximum {maximum:.9f} fF")
+    pex_hashes = {row.get("pex_netlist_sha256", "") for row in rows}
+    screen.require(len(pex_hashes) == 1 and "" not in pex_hashes,
+                   f"WL capacitance matrix must identify one source PEX hash: {path}")
+    return {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "rows": len(rows), "measured_max_ff": maximum,
+            "source_pex_sha256": next(iter(pex_hashes)),
+            "interpretation": "maximum extracted 8-bit physical-row Ceff across the supplied PVT/state table"}
+
+
 def make_deck(netlist: str, case: dict, model: Path, arc: dict,
-              load_label: str) -> tuple[str, dict, dict, dict, dict, dict]:
+              load_label: str, wl_cap_ff: float) -> tuple[str, dict, dict, dict, dict, dict]:
     phase_ps = float(case["capture_to_pclk_ps"])
-    screen.require(phase_ps >= 0 and phase_ps < CLK_FALL_PS - CAPTURE_PS,
+    clk_fall_ps = float(case.get("clk_fall_ps", CLK_FALL_PS))
+    screen.require(phase_ps >= 0 and phase_ps < clk_fall_ps - CAPTURE_PS,
                    "PCLK phase must leave positive high-phase time")
     low_ns = (15_000.0 + phase_ps - PCLK_FALL_PS) / 1000.0
-    high_ns = (CLK_FALL_PS - (15_000.0 + phase_ps)) / 1000.0
+    high_ns = (clk_fall_ps - (15_000.0 + phase_ps)) / 1000.0
+    settling_ns = float(case.get("settling_allowance_ns", 1.0))
+    screen.require(math.isfinite(settling_ns) and 0 < settling_ns < high_ns,
+                   "Settling allowance must be positive and shorter than the PCLK high phase")
     sim_case = {
         **case, "campaign": "timing", "low_ns": low_ns, "high_ns": high_ns,
+        "settling_allowance_ns": settling_ns,
         "lead_ps": 2000, "address_ps": 50,
         "rise_ps": 25, "fall_ps": 25, "step_ps": 1,
         "method": "gear", "minbreak_fs": 1, "chgtol_c": 1e-18,
     }
     deck, nodes, devices, terminals, schedule = contract.make_deck(netlist, sim_case, model)
+    deck, count = re.subn(
+        r"(?im)^(C_WL[0-3]\s+\S+\s+\S+)\s+\S+",
+        lambda match: f"{match.group(1)} {wl_cap_ff*1e-15:.14g}", deck,
+    )
+    screen.require(count == 4, f"Expected four WL load capacitors, replaced {count}")
     ports = top_pin_map(netlist)
     vdd, stop_s = float(schedule["vdd"]), float(schedule["stop"])
     lower = float(case["slew_lower_pct"])
@@ -185,12 +236,12 @@ def make_deck(netlist: str, case: dict, model: Path, arc: dict,
 
     input_ramp_s = INPUT_SLEW_NS * 1e-9 / ((upper - lower) / 100.0)
     clock = pwl(0.0, [(cap50-input_ramp_s/2, cap50+input_ramp_s/2, vdd),
-                      (CLK_FALL_PS*1e-12-input_ramp_s/2,
-                       CLK_FALL_PS*1e-12+input_ramp_s/2, 0.0)], stop_s)
+                      (clk_fall_ps*1e-12-input_ramp_s/2,
+                       clk_fall_ps*1e-12+input_ramp_s/2, 0.0)], stop_s)
     deck = deck.replace(".lib ", f"VCAPCLK CAPCLK GND {clock}\n.lib ", 1)
     deck, count = re.subn(r"(?im)^(\.save\s+[^\n]+)$", r"\1 v(CAPCLK)", deck, count=1)
     screen.require(count == 1, "Could not add CLK capture marker to the save list")
-    schedule["second_fall"] = CLK_FALL_PS * 1e-12
+    schedule["second_fall"] = clk_fall_ps * 1e-12
     schedule["second_rise"] = (CAPTURE_PS + phase_ps) * 1e-12
     schedule["stop"] = float(schedule["second_fall"] + 5e-9)
     return deck, nodes, devices, terminals, schedule, sim_case
@@ -269,7 +320,8 @@ def edge_metrics(raw: dict[str, np.ndarray], case: dict, nodes: dict,
         "q_settle_lead_to_pclk_ps": (pclk-q_settle)*1e12,
         "latest_literal_10_90_settle_ps": (literal_settle-capture)*1e12,
         "literal_settle_lead_to_pclk_ps": (pclk-literal_settle)*1e12,
-        "pclk_high_phase_ps": (CLK_FALL_PS-CAPTURE_PS-float(case["capture_to_pclk_ps"])),
+        "pclk_high_phase_ps": (float(case.get("clk_fall_ps", CLK_FALL_PS))
+                               -CAPTURE_PS-float(case["capture_to_pclk_ps"])),
         "dff_load_label": case["dff_load_label"],
         "dff_load_ff": float(case["dff_load_pf"])*1000,
         "dff_liberty": case["dff_liberty"],
@@ -282,11 +334,11 @@ def edge_metrics(raw: dict[str, np.ndarray], case: dict, nodes: dict,
 
 def execute_case(case: dict, netlist: str, model: Path, lib_arcs: dict,
                  lower: float, upper: float, guard_ps: float, environment_sha256: str,
-                 out_dir: Path, keep_raw: bool) -> dict:
+                 wl_cap_ff: float, out_dir: Path, keep_raw: bool) -> dict:
     arc = lib_arcs[case["profile"]][case["dff_load_label"]]
     case = {**case, "slew_lower_pct": lower, "slew_upper_pct": upper}
     deck, nodes, devices, terminals, schedule, sim_case = make_deck(netlist, case, model, arc,
-                                                                    case["dff_load_label"])
+                                                                    case["dff_load_label"], wl_cap_ff)
     deck_hash = hashlib.sha256((deck + "\n" + environment_sha256).encode()).hexdigest()
     out_dir.mkdir(parents=True, exist_ok=True)
     deck_path = (out_dir / "case.spice").resolve()
@@ -355,6 +407,14 @@ def main() -> int:
     parser.add_argument("--workers", type=int, choices=(1, 2, 4), default=2)
     parser.add_argument("--internal-guard-ps", type=float, default=250.0,
                         help="Required literal-settling margin before PCLK evaluation")
+    parser.add_argument("--wl-cap-ff", type=float, default=17.4,
+                        help="Capacitance on each simulated wordline (default: historical 17.4 fF)")
+    parser.add_argument("--wl-load-evidence-csv", type=Path,
+                        help="Optional PVT table; its maximum cwl_pex_ff must equal --wl-cap-ff")
+    parser.add_argument("--settling-allowance-ns", type=float, default=1.0,
+                        help="Output settling window (default: historical 1 ns screen)")
+    parser.add_argument("--clk-fall-ps", type=float, default=CLK_FALL_PS,
+                        help="Captured clock falling edge in ps (default: 20000 ps)")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--keep-raw", action="store_true")
     args = parser.parse_args()
@@ -372,6 +432,16 @@ def main() -> int:
     screen.require(lower < upper, "Invalid Liberty slew thresholds")
     screen.require(math.isfinite(args.internal_guard_ps) and args.internal_guard_ps >= 0,
                    "Internal timing guard must be finite and nonnegative")
+    screen.require(math.isfinite(args.wl_cap_ff) and args.wl_cap_ff > 0,
+                   "WL capacitance must be finite and positive")
+    screen.require(math.isfinite(args.settling_allowance_ns) and args.settling_allowance_ns > 0,
+                   "Settling allowance must be finite and positive")
+    screen.require(math.isfinite(args.clk_fall_ps) and args.clk_fall_ps > CAPTURE_PS,
+                   "Clock falling edge must occur after the address capture edge")
+    screen.require(all(args.settling_allowance_ns < (args.clk_fall_ps-CAPTURE_PS-phase)/1000
+                       for phase in args.phase_ps),
+                   "Settling allowance must be shorter than every PCLK high phase")
+    wl_load_evidence = load_wl_capacitance_evidence(args.wl_load_evidence_csv, args.wl_cap_ff)
     lib_arcs = {profile: {label: liberty_arc(path, load)
                           for label, load in LIBERTY_LOADS_PF.items() if label in args.loads}
                 for profile, path in libs.items()}
@@ -394,9 +464,14 @@ def main() -> int:
         for load_label in args.loads:
             for old, new in transitions:
                 for phase in args.phase_ps:
-                    label = f"{profile}_{load_label}_a{old}_to_{new}_p{phase:g}ps"
+                    label = (f"{profile}_{load_label}_wl{args.wl_cap_ff:g}fF_a{old}_to_{new}"
+                             f"_p{phase:g}ps_s{args.settling_allowance_ns:g}ns")
                     cases.append({"label": label, "profile": profile, "old": old, "new": new,
                                   "capture_to_pclk_ps": phase, "dff_load_label": load_label,
+                                  "clk_fall_ps": args.clk_fall_ps,
+                                  "settling_allowance_ns": args.settling_allowance_ns,
+                                  "wl_cap_ff": args.wl_cap_ff,
+                                  "wl_load_evidence_sha256": wl_load_evidence["sha256"],
                                   "dff_load_pf": LIBERTY_LOADS_PF[load_label],
                                   "dff_liberty": lib_arcs[profile][load_label]["library"]})
     screen.require(len(cases) == len({case["label"] for case in cases}), "Duplicate case labels")
@@ -433,8 +508,13 @@ def main() -> int:
         "liberty_output_loads_pf": LIBERTY_LOADS_PF,
         "address_dff_load_interpretation": "Liberty lookup points: 3.434554 fF nominal and 9.001619 fF stress; actual captured-address Q-pin fanout has not been extracted yet.",
         "capture_clock_edge_ps": CAPTURE_PS, "clk_fall_ps": CLK_FALL_PS,
+        "actual_clk_fall_ps": args.clk_fall_ps,
         "pclk_fall_behavior": "PCLK fall remains at CLK falling edge; capture-to-PCLK delay shortens PCLK high phase",
-        "timing_criteria": "B7 full waveform checks; unselected DEC/WL below 10 percent VDD, selected reaches 90 percent and 1 ns settling allowance",
+        "wordline_load": {"capacitance_per_wl_ff": args.wl_cap_ff,
+                          "evidence": wl_load_evidence,
+                          "placement": "lumped capacitor from each WL output to VSS; decoder and WL driver remain schematic"},
+        "timing_criteria": "B7 full waveform checks; unselected DEC/WL below 10 percent VDD, selected reaches 90 percent and the declared settling allowance",
+        "settling_allowance_ns": args.settling_allowance_ns,
         "literal_settling_guard_ps": args.internal_guard_ps,
         "literal_settling_guard_basis": "Experimental engineering margin; requires raw address and all regenerated/complemented literals to settle before PCLK, then retains this guard",
         "external_setup_hold": "Not measured; address register D setup/hold and capture-cell metastability are outside this capture-to-PCLK study",
@@ -456,7 +536,7 @@ def main() -> int:
     def work(case: dict):
         try:
             return execute_case(case, netlist, model, lib_arcs, lower, upper, args.internal_guard_ps,
-                                environment_sha256,
+                                environment_sha256, args.wl_cap_ff,
                                 cases_dir/case["label"], args.keep_raw), None
         except Exception as exc:
             return None, {"case": case["label"], "error": f"{type(exc).__name__}: {exc}"}

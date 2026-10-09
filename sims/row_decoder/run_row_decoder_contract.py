@@ -352,6 +352,9 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
     time = raw["time"]
     screen.require(np.isfinite(time).all() and np.all(np.diff(time) > 0), "Bad waveform timestamps")
     screen.require(time[-1] >= schedule["stop"]-1e-16, "Truncated transient")
+    settle_s = float(case.get("settling_allowance_ns", 1.0))*1e-9
+    screen.require(math.isfinite(settle_s) and settle_s > 0,
+                   "Settling allowance must be finite and positive")
     def trace(node):
         if node.lower() in {"0", "gnd"}:
             return np.zeros_like(time)
@@ -386,9 +389,9 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
             if expected_high:
                 t50 = crossing(time, y, begin, finish, .5*vdd)
                 t90 = crossing(time, y, begin, finish, .9*vdd)
-                if finish > begin+1e-9:
-                    check(tag, out, "settled_min_v", window(time, y, begin+1e-9, finish).min(), low=.9*vdd,
-                          settling_only=t90 is not None and t90 > begin+1e-9)
+                if finish > begin+settle_s:
+                    check(tag, out, "settled_min_v", window(time, y, begin+settle_s, finish).min(), low=.9*vdd,
+                          settling_only=t90 is not None and t90 > begin+settle_s)
                 if tag == "test":
                     if t50 is not None:
                         delays[out[:2] if out.startswith("WL") else "DEC"].append((t50-begin)*1e12)
@@ -403,8 +406,8 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
             continue
         y = trace(node)
         check("recovery", out, "end_level_v", np.interp(pre_end, time, y), -.1*vdd, .1*vdd)
-        if pre_end > pre_start+1e-9:
-            check("recovery", out, "settled_max_v", window(time, y, pre_start+1e-9, pre_end).max(), high=.1*vdd)
+        if pre_end > pre_start+settle_s:
+            check("recovery", out, "settled_max_v", window(time, y, pre_start+settle_s, pre_end).max(), high=.1*vdd)
         if int(out[-1]) == case["old"]:
             t10 = crossing(time, y, pre_start, pre_end, .1*vdd, False)
             if t10 is not None:
@@ -418,7 +421,7 @@ def analyze(raw, case, nodes, devices, terminals, schedule):
             dynamic_min.append(minimum)
     for out, node in nodes.items():
         if out != "PCLK":
-            region = window(time, trace(node), schedule["second_fall"]+1e-9, schedule["stop"])
+            region = window(time, trace(node), schedule["second_fall"]+settle_s, schedule["stop"])
             check("final_precharge", out, "settled_max_v", region.max(), high=.1*vdd)
             check("final_precharge", out, "settled_min_v", region.min(), low=-.1*vdd)
     for row in range(4):

@@ -14,6 +14,14 @@
 > requalification for the current source. See the
 > [closure record](feature_peripherals_validation_log.md#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure).
 
+> Capture/load requalification (2026-10-08): the corrected `.t0` eight-bit row
+> capacitance table is now available and was used in matched 72-case
+> current-schematic capture-to-PCLK runs. The maximum full-row Ceff is
+> 102.873935496 fF; it was modeled as a lumped capacitor at each WL output.
+> See the [current load/timing report](row_decoder_capture_load_requalification_20261008.md)
+> for matched 17.4/102.874 fF results, a 1.50 ns phase check and limitations.
+> The historical campaigns below retain their original loads and source hashes.
+
 Historical status before layout closure: buffered candidate B7 retained after the complete pre-layout
 voltage/temperature/edge qualification and completed internal contract study.
 Physical closure was pending at that stage. The architecture and nine-pin

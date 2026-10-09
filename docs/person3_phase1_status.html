@@ -65,7 +65,7 @@
     <div class="eyebrow">Open-Source SRAM Memory Compiler · SKY130A</div>
     <h1>Andamento<br>da Fase 1</h1>
     <p class="lead">Decoder dinâmico de linha, wordline driver e write driver. Este resumo reúne esquemas, resultados medidos e próximos passos da branch <strong>feature/peripherals</strong>.</p>
-    <div><span class="tag">Atualizado em 8 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
+    <div><span class="tag">Atualizado em 9 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
     <p class="source">Os resultados e as pendências têm links para os esquemas, relatórios e dados de origem no repositório.</p>
   </section>
 
@@ -176,26 +176,22 @@
     <p class="warn">A matriz com ponto de operação foi concluída nos três cantos: 96 simulações, sem falhas nos checks funcionais. TT e SS passaram a tela de magnitude. Em FF, 10/16 casos baseline ultrapassam a tela de 1,95 V, com pico de 1,954645 V em VGD; todos os casos PEX passam. O refinamento a 0,5 ps mantém o pico baseline em 1,954674 V (variação máxima de 0,037 mV) e confirma que o excesso é estável em relação ao passo temporal. Essa tela não é, por si só, critério de confiabilidade.</p>
     <p class="warn">A auditoria dos terminais externos encontrou excursões assinadas de VGS e VBS. A revisão adicional mostrou que esses valores diferem dos estados internos BSIM4 após as resistências do modelo: um probe FF em dois dispositivos passou 104 checks e preservou as formas de onda externas, mas mantém achados de bias. A2&gt;1 altera o modelo (A2=1, A1=0); Eta0/Pdibl negativos geram avisos nesses checks. A margem e a aceitação final continuam abertas. <a href="row_decoder_analysis_review_20261008.md">Revisão, fontes corrigidas e evidências</a>.</p>
     <figure class="evidence"><a href="assets/row_decoder_ff_opinit_screen_refinement.svg"><img src="assets/row_decoder_ff_opinit_screen_refinement.svg" alt="Comparação dos máximos de magnitude nos dez pares FF que excedem a tela no baseline; o excesso persiste a 0,5 ps e o PEX permanece abaixo"></a><figcaption>Refinamento FF em ponto de operação: o pequeno excesso do baseline persiste a 0,5 ps; todos os pares PEX passam. A linha vermelha é a tela numérica de 1,95 V. <a href="../sims/row_decoder/plot_ff_opinit_screen_refinement.py">Script do gráfico</a> · <a href="row_decoder_opinit_matrix_20261008.md">Relatório completo</a>.</figcaption></figure>
-    <p class="source">O bench usa quatro WL buffers esquemáticos e carga estimada de 17,4 fF; a carga física corrigida da linha ainda não foi incorporada ao bench. As simulações mantiveram o PEX existente, sem nova extração. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório FF</a> · <a href="row_decoder_signed_bias_domain_audit_20261008.md">Auditoria de bias assinado</a> · <a href="../sims/row_decoder/results/compact_decoder_pclk_energy_convergence_audit.json">Auditoria de energia</a> · <a href="../sims/row_decoder/results/compact_decoder_full_fast_matrix_audit.json">Auditoria FF</a>.</p>
+    <p class="source">Os ensaios deste slide usam o PEX do decoder sem carga de bitcells. A carga física corrigida já foi usada como capacitor equivalente nos ensaios atuais de captura/PCLK; a linha distribuída ainda não está integrada. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório FF</a> · <a href="row_decoder_signed_bias_domain_audit_20261008.md">Auditoria de bias assinado</a> · <a href="row_decoder_capture_load_requalification_20261008.md">Carga e captura/PCLK</a>.</p>
   </section>
 
   <section class="slide">
-    <div class="eyebrow">06 · Captura → PCLK</div>
-    <p class="warn">Evidencia historica: repetir esta campanha de captura/fanout para o dimensionamento atual do decoder.</p>
-    <h2>Captura → PCLK — margem de estabilização</h2>
-    <p>Clock-to-Q e tempos de transição do flip-flop <code>dfxtp_1</code> da Liberty SKY130 foram usados para gerar rampas PWL de endereço. A simulação do decoder B7 com modelos MOS contínuos avaliou diferentes atrasos entre a captura e PCLK.</p>
+    <div class="eyebrow">06 · Captura → PCLK · carga corrigida · 08/10</div>
+    <p class="warn">Caracterização do esquemático atual com Ceff da linha em carga concentrada. A revisão de modelo e a integração física continuam pendentes.</p>
+    <h2>Captura → PCLK com a carga medida</h2>
+    <p>As rampas PWL do endereço vêm das tabelas Liberty do <code>dfxtp_1</code>. O ensaio usa três perfis de modelo MOS e coloca o maior Ceff extraído da linha em cada saída WL.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">1,50 ns</div><div class="label">fase selecionada para continuar a validação</div></div>
-      <div class="card"><div class="metric">431 ps</div><div class="label">menor lead interno em SS, com carga stress</div></div>
-      <div class="card"><div class="metric">72/72</div><div class="label">casos aprovados em TT/SS/FF e duas cargas Liberty</div></div>
+      <div class="card"><div class="metric">102,874 fF</div><div class="label">maior Ceff da linha 8-bit na tabela .t0</div></div>
+      <div class="card"><div class="metric">72/72</div><div class="label">checks lógicos e guard de 250 ps a 1,50 ns</div></div>
+      <div class="card"><div class="metric">28/72</div><div class="label">casos passam a tela elétrica experimental de 1,95 V</div></div>
     </div>
-    <table><thead><tr><th>Fase de PCLK</th><th>Lead interno mínimo</th><th>Guard de 250 ps</th><th>Resultado</th></tr></thead><tbody>
-      <tr><td>1,25 ns</td><td>181 ps</td><td>Não: 5/12 passam</td><td class="warn">Margem insuficiente</td></tr>
-      <tr><td>1,50 ns</td><td>431 ps</td><td>Sim: 12/12 passam</td><td class="ok">Recomendado</td></tr>
-    </tbody></table>
-    <figure class="evidence"><a href="assets/capture_to_pclk_margin.svg"><img src="assets/capture_to_pclk_margin.png" alt="Gráfico das margens medidas até PCLK para 96 casos no perfil SS frio e carga stress"></a><figcaption>Grade lenta com 96 casos e 12 transições por fase. A linha dourada indica o guard experimental de 250 ps. <a href="assets/capture_to_pclk_margin.svg">Versão vetorial</a> · <a href="../sims/row_decoder/results/capture_to_pclk_slow_coarse/summary.csv">CSV de origem</a> · <a href="../sims/row_decoder/plot_capture_to_pclk_margin.py">Script do gráfico</a>.</figcaption></figure>
-    <p>Com captura em 15 ns e queda de CLK em 20 ns, a fase alta de PCLK é 3,5 ns; o atraso máximo até WL atingir 90% foi 675,44 ps. A carga WL ficou em 17,4 fF; 3,43 fF e 9,00 fF são cargas Liberty na saída Q do registrador.</p>
-    <p class="source">O guard é um critério experimental. Q foi modelado com rampas baseadas em Liberty e PCLK permaneceu ideal. Setup/hold externo, metastabilidade, gerador real de PCLK, carga Q extraída, carga WL de 50 fF e Fmax ainda não foram fechados. Resultados adicionais: <a href="../sims/row_decoder/results/capture_to_pclk_selected_1500ps/summary.csv">TT/FF a 1,50 ns</a> e <a href="../sims/row_decoder/results/capture_to_pclk_slow_nominal_1500ps/summary.csv">SS nominal a 1,50 ns</a>.</p>
+    <figure class="evidence"><a href="assets/row_decoder_wl_load_capture_delay_20261008.svg"><img src="assets/row_decoder_wl_load_capture_delay_20261008.svg" alt="Gráfico do atraso máximo WL90 para 17,4 fF e 102,874 fF no mesmo decoder"></a><figcaption>Mesmo netlist atual, fase captura→PCLK de 1,25 ns e janela de estabilização de 3 ns. <a href="row_decoder_capture_load_requalification_20261008.md">Relatório e dados</a> · <a href="../sims/row_decoder/inputs/row_8_wl_pex_capacitance_latch_t0_requal_20261008.csv">Tabela Ceff</a>.</figcaption></figure>
+    <p>A 1,50 ns, o pior WL90 é 2,883 ns e a fase de avaliação é 3,50 ns: restam 617 ps antes da queda ideal de PCLK. O lead interno mínimo é 536,5 ps, ou 286,5 ps acima do guard experimental. A 1,25 ns, esse lead cai para 286,5 ps, apenas 36,5 ps acima do guard.</p>
+    <p class="source">A carga é concentrada em capacitor; decoder e WL buffers estão no esquemático. Q usa tabelas Liberty e PCLK é ideal. Os 3 ns de estabilização e o limite de 1,95 V são telas experimentais. Setup/hold externo, metastabilidade, PCLK real, carga Q extraída, linha distribuída, confiabilidade e Fmax seguem abertos. <a href="../sims/row_decoder/results/capture_to_pclk_wlpexmax_p1250_s3ns_20261008/summary.csv">CSV · 1,25 ns</a> · <a href="../sims/row_decoder/results/capture_to_pclk_wlpexmax_p1500_s3ns_20261008/summary.csv">CSV · 1,50 ns</a>.</p>
   </section>
 
   <section class="slide">
@@ -203,7 +199,7 @@
     <h2>O que está concluído e o que falta</h2>
     <div class="grid">
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
-      <div class="card"><h3 class="warn">Pendente na qualificacao e integracao</h3><ul><li>Matriz de ponto de operação completa; caracterização atual pode avançar em paralelo à revisão dos critérios finais de bias/modelo.</li><li>Repetir qualificacao ampla e captura/PCLK para o decoder atual.</li><li>Validar consumo com driver e fonte real de PCLK.</li><li>Conectar decoder, quatro WL drivers e a linha física com carga extraída corrigida e aprovada pelo responsável.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
+      <div class="card"><h3 class="warn">Pendente na qualificacao e integracao</h3><ul><li>Matriz de ponto de operação completa; a aceitação final dos critérios de bias/modelo segue em revisão.</li><li>Combinar PEX do decoder e dos WL drivers na captura/PCLK e ampliar a varredura de bordas/fase.</li><li>Validar consumo com driver e fonte real de PCLK.</li><li>Integrar a linha física distribuída; o máximo Ceff corrigido já foi aplicado como carga concentrada no bench.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
     </div>
     <p class="bad"><strong>Integração:</strong> a tentativa de leitura registrada parou durante a geração do netlist do precharge, antes do ngspice. Esse resultado pertence à versão ensaiada; a versão atual do responsável ainda precisa ser conferida antes de uma nova execução integrada com André.</p>
     <p class="source">Evidências de <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> e da <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">tentativa de integração</a>.</p>
@@ -213,8 +209,8 @@
     <div class="eyebrow">08 · Próximas tarefas até 13/10</div>
     <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
-      <tr><td>08/10</td><td>Requalificar captura/fanout e a interface PCLK</td><td>Orcamento medido para o novo dimensionamento</td></tr>
-      <tr><td>09/10</td><td>Repetir qualificacao ampla, ruido e retencao</td><td>Fonte atual e limites explicitamente registrados</td></tr>
+      <tr><td>08/10</td><td>Captura/PCLK no esquemático atual, cargas 17,4 e 102,874 fF</td><td>Matriz medida; tela de 1,95 V ainda parcial</td></tr>
+      <tr><td>09/10</td><td>Combinar PEX de decoder/WL driver se viável; bordas/fase, ruído e retenção</td><td>Nova matriz e limites explicitamente registrados</td></tr>
       <tr><td>10/10</td><td>Revisar margens e energia com fonte real de PCLK</td><td>Compactação com DRC/LVS e PEX; matrizes TT/SS/FF completas; revisão de avisos FF e convergência numérica PCLK registrada</td></tr>
       <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
