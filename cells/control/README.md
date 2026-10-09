@@ -31,9 +31,12 @@ PCLK         = VALID_ACCESS_Q AND CLK AND DLY60
 PRECH        = VALID_ACCESS_Q AND PRECH_SET
 ```
 
-The AND and OR functions use static CMOS gates. The delay chain uses SKY130A
-`pfet_01v8`/`nfet_01v8` devices at `L=0.15 µm`, `Wp=0.84 µm`, and
-`Wn=0.42 µm`. The output inverters in the phase-logic gates use
+The AND and OR functions use static CMOS gates. The current provisional
+working sizing for each delay-chain inverter is SKY130A
+`pfet_01v8`/`nfet_01v8` at `L=0.15 µm`, `Wp=1.26 µm`, and `Wn=0.42 µm`.
+This pair had the largest measured timing margins in the initial six-pair
+screen while keeping worst-corner capture-to-PCLK delay close to the reference
+pair (`Wp=0.84 µm`, `Wn=0.42 µm`). The phase-logic output inverters use
 `Wp=3.0 µm` and `Wn=1.5 µm`; the OR gate's pull-up PMOS devices use
 `Wp=1.68 µm`. These are initial experimental values, not final sizing.
 
@@ -59,8 +62,10 @@ python3 tools/generate_pclk_phase_source.py --check
 ```
 
 The Xschem netlist can be used in the existing decoder/WL/precharge PEX
-interface runner with `--phase-source xschem-tapped-delay-chain`. The measured
-24/60/80 taps and the clock/sample windows remain experimental: the cell has no
-layout, DRC, LVS, phase-source PEX, captured qualifier, or bitcell read/write
-path. Do not interpret the numbers as a specification limit, maximum
-frequency, reliability result, or signoff.
+interface runner with `--phase-source xschem-tapped-delay-chain`. The initial
+sizing comparison and full-matrix evidence are in
+[`docs/phase_delay_inverter_sizing_screen_20261009.md`](../../docs/phase_delay_inverter_sizing_screen_20261009.md).
+The measured 24/60/80 taps and clock/sample windows remain experimental: the
+cell has no layout, DRC, LVS, phase-source PEX, captured qualifier, or complete
+6T bitcell read/write path. Do not interpret the numbers as a specification
+limit, maximum frequency, reliability result, or signoff.

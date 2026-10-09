@@ -1,0 +1,146 @@
+.subckt pclk_phase_gen CLK VALID_ACCESS_Q VDD VSS PCLK PRECH
+*.ipin CLK
+*.iopin VDD
+*.iopin VSS
+*.ipin VALID_ACCESS_Q
+*.opin PCLK
+*.opin PRECH
+XDL01 VDD CLK net1 VSS phase_delay_inv
+XDL02 VDD net1 net2 VSS phase_delay_inv
+XDL03 VDD net2 net3 VSS phase_delay_inv
+XDL04 VDD net3 net4 VSS phase_delay_inv
+XDL05 VDD net4 net5 VSS phase_delay_inv
+XDL06 VDD net5 net6 VSS phase_delay_inv
+XDL07 VDD net6 net7 VSS phase_delay_inv
+XDL08 VDD net7 net8 VSS phase_delay_inv
+XDL09 VDD net8 net9 VSS phase_delay_inv
+XDL10 VDD net9 net10 VSS phase_delay_inv
+XDL11 VDD net10 net11 VSS phase_delay_inv
+XDL12 VDD net11 net12 VSS phase_delay_inv
+XDL13 VDD net12 net13 VSS phase_delay_inv
+XDL14 VDD net13 net14 VSS phase_delay_inv
+XDL15 VDD net14 net15 VSS phase_delay_inv
+XDL16 VDD net15 net16 VSS phase_delay_inv
+XDL17 VDD net16 net17 VSS phase_delay_inv
+XDL18 VDD net17 net18 VSS phase_delay_inv
+XDL19 VDD net18 net19 VSS phase_delay_inv
+XDL20 VDD net19 net20 VSS phase_delay_inv
+XDL21 VDD net20 net21 VSS phase_delay_inv
+XDL22 VDD net21 net22 VSS phase_delay_inv
+XDL23 VDD net22 net23 VSS phase_delay_inv
+XDL24 VDD net23 DLY24 VSS phase_delay_inv
+XDL25 VDD DLY24 net24 VSS phase_delay_inv
+XDL26 VDD net24 net25 VSS phase_delay_inv
+XDL27 VDD net25 net26 VSS phase_delay_inv
+XDL28 VDD net26 net27 VSS phase_delay_inv
+XDL29 VDD net27 net28 VSS phase_delay_inv
+XDL30 VDD net28 net29 VSS phase_delay_inv
+XDL31 VDD net29 net30 VSS phase_delay_inv
+XDL32 VDD net30 net31 VSS phase_delay_inv
+XDL33 VDD net31 net32 VSS phase_delay_inv
+XDL34 VDD net32 net33 VSS phase_delay_inv
+XDL35 VDD net33 net34 VSS phase_delay_inv
+XDL36 VDD net34 net35 VSS phase_delay_inv
+XDL37 VDD net35 net36 VSS phase_delay_inv
+XDL38 VDD net36 net37 VSS phase_delay_inv
+XDL39 VDD net37 net38 VSS phase_delay_inv
+XDL40 VDD net38 net39 VSS phase_delay_inv
+XDL41 VDD net39 net40 VSS phase_delay_inv
+XDL42 VDD net40 net41 VSS phase_delay_inv
+XDL43 VDD net41 net42 VSS phase_delay_inv
+XDL44 VDD net42 net43 VSS phase_delay_inv
+XDL45 VDD net43 net44 VSS phase_delay_inv
+XDL46 VDD net44 net45 VSS phase_delay_inv
+XDL47 VDD net45 net46 VSS phase_delay_inv
+XDL48 VDD net46 net47 VSS phase_delay_inv
+XDL49 VDD net47 net48 VSS phase_delay_inv
+XDL50 VDD net48 net49 VSS phase_delay_inv
+XDL51 VDD net49 net50 VSS phase_delay_inv
+XDL52 VDD net50 net51 VSS phase_delay_inv
+XDL53 VDD net51 net52 VSS phase_delay_inv
+XDL54 VDD net52 net53 VSS phase_delay_inv
+XDL55 VDD net53 net54 VSS phase_delay_inv
+XDL56 VDD net54 net55 VSS phase_delay_inv
+XDL57 VDD net55 net56 VSS phase_delay_inv
+XDL58 VDD net56 net57 VSS phase_delay_inv
+XDL59 VDD net57 net58 VSS phase_delay_inv
+XDL60 VDD net58 DLY60 VSS phase_delay_inv
+XDL61 VDD DLY60 net59 VSS phase_delay_inv
+XDL62 VDD net59 net60 VSS phase_delay_inv
+XDL63 VDD net60 net61 VSS phase_delay_inv
+XDL64 VDD net61 net62 VSS phase_delay_inv
+XDL65 VDD net62 net63 VSS phase_delay_inv
+XDL66 VDD net63 net64 VSS phase_delay_inv
+XDL67 VDD net64 net65 VSS phase_delay_inv
+XDL68 VDD net65 net66 VSS phase_delay_inv
+XDL69 VDD net66 net67 VSS phase_delay_inv
+XDL70 VDD net67 net68 VSS phase_delay_inv
+XDL71 VDD net68 net69 VSS phase_delay_inv
+XDL72 VDD net69 net70 VSS phase_delay_inv
+XDL73 VDD net70 net71 VSS phase_delay_inv
+XDL74 VDD net71 net72 VSS phase_delay_inv
+XDL75 VDD net72 net73 VSS phase_delay_inv
+XDL76 VDD net73 net74 VSS phase_delay_inv
+XDL77 VDD net74 net75 VSS phase_delay_inv
+XDL78 VDD net75 net76 VSS phase_delay_inv
+XDL79 VDD net76 net77 VSS phase_delay_inv
+XDL80 VDD net77 DLY80 VSS phase_delay_inv
+XREL VDD CLK DLY24 VDD CLK_RELEASED VSS phase_and3
+XOR1 VDD CLK_RELEASED DLY80 PRECH_SET VSS phase_or2
+XPCLK VDD VALID_ACCESS_Q CLK DLY60 PCLK VSS phase_and3
+XPRECH VDD VALID_ACCESS_Q PRECH_SET VDD PRECH VSS phase_and3
+.ends pclk_phase_gen
+
+.subckt phase_delay_inv VDD A Y VSS
+*.ipin A
+*.opin Y
+*.iopin VDD
+*.iopin VSS
+XMP Y A VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMN Y A VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+.ends
+.subckt phase_and3 VDD A B C Y VSS
+*.iopin VDD
+*.ipin A
+*.ipin B
+*.ipin C
+*.opin Y
+*.iopin VSS
+XMPA NAND3 A VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPB NAND3 B VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPC NAND3 C VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNA NAND3 A net1 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNB net1 B net2 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNC net2 C VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPINV Y NAND3 VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=3.0 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNINV Y NAND3 VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1.5 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+.ends
+.subckt phase_or2 VDD A B Y VSS
+*.iopin VDD
+*.ipin A
+*.ipin B
+*.opin Y
+*.iopin VSS
+XMPA net1 A VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=1.68 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPB NOR2 B net1 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=1.68 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNA NOR2 A VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNB NOR2 B VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.42 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPINV Y NOR2 VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=3.0 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNINV Y NOR2 VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1.5 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29' pd='2*int((nf+1)/2) * (W/nf + 0.29)'
++ ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+.ends

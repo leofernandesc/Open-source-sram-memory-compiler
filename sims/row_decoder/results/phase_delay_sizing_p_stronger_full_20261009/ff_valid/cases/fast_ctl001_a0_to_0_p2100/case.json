@@ -1,0 +1,101 @@
+{
+  "case": "fast_ctl001_a0_to_0_p2100",
+  "profile": "fast",
+  "control_vector_csb_oeb_web": "001",
+  "operation": "read",
+  "old_address": 0,
+  "new_address": 0,
+  "selected_row": 0,
+  "phase_ps": 2100.0,
+  "clk_fall_ps": 22000.0,
+  "wl_cap_ff": 102.873935496,
+  "bitline_external_load_ff": 583.992055,
+  "bitline_target_effective_ceiling_ff": 597.056241,
+  "phase_checks_pass": 40,
+  "phase_checks_fail": 0,
+  "decoder_logic_checks_fail": 0,
+  "decoder_model_upper_result": "PASS",
+  "decoder_terminal_magnitude_result": "PASS",
+  "status": "PASS",
+  "ngspice_returncode": 0,
+  "signal_nodes": {
+    "PCLK": "net2",
+    "DEC0": "DEC0",
+    "DEC1": "DEC1",
+    "DEC2": "DEC2",
+    "DEC3": "DEC3",
+    "WL0": "net5",
+    "WL1": "net6",
+    "WL2": "net7",
+    "WL3": "net8",
+    "PRECH": "PRECH",
+    "BL0": "BL0",
+    "BLB0": "BLB0"
+  },
+  "precharge_timing": {
+    "bitline_external_load_ff": 583.992055,
+    "bitline_target_effective_ceiling_ff": 597.056241,
+    "precharge_releases": [
+      {
+        "cycle": "access",
+        "precharge_release_s": 1.6502851264775433e-08,
+        "pclk_rise_s": 1.6837005423696212e-08,
+        "lead_ps": 334.15415892077914
+      }
+    ],
+    "precharge_reassertions": [
+      {
+        "cycle": "access",
+        "pclk_fall_s": 2.213729220607866e-08,
+        "precharge_assert_s": 2.4401279902203427e-08,
+        "pclk_fall_to_precharge_conduction_ps": 2263.9876961247655,
+        "selected_wl_off_clearance_ps": 1204.3370951199076,
+        "selected_wl_below_10pct_s": 2.319694280708352e-08
+      }
+    ],
+    "bitline_minimum_at_end_v": 1.7998905156581566
+  },
+  "initial_precharge": {
+    "phase_source": "xschem_hierarchical_transistor_phase_source",
+    "prime_clk_input_rise_ns": 5.0,
+    "prime_clk_input_fall_ns": 10.0,
+    "prime_access_suppressed": true,
+    "bitline_precharge_remains_active_until_access": true
+  },
+  "phase_source": "xschem-tapped-delay-chain",
+  "phase_source_timing": {
+    "capture_to_pclk_rise_ps": 1837.0054236962135,
+    "prime_pclk_rise_ns": null,
+    "pclk_rise_ns": 16.837005423696212,
+    "pclk_fall_ns": 22.137292206078662,
+    "precharge_release_ns": 16.502851264775433,
+    "precharge_reassert_ns": 24.401279902203427,
+    "prime_clock_suppressed_until_access": true,
+    "phase_source": "xschem_hierarchical_transistor_phase_source",
+    "delay_tap_stages": {
+      "release": 24,
+      "evaluation": 60,
+      "reassert": 80
+    },
+    "delay_tap_timing": {
+      "24": {
+        "prime_rise_delay_ps": 639.2721165898465,
+        "prime_fall_delay_ps": 642.2287769336255,
+        "access_rise_delay_ps": 639.1958966839202,
+        "access_fall_delay_ps": 642.2741287605171
+      },
+      "60": {
+        "prime_rise_delay_ps": 1605.4723956134233,
+        "prime_fall_delay_ps": 1609.6735870927707,
+        "access_rise_delay_ps": 1605.3900649013935,
+        "access_fall_delay_ps": 1609.76118751881
+      },
+      "80": {
+        "prime_rise_delay_ps": 2136.9612437990486,
+        "prime_fall_delay_ps": 2145.1042203927323,
+        "access_rise_delay_ps": 2136.9038467278897,
+        "access_fall_delay_ps": 2145.207543062429
+      }
+    }
+  }
+}

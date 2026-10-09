@@ -87,7 +87,7 @@ def subckt_symbol(name: str, ports: list[tuple[str, str, int, int]],
 
 
 def make_phase_delay_inv() -> tuple[str, str]:
-    s = sch_head("SKY130A delay-chain inverter; experimental Wp=0.84 um, Wn=0.42 um")
+    s = sch_head("SKY130A delay-chain inverter; provisional Wp=1.26 um, Wn=0.42 um")
     s += [
         wire(420, -190, 420, -160, "VDD"),
         wire(420, -130, 420, -30, "Y"),
@@ -95,7 +95,7 @@ def make_phase_delay_inv() -> tuple[str, str]:
         wire(280, -160, 280, 0, "A"),
         wire(280, -160, 380, -160, "A"),
         wire(280, 0, 380, 0, "A"),
-        mos("pfet", 400, -160, "MP", "0.84"),
+        mos("pfet", 400, -160, "MP", "1.26"),
         mos("nfet", 400, 0, "MN", "0.42"),
         pin("ipin", 280, -80, "A", 1),
         pin("opin", 420, -80, "Y", 2),
