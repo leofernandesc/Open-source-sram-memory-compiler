@@ -128,17 +128,23 @@ and 3.3 ns settling screen are inherited experimental points, not project
 specifications. Decoder/WL terminal screens passed in the matrix; model-owner
 acceptance and reliability signoff remain open.
 
-## Row-capacitance value to reconcile
+## Row-capacitance source and load interpretation
 
-The `.t0` input table copied into this branch records a maximum full-row Ceff
-of 102.873935496 fF and a paired additional load of 93.351918068 fF. Its
-provenance cites the same row PEX SHA as the direct simulation. Danilo's report
-summary also mentions 93.351918 fF extra, while a detailed paragraph lists
-98.914001 fF for the full row and 89.925201 fF extra. The older and `.t0`
-capacitance CSVs both cite this PEX but report different values. This screen
-instantiates the PEX directly, so it does not choose between those Ceff
-measurements. Reconcile the table/report interpretation with the bitcell owner
-before using one value as the official integration load.
+The latest owner closure available on `origin/feat/sram-6t-cell` at
+`5dc00fe` identifies the current requalified range as 102.328671–102.873935 fF
+for the full eight-bit row and `CWL_EXTRA=93.351918 fF` when the selected
+bitcell is already represented. The `98.914001 fF` full-row and `89.925201 fF`
+extra values remain in the owner report as explicitly superseded 07/10 history.
+The copied `.t0` table and its provenance match the current full-row maximum.
+
+Decoder capture and WL-leaf benches without explicit bitcells use the full-row
+maximum. A bench with the selected cell explicitly present uses the paired
+extra value. This distributed-row simulation instantiates the extracted row
+PEX directly and adds no lumped row Ceff. The current source interpretation
+does not change the measured results in this report. See the owner
+[`phase1_leaf_cell_closure.md`](https://github.com/leofernandesc/Open-source-sram-memory-compiler/blob/5dc00fe/docs/phase1_leaf_cell_closure.md)
+and [`cwl_pre_layout_estimate.md`](https://github.com/leofernandesc/Open-source-sram-memory-compiler/blob/5dc00fe/docs/cwl_pre_layout_estimate.md)
+at the referenced commit.
 
 ## Reproduction and artifacts
 
@@ -184,15 +190,13 @@ directory name when repeating either command.
 
 ## Next required work
 
-1. Reconcile the two row-Ceff results with Danilo while leaving his source
-   files unchanged.
-2. Replace the continuous ideal BL/BLB clamps with the reviewed precharge and
+1. Replace the continuous ideal BL/BLB clamps with the reviewed precharge and
    equalization interface; hold the bitlines during precharge and release them
    for evaluation.
-3. Agree the actual PCLK source/phase and access-enable behavior with the
+2. Agree the actual PCLK source/phase and access-enable behavior with the
    control/interface owners, then repeat the selected-row and deassertion
    tests at that timing.
-4. Add bitcell state, read/write stimulus, and data readback only after the
+3. Add bitcell state, read/write stimulus, and data readback only after the
    bitline and precharge interfaces are agreed.
 
 P3-7 is therefore **advanced, not fully closed**: distributed WL PEX behavior

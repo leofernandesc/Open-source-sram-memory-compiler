@@ -289,7 +289,7 @@ def inject_combined_pex(netlist: str) -> tuple[str, dict]:
             "capture_literal_nodes": CAPTURE_LITERAL_NODES,
         },
         "wl_driver": wl_evidence,
-        "topology_scope": "Current decoder R-C PEX and four hierarchical WL-driver R-C PEX instances; 102.873935496 fF full-row Ceff remains an explicit lumped output load per WL.",
+        "topology_scope": "Current decoder R-C PEX and four hierarchical WL-driver R-C PEX instances; the explicitly configured lumped WL load is recorded in wordline_load.",
     }
 
 

@@ -1742,3 +1742,22 @@ full simulation artifacts are under
 [`distributed_row_pex_full_transition_matrix_20261009`](../sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009/manifest.json)
 and
 [`distributed_row_pex_access_control_matrix_20261009`](../sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009/manifest.json).
+
+## 2026-10-09 UTC: row-Ceff source alignment with the current owner closure
+
+The earlier distributed-row entry recorded the Ceff interpretation as open at
+the time of that simulation. Reviewing Danilo's latest owner closure available
+on `origin/feat/sram-6t-cell` at commit `5dc00fe` resolves how the values apply:
+the current `.t0` row table reports a full-row range of
+`102.328671–102.873935496 fF` and a maximum paired `CWL_EXTRA` of
+`93.351918068 fF`. The `98.914001 fF` full-row and `89.925201 fF` extra values
+are retained in his material as superseded 07/10 history.
+
+The Person 3 lumped capture and WL-leaf benches do not instantiate the row's
+bitcells, so their full-row load of `102.873935496 fF` is the applicable value.
+If the selected bitcell is explicitly included, use the paired extra load of
+`93.351918068 fF`. The distributed-row matrix instantiates the extracted row
+PEX and adds no lumped row capacitance. Therefore, no electrical result needed
+to be rerun for this source clarification. Existing result manifests remain
+unchanged as snapshots of what was known when those runs were recorded. No
+Danilo-owned source files were modified.

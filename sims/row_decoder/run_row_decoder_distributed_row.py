@@ -261,10 +261,11 @@ def parse_transition(text: str) -> tuple[int, int]:
 
 
 def execute_case(case: dict, netlist: str, row_evidence: dict,
-                 model: Path, arc: dict, step_ps: float, timeout_s: float,
+                 model: Path, arc: dict, full_row_ceff_ff: float,
+                 step_ps: float, timeout_s: float,
                  out_dir: Path, keep_raw: bool) -> dict:
     deck, nodes, devices, terminals, schedule, sim_case = capture.make_deck(
-        netlist, case, model, arc, case["dff_load_label"], 102.873935496)
+        netlist, case, model, arc, case["dff_load_label"], full_row_ceff_ff)
     sim_case["step_ps"] = step_ps
     ports = capture.top_pin_map(netlist)
     deck, count = re.subn(r"(?im)^C_WL[0-3]\s+[^\n]+\n?", "", deck)
@@ -424,6 +425,14 @@ def main() -> int:
     row_sidecar = json.loads(ROW_CEFF_SIDECAR.read_text(encoding="utf-8"))
     require(row_sidecar.get("row_pex_sha256", [None])[0] == row_pex_evidence["sha256"],
             "The row PEX does not match the PEX cited by the corrected Ceff input")
+    row_ceff_range = row_sidecar.get("cwl_pex_ff_range")
+    require(isinstance(row_ceff_range, list) and len(row_ceff_range) == 2,
+            "The corrected Ceff sidecar must contain a two-point full-row range")
+    full_row_ceff_ff = float(row_ceff_range[1])
+    paired_extra_ceff_ff = float(row_sidecar["paired_extra_cwl_ff_max"])
+    require(math.isfinite(full_row_ceff_ff) and full_row_ceff_ff > 0
+            and math.isfinite(paired_extra_ceff_ff) and 0 < paired_extra_ceff_ff < full_row_ceff_ff,
+            "Invalid full-row or paired-extra Ceff in the corrected sidecar")
     pdk = Path(os.environ.get("PDK_ROOT", "/opt/pdks")) / "sky130A"
     model = pdk / "libs.tech/combined/continuous/sky130.lib.spice"
     lib_dir = pdk / "libs.ref/sky130_fd_sc_hd/lib"
@@ -512,11 +521,15 @@ def main() -> int:
         "selected_row_coverage": sorted({new for _, new in transitions}),
         "row_ceff_reference": {"provenance_sidecar": str(ROW_CEFF_SIDECAR.relative_to(ROOT)),
                                 "provenance_sha256": hashlib.sha256(ROW_CEFF_SIDECAR.read_bytes()).hexdigest(),
-                                "full_row_max_fF": row_sidecar.get("cwl_pex_ff_range", [None, None])[1],
-                                "paired_extra_max_fF": row_sidecar.get("paired_extra_cwl_ff_max")},
+                                "owner_closure_branch": "feat/sram-6t-cell",
+                                "owner_closure_commit": "5dc00fe",
+                                "full_row_max_fF": full_row_ceff_ff,
+                                "paired_extra_max_fF": paired_extra_ceff_ff,
+                                "used_as_lumped_load": False,
+                                "simulation_load_model": "four explicit extracted distributed row PEX instances"},
         "decoder_wl_pex_sources": pex_evidence,
         "bitline_model": "One ideal VDD source per shared BL/BLB line holds precharge continuously; no precharge MOS, sense amplifier, write driver or explicit access-enable logic is instantiated.",
-        "known_owner_report_difference": "The detailed bitcell report body cites 98.914001 fF for row Ceff, while the latch-t0 table used by this project records up to 102.873935496 fF with the same row PEX SHA. This test instantiates row PEX directly and does not replace either source result.",
+        "owner_ceff_interpretation": "The current owner closure uses the latch-t0 table range for full-row Ceff and paired row-minus-selected-cell Ceff. Older 98.914001/89.925201 fF report values are explicitly superseded 07/10 history. This test instantiates distributed row PEX directly and adds no lumped row Ceff.",
         "model_domain_scope": "Decoder and WL-driver terminal screens are included; bitcell row device terminal biases are not qualified by this runner.",
         "netlist_sha256": netlist_sha,
         "helper_sha256": helper_hashes,
@@ -542,6 +555,7 @@ def main() -> int:
         try:
             result = execute_case(case, netlist, row_instance_evidence,
                                   model, arcs[case["profile"]][case["dff_load_label"]],
+                                  full_row_ceff_ff,
                                   args.step_ps, args.timeout_s, case_dir, args.keep_raw)
         except Exception as exc:
             errors.append({"case": case["label"], "error": f"{type(exc).__name__}: {exc}"})
