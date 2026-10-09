@@ -20,12 +20,14 @@ selected as reproducible verification evidence.
 |---|---|---|
 | `feature/bitcell` | Danilo (Person 1) | 6T bitcell through schematic, simulation, layout, DRC, and LVS |
 | `feature/sense-precharge` | André (Person 2) | Sense amplifier and precharge/equalization through schematic, simulation, layout, DRC, and LVS |
-| `feature/peripherals` | Leonardo (Person 3) | Wordline driver and write driver through schematic, simulation, layout, DRC, and LVS; dynamic 2-to-4 decoder candidate and qualification are Phase 2 macro-integration work |
+| `feature/peripherals` | Leonardo (Person 3) | Wordline driver and write driver through schematic, simulation, layout, DRC, and LVS; dynamic 2-to-4 decoder candidate and qualification are planned for Phase 2 macro integration, pending formal validation by the team/advisors |
 
 Each owner is responsible for carrying the assigned blocks through the complete
 Phase 1 flow. The dynamic 2-to-4 decoder candidate and its electrical/physical
-qualification, together with the complete 4×8 macro, are Phase 2
-macro-integration deliverables.
+qualification, together with the complete 4×8 macro, are currently planned as
+Phase 2 macro-integration deliverables. This reassignment changes the original
+planning for the decoder deliverable and remains subject to formal validation
+by the team/advisors.
 Collaboration is allowed, but architecture or implementation changes in
 another owner's block should be reviewed with that owner first.
 

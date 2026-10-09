@@ -202,7 +202,7 @@ After decoder and row PEX are available, rerun integrated read/write PVT with
 the decoder-driven WL; the existing ideal-`WL_IN` G7 matrices do not transfer
 as decoder qualification.
 
-This is the Phase 2 candidate architecture. PVT transient timing, keeper versus
+This is the candidate architecture currently assigned to Phase 2, pending formal validation by the team/advisors. PVT transient timing, keeper versus
 pull-down sizing, charge sharing, leakage retention, address setup/hold,
 one-hot behavior, power, layout, DRC/LVS, and integrated 4×8 read/write remain
 open qualification items. Larger-depth decoders remain an architecture
@@ -323,9 +323,11 @@ The first integrated SRAM contains:
 - input registers;
 - control logic.
 
-This is the planned Phase 2 macro-level deliverable. The decoder has a
+This is currently planned as a Phase 2 macro-level deliverable. The decoder has a
 provisional transistor-level SPICE candidate; its qualification and complete
-4×8 assembly are outside the Phase 1 leaf-cell/G7 boundary.
+4×8 assembly are outside the current Phase 1 leaf-cell/G7 boundary. Because the
+original project planning assigns a validated decoder to the peripherals work,
+this phase reassignment must be formally validated by the team/advisors.
 
 ---
 
@@ -459,7 +461,8 @@ foundry/model limits and measured results.
   `C_BL,PEX,max=519.179340 fF`, ceiling `597.056241 fF`, and
   `CWL_EXTRA=93.351918 fF`; integrated G7 read and write each passed 60/60.
   Phase 1 is closed for the bitcell/leaf scope. Decoder and 4×8 macro integration
-  are assigned to Phase 2; see `docs/phase1_leaf_cell_closure.md`;
+  are currently assigned to Phase 2, pending formal validation by the team/advisors;
+  see `docs/phase1_leaf_cell_closure.md`;
 - the lower WL pulse limit is `1.30 ×` the worst measured full write-flip time;
   full flip is defined here as both internal storage nodes reaching the
   `90%/10%` rails;
