@@ -101,7 +101,12 @@ Write data is also captured on the rising edge during a write operation.
 
 Read data is captured by an 8-bit output register on the falling edge of `CLK`.
 
-Bitline precharge and equalization occur during the low phase of the clock. Memory access occurs during the high phase.
+Bitline precharge and equalization occur during the low phase of the clock.
+Memory access occurs during the high phase. The row-decoder controller must
+deassert precharge, wait for the registered address and its complements to
+settle, then assert `EVAL`; `EVAL` is deasserted before the next precharge
+phase. Read data is sampled on the falling edge before precharge can disturb
+the bitlines.
 
 The maximum supported operating frequency will be determined through electrical characterization.
 
@@ -145,21 +150,70 @@ Precharge is active during the low phase of `CLK`, including idle and disabled c
 
 ## 9. Row Decoder
 
-The SRAM uses a static CMOS row decoder.
+The first 4×8 implementation uses a footed dynamic 2-to-4 row decoder. Its
+transistor-level candidate is `cells/row_decoder_2to4.spice`; its device sizes
+are provisional and have not been electrically or physically qualified.
 
-The first 4×8 implementation uses a 2-to-4 decoder.
+Each row has a dynamic node precharged high by a PMOS controlled by active-low
+`PCH_N`. A weak feedback PMOS keeper holds an unselected node high. During
+evaluation, the matching pair of address literals and the `EVAL` footer form an
+NMOS discharge path to `VSS`. An inverter converts the selected node's low
+level into an active-high `DECx` output. Internal stack nodes are clamped to
+`VSS` during precharge to reduce charge sharing. Static CMOS inverters generate
+the address complements and the clamp phase; the row decode itself is dynamic.
 
-The decoder architecture scales with the supported memory depth.
+The output mapping is `DEC0=00`, `DEC1=01`, `DEC2=10`, `DEC3=11` for
+`A1:A0`. Each `DECx` drives the existing static CMOS wordline driver; the
+dynamic decoder does not directly drive the row's bitcell gates.
 
-The implementation strategy for the larger decoders is:
+The control contract is two-phase and break-before-make:
 
-**(confirm with advisors)**
+1. Precharge/idle: `PCH_N=0`, `EVAL=0`; all `DECx` outputs are low.
+2. Prepare: keep `EVAL=0`, deassert precharge (`PCH_N=1`), and keep the
+   address stable.
+3. Evaluate: assert `EVAL=1`; only the matching `DECx` may rise.
+4. End access: deassert `EVAL` before asserting `PCH_N=0` to reset the dynamic
+   nodes and lower the selected output.
+
+`PCH_N` and `EVAL` must never enable precharge and evaluation together. The
+address must be captured on the rising edge and held stable from before
+evaluation until precharge has reset the dynamic nodes. `EVAL` must wait for
+the address register's clock-to-Q and complement-generation delay; changing
+the address during evaluation can leave the old row selected because a
+discharged dynamic node is not restored until the next precharge. The macro
+controller must provide this sequencing and non-overlap; sharing the bitline
+precharge signal is allowed only after its polarity and timing are shown to
+satisfy this contract. A complete precharge is required before the first
+access after power-up or an idle state with unknown decoder-node charge.
+
+The existing G7 read/write matrices use ideal `WL_IN` pulses and therefore do
+not characterize decoder delay, one-hot selection, startup, keeper retention,
+or phase overlap. The dynamic decoder requires separate electrical evidence
+before the macro can be treated as qualified.
+
+Qualification must exercise all four addresses, first-access startup after a
+full precharge, same-row and row-change accesses, idle/disabled cycles, and
+invalid commands. Transient PVT must cover the project-qualified SKY130A range
+(`1.62–1.80 V`, `−40/27/125 °C`, all five process corners) with the actual
+wordline driver and row load. Record selected/unselected WL levels, glitches,
+decode delay, minimum safe `EVAL` pulse, keeper retention, phase overlap,
+charge sharing, and current. Sweep keeper and pull-down sizing before freeze.
+After decoder and row PEX are available, rerun integrated read/write PVT with
+the decoder-driven WL; the existing ideal-`WL_IN` G7 matrices do not transfer
+as decoder qualification.
+
+This is the Phase 2 candidate architecture. PVT transient timing, keeper versus
+pull-down sizing, charge sharing, leakage retention, address setup/hold,
+one-hot behavior, power, layout, DRC/LVS, and integrated 4×8 read/write remain
+open qualification items. Larger-depth decoders remain an architecture
+decision for advisor review.
 
 ---
 
 ## 10. Wordline Driver
 
-Each decoder output drives its corresponding wordline through a static CMOS wordline driver.
+Each active-high `DECx` output drives its corresponding wordline through a
+static CMOS wordline driver.
 
 The driver strength and number of stages will be determined according to the effective wordline load.
 
@@ -260,7 +314,7 @@ The first integrated SRAM contains:
 - 32 6T bitcells;
 - 4 wordlines;
 - 8 differential bitline pairs;
-- one static 2-to-4 row decoder;
+- one footed dynamic 2-to-4 row decoder with `PCH_N` and `EVAL` controls;
 - 4 wordline drivers;
 - 8 precharge/equalization circuits;
 - 8 write drivers;
@@ -268,6 +322,10 @@ The first integrated SRAM contains:
 - an 8-bit output register;
 - input registers;
 - control logic.
+
+This is the planned Phase 2 macro-level deliverable. The decoder has a
+provisional transistor-level SPICE candidate; its qualification and complete
+4×8 assembly are outside the Phase 1 leaf-cell/G7 boundary.
 
 ---
 
@@ -292,6 +350,22 @@ All generated target configurations must pass:
 - LVS.
 
 Leaf cells must be individually verified before full SRAM integration.
+
+**Manual cross-check, 08 Oct 2026 (Phase 1 physical leaves and G7 column):**
+Magic GUI reported zero DRC errors for the 6T bitcell; full hierarchical and
+flat G7 checks also reported zero. The operator reran Netgen LVS using
+`/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl` inside the SKY130A
+tool container; Netgen loaded the setup and reported `Circuits match uniquely`
+with 212 MOS devices (136 NMOS, 76 PMOS) and 82 nets on each side. An earlier
+`/dev/null` setup run is retained as historical evidence. Undefined MOS
+subcircuit placeholders/black boxes and missing-property warnings persisted
+even with the SKY130A setup, so this is a confirmed structural match, not a
+complete verification of PDK device parameters. The manual setup-based log
+was saved as `layout/column_32_full_g7_wpre2p52_final/lvs_sky130_manual.log`
+(local, Git-ignored). See the [manual DRC/LVS procedure](../docs/validacao_manual_drc_lvs_sky130a.md).
+This check supports the existing Phase 1 engineering qualification for the
+bitcell/physical leaves; the dynamic 2-to-4 decoder and 4×8 SRAM macro
+remain Phase 2 work.
 
 ---
 
@@ -379,13 +453,13 @@ foundry/model limits and measured results.
 - PEX is a post-freeze validation step. The 07/10/2026 column previously
   reported `C_BL,PEX,max=453.588404713 fF` and ceiling
   `521.626665420 fF`; both are superseded historical evidence.
-  On 08/10/2026 the repaired 32-row column passed full-cell DRC/LVS/PEX,
-  but the new `519.179340 fF` maximum and `597.056241 fF` ceiling were
-  calculated with invalid access-tap state initialization. Correct the
-  initial state at latch outputs (`.t0`), rerun bitcell/column/WL capacitance
-  PVT, recalculate loads, and rerun integrated read/write matrices.
-  G7 electrical requalification remains open; see
-  `docs/phase1_leaf_cell_closure.md`;
+  On 08/10/2026 the repaired 32-row column passed full-cell DRC/LVS/PEX.
+  The first capacitance run used invalid access-tap state initialization and
+  remains historical. Corrected latch-output (`.t0`) PVT gives
+  `C_BL,PEX,max=519.179340 fF`, ceiling `597.056241 fF`, and
+  `CWL_EXTRA=93.351918 fF`; integrated G7 read and write each passed 60/60.
+  Phase 1 is closed for the bitcell/leaf scope. Decoder and 4×8 macro integration
+  are assigned to Phase 2; see `docs/phase1_leaf_cell_closure.md`;
 - the lower WL pulse limit is `1.30 ×` the worst measured full write-flip time;
   full flip is defined here as both internal storage nodes reaching the
   `90%/10%` rails;
@@ -408,9 +482,9 @@ routing constraint above, including `Cwrite`. `Cmux = 0`.
 The derivation, PVT evidence and routing constraint are recorded in
 [`docs/cbl_pre_layout_estimate.md`](../docs/cbl_pre_layout_estimate.md). The
 `50 fF` and `60 fF` no longer cover the corrected 32-row budget; `65 fF` is
-the conservative pre-layout screening point. It is superseded for Phase 1 G7
-by the post-layout column extraction once the corrected 08/10 PVT and
-requalification ceiling have been established.
+the conservative pre-layout screening point. It has been superseded for Phase 1
+G7 by the corrected post-layout column extraction and the `597.056241 fF`
+requalification ceiling.
 
 Characterization results must be reported for at least the 8×8 and 32×8 configurations.
 
