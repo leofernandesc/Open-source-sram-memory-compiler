@@ -1,5 +1,9 @@
 # VALID_ACCESS_Q arrival-skew screen — 2026-10-09
 
+This report records the earlier ideal-PWL arrival sweep. A follow-up screen
+uses the SKY130 `dfxtp_1` Liberty clock-to-Q delay and output slew for
+`VALID_ACCESS_Q`; see the [captured-Q Liberty report](row_decoder_valid_access_q_liberty_screen_20261009.md).
+
 ## Purpose and result
 
 The selected transistor-level PCLK/PRECH phase source takes `VALID_ACCESS_Q`
@@ -90,12 +94,15 @@ measured 250 ps check and must not be used for acceptance.
 ## Next tasks
 
 1. Implement the captured control registers and `VALID_ACCESS_Q` qualification
-   path, then replace the idealized arrival waveform with the actual circuit.
-   Check the read and write vectors, invalid/idle suppression, and control
-   transitions against address capture.
-2. Re-run the full address and PVT matrix using the actual qualifier. Keep the
-   provisional arrival target at or below 900 ps unless the implemented path
-   and an updated phase design demonstrate adequate margin.
+   logic in Xschem. The follow-up Liberty screen models only the DFF's Q
+   clock-to-output arc; it does not model the qualification logic, setup/hold,
+   glitches or next-cycle deassertion. Check read/write, invalid/idle
+   suppression and control transitions against address capture.
+2. Re-run the full address and PVT matrix using the implemented qualifier.
+   Compare its arrival and slew with the Liberty-timed baseline; keep the
+   provisional 900 ps arrival target only as an exploratory reference unless
+   the implemented path and an updated phase design demonstrate adequate
+   margin.
 3. Establish the legal clock high/low windows, including the actual period,
    WL turn-off, PRECH assertion, bitline recovery and setup/hold constraints;
    do not infer an Fmax from the present phase chain.

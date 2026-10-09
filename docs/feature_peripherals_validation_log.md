@@ -2033,3 +2033,49 @@ provisional implementation target only. Phase-source layout, DRC/LVS and PEX
 remain pending; no extraction was run. Full results, per-case manifests,
 reproduction commands and a margin plot are in the
 [arrival-skew report](row_decoder_valid_access_arrival_skew_20261009.md).
+
+## 2026-10-09 UTC: Liberty-timed captured VALID_ACCESS_Q screen
+
+The direct `dfxtp_1` SPICE attempt archived under
+`capture_to_pclk_smoke2` failed model resolution at an internal `special_nfet`
+with `could not find a valid modelname`. The cell uses four 0.36 µm NFETs at
+`L=0.15 µm`, but the continuous `sky130.lib.spice` `nshort_model` bins used by
+this deck start at 0.42 µm for that channel-length range. The PDK's separate
+TT PM3 device model includes a 0.36–0.39 µm bin; these model-file families are
+not interchangeable. A temporary 0.42 µm width substitution let ngspice
+complete, confirming the bin boundary as the failure cause, but changes the
+standard-cell geometry and is not accepted as a cell simulation.
+
+To preserve the current continuous model on the custom decoder and phase
+source, `run_precharge_phase_interface.py` now supports
+`--valid-access-q-model dfxtp_1-liberty`. This builds the `VALID_ACCESS_Q` PWL
+rise from the selected profile's `dfxtp_1` Liberty clock-to-Q and rise
+transition tables. Its nominal table point uses a 53.1329 ps clock slew and a
+3.434554 fF output load. It represents the captured valid bit's output timing;
+the DFF transistor circuit, control-qualification logic, input setup/hold,
+metastability and glitches are not simulated.
+
+The selected 0→3 address transition passed for read (`001`) and write (`010`)
+in TT, SS and FF: **6/6 cases, 1,008/1,008 checks**. Liberty clock-to-Q rise
+delays were 307.041 ps (TT), 677.087 ps (SS) and 248.733 ps (FF). The minimum
+measured PRECH release lead was 334.158 ps in FF, above the 250 ps experimental
+guard. This is one address transition with the existing 102.873935496 fF WL
+load, 2.10 ns phase candidate, 22 ns CLK falling edge and 3.4 ns settling
+window. It does not close full control capture, invalid-vector suppression in
+this mode across the full control/PVT matrix, next-cycle qualifier
+deassertion, physical bitcell access, setup/hold, or a legal clock window or
+frequency. No extraction was run.
+
+A separate `000` invalid-control test in TT passed **30/30 checks**. PCLK,
+decoder outputs and wordlines remained inactive; internal dynamic nodes and all
+bitlines remained precharged. This is representative evidence only; the other
+invalid vectors and corners have not yet been rerun in Liberty mode.
+
+Evidence, exact reproduction command and limitations are in the
+[captured-Q Liberty report](row_decoder_valid_access_q_liberty_screen_20261009.md).
+Machine-readable results are in
+[`summary.csv`](../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_20261009/summary.csv),
+[`checks.csv`](../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_20261009/checks.csv),
+and the [manifest](../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_20261009/manifest.json). The
+representative [invalid-vector checks](../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_invalid_tt_20261009/checks.csv)
+are archived separately.
