@@ -122,6 +122,11 @@ the subcircuit used for the full matrix:
   access-period and low-phase requirements, and the integrated bitcell and
   sense-amplifier path before electrical signoff.
 
+The next targeted check varies idealized `VALID_ACCESS_Q` arrival and enforces
+the experimental 250 ps PRECH-release guard in transistor-level phase-source
+mode. Results and the remaining capture/qualification work are recorded in
+the [arrival-skew report](row_decoder_valid_access_arrival_skew_20261009.md).
+
 ## Reproduction
 
 Run the six-candidate screen from the repository root with a fresh output

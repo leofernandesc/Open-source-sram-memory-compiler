@@ -2000,3 +2000,36 @@ waveform and limitations are in the
 The four manifests are linked there. The representative waveform is
 [`row_decoder_precharge_phase_chain_20261009.png`](assets/row_decoder_precharge_phase_chain_20261009.png).
 No extraction was run for this phase-source candidate.
+
+## 2026-10-09 UTC: phase-delay sizing and qualifier-arrival sensitivity
+
+The 80 phase-chain inverters in the checked-in hierarchical Xschem phase-source
+cell were screened at six PFET/NFET sizing pairs.
+`Wp=1.26 µm`, `Wn=0.42 µm`, `L=0.15 µm`, `nf=1` gave the largest minimum
+PRECH-release and WL-off timing margins in that sample and passed the selected
+26-case decoder/precharge matrix. This is a provisional schematic-level size,
+not a physical phase-cell signoff. See the [sizing comparison](phase_delay_inverter_sizing_screen_20261009.md).
+
+A follow-up arrival-skew campaign used the same current PEX and Xschem phase
+source, with an ideal PWL `VALID_ACCESS_Q` edge delayed by 0, 900, 1,000 or
+1,250 ps after the CLK capture edge. For the sampled 0→3 read transition, 0
+and 900 ps pass across TT, SS and FF; the 1,000 ps FF case measures a 230.525
+ps release lead and fails the configured 250 ps experimental guard. At
+1,250 ps, TT and FF fail that guard, while SS passes. All decoder logic and
+voltage screens pass in these cases.
+
+This campaign exposed a checker gap: transistor-level phase-source cases had
+been required only to release PRECH before PCLK, even though the selected
+interface target was 250 ps. The runner now enforces the measured 250 ps lead
+between PRECH rising through 75% VDD and PCLK rising through 50% VDD for
+transistor-level phase-source modes. The previous unguarded arrival-skew
+directories are retained as exploratory history and superseded by the
+`phase_source_valid_access_q_guard250_*` directories.
+
+The qualifier edge is still an ideal PWL input; this does not verify captured
+control logic, address/control setup and hold, write data, metastability,
+glitch suppression or a legal SRAM frequency. The 900 ps point is a
+provisional implementation target only. Phase-source layout, DRC/LVS and PEX
+remain pending; no extraction was run. Full results, per-case manifests,
+reproduction commands and a margin plot are in the
+[arrival-skew report](row_decoder_valid_access_arrival_skew_20261009.md).

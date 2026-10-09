@@ -241,35 +241,49 @@
     <p>O ensaio usa o precharge W2.52 de Danilo como dependência de simulação somente leitura, junto ao PEX do decoder e dos quatro wordline drivers. PCLK controla a avaliação do decoder; PRECH, ativo baixo, controla a pré-carga das bitlines.</p>
     <div class="grid three">
       <div class="card"><div class="metric">26/26</div><div class="label">casos; 3.540 checks passaram com a cadeia de fase transistor-level</div></div>
-      <div class="card"><div class="metric">980 + 2.560</div><div class="label">checks de fase e do decoder passaram</div></div>
-      <div class="card"><div class="metric">637,02 ps</div><div class="label">menor margem medida entre WL desligada e PRECH conduzindo, em FF</div></div>
+      <div class="card"><div class="metric">334,11 ps</div><div class="label">menor lead de PRECH antes de PCLK no sizing selecionado, FF</div></div>
+      <div class="card"><div class="metric">1,203 ns</div><div class="label">menor intervalo WL desligada → PRECH conduzindo, FF</div></div>
     </div>
-    <figure class="evidence"><a href="assets/row_decoder_precharge_phase_chain_20261009.png"><img src="assets/row_decoder_precharge_phase_chain_20261009.png" alt="Formas de onda do candidato transistor-level de PCLK e PRECH, wordline e bitlines"></a><figcaption>TT, 1,8 V, 27 °C, leitura, transição 0→3. A cadeia usa taps 24/60/80; decoder, drivers WL e precharge usam PEX. <a href="row_decoder_tapped_phase_generator_screen_20261009.md">Método, resultados e limites</a> · <a href="../sims/row_decoder/results/precharge_phase_tapped_tt_valid_accessonly_246080_20261009/manifest.json">manifest TT</a>.</figcaption></figure>
-    <p class="warn">PCLK e PRECH são gerados por lógica transistor-level no deck SPICE, mas CLK e VALID_ACCESS_Q ainda são fontes ideais. A cadeia de 80 estágios é candidata exploratória; não há célula Xschem, captura real do qualificador, layout ou PEX do gerador. A matriz também não contém acesso 6T, amplificador de sentido, leitura/escrita de dado armazenado ou readback. Os atrasos medidos não fixam frequência máxima.</p>
-    <p class="source">O precharge W2.52 foi copiado de forma rastreável e não altera o arquivo compartilhado. <a href="../sims/row_decoder/inputs/precharge_w2p52_pex_5dc00fe.provenance.json">Procedência do PEX</a> · <a href="feature_peripherals_validation_log.md#2026-10-09-utc-transistor-level-pclkprech-phase-chain-candidate">registro de validação</a>.</p>
+    <p>O sizing de trabalho das 80 células inversoras é <code>Wp=1,26 µm</code>, <code>Wn=0,42 µm</code>, <code>L=0,15 µm</code>, <code>nf=1</code>. Entre seis pares avaliados, esse candidato teve os maiores mínimos medidos de margem de liberação e desligamento da WL. O sizing é provisório, em nível esquemático.</p>
+    <figure class="evidence"><a href="assets/row_decoder_precharge_phase_chain_20261009.png"><img src="assets/row_decoder_precharge_phase_chain_20261009.png" alt="Formas de onda do candidato transistor-level de PCLK e PRECH, wordline e bitlines"></a><figcaption>Forma de onda representativa da sequência PCLK/PRECH; a matriz com o sizing escolhido está no relatório de dimensionamento. <a href="row_decoder_tapped_phase_generator_screen_20261009.md">Método e limites da cadeia</a> · <a href="phase_delay_inverter_sizing_screen_20261009.md">Comparação de sizing</a>.</figcaption></figure>
+    <p class="warn">CLK e VALID_ACCESS_Q ainda são fontes ideais. A cadeia está em Xschem, mas falta implementar a captura real do qualificador e fechar layout, DRC/LVS e PEX do gerador. A matriz não contém acesso 6T, amplificador de sentido nem readback. Os atrasos medidos não fixam frequência máxima.</p>
+    <p class="source">O precharge W2.52 é uma entrada de simulação somente leitura. <a href="../sims/row_decoder/inputs/precharge_w2p52_pex_5dc00fe.provenance.json">Procedência do PEX</a> · <a href="feature_peripherals_validation_log.md#2026-10-09-utc-transistor-level-pclkprech-phase-chain-candidate">registro de validação</a>.</p>
   </section>
 
   <section class="slide">
-    <div class="eyebrow">10 · Estado físico e integração</div>
+    <div class="eyebrow">10 · Chegada de VALID_ACCESS_Q · 09/10</div>
+    <h2>O atraso do qualificador reduz a margem de pré-carga</h2>
+    <p>Com o phase source transistor-level e os PEX atuais, atrasei a chegada idealizada de <code>VALID_ACCESS_Q</code> em relação à borda de captura. A margem é medida da subida de PRECH em 75% de VDD até a subida de PCLK em 50% de VDD.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">0 e 900 ps</div><div class="label">os dois pontos passam em TT, SS e FF; o mínimo é 322 ps em FF</div></div>
+      <div class="card"><div class="metric">1,0 ns</div><div class="label">FF mede 230,5 ps e falha o guard experimental de 250 ps</div></div>
+      <div class="card"><div class="metric">1,25 ns</div><div class="label">TT e FF falham a margem; SS passa nos casos amostrados</div></div>
+    </div>
+    <figure class="evidence"><a href="assets/row_decoder_valid_access_arrival_skew_20261009.png"><img src="assets/row_decoder_valid_access_arrival_skew_20261009.png" alt="Margem de liberação de PRECH versus atraso de chegada de VALID_ACCESS_Q nos corners TT, SS e FF"></a><figcaption>O guard de 250 ps é um critério experimental já usado no phase source. O gráfico mostra um único endereço 0→3 e uma fonte ideal para VALID_ACCESS_Q. <a href="row_decoder_valid_access_arrival_skew_20261009.md">Dados, método, limites e comandos</a>.</figcaption></figure>
+    <p class="warn">O atraso de VALID_ACCESS_Q é uma variação PWL, não a medição de registradores ou da lógica que qualifica os controles. 900 ps é apenas um alvo provisório para orientar a implementação; não é requisito do projeto nem limite de frequência.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">11 · Estado físico e integração</div>
     <h2>O que está concluído e o que falta</h2>
     <p><strong>Escopo confirmado da Fase 1:</strong> o decoder dinâmico 2→4 atual em <code>feature/peripherals</code> é o bloco da Pessoa 3 e segue até caracterização, layout, DRC e LVS. O candidato SPICE mantido na branch do Danilo não substitui essa implementação.</p>
     <div class="grid">
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
-      <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>A aceitação final dos critérios de bias/modelo segue em revisão.</li><li>Desenhar em Xschem e caracterizar a captura do qualificador e a geração não sobreposta de PCLK/PRECH.</li><li>Repetir o caminho físico com bitlines livres durante avaliação e a linha de bitcells conectada.</li><li>Executar escrita integrada com bitcell, precharge e readback.</li><li>Validar consumo com o driver e a fonte real de PCLK.</li></ul></div>
+      <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>A aceitação final dos critérios de bias/modelo segue em revisão.</li><li>Implementar em Xschem a captura e qualificação dos controles e conectá-las ao phase source.</li><li>Repetir o caminho físico com bitlines livres durante avaliação e a linha de bitcells conectada.</li><li>Executar escrita integrada com bitcell, precharge e readback.</li><li>Caracterizar consumo e janela de clock com a origem real de PCLK.</li></ul></div>
     </div>
     <p>O decoder atual também passou por 414 ensaios schematic de retenção finita, injeção de carga e duração das fases em TT/SS/FF: 36/36 holds passaram; o menor ponto amostrado que passou em todas as linhas foi 0,6 ns na fase baixa SS e 0,75 ns na fase alta SS. A carga de 8 fC provocou resposta perturbada em 4/6 combinações de perfil e nó.</p>
     <p>Esses resultados são telas exploratórias para a forma de onda e grade ensaiadas. Não definem orçamento de ruído, tolerância a clock parado, limite de fase ou frequência máxima. A revisão com o PCLK real e a aceitação dos critérios seguem pendentes.</p>
-    <p class="bad"><strong>Limite atual:</strong> a tentativa antiga de leitura integrada parou no netlist de um precharge desconectado. O novo ensaio usa o PEX do Danilo e inclui uma cadeia de fase transistor-level gerada no deck SPICE. A captura do qualificador continua idealizada e o candidato não tem célula Xschem, layout ou PEX; o ensaio ainda não verifica dado armazenado na bitcell.</p>
+    <p class="bad"><strong>Limite atual:</strong> a tentativa antiga de leitura integrada parou no netlist de um precharge desconectado. O ensaio atual usa o PEX do Danilo e a cadeia transistor-level hierárquica do Xschem. A captura do qualificador continua idealizada, e o phase source não tem layout ou PEX; ainda falta verificar dado armazenado na bitcell.</p>
     <p class="source">Evidências: <a href="row_decoder_current_sizing_contract_20261009.md">414 ensaios do decoder</a> · <a href="row_decoder_distributed_row_pex_20261009.md">caminho distribuído</a> · <a href="row_decoder_tapped_phase_generator_screen_20261009.md">candidato de geração de fase</a> · <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a>.</p>
   </section>
 
   <section class="slide">
-    <div class="eyebrow">11 · Próximas tarefas até 13/10</div>
+    <div class="eyebrow">12 · Próximas tarefas até 13/10</div>
     <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Captura/PCLK no esquemático atual, cargas 17,4 e 102,874 fF</td><td>Matriz medida; tela de 1,95 V ainda parcial</td></tr>
-      <tr><td>09/10</td><td>Matrizes de decoder → WL → linha física e sequência com o PEX do precharge</td><td>48 transições físicas, 24 vetores de controle, matriz ideal 26/26 PASS e candidato transistor-level 26/26 PASS</td></tr>
-      <tr><td>10/10</td><td>Desenhar em Xschem a captura do qualificador e a geração não sobreposta de PCLK/PRECH</td><td>Netlist e timing comparados com o candidato 24/60/80; limites e pendências de PVT registrados</td></tr>
+      <tr><td>09/10</td><td>Matrizes de decoder → WL → linha física, sequência de precharge e sizing do phase source</td><td>26/26 casos da cadeia, sizing comparado e atraso de VALID_ACCESS_Q triado em TT/SS/FF</td></tr>
+      <tr><td>10/10</td><td>Implementar em Xschem a captura do qualificador e integrar com PCLK/PRECH</td><td>Netlist real e margens comparadas com o alvo provisório de 900 ps</td></tr>
       <tr><td>11/10</td><td>Substituir CLK/qualificador ideais, conectar o caminho de bitlines à linha de bitcells e avançar escrita/readback</td><td>Teste elétrico com estado armazenado, fases explícitas e limites documentados</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir os testes físicos/elétricos disponíveis</td><td>Checks integrados com estados, fases e rails explícitos; pendências externas listadas</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>
@@ -280,7 +294,7 @@
 </main>
 <nav aria-label="Controles da apresentação">
   <button id="prev" type="button" aria-label="Slide anterior">← Anterior</button>
-  <span id="count" aria-live="polite">1 / 13</span>
+  <span id="count" aria-live="polite">1 / 14</span>
   <button id="next" type="button" aria-label="Próximo slide">Próximo →</button>
 </nav>
 <dialog class="image-viewer" id="image-viewer" aria-labelledby="viewer-title" aria-describedby="viewer-caption">
@@ -327,6 +341,7 @@
     if (event.key === 'ArrowRight' || event.key === 'PageDown') show(current + 1);
     if (event.key === 'ArrowLeft' || event.key === 'PageUp') show(current - 1);
   });
+  show(0);
 </script>
 </body>
 </html>

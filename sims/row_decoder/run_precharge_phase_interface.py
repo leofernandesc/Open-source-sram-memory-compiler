@@ -361,7 +361,8 @@ def netlist_xschem_phase_source(folder: Path,
 def attach_tapped_phase_source(deck: str, schedule: dict, case: dict,
                                ports: dict, nodes: dict, release_stages: int,
                                evaluation_stages: int, reassert_stages: int,
-                               phase_subcircuit: str | None = None) -> str:
+                               phase_subcircuit: str | None = None,
+                               valid_access_q_delay_ps: float = 0.0) -> str:
     vdd = float(schedule["vdd"])
     stop = float(schedule["stop"])
     edge_s = 25e-12
@@ -376,9 +377,10 @@ def attach_tapped_phase_source(deck: str, schedule: dict, case: dict,
         (second_rise-edge_s/2, second_rise+edge_s/2, vdd),
         (second_fall-edge_s/2, second_fall+edge_s/2, 0.0),
     ], stop)
+    valid_access_q_rise = second_rise + valid_access_q_delay_ps * 1e-12
     valid_waveform = contract.pwl(
         0.0,
-        [(second_rise-edge_s/2, second_rise+edge_s/2, vdd)] if valid else [],
+        [(valid_access_q_rise-edge_s/2, valid_access_q_rise+edge_s/2, vdd)] if valid else [],
         stop,
     )
     deck, count = re.subn(r"(?im)^VPCLK\s+\S+\s+\S+\s+[^\n]+\n", "", deck, count=1)
@@ -481,8 +483,15 @@ def measure_tapped_phase(raw: dict[str, np.ndarray], case: dict,
     capture_edge = crossing(time, capclk, 0.5*vdd, True,
                             (CAPTURE_NS-0.2)*1e-9, (CAPTURE_NS+0.2)*1e-9)
     require(capture_edge is not None, "Missing captured CLK edge in phase-chain case")
+    valid_access_q = trace(raw, "VALID_ACCESS_Q")
+    valid_access_q_rise = crossing(time, valid_access_q, 0.5*vdd, True,
+                                   capture_edge-0.1e-9, float(schedule["stop"]))
+    require(valid_access_q_rise is not None,
+            "Missing VALID_ACCESS_Q rising crossing in phase-chain case")
     measured = {
         "capture_to_pclk_rise_ps": (second_rise-capture_edge)*1e12,
+        "capture_to_valid_access_q_rise_ps": (valid_access_q_rise-capture_edge)*1e12,
+        "valid_access_q_rise_ns": valid_access_q_rise*1e9,
         "prime_pclk_rise_ns": None,
         "pclk_rise_ns": second_rise*1e9,
         "pclk_fall_ns": second_fall*1e9,
@@ -574,14 +583,19 @@ def suppress_all_pclk(deck: str, schedule: dict) -> str:
 def evaluate_phase_interface(raw: dict[str, np.ndarray], case: dict,
                              nodes: dict, schedule: dict, phase: dict,
                              release_lead_ps: float,
-                             turnoff_guard_ps: float) -> tuple[list[dict], dict]:
+                             turnoff_guard_ps: float,
+                             enforce_release_lead: bool = False) -> tuple[list[dict], dict]:
     time = raw["time"]
     vdd = float(schedule["vdd"])
     prech = trace(raw, "PRECH")
     pclk = trace(raw, nodes["PCLK"])
     checks: list[dict] = []
+    minimum_release_lead_ps = release_lead_ps if enforce_release_lead else 0.0
     measurements: dict = {"bitline_external_load_ff": CBL_EXTERNAL_FF,
                           "bitline_target_effective_ceiling_ff": CBL_CHARACTERIZED_LIMIT_FF,
+                          "minimum_release_lead_required_ps": minimum_release_lead_ps,
+                          "release_lead_measurement": (
+                              "PRECH rising 75% VDD crossing to PCLK rising 50% VDD crossing"),
                           "precharge_releases": [], "precharge_reassertions": []}
     valid = case["control_vector"] in VALID_VECTORS
 
@@ -614,7 +628,7 @@ def evaluate_phase_interface(raw: dict[str, np.ndarray], case: dict,
         release_margin_ps = (pclk_up-pre_release)*1e12
         reassert_margin_ps = (pre_assert-pclk_down)*1e12
         add_check(checks, case, f"{cycle}_precharge_release_before_pclk_ps",
-                  release_margin_ps, low=0, unit="ps")
+                  release_margin_ps, low=minimum_release_lead_ps, unit="ps")
         add_check(checks, case, f"{cycle}_precharge_reassert_after_pclk_fall_ps",
                   reassert_margin_ps, low=0, unit="ps")
         add_check(checks, case, f"{cycle}_PRECH_high_at_PCLK_rise_v",
@@ -689,7 +703,8 @@ def run_case(case: dict, netlist: str, model: Path, arcs: dict,
              output: Path, keep_raw: bool, phase_source: str,
              delay_release_stages: int, delay_evaluation_stages: int,
              delay_reassert_stages: int,
-             phase_subcircuit: str | None = None) -> dict:
+             phase_subcircuit: str | None = None,
+             valid_access_q_delay_ps: float = 0.0) -> dict:
     case_dir = output / "cases" / case["label"]
     case_dir.mkdir(parents=True)
     arc = arcs[case["profile"]]
@@ -737,7 +752,8 @@ def run_case(case: dict, netlist: str, model: Path, arcs: dict,
         deck = attach_tapped_phase_source(
             deck, schedule, case, ports, nodes, delay_release_stages,
             delay_evaluation_stages, delay_reassert_stages,
-            phase_subcircuit=phase_subcircuit)
+            phase_subcircuit=phase_subcircuit,
+            valid_access_q_delay_ps=valid_access_q_delay_ps)
     deck = re.sub(r"(?im)^(\.tran\s+\S+\s+\S+\s+0\s+)\S+",
                   rf"\g<1>{step_ps*1e-12:.12g}", deck, count=1)
     deck_path = case_dir / "case.spice"
@@ -767,7 +783,8 @@ def run_case(case: dict, netlist: str, model: Path, arcs: dict,
         if phase_source == "xschem-tapped-delay-chain":
             phase_source_metrics["phase_source"] = "xschem_hierarchical_transistor_phase_source"
     phase_checks, phase_metrics = evaluate_phase_interface(
-        raw, case, nodes, schedule, phase, release_lead_ps, turnoff_guard_ps)
+        raw, case, nodes, schedule, phase, release_lead_ps, turnoff_guard_ps,
+        enforce_release_lead=phase_source != "ideal")
     valid = case["control_vector"] in VALID_VECTORS
     if valid:
         decoder_run, decoder_checks, terminal_rows = contract.analyze(
@@ -787,6 +804,7 @@ def run_case(case: dict, netlist: str, model: Path, arcs: dict,
     passed = phase_fail == 0 and decoder_logic_pass
     result = {
         "case": case["label"], "profile": case["profile"],
+        "valid_access_q_delay_ps": valid_access_q_delay_ps,
         "control_vector_csb_oeb_web": case["control_vector"],
         "operation": VALID_VECTORS.get(case["control_vector"], "invalid_or_idle"),
         "old_address": case["old"], "new_address": case["new"],
@@ -838,7 +856,8 @@ def main() -> int:
     parser.add_argument("--wl-cap-ff", type=float, default=102.873935496,
                         help="Full-row Ceff maximum from Danilo's current owner evidence")
     parser.add_argument("--release-lead-ps", type=float, default=250.0,
-                        help="PRECH release lead before each PCLK rising edge")
+                        help=("Nominal ideal-source lead and minimum measured lead for "
+                              "transistor-level phase-source modes"))
     parser.add_argument("--turnoff-guard-ps", type=float, default=1800.0,
                         help="Initial experimental PRECH reassertion delay after PCLK falls")
     parser.add_argument("--prime-pclk-rise-ns", type=float, default=6.0,
@@ -856,6 +875,8 @@ def main() -> int:
                         help="Experimental Xschem phase-chain PFET width override; requires the NFET override")
     parser.add_argument("--phase-delay-nfet-w-um", type=float,
                         help="Experimental Xschem phase-chain NFET width override; requires the PFET override")
+    parser.add_argument("--valid-access-q-delay-ps", type=float, default=0.0,
+                        help="Idealized delay from the CLK capture edge to VALID_ACCESS_Q rising; not a capture-cell model")
     parser.add_argument("--step-ps", type=float, default=5.0)
     parser.add_argument("--transitions-per-vector", action="store_true",
                         help="Apply every transition to every requested control vector")
@@ -900,6 +921,13 @@ def main() -> int:
                 and args.phase_delay_pfet_w_um >= 0.42
                 and args.phase_delay_nfet_w_um >= 0.42,
                 "Phase-delay widths must be finite and at least 0.42 um per finger")
+    require(math.isfinite(args.valid_access_q_delay_ps)
+            and args.valid_access_q_delay_ps >= 0
+            and args.valid_access_q_delay_ps
+            < args.clk_fall_ps - CAPTURE_NS*1000,
+            "VALID_ACCESS_Q delay must be finite, nonnegative, and rise before the scheduled CLK falling edge")
+    require(args.phase_source != "ideal" or args.valid_access_q_delay_ps == 0,
+            "VALID_ACCESS_Q delay requires a transistor-level phase-source mode")
     transitions = []
     for item in args.transitions:
         match = re.fullmatch(r"([0-3]):([0-3])", item)
@@ -959,11 +987,14 @@ def main() -> int:
                                        else transitions[:1])]
     for profile in args.profiles:
         for vector, (old, new) in vector_transitions:
-            label = f"{profile}_ctl{vector}_a{old}_to_{new}_p{args.phase_ps:g}"
+            delay_suffix = (f"_vq{args.valid_access_q_delay_ps:g}"
+                            if args.valid_access_q_delay_ps else "")
+            label = f"{profile}_ctl{vector}_a{old}_to_{new}_p{args.phase_ps:g}{delay_suffix}"
             cases.append({"label": label, "profile": profile, "control_vector": vector,
                           "old": old, "new": new, "phase_ps": args.phase_ps,
                           "clk_fall_ps": args.clk_fall_ps,
                           "settling_allowance_ns": args.settling_allowance_ns,
+                          "valid_access_q_delay_ps": args.valid_access_q_delay_ps,
                           **thresholds[profile]})
 
     hashes = {
@@ -1022,11 +1053,19 @@ def main() -> int:
                               "read_control": "001", "write_control": "010",
                               "invalid_vectors": "all other CSb/OEb/WEb combinations suppress second-cycle PCLK and keep PRECH active",
                               "release_lead_ps": args.release_lead_ps,
+                              "release_lead_screen": {
+                                  "minimum_ps": args.release_lead_ps,
+                                  "enforced_for": ("transistor-level phase-source modes"
+                                                   if args.phase_source != "ideal" else
+                                                   "not applied as a measured minimum in ideal mode"),
+                                  "crossings": "PRECH rising 75% VDD to PCLK rising 50% VDD",
+                              },
                               "release_lead_applies_to": (
                                   "initial_conditioning_and_access_pclk_rises" if args.phase_source == "ideal"
                                   else "valid access PCLK rise; the initial clock pulse is suppressed"),
                               "turnoff_guard_ps": args.turnoff_guard_ps,
                               "phase_source": args.phase_source,
+                              "valid_access_q_delay_ps": args.valid_access_q_delay_ps,
                               "phase_source_xschem_transistor_audit": (
                                   {"hierarchy_mos_count": phase_source_info["hierarchy_mos_count"],
                                    "total_mos_count": phase_source_info["total_mos_count"],
@@ -1050,7 +1089,9 @@ def main() -> int:
                                    if args.phase_source == "xschem-tapped-delay-chain" else
                                    "Exploratory SKY130 transistor-level delay chain only; no layout, PEX, captured qualifier, or silicon timing signoff")),
                               "valid_access_qualifier_model": (
-                                  "Access-vector-dependent ideal DC source in ideal mode; in either transistor-level mode it rises with the access capture edge as an ideal PWL source; capture/qualification circuit is outside this bench"),
+                                  ("Access-vector-dependent ideal DC source in ideal mode; no delayed VALID_ACCESS_Q is modeled"
+                                   if args.phase_source == "ideal" else
+                                   "VALID_ACCESS_Q is an ideal PWL source rising at the access capture edge plus valid_access_q_delay_ps; this is an arrival-skew screen only, not a transistor-level capture or qualification circuit")),
                               "capture_to_pclk_target_interpretation": (
                                   "Requested ideal timing reference; tapped-delay mode stores the actual measured edge in each case result"),
                               "prime_pclk_rise_ns": (args.prime_pclk_rise_ns
@@ -1086,7 +1127,8 @@ def main() -> int:
                               output, args.keep_raw, args.phase_source,
                               args.delay_release_stages, args.delay_evaluation_stages,
                               args.delay_reassert_stages,
-                              phase_subcircuit=phase_subcircuit)
+                              phase_subcircuit=phase_subcircuit,
+                              valid_access_q_delay_ps=args.valid_access_q_delay_ps)
         except Exception as exc:  # Keep completed cases and report exact failing case.
             result = {"case": case["label"], "status": "ERROR",
                       "error": f"{type(exc).__name__}: {exc}"}

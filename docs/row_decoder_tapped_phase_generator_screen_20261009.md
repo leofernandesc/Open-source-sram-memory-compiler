@@ -279,13 +279,27 @@ The plotted SS waveform is from a representative read transition (address
 
 ## Remaining work after this screen
 
-1. Review and size the phase cell; the present 24/60/80 tap values and MOS
-   dimensions are experimental.
+1. Phase-delay inverter sizing has a provisional `Wp=1.26 µm`, `Wn=0.42 µm`,
+   `L=0.15 µm`, `nf=1` candidate from a six-pair margin screen. The tap counts,
+   other phase-gate sizing, and the candidate itself remain experimental.
 2. Replace ideal `VALID_ACCESS_Q` with captured/qualified control logic and
-   check it against address capture and write-data timing.
+   check it against address capture and write-data timing. A follow-up arrival
+   screen passes through 900 ps in its sampled TT/SS/FF cases; the FF case
+   misses the 250 ps experimental release guard at 1,000 ps. This does not
+   measure the actual qualifier. See the [arrival-skew report](row_decoder_valid_access_arrival_skew_20261009.md).
 3. Characterize the legal access period and low-phase precharge time before
    making any frequency claim.
 4. Layout the reviewed phase cell and run DRC/LVS. PEX of this new phase cell
    remains a later, compute-heavy step; no extraction was run in this work.
 5. Integrate the physical bitcell row and actual read/write path, then test
    stored-data readback and valid/invalid operation sequencing.
+
+## Current follow-up — phase sizing and qualifier arrival
+
+The selected six-pair screen and the selected-pair 26-case interface matrix
+are documented in the [phase-delay inverter sizing report](phase_delay_inverter_sizing_screen_20261009.md).
+The later arrival-skew screen exercises the same current Xschem phase source
+and PEX inputs with an idealized delay on `VALID_ACCESS_Q`. Its runner now
+checks a minimum 250 ps measured PRECH release lead for transistor-level
+phase-source modes. That value remains an experimental criterion, and the
+actual captured-control/qualifier circuit is still absent.
