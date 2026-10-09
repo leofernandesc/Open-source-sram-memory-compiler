@@ -18,20 +18,36 @@ Na Fase 1, o trabalho concentrou-se nas leaf cells e na validação elétrica da
 - sweep automatizado de capacitância, estado e corner;
 - preparação de pré-carga, sense amplifier, driver de WL e driver de escrita.
 
-**Checkpoint de 08/10/2026 — Fase 1 reaberta para requalificação elétrica.**
-O schematic freeze (G1–G4) e a verificação física G6 das cinco leaf cells
-estão concluídos. A coluna 32×, a linha WL de 8 bits e a coluna G7 reparada
-passaram Magic `drc(full)=0`, LVS único e nova PEX. A primeira rodada PVT de
-`C_BL`, `C_WL` e capacitância da bitcell inicializou o estado em taps resistivos
-do lado de acesso; `C_BL,PEX,max=519,179340 fF`, teto `597,056241 fF` e
-carga WL extra `94 fF` são **diagnósticos inválidos para aceite elétrico**.
-A inicialização foi corrigida para as saídas da latch (`.t0`), mas as PVTs de
-capacitância e as matrizes completas de leitura/escrita precisam ser refeitas.
-Smokes corrigidos `tt/1,8 V/27 °C` passaram apenas sob cargas provisórias.
-Os resultados integrados `60/60` e o teto `521,626665 fF` de 07/10 são
-históricos e supersedidos. **G7 elétrico e Fase 1 permanecem abertos.**
-Yield de produção, ruído estatístico completo e teto de potência macro ficam
-fora deste gate. Consulte [estado do fechamento](docs/phase1_leaf_cell_closure.md).
+**Estado em 08/10/2026 — `CLOSED_ENGINEERING_QUALIFICATION` para a Fase 1.**
+As PVTs de capacitância usam os nós de latch `.t0` e identificam os PEX por
+caminho e SHA256. A coluna mede `C_BL,PEX,max=519,179340 fF`; o limite de teste
+é `597,056241 fF`, e a carga WL extra conservadora é `93,351918 fF`. As
+matrizes integradas passaram `60/60` em leitura e `60/60` em escrita. Leitura:
+ΔBL mínimo `0,334350 V`, setup mínimo `804,60 ps`, `t_res` máximo `0,246350 ns`
+e disturb máximo `0,196491 V`; os pontos críticos passaram também no
+refinamento de 1 ps. Escrita: recuperação máxima `3,978840 ns`, margem WL30
+mínima `79,696 ps` e folga mínima até a queda da WL `0,295780 ns`; o caso lento
+passou no refinamento de 1 ps.
+
+O escopo fechado cobre bitcell, leafs físicas e qualificação elétrica G7. O
+decodificador 2→4 agora tem arquitetura dinâmica e um netlist SPICE candidato
+em `cells/row_decoder_2to4.spice`; seu sizing, simulação e qualificação física
+permanecem pendentes. A integração macro 4×8 segue na **Fase 2**. Yield de
+produção, ruído estatístico completo, DC-SNM-PVT e teto de potência macro ficam
+fora do gate. Consulte [estado do fechamento](docs/phase1_leaf_cell_closure.md).
+
+Na conferência manual de 08/10, o Magic indicou DRC `0` na bitcell (captura
+do operador) e na coluna G7 hierárquica e flat (também confirmado no log
+versionado). O Netgen encontrou `212` MOS e `82` redes em cada netlist e
+`Circuits match uniquely.`. A comparação inicial com `/dev/null` foi repetida
+manualmente com `/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl` no
+container: o arquivo de setup foi carregado e o LVS voltou a apresentar match
+único. O Netgen ainda informou *placeholders/black boxes* MOS e propriedades
+ausentes; portanto o resultado confirma a equivalência estrutural, sem
+demonstrar validação completa dos parâmetros de dispositivos do PDK. O log
+manual foi copiado para `layout/column_32_full_g7_wpre2p52_final/lvs_sky130_manual.log`
+(arquivo local ignorado pelo Git).
+Veja o [roteiro de validação manual](docs/validacao_manual_drc_lvs_sky130a.md).
 
 ## Configurações suportadas
 
@@ -45,7 +61,8 @@ seguintes profundidades:
 | 16×8 | 128 bits |
 | 32×8 | 256 bits |
 
-A configuração 4×8 é o primeiro alvo de implementação e integração.
+A configuração 4×8 é o primeiro macro planejado para a Fase 2; a Fase 1 fecha a
+qualificação de engenharia da bitcell e das leafs físicas.
 
 ## Views e verificação previstas
 
@@ -373,9 +390,9 @@ corners, dois sentidos). A medida dinâmica WLVM reduz a amplitude de `WL` até
 o limite de escrita para um pulso de 10 ns. O pior WLVM foi `0,619 V` para
 `WPD=0,84 µm` e `0,605 V` para `1,05 µm`, no corner `fs`; a resolução é 14 mV.
 Este WLVM é uma triagem pré-layout com bitlines ideais e não define um limite
-independente para o circuito integrado. A revisão histórica G7 de 07/10 com drivers e cargas PEX registrou `60/60`;
-a requalificação elétrica pós-layout de 08/10 permanece pendente. Consulte os
-limites e a classificação de evidências no fechamento da Fase 1.
+independente para o circuito integrado. A requalificação G7 atual passou
+`60/60` com drivers PEX e `C_BL=597,056241 fF`; veja os limites e a classificação
+de evidências no fechamento da Fase 1.
 Dados: `sims/bitcell_write_smoke_sweep.csv` e
 `sims/bitcell_write_margin_wlvm.csv`.
 
@@ -398,9 +415,10 @@ do latch atual medida em até `9,004605 fF` e o write driver tri-state desligado
 adicionando até `4,033129 fF`, o orçamento de 32 linhas passa para
 `62,409659 fF`; `65 fF` foi a triagem conservadora pré-layout. A revisão histórica de 07/10 usou a carga extraída
 `453,588405 fF` por bitline e teto `521,626665 fF`; as matrizes daquela
-revisão registraram `60/60` cada. A coluna foi fisicamente reparada em 08/10;
-a nova PVT de `C_BL` exige inicialização corrigida nas saídas da latch antes
-de estabelecer o teto válido e reexecutar as matrizes.
+revisão registraram `60/60` cada. A coluna foi fisicamente reparada em 08/10 e
+a inicialização das PVTs foi corrigida para as saídas `.t0` da latch. A nova
+extração passou `120/120`, com `C_BL,PEX,max=519,179340 fF` e teto
+`597,056241 fF`; as matrizes integradas atualizadas passaram `60/60` cada.
 
 ## Estado do projeto
 
@@ -416,7 +434,7 @@ de estabelecer o teto válido e reexecutar as matrizes.
 | Leitura capacitiva | sizing 0,84 µm falhou excursão em 28/40; sizing 1,05 µm passou 40/40 |
 | Sweep de capacitância | automatizado |
 | Corners tt, ff, ss, fs, sf | diferencial passou 40/40; read disturb depende do sizing |
-| Sense amplifier, pré-carga e wl_driver | variantes físicas com DRC/LVS/PEX requalificados; leitura/escrita integradas `60/60` são evidências históricas de 07/10, aguardando matrizes corrigidas |
+| Sense amplifier, pré-carga e wl_driver | variantes físicas com DRC/LVS/PEX requalificados; as matrizes corrigidas de 08/10 passaram `60/60` na leitura e `60/60` na escrita. Resultados de 07/10 são históricos. |
 | Baseline histórica 0,42/0,84/0,60 µm | gate de read disturb reprovado; substituída no esquema canônico |
 | Sizing exploratório 0,42/1,05/0,60 µm | leitura 40/40 nominal, mas 72/90 na triagem PVT/50 fF; não selecionado |
 | Sizing canônico congelado 0,42/1,26/0,60 µm | único candidato testado que atende Read SNM nominal >=0,4 V (`0,414349 V`); G1/G2/G3/G4 fechados para screening pré-layout e sizing aplicado em `bitcell_6t.sch/.sym` |
@@ -424,22 +442,19 @@ de estabelecer o teto válido e reexecutar as matrizes.
 | Auditoria de terminal | leitura a VDD=1,95 V excedeu 1,95 V em 30/30 cenários (pior 2,056858 V); a 1,62/1,80 V não excedeu no mesmo testbench |
 | Fuga em hold | 90/90 estados estáveis; na faixa qualificada, pior corrente total `20,0676 nA/célula` e potência VDD `36,1079 nW/célula` (`fs`, 1,80 V, 125 °C); sem teto macro de potência aprovado |
 | Monte Carlo de SNM | 200 seeds de Read e 200 de Hold em `sf_mm`; critério estatístico/yield e mismatch de escrita pendentes |
-| Write driver — baseline G3 pré-layout | conectividade corrigida; em `65 fF + 17 fF` de WL, `WE=2,20 ns`, `WL_IN` assertada em `3,20 ns` e largura `1,0 ns` passaram `60/60`; pior full flip `0,37283 ns`, `WL_min(+30%)=0,484679 ns`. A revisão G7 de 07/10 registrou `60/60` (histórico); requalificação integrada aberta |
+| Write driver — baseline G3 pré-layout | conectividade corrigida; em `65 fF + 17 fF` de WL, `WE=2,20 ns`, `WL_IN` em `3,20 ns` e largura `1,0 ns` passaram `60/60`; estes números são baseline pré-layout. G7 atual passou `60/60` com WE `2,20 ns`, WL_IN `3,40 ns`, flip máximo `0,720280 ns` e recuperação máxima `3,978840 ns`. |
 | Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
 | WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; o sense possui critério estatístico de engenharia para freeze, enquanto potência macro continua sem requisito numérico aprovado |
-| Layout, DRC, LVS e parasitas | G6 e G7 físicos requalificados em 08/10: cinco leafs, coluna 32×, linha WL 8 bits e coluna G7 com DRC completo `0`, LVS único e PEX. As primeiras PVTs `C_BL/C_WL/bitcell` usaram inicialização inválida; teto e carga WL aguardam repetição. G7 elétrico **ABERTO**. |
+| Layout, DRC, LVS e parasitas | G6/G7 físicos e cargas requalificados com `.t0`; leitura G7 `60/60`, escrita G7 `60/60`, CBL limite `597,056241 fF`, WL extra `93,351918 fF`. **Fase 1 fechada** no escopo da célula/leafs. Decoder dinâmico tem netlist SPICE candidato; sua qualificação e a macro 4×8 seguem na Fase 2. |
 
-## Limitações e próximos passos
+## Próxima fase e limites de escopo
 
-1. Reexecutar PVTs de capacitância da bitcell, `C_BL` da coluna e `C_WL`
-   da linha inicializando Q/QB nas saídas corretas da latch (`.t0`).
-2. Recalcular teto `1,15 × C_BL,PEX,max` e carga adicional WL; executar
-   matrizes completas integradas de leitura e escrita com os valores novos.
-3. Verificar leitura: `t_res ≤ 0,25 ns`, disturb `≤ 0,20 V`,
-   diferencial `≥ 200 mV` e setup `≥ 25 ps`; verificar escrita:
-   recuperação `≤ 4 ns` e margem de WL. Evidenciar PVT, netlists e hashes.
-4. Conservar as medições de 07/10 como históricas. Ruído estatístico/yield
-   formal, teto de potência macro e mismatch ampliado seguem fora da Fase 1.
+1. Capturar o decoder dinâmico 2→4 em Xschem, fechar sua simulação elétrica e
+   sizing, executar layout/DRC/LVS e integrá-lo à macro 4×8 na Fase 2.
+2. Reabrir a qualificação G7 se uma mudança física alterar bitcell, folhas,
+   coluna, linha WL ou os netlists PEX usados nas matrizes.
+3. Ruído estatístico/yield formal, DC-SNM-PVT e teto de potência macro não
+   foram reivindicados na Fase 1.
 
 ## Documentação relacionada
 
@@ -447,5 +462,6 @@ de estabelecer o teto válido e reexecutar as matrizes.
 - [Relatório de validação SKY130A](docs/relatorio_validacao_bitcell_6t_sky130.md)
 - [Contrato das leaf cells](cells/README.md)
 - [Gates de fechamento da Fase 1](docs/phase1_leaf_cell_closure.md)
+- [Validação manual de DRC e LVS no Magic/Netgen](docs/validacao_manual_drc_lvs_sky130a.md)
 - [Especificação da célula](specs/sram_6t_cell.md)
 - [Especificação técnica do projeto](specs/technical_specification.md)

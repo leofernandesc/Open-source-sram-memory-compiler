@@ -159,18 +159,19 @@ aceite, não resultados medidos:
 | Faixa de alimentação | qualificação contínua em `1.62–1.80 V`; `1.95 V` permanece somente limite estático/auditoria do modelo 01v8; `1.98 V` não é qualificável com o modelo atual |
 | Read disturb PVT, 50 fF | `WPD=1.05 µm`: 72/90, pior pico `0.230218 V`; `WPD=1.26 µm`: 90/90, pior pico `0.194778 V`; ambos exploratórios |
 | Sizing canônico congelado | `WPU/WPD/WACC=0.42/1.26/0.60 µm`; aplicado em `cells/bitcell_6t.sch` e `.sym`; G1/G2/G3/G4 fechados para screening pré-layout |
-| SNM PVT | `WPD=1.05 µm`: mínimo Hold/Read `581.312/289.261 mV`; `WPD=1.26 µm`: `577.761/312.029 mV`; meta de 0,4 V nominal. DC-SNM PVT fora do gate. Leitura pós-layout de 07/10 é histórica; nova matriz G7 pendente |
-| Escrita PVT full-swing | `WPD=1.26 µm`: 90/90 smoke tests pré-layout; a revisão integrada G7 de 07/10 registrou `60/60`, recuperação máxima `3,49470 ns`, supersedida pela revisão física de 08/10; matriz completa atual pendente |
+| SNM PVT | `WPD=1.05 µm`: mínimo Hold/Read `581.312/289.261 mV`; `WPD=1.26 µm`: `577.761/312.029 mV`; meta de 0,4 V nominal. DC-SNM PVT continua fora do gate; leitura dinâmica G7 pós-layout foi requalificada `60/60` |
+| Escrita PVT full-swing | `WPD=1.26 µm`: 90/90 smoke tests pré-layout; G7 pós-layout atual passou `60/60`, recuperação máxima `3,978840 ns` com o limite PEX de `597,056241 fF` |
 | Fuga em hold PVT | `WPD=1.26 µm`: 90/90 estados estáveis; na faixa qualificada 1,62–1,80 V, pior corrente total `20,0676 nA/célula` e potência VDD `36,1079 nW/célula` em `fs/1,80 V/125 °C`; 1,95 V permanece auditoria |
 | Tensão terminal na leitura | em `VDD=1.95 V`, 30/30 condições excederam 1.95 V; maior pico `2.056858 V` em `sf/125 °C`; impede qualificação desse ponto com o modelo atual |
 | SNM com mismatch | `sf_mm`, 200 seeds de Read a 1.62 V/125 °C: mínimo `269.936 mV`; 200 seeds de Hold a 1.62 V/–40 °C: mínimo `541.229 mV`; critério estatístico/yield pendente |
 | Write driver | netlist Xschem corrigido; smoke standalone confirma escrita complementar e isolamento com `WE=0`; sweep integrado nominal passou `12/12`; em `1.62 V`, `WPD=1.26 µm` passou `30/30` em cinco corners e três temperaturas |
 | Janela inferior de WL | G1 65 fF: `0.41496 ns` no rerun crítico; integração com `17 fF` extras de WL elevou o pior full-flip para `0.37283 ns`, portanto `WL_min(+30%)=0.484679 ns`. A campanha integrada de escrita usou `WL_IN=3.2 ns` e passou `60/60`. |
 | Escrita full-swing | 30/30 smoke tests aprovados |
-| WLVM | triagem ideal histórica: mínimo `0.619 V` em `WPD=0.84 µm`, `0.605 V` em `1.05 µm`; não há gate independente de WLVM. Matriz G7 de 07/10 (60/60) histórica, requalificação de 08/10 aberta |
+| WLVM | triagem ideal histórica: mínimo `0.619 V` em `WPD=0.84 µm`, `0.605 V` em `1.05 µm`; não há gate independente de WLVM. G7 atual passou `60/60`, com WE em `2,20 ns`, WL_IN em `3,40 ns` e margem WL30 mínima de `79,696 ps` |
 | Carga de bitline pré-layout | orçamento corrigido: `Ccell_access,max=0.452619 fF`, `Cprecharge,max=0.908533 fF`, `Cwrite,max=4.033129 fF`, `Csense,max=9.004605 fF` e fio `1.061862 fF/célula`; `C_BL,max=62.409659 fF` em 32 linhas; usar 65 fF para revalidação pré-layout |
-| Schematic Freeze | **concluído em 05/10/2026**: G4 dinâmico fechado como engineering screening; timing de freeze `SCLK=2.84 ns`; potência permanece referência sem teto macro aprovado. G7 elétrico de 07/10 foi supersedido e está reaberto em 08/10. |
-| Layout, DRC e LVS | Em 08/10, cinco leafs, coluna 32×, WL 8 bits e coluna G7 têm DRC completo zero, LVS único e PEX atualizada. Primeiras PVTs de C_BL/C_WL/bitcell foram invalidadas pela inicialização em taps de acesso; reexecutar PVTs e matrizes G7 com saídas latch `.t0`. **G7 elétrico aberto**. |
+| Schematic Freeze | **concluído em 05/10/2026**: G4 dinâmico fechado como engineering screening; timing de freeze `SCLK=2.84 ns`; potência permanece referência sem teto macro aprovado. O G7 atual foi requalificado com PEX e cargas `.t0`. |
+| Layout, DRC e LVS | Cinco leafs, coluna 32×, WL 8 bits e coluna G7 com DRC completo zero, LVS único e PEX. C_BL/C_WL e Ceff foram repetidas com saídas latch `.t0`; leitura e escrita integradas passaram `60/60`. **G7/Fase 1 fechados** no escopo da célula e leafs físicas. |
+| Verificação manual de DRC/LVS (08/10) | Magic gráfico da bitcell: `Total DRC errors found: 0`; coluna G7 hierárquica/flat: DRC `0/0`; Netgen manual com setup SKY130A carregado: `Circuits match uniquely`, `212` MOS (`136` NMOS, `76` PMOS) e `82` redes por lado. A execução anterior com `/dev/null` é histórica. Persistem avisos de MOS como *placeholders/black boxes* e propriedades ausentes, limitando o aceite à correspondência estrutural. Log local: `layout/column_32_full_g7_wpre2p52_final/lvs_sky130_manual.log` (ignorado pelo Git). Consulte [o roteiro](../docs/validacao_manual_drc_lvs_sky130a.md). |
 
 ## Leaf cells da etapa 2
 
@@ -189,17 +190,20 @@ O contrato de captura Xschem está centralizado em `cells/README.md`:
   no schematic freeze pré-layout.
 
 Os sinais de coluna são `BL` e `BLB`; os controles são `WL`, `SCLK` e `WE`; e
-as alimentações são `VDD` e `VSS`. O schematic freeze e o fechamento
-físico G6/G7 foram requalificados, mas **a Fase 1 permanece aberta**:
-repetir PVTs de C_BL/C_WL/bitcell com inicialização `.t0`, recalcular cargas e
-executar matrizes completas integradas de leitura/escrita. Os `60/60` de
-07/10 são históricos. Evidência, critérios e limitações:
-`docs/phase1_leaf_cell_closure.md`.
+as alimentações são `VDD` e `VSS`. Schematic freeze, G6 e G7 estão
+requalificados, e a Fase 1 está `CLOSED_ENGINEERING_QUALIFICATION` para a
+bitcell e suas leafs físicas. O decoder 2→4 foi alterado para uma arquitetura
+dinâmica e tem um netlist SPICE candidato em `cells/row_decoder_2to4.spice`.
+Simulação, sizing, captura Xschem, layout/DRC/LVS e integração da macro 4×8
+continuam pendentes na Fase 2. Evidências, critérios e limitações da Fase 1:
+[`docs/phase1_leaf_cell_closure.md`](../docs/phase1_leaf_cell_closure.md). Para a
+conferência manual Magic/Netgen, consulte
+[`docs/validacao_manual_drc_lvs_sky130a.md`](../docs/validacao_manual_drc_lvs_sky130a.md).
 
 ## Escopo posterior à Fase 1
 
 Yield de produção, ruído estatístico completo, DC-SNM PVT e teto de potência
-macro não foram reivindicados e seguem fora do escopo da Fase 1. O trabalho físico atual usa a coluna 32× com PEX; novas matrizes pós-layout
-integradas ainda são necessárias para fechamento. Os
-resultados de screening pré-layout continuam identificados como tal nas
-tabelas históricas deste documento.
+macro não foram reivindicados e seguem fora do escopo da Fase 1. A Fase 2
+abrange o decodificador 2→4 e a integração macro 4×8. Os resultados de
+screening pré-layout continuam identificados como tal nas tabelas históricas
+deste documento.

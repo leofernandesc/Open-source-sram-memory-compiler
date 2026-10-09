@@ -1,26 +1,35 @@
 # Matriz de testes e decisões — bitcell SRAM 6T SKY130A
 
-> **Estado corrente em 08/10/2026:** após a auditoria de `drc(full)`, as cinco
-> leafs, a coluna física 32×, a linha WL de 8 bits e a coluna G7 foram
-> requalificadas com DRC/LVS/PEX. A primeira rodada PVT de C_BL/C_WL/Ceff da
-> bitcell usou inicialização em taps resistivos do lado de acesso e é inválida
-> para sign-off; as cargas e o teto derivados precisam ser refeitos usando os
-> nós de saída das latches (`.t0`). Dois smokes corrigidos em `tt`, 1,8 V,
-> 27 °C passaram (leitura Q0 e escrita Q0→Q1), ainda com cargas provisórias.
-> **G7/Fase 1 seguem abertos** até refazer as PVTs de capacitância e as matrizes
-> integradas completas. Os números de 07/10 abaixo são históricos.
+> **Estado corrente em 08/10/2026: `CLOSED_ENGINEERING_QUALIFICATION`.** As cinco
+> leafs, a coluna física 32×, a linha WL de 8 bits e a coluna G7 têm DRC/LVS/PEX
+> requalificados. As PVTs usam os nós de latch `.t0`; `C_BL,PEX,max=519,179340 fF`,
+> o limite integrado é `597,056241 fF` e `CWL_EXTRA=93,351918 fF`. Leitura passou
+> `60/60` (ΔBL min `0,334350 V`, setup min `804,60 ps`, `t_res` max `0,246350 ns`,
+> disturb max `0,196491 V`); escrita passou `60/60` (recuperação max `3,978840 ns`,
+> margem WL30 min `79,696 ps`). Casos críticos refinados com passo de 1 ps também
+> passaram. A Fase 1 cobre a bitcell e suas leafs físicas. O decoder 2→4 foi
+> atualizado para dinâmico e há um candidato SPICE; sua simulação/qualificação
+> e a macro 4×8 permanecem na Fase 2. As matrizes e conclusões de 07/10 abaixo
+> são históricas.
 
-| Gate vigente em 08/10 | Resultado | Pendência de aceite |
+| Gate corrente | Evidência | Estado |
 |---|---|---|
-| G1–G4 / freeze | **Fechado** no screening pré-layout | Nenhuma nesta revisão |
-| G6 / G7 físico | **Fechado fisicamente**: cinco leafs, abutment normal/espelhado, coluna 32×, linha WL 8 bits e G7 com DRC/LVS/PEX | Nenhuma pendência física observada |
-| Ceff bitcell / C_BL / C_WL | **Inválido para sign-off**: inicialização em taps de acesso | Repetir PVTs em `.t0`; recalcular C_BL teto ×1,15 e WL adicional |
-| Leitura G7 | Smoke nominal corrigido Q0: disturb `0,1659978 V`, ΔBL `0,427048 V`, setup `977,22 ps`, `t_res=0,14156 ns`, **carga provisória** | Matriz integrada PVT: disturb `≤0,20 V`, ΔBL `≥200 mV`, setup `≥25 ps`, `t_res≤0,25 ns` |
-| Escrita G7 | Smoke nominal corrigido Q0→Q1: flip `0,47072 ns`, recuperação `2,83645 ns`, **carga provisória** | Matriz integrada PVT: recuperação `≤4 ns` e margem WL |
+| G1–G4 / schematic freeze | Screening pré-layout de engenharia preservado | **Fechado** |
+| G6 / G7 físico | Cinco leafs, abutment normal/espelhado, coluna 32× e linha 8-bit WL; DRC completo `0`, LVS único, PEX | **Fechado** |
+| Conferência manual de DRC/LVS — 08/10 | Bitcell: `Total DRC errors found: 0` na console gráfica; coluna G7 hierárquica/flat: `0/0` no Magic; Netgen com setup SKY130A: `Circuits match uniquely`, `212` MOS e `82` redes por circuito | **Corroborada manualmente**; setup SKY130A lido e match estrutural repetido. Avisos persistentes de MOS *placeholders* e propriedades ausentes impedem afirmar validação completa dos dispositivos; log manual local ignorado pelo Git |
+| PVT de capacitância | Bitcell 120/120; precharge 60/60; coluna 120/120; WL row/cell 60/60 cada; sense 360/360; write driver 120/120 | **Fechado**, hashes PEX conferidos |
+| Leitura G7 | CSV 60 condições e refinamento crítico de 1 ps | **60/60 PASS** |
+| Escrita G7 | Residual CBL por PVT/estado/dado e lado; WL_IN 3,40 ns | **60/60 PASS** |
+| Decoder dinâmico / macro 4×8 | Candidato transistor-level em `cells/row_decoder_2to4.spice`; ainda sem evidência elétrica/física | **Fase 2**, qualificação e integração pendentes |
 
-Os smokes com inicialização anterior e o lote de escrita interrompido não são
-evidência de falha do circuito. Yield de produção, ruído estatístico completo,
-DC-SNM-PVT e teto de potência da macro permanecem fora do escopo da Fase 1.
+Os smokes e PVTs que inicializaram pelos taps resistivos permanecem inválidos
+para aceite e estão preservados como históricos. Yield de produção, ruído
+estatístico completo, DC-SNM-PVT e teto de potência macro permanecem fora do
+escopo da Fase 1.
+
+A conferência manual, os comandos reproduzíveis e a ressalva sobre os
+*placeholders* MOS no Netgen estão em
+[`validacao_manual_drc_lvs_sky130a.md`](validacao_manual_drc_lvs_sky130a.md).
 
 > **Registro histórico de 07/10/2026 — supersedido:** parte dos registros abaixo descreve a matriz
 > histórica que usava 50 fF e o sense amplifier anterior. O contrato técnico

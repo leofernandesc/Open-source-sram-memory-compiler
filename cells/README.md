@@ -1,22 +1,21 @@
 # Leaf cells Xschem
 
-**Status em 08/10/2026:** as cinco variantes físicas, a coluna de 32 linhas,
-a linha WL de 8 bits e a coluna integrada G7 passaram DRC completo, LVS único
-e nova PEX. A qualificação **elétrica G7 continua aberta**: Ceff da bitcell,
-C_BL e C_WL devem ser caracterizadas novamente usando inicialização nos nós
-da latch (`.t0`), seguida pelas matrizes integradas de leitura e escrita.
-Os resultados integrados `60/60` de 07/10 são históricos, supersedidos pela
-revisão física, e os smokes corrigidos em TT de 08/10 usam cargas provisórias.
+**Estado em 08/10/2026:** a Fase 1 está `CLOSED_ENGINEERING_QUALIFICATION`
+para a bitcell e os leafs físicos. A coluna de 32 linhas, a linha WL de 8 bits
+e a coluna G7 têm DRC/LVS/PEX requalificados; as PVTs com nós `.t0` e as
+matrizes integradas G7 passaram `60/60` em leitura e escrita. A integração da
+macro 4×8 permanece na Fase 2.
 
 Contrato de nomes para a etapa 2:
 
 | Célula | Pinos externos | Controle | Estado |
 |---|---|---|---|
 | `bitcell_6t.sch` | `BL`, `BLB`, `WL`, `VDD`, `VSS` | `WL` | captura canônica da bitcell |
-| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores; G2/G4 screening e variante física 1,5× com DRC/LVS/PEX; leitura integrada `60/60` histórica de 07/10 |
+| `sense_amp.sch` | `BL`, `BLB`, `SA_OUT`, `SA_OUTB`, `SCLK`, `VDD`, `VSS` | `SCLK` | latch de 7 transistores; G2/G4 screening e variante física 1,5× com DRC/LVS/PEX; leitura integrada requalificada `60/60` em 08/10 |
 | `precharge.sch` | `BL`, `BLB`, `PRECH`, `VDD`, `VSS` | `PRECH` ativo-baixo | captura/topologia de freeze; leaf física final `Wpre=2,52 µm` com DRC/LVS/PEX e Ceff PVT `60/60` |
 | `wl_driver.sch` | `WL_IN`, `WL`, `VDD`, `VSS` | `WL_IN` | dois inversores; variante física integrada reforçada com PEX; slews/timing de 07/10 históricos |
-| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | esquema congelado; variante física `Wout=5,04 µm` com DRC/LVS/PEX; escrita integrada G7 `60/60` histórica de 07/10 |
+| `write_driver.sch` | `DATA`, `DATA_B`, `BL`, `BLB`, `WE`, `VDD`, `VSS` | `WE` | esquema congelado; variante física `Wout=5,04 µm` com DRC/LVS/PEX; escrita integrada G7 requalificada `60/60` em 08/10 |
+| `row_decoder_2to4.spice` | `VDD`, `VSS`, `A1`, `A0`, `PCH_N`, `EVAL`, `DEC0..DEC3` | `PCH_N` ativo-baixo e `EVAL` ativo-alto, sem sobreposição | candidato dinâmico transistor-level; sizing provisório; falta captura Xschem, PVT transitória, layout e DRC/LVS |
 | `vsource_drive.sym` | `p`, `m` | `p` como saída | fonte de estímulo do testbench hierárquico |
 
 `sram_6t.sch` permanece como captura legada para comparação. Gerar símbolos
@@ -25,6 +24,25 @@ ou de um smoke PASS não significa DRC/LVS nem qualificação da leaf.
 
 O estado e os gates de fechamento estão em
 [`docs/phase1_leaf_cell_closure.md`](../docs/phase1_leaf_cell_closure.md).
+Os comandos para conferir o DRC no Magic e o LVS no Netgen, com os limites
+da execução manual, estão no
+[guia de validação física](../docs/validacao_manual_drc_lvs_sky130a.md).
+
+## Decoder dinâmico de linhas
+
+`row_decoder_2to4.spice` implementa quatro nós dinâmicos pré-carregados em
+nível alto, com keeper de realimentação, descarga NMOS condicionada por `A1`,
+`A0` e `EVAL`, e saídas ativas-altas `DEC0..DEC3`. Inversores estáticos geram
+as polaridades complementares de endereço e a fase de clamp dos nós internos.
+As saídas devem alimentar `wl_driver.sch`; não conecte os nós dinâmicos
+diretamente às wordlines.
+
+O controlador deve manter endereço estável durante a avaliação e gerar fases
+`PCH_N`/`EVAL` sem sobreposição. A troca de endereço exige uma pré-carga entre
+acessos. Os tamanhos de transistor no netlist são apenas valores iniciais, sem
+resultado de simulação ou qualificação. A validação PVT de charge sharing,
+leakage, one-hot, temporização e disputa keeper/pull-down, seguida de captura
+Xschem e fluxo físico, é necessária antes de integrar a macro.
 
 ## Write driver
 
@@ -44,7 +62,9 @@ Os testes posteriores em 65 fF + 17 fF de WL fecharam G3 e G4 com o driver
 real. `Wdriver=0,84 µm` permanece o sizing do schematic freeze pré-layout;
 para a revisão histórica G7 de 07/10 foi usada a variante física reforçada
 `Wout=5,04 µm`, integrada com o precharge final, com resultado `60/60` naquele
-PEX. Esse resultado não fecha a matriz elétrica da revisão física de 08/10.
+PEX. Após o reparo da coluna e a requalificação das cargas `.t0` em 08/10,
+a matriz atualizada também passou `60/60` em escrita; recuperação máxima
+`3,978840 ns` e folga WL30 mínima `79,696 ps`.
 
 ## Testbench hierárquico de leitura
 

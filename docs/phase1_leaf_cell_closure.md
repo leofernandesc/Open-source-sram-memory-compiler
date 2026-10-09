@@ -1,29 +1,100 @@
 # Fase 1 — fechamento das leaf cells SKY130A
 
-**Atualização de 08/10/2026 — requalificação aberta.** A auditoria com
-`drc(full)` na célula inteira invalidou o fechamento físico anteriormente
-registrado. As cinco leafs foram reparadas e reexecutadas: DRC hierárquico/flat
-`0`, LVS Netgen único e PEX nova. A coluna de 32 linhas, a linha WL de 8 bits
-e a coluna G7 completa também passaram DRC/LVS/PEX nesta revisão. A primeira
-rodada de PVT para C_BL, C_WL e Ceff da bitcell usou um tap resistivo do lado
-de acesso para inicializar o estado e é inválida para sign-off; esses números
-e o teto derivado precisam ser refeitos com o nó de saída da latch (`.t0`).
-Dois smokes integrados corrigidos (`tt`, 1,8 V, 27 °C) passaram, um de leitura
-Q0 e outro de escrita Q0→Q1, mas usaram essas cargas ainda provisórias.
-**As matrizes PVT integradas permanecem pendentes; G7 e Fase 1 não estão
-fechados.**
-As tabelas e gates detalhados abaixo preservam a revisão de 07/10 como
-histórico; PASS pós-layout ali registrado não fecha a requalificação atual.
+**Atualização de 08/10/2026 — Ciclo 4 concluído.** O gate de qualificação de
+engenharia da Fase 1 está fechado para a bitcell 6T e suas leafs/periféricos
+qualificados. A linha WL de 8 bits e a coluna G7 mantêm Magic DRC hierárquico e
+flat `0`, LVS Netgen único e PEX. A inicialização nos nós `.t0` da latch passou
+2/2 estados complementares e estáveis por 5 ns.
 
-## Gates vigentes — checkpoint do Ciclo 0 (08/10/2026)
+A PVT válida mede `C_BL,PEX=473,178787–519,179340 fF`; o máximo ocorre em
+`ss/1,62 V/125 °C/Q0/BLB`, e o limite de teste é `597,056241 fF`
+(`1,15 × C_BL,PEX,max`). A linha física de oito bits mede
+`102,328671–102,873935 fF`; a maior diferença pareada linha menos bitcell é
+`CWL_EXTRA=93,351918 fF`. As Ceff PEX requalificadas são: bitcell
+`6,112664–8,894565 fF`, precharge W2,52 `11,469724–13,064186 fF`, sense
+scale1p5 `31,644459–34,172158 fF` e write W5,04 `22,624034–55,101988 fF`.
+
+A leitura passou `60/60` em `C_BL=597,056241 fF` e
+`CWL_EXTRA=93,351918 fF`: ΔBL mínimo `0,334350 V`, setup mínimo `804,60 ps`,
+`t_res` máximo `0,246350 ns` e disturb máximo `0,196491 V`. O ponto crítico
+foi refinado com passo de 1 ps; os oito casos SS/FF a 125 °C passaram, com
+`t_res,max=0,246950 ns` e disturb máximo `0,196488 V`.
+
+A escrita passou `60/60` com CBL residual calculada por canto, estado, dado e
+lado BL/BLB, sem recobrar capacitâncias já explícitas; cada lado totaliza
+`597,056241 fF`. Com WE em `2,20 ns` e WL_IN em `3,40 ns`, a pré-condição do
+write driver é `1,20 ns`. O flip máximo é `0,720280 ns`, o limite WL com +30%
+é `0,936364 ns`, a menor folga WL30 é `79,696 ps`, a menor folga até a queda
+da WL é `0,295780 ns` e a recuperação máxima é `3,978840 ns`. O caso mais
+lento foi refinado a 1 ps e passou com recuperação de `3,979500 ns`.
+
+**Estado: `CLOSED_ENGINEERING_QUALIFICATION` no escopo da Fase 1.** Após esse
+fechamento, a arquitetura do decoder 2→4 foi alterada de estática para dinâmica
+e foi criado um candidato transistor-level em `cells/row_decoder_2to4.spice`.
+O decoder continua sendo trabalho da Fase 2: sizing, transientes PVT,
+charge-sharing/leakage, captura Xschem, layout, DRC/LVS e integração macro 4×8
+seguem pendentes. A alteração do decoder não reabre os gates medidos da
+bitcell/leafs; a qualificação do novo bloco precisa de evidências próprias.
+
+## Gates finais da Fase 1 — 08/10/2026
 
 | Gate | Evidência disponível | Situação para aceite da Fase 1 |
 |---|---|---|
-| G1–G4 e schematic freeze | Sizing canônico `0,42/1,26/0,60 µm`; screening pré-layout preservado | **Fechado**, como qualificação pré-layout de engenharia |
-| G6 e implementação física G7 | Cinco leafs, bitcell com abutment gap zero normal/espelhado, coluna 32×, linha WL 8 bits, coluna G7: `drc(full)=0`, LVS único e nova PEX | **Fechado fisicamente** |
-| Requalificação de carga G7 | Primeira rodada C_BL/C_WL/Ceff da bitcell inicializou em taps de acesso; teto `597,056241 fF` e WL extra `94 fF` são apenas diagnósticos | **Aberto**: repetir PVTs com `.t0` e recalcular teto `1,15 × C_BL,max` e carga WL |
-| Leitura G7 | Smoke corrigido `tt/1,8 V/27 °C/Q0`: disturb `0,1659978 V`, `t_res=0,14156 ns`; cargas provisórias | **Aberto**: matriz PVT completa com `t_res≤0,25 ns`, disturb `≤0,20 V`, ΔBL `≥200 mV`, setup `≥25 ps` |
-| Escrita G7 | Smoke corrigido `tt/1,8 V/27 °C/Q0→Q1`: flip `0,47072 ns`, recuperação `2,83645 ns`; cargas provisórias | **Aberto**: matriz PVT completa, recuperação `≤4 ns` e margem WL atendida |
+| G1–G4 e schematic freeze | Sizing canônico `0,42/1,26/0,60 µm`; screening pré-layout preservado | **Fechado** como qualificação de engenharia |
+| G6 e G7 físico | Cinco leafs, abutment gap zero normal/espelhado, coluna 32×, linha WL 8 bits e coluna G7 com `drc(full)=0`, LVS único e PEX | **Fechado fisicamente** |
+| Inicialização da bitcell | `Q=a_215_n2026.t0`, `QB=a_167_n2114.t0`; estabilidade complementar por 5 ns | **Fechado**, 2/2 estados |
+| C_BL e leaf Ceff | Bitcell 120/120; precharge 60/60; coluna 120/120; sense 360/360; write 120/120 | **Fechado**; limite de teste `597,056241 fF` |
+| C_WL | Linha e bitcell 60/60; diferença pareada máxima `93,351918 fF` | **Fechado**; aplicar como carga WL extra |
+| Leitura G7 | CBL `597,056241 fF`; ΔBL min `0,334350 V`; setup min `804,60 ps`; `t_res` max `0,246350 ns`; disturb max `0,196491 V` | **Fechado**, 60/60; casos críticos refinados a 1 ps passaram |
+| Escrita G7 | CBL por lado/caso `597,056241 fF`; flip max `0,720280 ns`; recuperação max `3,978840 ns`; folga WL30 min `79,696 ps` | **Fechado**, 60/60; caso lento refinado a 1 ps passou |
+| Decodificador dinâmico 2→4 e macro 4×8 | Candidato SPICE em `cells/row_decoder_2to4.spice`; sem simulação elétrica nem layout/DRC/LVS | **Fase 2 — integração de macro**, qualificação e integração pendentes |
+
+### Conferência manual de DRC/LVS — 08/10/2026
+
+- **Bitcell 6T:** o operador obteve `Total DRC errors found: 0` na
+  console Tcl gráfica do Magic; evidência em captura da sessão, sem novo log
+  manual anexado ao repositório.
+- **Coluna G7:** o DRC completo retornou `0` tanto para
+  `column_32_full_g7_wpre2p52` (hierárquica) quanto para a célula `_flat`;
+  confira [`audit_full_drc_requal.log`](../layout/column_32_full_g7_wpre2p52_final/audit_full_drc_requal.log).
+- **LVS manual da G7 com setup SKY130A:** o Netgen carregou
+  `/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl` e retornou
+  `Circuits match uniquely.` com `212` transistores (`136` NMOS e `76` PMOS)
+  e `82` redes de cada lado. O operador copiou o log para
+  `layout/column_32_full_g7_wpre2p52_final/lvs_sky130_manual.log`
+  (arquivo local ignorado pelo Git). O relatório de requalificação anterior
+  permanece em [`column_32_full_g7_requal_lvs.log`](../layout/column_32_full_g7_wpre2p52_final/column_32_full_g7_requal_lvs.log).
+
+O LVS manual inicial com `/dev/null` permanece como evidência histórica. A
+repetição com setup SKY130A **foi confirmada**, mas o Netgen ainda avisou sobre
+subcircuitos MOS indefinidos (*placeholders/black boxes*) e propriedades
+ausentes. A equivalência confirmada é **estrutural** e não comprova sozinha
+equivalência completa de parâmetros MOS. Isso não altera os resultados DRC e
+das PVTs PEX registrados. Comandos e procedimento:
+[validação manual de DRC/LVS](validacao_manual_drc_lvs_sky130a.md).
+
+Na leitura, os leaves PEX reais de bitcell, precharge e sense são instanciados;
+`CBL_EXTRA=547,829394 fF` subtrai a soma dos mínimos PEX dessas folhas e
+mantém cada corner no limite ou acima dele. Na escrita, o runner usa Ceff PEX
+de bitcell, precharge e write driver alinhados a PVT/estado/dado/probe e calcula
+um residual independente para BL e BLB; os residuais variam de `520,537871` a
+`549,979800 fF` em BL e de `526,883490` a `556,284660 fF` em BLB. Em cada caso,
+o total equivalente por lado é `597,056241 fF`. A carga WL extra desconta a
+bitcell já presente na linha física de 8 bits.
+
+Os resultados atuais estão em `sims/bitcell_pex_bitline_capacitance_latch_t0_requal_20261008.csv`,
+`sims/precharge_w2p52_pex_capacitance_provenance_20261008.csv`,
+`sims/column_32_full_g7_wpre2p52_pex_capacitance_latch_t0_requal_20261008.csv`,
+`sims/row_8_wl_pex_capacitance_latch_t0_requal_20261008.csv`,
+`sims/bitcell_pex_wordline_capacitance_latch_t0_requal_20261008.csv`,
+`sims/sense_scale1p5_pex_input_capacitance_provenance_20261008.csv` e
+`sims/write_driver_w5p04_pex_capacitance_provenance_20261008.csv`.
+As matrizes integradas são `sims/g7_read_requal_latch_t0_20261008.csv` e
+`sims/g7_write_requal_casewise_wlsetup1p2ns_20261008.csv`; os refinamentos de
+1 ps estão em `sims/g7_read_critical_refined_1ps_20261008.csv` e
+`sims/g7_write_critical_refined_1ps_20261008.csv`.
+
+## Registro histórico — checkpoint do Ciclo 0 (08/10/2026; supersedido)
 
 As falhas dos smokes anteriores à correção de inicialização e o lote de
 escrita interrompido **não** qualificam nem reprovam o circuito. Yield de

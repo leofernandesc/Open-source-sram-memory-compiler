@@ -1,14 +1,31 @@
 # Relatório de desenvolvimento e validação da bitcell SRAM 6T
 
-> **Atualização de 08/10/2026:** a auditoria de DRC na célula inteira reabriu
-> a Fase 1. As cinco leafs e as integrações coluna/linha/G7 passaram por
-> DRC completo, LVS único e PEX. A primeira rodada PVT de C_BL/C_WL/Ceff da
-> bitcell usou taps resistivos do lado de acesso para inicialização e é inválida
-> para sign-off; os valores e o teto derivados precisam ser refeitos com os nós
-> de saída das latches (`.t0`). Dois smokes integrados corrigidos em `tt`,
-> 1,8 V, 27 °C passaram (leitura Q0 e escrita Q0→Q1), ainda usando cargas
-> provisórias. As matrizes completas e as conclusões G7 de 07/10 permanecem
-> pendentes/históricas, não são aceite da revisão atual.
+> **Atualização de 08/10/2026 — `CLOSED_ENGINEERING_QUALIFICATION`.** A
+> inicialização e as PVTs de capacitância foram requalificadas nos nós de latch
+> `.t0`; a coluna tem `C_BL,PEX,max=519,179340 fF`, limite de teste
+> `597,056241 fF`, e a WL usa `93,351918 fF` extras. As matrizes PEX integradas
+> passaram `60/60` em leitura e `60/60` em escrita. Leitura: ΔBL mínimo
+> `0,334350 V`, setup mínimo `804,60 ps`, `t_res` máximo `0,246350 ns`, disturb
+> máximo `0,196491 V`. Escrita: recuperação máxima `3,978840 ns`, margem WL30
+> mínima `79,696 ps`, folga mínima até a queda `0,295780 ns`. Os pontos críticos
+> passaram refinamento a 1 ps. O decoder 2→4 foi alterado para dinâmico e tem
+> candidato SPICE em `cells/row_decoder_2to4.spice`; simulação, sizing,
+> qualificação física e macro 4×8 seguem na Fase 2. Resultados de 07/10
+> permanecem históricos.
+
+**Conferência manual de DRC/LVS em 08/10:** na console gráfica do Magic, a
+bitcell retornou `Total DRC errors found: 0`. O DRC completo da coluna G7,
+hierárquica e flat, retornou `0` em ambas. A comparação manual Netgen da G7
+retornou `Circuits match uniquely.` com `212` MOS (`136` NMOS e `76` PMOS)
+e `82` redes em cada circuito. A primeira execução usou `/dev/null`; a
+repetição manual com o setup do Netgen SKY130A carregado também retornou
+match único. Continuaram aparecendo avisos de MOS indefinidos
+(*placeholders/black boxes*) e de propriedades ausentes, por isso o resultado
+confirma equivalência estrutural, sem assegurar conferência integral dos
+parâmetros de dispositivos do PDK. Log salvo localmente em
+`layout/column_32_full_g7_wpre2p52_final/lvs_sky130_manual.log` (ignorado
+pelo Git). Procedimento, limites e logs:
+[`validacao_manual_drc_lvs_sky130a.md`](validacao_manual_drc_lvs_sky130a.md).
 
 > **Atualização de 03/10/2026:** este relatório preserva resultados de
 > caracterizações anteriores, muitas delas a 50 fF e com periféricos ainda em
@@ -832,7 +849,7 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | retenção manual | passou no sizing candidato em `tt` |
 | escrita manual | passou no sizing candidato em `tt` |
 | escrita transitória full-swing | 30/30 casos passaram |
-| margem dinâmica de escrita (WLVM) | caracterização pré-layout em 20 combinações; critério formal de yield continua fora do escopo. A escrita integrada pós-layout final passou `60/60`, com recuperação máxima de `3,49470 ns` na janela de 4 ns e margem mínima de `0,34274 ns` antes da queda da WL; o resultado anterior `56/60` foi supersedido pela variante física final `Wpre=2,52 µm` |
+| margem dinâmica de escrita (WLVM) | caracterização pré-layout em 20 combinações; critério formal de yield fora do escopo. A matriz G7 atual passou `60/60`; recuperação máxima `3,978840 ns`, folga WL30 mínima `79,696 ps` e margem mínima `0,295780 ns` até a queda da WL, com CBL por lado/caso em `597,056241 fF` |
 | leitura com bitlines ideais | não conclusiva |
 | leitura capacitiva pré-layout histórica | 40 casos; sizing antigo falhou no limite provisório de excursão do nó baixo em 28. A variante canônica e o circuito integrado final foram requalificados em G7 com PEX (`60/60 PASS`) |
 | sweep de capacitância | automatizado; teste inclui pico do nó baixo e estado após leitura |
@@ -845,7 +862,7 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | SNM exploratório 0,42/1,05/0,60 um | mínimo Hold/Read = 642,994/332,353 mV; sem mismatch |
 | sense amplifier | topologia definida: latch regenerativo diferencial de 7 transistores, amostragem PMOS `W=2,0 µm`; 330/330 determinísticos; `Csense=7,853676–9,004605 fF`; `100 mV` mismatch=`480/500`, `150/200 mV`=`300/300` cada; setup `0 ps`=`60/60`, guarda provisória `>=25 ps`; variante física 1,5× passou DRC/LVS/PEX e leitura integrada G7 `60/60`; análise estatística completa de ruído/yield fora do escopo |
 | write driver | netlist/smoke corrigidos; 30/30 trocas em 1,62 V para WPD=1,26 µm; pior flip 90/10% `0,3216 ns`, WL mínimo provisório `0,4181 ns`; layout com DRC `0` e LVS único |
-| carga de bitline | baseline pré-layout `62,409659 fF`/screening `65 fF`; coluna física G7 final `C_BL,PEX,max=453,588405 fF` (`120/120` PVT); teto G7 `521,626665 fF` |
+| carga de bitline | baseline pré-layout `62,409659 fF`/screening `65 fF`; coluna física G7 requalificada em 08/10 com inicialização latch `.t0`: `C_BL,PEX=473,178787–519,179340 fF` (`120/120` PVT); teto vigente `597,056241 fF`. Os valores `453,588405/521,626665 fF` são históricos de 07/10. |
 | wl_driver e pré-carga | candidatos físicos finais fechados com DRC `0`, LVS único e RC PEX; benches PVT integrados com WL física e precharge W2,52 µm passaram `60/60` em leitura e escrita |
 | Hold/Read SNM | medidos nos cinco corners; pior Read SNM=288,342 mV |
 | leakage em hold | 90/90 estados estáveis; pior corrente total `21,759 nA` em `fs/1,95 V/125 °C`; orçamento pendente |
@@ -853,7 +870,7 @@ Os resultados não constituem sign-off da bitcell. Permanecem as seguintes limit
 | write_driver.sch | netlist Xschem corrigido; complementaridade e isolamento com `WE=0` verificados em smoke |
 | Monte Carlo de SNM | 200 seeds exploratórias de Read e 200 de Hold em `sf_mm`; não constituem yield de produção. Campanha estatística ampliada de mismatch está fora do escopo da Fase 1 |
 | G6 — layout, DRC e LVS das leafs | **requalificado em 08/10/2026** nas cinco variantes físicas; DRC completo hierárquico/flat `0`, Netgen LVS único, PEX nova e abutment da bitcell normal/espelhado com DRC `0` |
-| G7 — PEX e requalificação | **ABERTO em 08/10/2026**; DRC/LVS/PEX físicos requalificados. A primeira C_BL PVT `120/120`, teto `597,056241 fF`, WL PVT `60/60` e extra `94 fF` são **diagnósticos inválidos para aceite**: inicialização nos taps resistivos de acesso. Refazer PVT de C_BL/C_WL/Ceff bitcell em `.t0`, recalcular cargas e executar matrizes integradas. Smokes corrigidos nominais TT/1,8 V/27 °C passaram com cargas provisórias: leitura Q0 disturb `0,1659978 V` e `t_res=0,14156 ns`; escrita Q0→Q1 flip `0,47072 ns` e recuperação `2,83645 ns`. Smoke antigo com `0,21078 V` e lote de escrita interrompido são inválidos. Resultados de 07/10 são históricos. |
+| G7 — PEX e requalificação | **FECHADO em 08/10/2026** no escopo da bitcell/leafs. `C_BL,PEX=473,178787–519,179340 fF`; limite `597,056241 fF`; WL extra `93,351918 fF`; leitura `60/60` e escrita `60/60` com PEX, hashes conferidos e limites elétricos atendidos. O decoder e a macro 4×8 pertencem à Fase 2. |
 
 ## 11. Histórico da revisão G7 fechada em 07/10 (supersedido)
 

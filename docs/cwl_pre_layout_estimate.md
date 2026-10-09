@@ -1,12 +1,13 @@
 # Orçamento pré-layout da capacitância de wordline
 
-**Status vigente em 08/10/2026:** baseline pré-layout preservada; G6 e a
-implementação física G7 requalificados com DRC completo `0`, LVS único e PEX.
-A primeira PVT de 08/10 da linha WL e da bitcell usou inicialização em taps
-resistivos de acesso; `C_WL,max=102,873935 fF` e `94 fF` extras são **diagnósticos
-inválidos para sign-off**. É necessário refazer a PVT usando os nós de saída
-da latch (`.t0`) e rodar as matrizes integradas; G7 elétrico e Fase 1 abertos.
-O restante deste documento é baseline pré-layout ou registro histórico de 07/10.
+**Estado em 08/10/2026:** esta estimativa permanece como baseline **pré-layout**.
+A linha WL física de oito bits foi requalificada com latch `.t0` e mede
+`102,328671–102,873935 fF` (`60/60`). Subtraindo a bitcell pareada, a carga
+extra máxima usada nos benches é `93,351918 fF`. As matrizes integradas G7
+passaram `60/60` em leitura e `60/60` em escrita; a Fase 1 está fechada no
+escopo da bitcell e leafs físicas. O decoder dinâmico 2→4 tem um candidato
+SPICE ainda sem qualificação; a Fase 2 inclui sua validação e a macro 4×8. O
+restante deste documento é baseline pré-layout ou registro histórico de 07/10.
 
 Este documento fecha um bound de engenharia para a carga da wordline antes do
 layout. O objetivo é substituir o antigo smoke arbitrário de `50 fF` por uma
@@ -97,5 +98,6 @@ escrita efetivo ficou entre `1,00475` e `1,04705 ns` para entrada de 1 ns. A
 recuperação máxima de escrita foi `3,49470 ns`, dentro da janela de 4 ns. O
 read-disturb passou a matriz pós-layout, com máximo `0,1796454 V`. O bound de
 wordline neste arquivo continua pré-layout; a carga física usada nos benches é
-`89,925201 fF` adicional, derivada do PEX de 07/10 da WL de 8 bits; aguarda
-substituição pelo valor corrigido em `.t0` da revisão de 08/10.
+`89,925201 fF` adicional, derivada do PEX de 07/10 da WL de 8 bits; essa
+carga foi substituída em 08/10 pelo valor corrigido `93,351918 fF` em `.t0`,
+conforme o estado atual registrado no início deste documento.

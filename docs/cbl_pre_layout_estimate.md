@@ -1,14 +1,15 @@
 # Avaliação pré-layout de C_BL
 
-**Revisão física de 08/10/2026:** a coluna G7 reparada passou DRC completo,
-LVS único e nova PEX. A caracterização em PVT deu
-`C_BL,PEX,max=519,179340 fF` (`120/120`), mas essa primeira rodada inicializou
-o estado da bitcell em taps resistivos do lado de acesso. O valor e o teto
-`597,056241 fF` são diagnósticos, inválidos para sign-off, e precisam ser
-refeitos usando os nós de saída das latches (`.t0`). O G7/Fase 1 seguem abertos.
-O status de 07/10 abaixo preserva a revisão anterior. A medição vigente para
-aceite depende da PVT corrigida, com `1,15 × C_BL,PEX,max`, seguida por matrizes
-integradas de leitura/escrita com as cargas recalculadas.
+**Revisão de 08/10/2026:** este arquivo continua sendo o orçamento **pré-layout**
+e histórico. A coluna física G7 passou DRC completo, LVS único e PEX; a PVT
+válida com estado inicializado nos nós de latch `.t0` mede
+`C_BL,PEX=473,178787–519,179340 fF` (`120/120`). O limite de requalificação
+`597,056241 fF` (`1,15 × C_BL,PEX,max`) foi usado nas matrizes integradas, que
+passaram `60/60` em leitura e `60/60` em escrita. A Fase 1 está fechada no
+escopo da bitcell e leafs físicas. O decoder dinâmico 2→4 tem um candidato
+SPICE sem qualificação; o decoder e a macro 4×8 permanecem na Fase 2.
+Evidências atuais e limites de escopo:
+[`phase1_leaf_cell_closure.md`](phase1_leaf_cell_closure.md).
 
 ## Registro histórico de 07/10/2026 — supersedido
 
@@ -148,8 +149,9 @@ reaberto.
 `50 fF` e `60 fF` permanecem apenas como resultados históricos de screening.
 O screening de `65 fF` para 32 linhas também é histórico. A referência de
 07/10 era a coluna física extraída e a requalificação feita no teto de
-`521,626665 fF` ou acima dele; em 08/10 esse valor foi supersedido e o novo
-teto deve ser calculado com inicialização válida em `.t0`. As parcelas do modelo lumped pré-layout ajudam
+`521,626665 fF` ou acima dele; em 08/10 esse valor foi supersedido pelo teto
+`597,056241 fF`, recalculado com inicialização válida em `.t0` (`120/120` PVT).
+As parcelas do modelo lumped pré-layout ajudam
 na interpretação, mas não substituem o total RC medido.
 
 ## Transição para o G7 pós-layout — resultados históricos de 07/10
