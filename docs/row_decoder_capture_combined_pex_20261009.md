@@ -117,12 +117,16 @@ and 3,840 waveform checks. All cases completed without ngspice errors; every
 waveform, logic, and 1.95 V terminal-magnitude screen passed. The 250 ps
 literal guard is reported separately:
 
-| Capture-to-PCLK | PCLK high phase | Functional / voltage screens | Literal guard ≥250 ps | Minimum literal lead | Maximum WL90 |
-|---:|---:|---:|---:|---:|---:|
-| 1.50 ns | 4.20 ns | 24/24 | 2/24 | −279.707 ps | 3.262722 ns |
-| 1.80 ns | 3.90 ns | 24/24 | 13/24 | 141.738 ps | 3.234038 ns |
-| 1.95 ns | 3.75 ns | 24/24 | 24/24 | 291.738 ps | 3.231437 ns |
-| 2.10 ns | 3.60 ns | 24/24 | 24/24 | 441.738 ps | 3.230220 ns |
+| Capture-to-PCLK | PCLK high phase | Functional / voltage screens | Literal guard ≥250 ps | Minimum literal lead | Maximum WL90 | WL90-to-fall margin* |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1.50 ns | 4.20 ns | 24/24 | 2/24 | −279.707 ps | 3.262722 ns | 937.278 ps |
+| 1.80 ns | 3.90 ns | 24/24 | 13/24 | 141.738 ps | 3.234038 ns | 665.962 ps |
+| 1.95 ns | 3.75 ns | 24/24 | 24/24 | 291.738 ps | 3.231437 ns | 518.563 ps |
+| 2.10 ns | 3.60 ns | 24/24 | 24/24 | 441.738 ps | 3.230220 ns | 369.780 ps |
+
+*Calculated as PCLK high phase minus the maximum measured WL90 delay in that
+phase matrix; it is the remaining time from the latest 90% WL crossing to the
+ideal PCLK fall, not an independently simulated guard.
 
 At 1.50 ns the waveforms meet the 3.3 ns settling allowance in this run, even
 though most cases miss the separate literal guard. At 1.80 ns the waveforms
@@ -131,7 +135,9 @@ is the earliest one where all 24 cases meet the experimental 250 ps guard. It
 is a measured diagnostic point, not an approved minimum phase, supported
 frequency, or Fmax. The phase sweep changes the PCLK high phase while preserving
 the same 20.70 ns fall, so it must not be read as testing one fixed-duty-cycle
-clock.
+clock. This also exposes a tradeoff: later PCLK improves address-literal lead,
+while reducing the evaluation time available to the WL; the derived WL90-to-fall
+margin decreases from 937 ps at 1.50 ns to 370 ps at 2.10 ns.
 
 The chart is generated from the four committed campaign summaries and checks
 that their inputs, case sets and run status match:

@@ -1570,7 +1570,10 @@ magnitude diagnostic in 24/24 cases. The 250 ps literal guard passes 2/24,
 3.231437 and 3.230220 ns, respectively. Thus 1.95 ns is the earliest passing
 sampled point for that experimental guard, not an approved PCLK interface or
 frequency limit. The PCLK high phase varies from 4.20 to 3.60 ns across these
-points because its falling edge remains fixed.
+points because its falling edge remains fixed. Subtracting the maximum measured
+WL90 from that phase gives 937.278, 665.962, 518.563 and 369.780 ps before
+the ideal fall, respectively. This derived interval shows the tradeoff: moving
+PCLK later improves literal lead but reduces the time left for the selected WL.
 
 The [combined-PEX report](row_decoder_capture_combined_pex_20261009.md) records
 the inputs, hashes, results, limitations and commands. Complete artifacts are
