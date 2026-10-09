@@ -175,13 +175,73 @@ The PEX hash remains
 `8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc`; no
 new extraction was performed.
 
+## Source-level review of model ranges and FF warnings (2026-10-08)
+
+The public SKY130 device reference calls the listed values the operating
+voltages “where SPICE models are valid.” For the 1.8 V NFET it lists `VGS` and
+`VDS` from 0 to +1.95 V and `VBS` from −1.95 to +0.30 V; for the PFET it lists
+`VGS` and `VDS` from 0 to −1.95 V and `VBS` from −0.10 to +1.95 V. These are
+model-validity ranges in that reference, not a standalone silicon reliability
+or lifetime limit. The PDK reference does not publish a separate `VGD` range.
+See the [SKY130 device reference](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248).
+
+The ngspice 44.2 BSIM4 source uses the named source terminal when its
+polarity-normalized `VDS` is nonnegative. When it is negative, the code
+reverses channel orientation and evaluates with `VGD` and `VBD`. This supports
+the audit's use of the lower-potential diffusion as the NFET effective source
+and the higher-potential diffusion as the PFET effective source when
+reconstructing channel-oriented biases from terminal waveforms. It confirms
+the simulator's source/drain reversal behavior; it does not establish that
+every transient bias in this circuit is covered by the published model range.
+See [ngspice's BSIM4 load code](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5ld.c#L3923-L3948).
+
+This clarifies the two decoder findings:
+
+- Negative NFET `VGS` and positive PFET `VGS` in the audit are outside the
+  signed `VGS` intervals published for the device models. The sampled states
+  are consistent with temporarily charged internal stack nodes and small
+  dynamic-node feedthrough while those devices are off. That is an inference
+  from the measured node waveforms, not proof of model accuracy or inaccuracy
+  in those conditions, and not evidence by itself of a schematic wiring
+  fault.
+- The repeatable FF baseline maximum `|VGD| = 1.954674 V` is 4.674 mV above
+  the runner's custom 1.95 V terminal-magnitude screen. Because the published
+  table does not specify `VGD`, this is a diagnostic requiring review, not a
+  direct violation of a published `VGD` limit or a reliability signoff result.
+  At the refined FF `11→00` sample for `x1.m12`, the named-terminal values are
+  `VDS=+1.284323 V`, `VGS=−0.670351 V`, and `VGD=−1.954674 V`. Since `VDS` is
+  positive for this NFET, ngspice uses its named source for `VGS`; the
+  drain-referenced `VGD` screen is separate from that model `VGS` value. All
+  corresponding PEX samples remain below the custom screen.
+
+The FF logs identify these as BSIM 4.5 parameter checks. The tagged ngspice
+44.2 source shows that `A2 > 1` is actively clamped to 1 and `A1` is set to 0
+by the check routine. The same routine warns when `Eta0`, `Pdibl1` or
+`Pdibl2` is negative but does not modify those values in those checks. The
+FF simulations therefore completed without fatal errors, but their results
+include the ngspice `A2`/`A1` adjustment and the negative parameters that the
+model checker merely warns about. See the [BSIM4 parameter checks for `Eta0`
+and `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L2596-L2639)
+and [`Pdibl1`/`Pdibl2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L2752-L2767).
+
+The retained matrix manifest records ngspice 44.2 and hashes the recursive
+SKY130 model include closure. Installed PDK metadata identifies open_pdks
+1.0.493 at commit `0fe599b2afb6708d281543108caf8310912f54af` and the
+`sky130_fd_pr` source at commit `afc63d29f811b65b9888b2133fd3348eefc92046`.
+The source review narrows the concern to model
+domain and model-card handling: the archived waveforms and unique LVS match do
+not indicate a decoder logic or connectivity failure. The model maintainer or
+advisors still need to accept the use of these signed off-state biases and the
+FF model adjustments for this project before sizing can be called fully
+qualified.
+
 ## Remaining work before electrical closure
 
-1. Review the effective-source convention, signed PDK bias ranges, the FF
-   BSIM4 parameter warnings, and the small baseline FF `VGD` screen excess
-   with the SKY130 model maintainer or project advisors. Record an agreed
-   interpretation and acceptance margin. Do not change transistor sizes
-   solely to make the conservative screen green before that review.
+1. Obtain model-maintainer/advisor acceptance of the effective-source
+   convention, signed off-state `VGS` excursions, FF BSIM4 parameter handling,
+   and the diagnostic `VGD` screen. The source-level review above is complete;
+   the project's interpretation and acceptance margin remain unresolved. Do
+   not change transistor sizes solely to make the custom `VGD` screen green.
 2. If review confirms a real operating-range issue or sets a stricter
    acceptance criterion, investigate the identified devices and transitions,
    then rerun the affected functional/electrical matrices. Update layout,

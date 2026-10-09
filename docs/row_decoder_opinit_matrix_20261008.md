@@ -124,9 +124,11 @@ retains waveform hashes and provenance. The compact PEX remains unchanged.
 
 ## Remaining work
 
-1. Review the effective-source signed-bias convention, `VGD` screen and FF
-   BSIM4 warnings with the model maintainer/advisors; record acceptance
-   criteria and required margins.
+1. Obtain model-maintainer/advisor acceptance of the effective-source
+   signed-bias convention, custom `VGD` screen and FF BSIM4 warning effects;
+   record acceptance criteria and required margins. A source-level review of
+   the published PDK ranges and ngspice warning behavior is now documented in
+   the [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md).
 2. If review requires a topology or sizing change, rerun the affected
    functional and electrical matrices, then update layout, DRC/LVS and PEX
    only if the physical layout changes.

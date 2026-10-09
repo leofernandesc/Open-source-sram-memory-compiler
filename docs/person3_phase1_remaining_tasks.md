@@ -19,9 +19,10 @@ zero negative capacitors and current source/layout/PEX provenance. Matched
 baseline/PEX matrices now cover all 16 ordered address pairs in TT, SS and FF
 at 5 ps and 1 ps; all cases pass with zero contract findings. The targeted
 PCLK energy refinement also passed its selected high-sensitivity pairs at
-0.5 ps, and the FF model warnings have been traced to ngspice's BSIM4 parameter
-checks. The full three-corner 1 ps operating-point matrix is now complete, along
-with a targeted 0.5 ps FF refinement. Every functional check passed; 10 of 16
+0.5 ps. A source-level review confirmed that ngspice clamps `A2`/`A1` in one
+FF warning and only warns on negative `Eta0`/`Pdibl` values. The full
+three-corner 1 ps operating-point matrix is now complete, along with a targeted
+0.5 ps FF refinement. Every functional check passed; 10 of 16
 FF baseline cases show a repeatable terminal-magnitude screen excess of at
 most 1.954674 V, while all FF PEX cases pass. Signed `VGS` remains outside the
 published ranges under the effective-source convention, so model-domain
@@ -65,12 +66,12 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 
 | ID | Task | Dependency | Status and next action | Completion evidence |
 |---|---|---|---|---|
-| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Functional and operating-point matrices complete; model-domain review open.** | All 16 ordered pairs pass baseline/PEX functional checks at 5 ps and 1 ps in TT/SS/FF, and all 96 1 ps operating-point cases pass functional checks. At FF, 10 baseline cases exceed the 1.95 V magnitude screen by at most 4.645 mV; the 0.5 ps refinement remains stable at 1.954674 V, while all matching PEX cases pass. Signed `VGS` and FF model warnings need authoritative review; see [matrix report](row_decoder_opinit_matrix_20261008.md) and [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md). No physical-row or reliability qualification is claimed.
+| P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Functional and operating-point matrices complete; source-level model review complete; project/model acceptance pending.** | All 16 ordered pairs pass baseline/PEX functional checks at 5 ps and 1 ps in TT/SS/FF, and all 96 1 ps operating-point cases pass functional checks. At FF, 10 baseline cases exceed the custom 1.95 V magnitude screen by at most 4.674 mV; the 0.5 ps refinement is timestep-stable, while all matching PEX cases pass. Signed `VGS` remains outside the published model-validity ranges. The source audit documents the ngspice BSIM4 `A2`/`A1` clamp and warn-only negative `Eta0`/`Pdibl` checks; model-owner/advisor acceptance remains open. See [matrix report](row_decoder_opinit_matrix_20261008.md) and [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md). No physical-row or reliability qualification is claimed.
 | P3-2 | Establish captured-address/PCLK timing budget | P3-1; control interface coordination | **Historical provisional budget; requalification pending.** Repeat capture/fanout tests with the current W=0.84 um address inverters and agree the physical PCLK source. | Archived 72/72 selected-point cases and 431.2 ps worst lead belong to their original schematic. No current setup/hold or Fmax claim. |
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
-| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **PEX extraction and functional matrices complete; signed-bias/model review pending.** | Current PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix is complete; a targeted 10-pair FF refinement at 0.5 ps confirms the baseline screen excess is timestep-stable and all matching PEX pairs pass. Signed `VGS` excursions, baseline PFET `VBS` findings and FF model warnings need model-owner/advisor interpretation before any sizing decision. WL buffers remain schematic; row load is estimated at 17.4 fF.
+| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **PEX extraction and functional matrices complete; source review complete; acceptance and physical-row review pending.** | Current PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix is complete; a targeted 10-pair FF refinement at 0.5 ps confirms the baseline custom screen excess is timestep-stable and all matching PEX pairs pass. Signed `VGS` excursions and baseline PFET `VBS` findings remain outside at least one published signed model-validity interval under the audited convention; ngspice's FF parameter-warning behavior is documented. The project/model owner still needs to accept the interpretation and margins before sizing closure. WL buffers remain schematic; row load is estimated at 17.4 fF.
 | P3-7 | Review row loads and WL behavior with physical row | P3-6; Danilo's bitcell interface | **Blocked by missing physical input.** No `layout/bitcell_6t/` layout is present on this branch. | After Danilo supplies/reviews the physical bitcell: decoder → four WL buffers → row for every address, coupling and 50 fF stress; replace the 17.4 fF estimate with extracted data. |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
@@ -82,8 +83,10 @@ and local routing around the address buffers. Channel-area proxies from
 schematic studies are not physical layout area.
 
 The terminal magnitude screen is not full signed model-domain or reliability
-clearance. The FF warning review found that ngspice changes `A2`/`A1` for the
-reported `A2 > 1` values but only warns on the negative `Eta0`/`Pdibl` values;
+clearance. The source-level FF warning review found that ngspice clamps
+`A2`/`A1` for the reported `A2 > 1` values but only warns on negative
+`Eta0`/`Pdibl` values; these different effects are documented in the
+[signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md).
 PDK/model-owner acceptance and any required guardband are still needed before
 calling the sizing fully qualified. Noise injection and finite retention are
 measured experiments; an approved noise budget, clock-stop duration and
@@ -93,10 +96,11 @@ criterion.
 
 ### Decoder closure sequence after the operating-point matrix
 
-1. Review the signed `VGS` convention, SKY130 range interpretation, the
-   repeatable small FF baseline `VGD` screen excess, and FF BSIM4 warnings
-   with the model maintainer/advisors. Agree acceptance criteria and margin
-   before deciding whether the schematic needs a sizing or topology change.
+1. Obtain model-maintainer/advisor acceptance of the signed `VGS` convention,
+   SKY130 model-validity ranges, repeatable FF baseline `VGD` screen finding,
+   and BSIM4 warning effects. The local source review is complete; agree
+   project acceptance criteria and margin before deciding whether the
+   schematic needs a sizing or topology change.
 2. If review requires a design change, run sizing and functional/electrical
    simulations, then update layout, DRC, LVS and PEX if physical geometry
    changes. No new extraction is needed for simulation-only review.

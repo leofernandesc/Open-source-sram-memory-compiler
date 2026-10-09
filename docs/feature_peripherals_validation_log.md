@@ -1394,3 +1394,26 @@ audits and waveform hashes. Raw waveforms and simulator logs remain local and
 ignored by Git. No new PEX extraction was performed. See the [full report](row_decoder_opinit_matrix_20261008.md)
 for per-corner numbers, device ranges, evidence links, commands and remaining
 closure tasks.
+
+## 2026-10-08: source review of signed bias ranges and FF model warnings
+
+The source review distinguished model-validity ranges from reliability limits.
+The public SKY130 reference labels its signed 1.8 V terminal ranges as the
+voltages where the SPICE models are valid; it does not list a `VGD` range. The
+ngspice 44.2 BSIM4 code confirms that it changes from `VGS`/`VBS` to
+`VGD`/`VBD` when the polarity-normalized `VDS` reverses, which supports the
+source-orientation reconstruction in the audit script.
+
+The FF model logs say that `A2 > 1` is clamped to `A2=1` and `A1=0`. The
+negative `Eta0`, `Pdibl1` and `Pdibl2` entries produce warnings without
+parameter reassignment in those ngspice checks. Thus the FF simulations
+completed without fatal errors, but they use the clamped `A2`/`A1` model values
+and retain the other warned values. At the refined worst baseline `VGD` sample,
+`x1.m12` has `VDS=+1.284323 V`, `VGS=−0.670351 V` and `VGD=−1.954674 V`;
+the custom `|VGS|/|VGD|/|VDS| <= 1.95 V` screen finding is not itself a
+published `VGD` limit. Signed off-state `VGS` and baseline PFET `VBS` findings
+remain outside the documented signed model-validity intervals under the
+audited convention, so model-owner/project acceptance and margin remain open.
+The source references, exact distinctions and provenance are in the
+[signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md). No
+schematic or layout change and no new extraction resulted from this review.
