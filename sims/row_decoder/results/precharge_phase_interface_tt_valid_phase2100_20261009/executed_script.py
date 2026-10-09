@@ -463,16 +463,16 @@ def main() -> int:
                         metavar="OLD:NEW")
     parser.add_argument("--control-vectors", nargs="+", choices=ALL_CONTROL_VECTORS,
                         default=["001", "010"])
-    parser.add_argument("--phase-ps", type=float, default=2100.0,
-                        help="Initial experimental capture-to-PCLK candidate; not a specification limit")
+    parser.add_argument("--phase-ps", type=float, default=1950.0,
+                        help="Experimental capture-to-PCLK phase from the ideal-PCLK study")
     parser.add_argument("--clk-fall-ps", type=float, default=20700.0)
     parser.add_argument("--settling-allowance-ns", type=float, default=3.3)
     parser.add_argument("--wl-cap-ff", type=float, default=102.873935496,
                         help="Full-row Ceff maximum from Danilo's current owner evidence")
     parser.add_argument("--release-lead-ps", type=float, default=250.0,
                         help="PRECH release lead before the clock/initial PCLK edge")
-    parser.add_argument("--turnoff-guard-ps", type=float, default=1800.0,
-                        help="Initial experimental PRECH reassertion delay after PCLK falls")
+    parser.add_argument("--turnoff-guard-ps", type=float, default=500.0,
+                        help="PRECH reassertion delay after PCLK falls")
     parser.add_argument("--prime-pclk-rise-ns", type=float, default=6.0,
                         help="Delay the nonarchitectural first conditioning pulse to allow startup precharge")
     parser.add_argument("--step-ps", type=float, default=5.0)

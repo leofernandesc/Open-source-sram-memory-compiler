@@ -1886,3 +1886,35 @@ The [phase-interface report](row_decoder_precharge_phase_integration_20261009.md
 contains exact commands, matrix links, waveform evidence and limitations. The
 figure is
 [`row_decoder_precharge_phase_sequence_20261009.svg`](assets/row_decoder_precharge_phase_sequence_20261009.svg).
+
+## 2026-10-09 UTC: selected 2.10 ns precharge/PCLK phase candidate
+
+Person 3's decoder integration uses Danilo's W2.52 precharge PEX. The 2.10 ns
+point was selected by comparing measured timing slacks across the sampled
+phase points. Its smaller slack is 191.738 ps after the experimental 250 ps
+literal guard, versus 41.738 ps at 1.95 ns. This is an experimental maximin
+choice, not a timing requirement or operating-frequency claim.
+
+The full decoder/WL/precharge PEX interface matrix was rerun at 2.10 ns, with
+Danilo's pinned W2.52 PEX, an ideal 20.70 ns PCLK falling edge, 3.3 ns settling
+allowance, 250 ps nominal PRECH release lead, 1.80 ns nominal post-fall guard,
+and 5 ps maximum transient step. It completed 26/26 cases, 4,660/4,660
+detailed checks and 1,460/1,460 phase checks. The slow-profile minimum
+selected-WL-off interval before PRECH conduction remained 254.477 ps. The
+observed release lead and post-fall intervals were 237.5 ps and 1,787.5 ps,
+respectively. Minimum bitline voltage before valid evaluation was 1.545430 V
+at 1.62 V, above the bench's 90%-VDD threshold of 1.458 V.
+
+Campaign manifests:
+
+- [`precharge_phase_interface_tt_valid_phase2100_20261009`](../sims/row_decoder/results/precharge_phase_interface_tt_valid_phase2100_20261009/manifest.json)
+- [`precharge_phase_interface_invalid_tt_phase2100_20261009`](../sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_20261009/manifest.json)
+- [`precharge_phase_interface_slow_phase2100_20261009`](../sims/row_decoder/results/precharge_phase_interface_slow_phase2100_20261009/manifest.json)
+- [`precharge_phase_interface_ff_phase2100_20261009`](../sims/row_decoder/results/precharge_phase_interface_ff_phase2100_20261009/manifest.json)
+
+The exact selection, phase interface, provenance and limitations are in the
+[phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
+PCLK and PRECH are still ideal bench stimuli: this run does not qualify a real
+phase generator or include captured-control devices, a 6T access path, read or
+write behavior, or data readback. No new extraction, layout, DRC or LVS was
+performed.

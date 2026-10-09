@@ -2,12 +2,16 @@
 
 ## Status and scope
 
-This is a read-only review of the older precharge snapshot on
+This began as a read-only review of the older precharge snapshot on
 `feature/peripherals`, a follow-up check of Danilo's newer candidate on
 `origin/feat/sram-6t-cell`, and an integration proposal for the dynamic
-decoder's `PCLK`. It does not amend `specs/technical_specification.md` or alter
-either owner's source. The proposed phase sequence still needs owner/advisor
-review and electrical qualification.
+decoder's `PCLK`. Danilo's W2.52 candidate is selected for Person 3's
+integration, along with an initial phase timing point from the
+measured sweep. The resulting decision and new verification are recorded in
+the [phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
+That decision does not amend `specs/technical_specification.md` or modify
+either owner's source; implementation with a real phase generator remains
+open.
 
 ## Precharge schematic review
 
@@ -84,11 +88,11 @@ His candidate exposes `VSS` as an unused interface port; all three PMOS bulk
 terminals are tied to `VDD`. Keep that port only if the shared leaf interface
 requires it, and preserve the body ties to `VDD`.
 
-Thus there is no need to redraw this cell from scratch. The remaining handoff is
-to coordinate with André, who owns the precharge block in the current team
-organization, and agree which schematic/layout revision becomes the shared
-interface. The corrected candidate still does not supply a PCLK phase
-generator for this branch's dynamic decoder.
+Thus there is no need to redraw this cell from scratch. This candidate is
+selected for Person 3's decoder integration. That choice uses the pinned PEX
+input in this branch; it does not change André's source or declare a shared
+team-wide source merge. The corrected candidate still does not supply a PCLK
+phase generator for this branch's dynamic decoder.
 
 For the intended three-PMOS topology, the corrected connectivity should be:
 
@@ -127,6 +131,9 @@ CLK, CSb/OEb/WEb, captured address and write data
        PCLK_DEC         PRECH_N
        decoder.PCLK     bitline precharge/equalizers
 ```
+
+`PCLK_DEC` and `PRECH_N` are descriptive phase-source nets in this proposal;
+they connect to the leaf pins `PCLK` and active-low `PRECH`, respectively.
 
 The access qualifier is:
 
@@ -188,9 +195,13 @@ The new bounded interface screen does not model a transistor-level control
 generator or bitcell access path either. See the
 [combined PEX report](row_decoder_capture_combined_pex_20261009.md).
 
-No numeric delay is fixed here. Characterize the rising evaluation delay and
-the falling-edge precharge-release delay over the required process/voltage/
-temperature conditions and actual extracted loads. Verify that:
+The initial experimental timing choice is 2.10 ns from captured rising edge to
+PCLK evaluation, a nominal 250 ps PRECH release lead before PCLK rises, and a
+nominal 1.80 ns PRECH reassertion guard after PCLK falls. A follow-up screen
+with Danilo's PEX passed at that setting; its measurements and limits are in
+the [phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
+These are not specification limits. Characterize the real generator and its
+loads over the required process/voltage/temperature conditions. Verify that:
 
 1. captured address and controls are stable before `PCLK_DEC` rises;
 2. bitline precharge is off before any wordline asserts;
@@ -200,8 +211,9 @@ temperature conditions and actual extracted loads. Verify that:
 6. a precharge phase occurs before the first valid access after power-up.
 
 The bounded phase-interface bench consumes Danilo's PEX as a pinned,
-read-only input, but this does not merge or select the team-wide precharge
-source. In this branch, PCLK and PRECH are still ideal testbench inputs because
-the transistor-level control generator is not implemented. Neither this screen
-nor Danilo's separate G7 results establish integrated SRAM timing or qualify
-the dynamic decoder with real control capture and bitcell read/write behavior.
+read-only input selected for Person 3's integration work. It does not merge or
+modify the team-wide precharge source. In this branch, PCLK and PRECH are still
+ideal testbench inputs because the transistor-level control generator is not
+implemented. Neither this screen nor Danilo's separate G7 results establish
+integrated SRAM timing or qualify the dynamic decoder with real control capture
+and bitcell read/write behavior.

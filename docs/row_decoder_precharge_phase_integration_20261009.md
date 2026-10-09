@@ -184,10 +184,13 @@ and precharge PEX inputs.
   two address transitions. This is not a fully crossed PVT or mismatch study.
 - No layout, DRC, LVS or extraction was run for this integration bench. The
   precharge leaf's physical checks are cited from Danilo's report, not repeated.
-- The tested phase delay, 1.8 ns turn-off guard, voltage screens and 3.3 ns
-  settling window are experimental settings. They do not establish clock
-  frequency, reliability, power, area or a frozen interface specification.
+- The original 1.95 ns phase, 1.8 ns turn-off guard, voltage screens and 3.3 ns
+  settling window are experimental settings. A follow-up at the selected
+  2.10 ns candidate is recorded in the [phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
+  Neither run establishes clock frequency, reliability, power, area or a
+  frozen interface specification.
 
-Next, agree with the precharge owner whether Danilo's revision is the shared
-leaf, implement or obtain the actual glitch-free PCLK/PRECH control path, and
-repeat the test with the physical bitcell row and real read/write behavior.
+Person 3's integration uses Danilo's W2.52 PEX; this does not modify Danilo's
+or André's source or decide a team-wide merge. Next, implement
+the captured-control/glitch-free PCLK/PRECH phase path, then repeat the test
+with the physical bitcell row and real read/write behavior.

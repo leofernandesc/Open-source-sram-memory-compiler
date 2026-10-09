@@ -116,33 +116,32 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 The 17.4 fF load and source revision in that archived campaign are not the
 current physical-row capture result.
 
-**Precharge/PCLK interface review, 2026-10-09:** a fresh read-only Xschem
+**Precharge/PCLK integration decision, 2026-10-09:** a fresh read-only Xschem
 netlist of the existing precharge draft has no subcircuit ports and shows all
 three PMOS devices disconnected; its drawn BL, BLB, and PRECH wires also meet
-at one junction. That older source was left untouched. The proposed phase path
-separates decoder `PCLK` from active-low bitline `PRECH` and waits for wordline
-turn-off before reasserting bitline precharge. This is an integration proposal,
-not a frozen specification or measured phase generator. Danilo's corrected
-schematic and physically qualified W2.52 leaf on `origin/feat/sram-6t-cell`
-was then copied byte-for-byte as a read-only PEX input for a bounded interface
-screen. That screen passes 26/26 cases and 1,460/1,460 phase checks, but uses
-ideal PCLK/PRECH waveforms and has no 6T access path. The source branch is not
-integrated into `develop` or this branch; coordinate with André before
-selecting the shared source. See the [precharge/PCLK review](precharge_pclk_interface_review_20261009.md)
-and [phase-interface report](row_decoder_precharge_phase_integration_20261009.md).
-P3-7 still needs the actual phase generator and bitcell read/write verification.
+at one junction. That older source remains untouched. Person 3's integration
+uses Danilo's corrected W2.52 leaf; its PEX is pinned as
+a read-only input in this branch. A 2.10 ns capture-to-PCLK candidate, 250 ps
+PRECH release lead, and 1.80 ns post-fall guard now pass 26/26 cases and
+4,660/4,660 detailed checks, including 1,460/1,460 phase checks. The bench
+still uses ideal PCLK/PRECH waveforms and has no 6T access path. This decision
+does not modify either owner's source or change the technical specification.
+See the [phase decision](row_decoder_precharge_pclk_decision_20261009.md),
+[precharge/PCLK review](precharge_pclk_interface_review_20261009.md), and
+[phase-interface report](row_decoder_precharge_phase_integration_20261009.md).
+P3-7 still needs the real phase generator and bitcell read/write verification.
 
 ## Ordered work and acceptance evidence
 
 | ID | Task | Dependency | Status and next action | Completion evidence |
 |---|---|---|---|---|
 | P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Functional and operating-point matrices complete; source-level model review complete; project/model acceptance pending.** | All 16 ordered pairs pass baseline/PEX functional checks at 5 ps and 1 ps in TT/SS/FF, and all 96 1 ps operating-point cases pass functional checks. At FF, 10 baseline cases exceed the custom 1.95 V magnitude screen by at most 4.674 mV; the 0.5 ps refinement is timestep-stable, while all matching PEX cases pass. External-terminal `VGS` screening remains outside the published model-validity ranges. The source audit documents the ngspice BSIM4 `A2`/`A1` clamp and warn-only negative `Eta0`/`Pdibl` checks; model-owner/advisor acceptance remains open. See [matrix report](row_decoder_opinit_matrix_20261008.md) and [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md). No physical-row or reliability qualification is claimed.
-| P3-2 | Establish captured-address/PCLK timing budget | Current source/PEX; control interface coordination | **Measured: full SS phase sweep at four points with a fixed ideal falling edge and settling window.** Functional/voltage screens pass 24/24 at each point. The 250 ps literal guard passes 2/24 at 1.50 ns, 13/24 at 1.80 ns, and 24/24 at 1.95 and 2.10 ns. Next: characterize the actual PCLK generator and repeat the sweep over its approved edge/window range; advisor review of the experimental guard remains open. | Fixed 20.70 ns fall, 3.3 ns allowance, 12 address transitions and both Liberty Q loads; row Ceff is lumped. The 1.95 ns point is the earliest passing sampled point, not an approved interface delay or Fmax. As capture phase moves later, derived WL90-to-fall margin decreases from 937 to 370 ps over the tested range. Q-pin capacitance, external setup/hold, metastability and signed model-domain/reliability acceptance remain open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md) and [schematic requalification](row_decoder_capture_load_requalification_20261008.md). |
+| P3-2 | Establish captured-address/PCLK timing budget | Current source/PEX; control interface coordination | **Measured: full SS phase sweep plus selected Danilo-precharge interface matrix.** Use 2.10 ns as the initial experimental candidate because it maximizes the smaller of the measured address-literal slack beyond its 250 ps guard and WL90-to-fall margin among sampled points. The combined decoder/WL/Danilo-precharge matrix passes 26/26 cases at this phase. Next: replace ideal PWL sources with the actual phase source and repeat over its edge/window range. | The phase sweep used fixed 20.70 ns fall, 3.3 ns allowance, 12 address transitions and both Liberty Q loads; row Ceff is lumped. At 2.10 ns the minimum literal lead is 441.738 ps and derived WL90-to-fall margin is 369.780 ps. This maximin choice and all guards remain experimental, not an approved interface delay or Fmax. Q-pin capacitance, external setup/hold, metastability and signed model-domain/reliability acceptance remain open. See [phase decision](row_decoder_precharge_pclk_decision_20261009.md), [combined PEX report](row_decoder_capture_combined_pex_20261009.md), and [schematic requalification](row_decoder_capture_load_requalification_20261008.md). |
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
 | P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Current decoder PEX, combined decoder/WL PEX capture matrix, and four-point full SS phase sweep complete; model acceptance and actual PCLK integration pending.** | Current decoder PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix and targeted 0.5 ps FF refinement are complete. In the original combined capture run (20.00 ns fall and 3 ns settling), TT/FF pass 24/24 while all 24 SS cases miss the settling contract. The follow-up SS sweep uses four WL-driver PEX instances and corrected lumped row Ceff: it passes all 3,840 waveform checks at each of four phases, with 2/24, 13/24, 24/24 and 24/24 cases passing the separate 250 ps guard. Voltage screens pass but are not reliability signoff. External-terminal model-domain review remains open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md). |
-| P3-7 | Review row loads, access policy, and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Address/control and bounded precharge-phase screens measured; full read/write integration remains open.** The 48-case address matrix passes 19,968/19,968 checks across TT/SS/FF, and the 24-case control matrix passes 3,882/3,882 checks for all eight `CSb/OEb/WEb` vectors. A separate screen uses Danilo's W2.52 precharge PEX with decoder and WL PEX: 26/26 cases and 4,660/4,660 detailed checks pass, including invalid-vector suppression and bitline restoration. The smallest selected-WL-off interval before the conservative precharge threshold is 254.477 ps in selected slow-corner cases. PCLK/PRECH remain ideal stimuli; there is no 6T access, readback, actual phase generator or full SRAM timing signoff. | The 102.873935496 fF WL load and 597.056241 fF BL target use current owner evidence; the latter is represented by Danilo's precharge PEX plus a lumped external residual. Agree with André whether Danilo's revision is the shared precharge leaf. Implement/obtain the actual glitch-free control/phase source, connect the physical bitcell row and write driver, then test state-dependent read/write/readback. Existing distributed-row matrices keep BL/BLB at ideal VDD and do not include precharge. The 3.3 ns criterion and 1.8 ns guard are experimental. See the [distributed-row report](row_decoder_distributed_row_pex_20261009.md), [phase-interface report](row_decoder_precharge_phase_integration_20261009.md), and the manifests linked there. |
+| P3-7 | Review row loads, access policy, and WL behavior with physical row | Current decoder PEX; selected Danilo precharge PEX; bitcell row interface | **Address/control and bounded precharge-phase screens measured; full read/write integration remains open.** The 48-case address matrix passes 19,968/19,968 checks across TT/SS/FF, and the 24-case control matrix passes 3,882/3,882 checks for all eight `CSb/OEb/WEb` vectors. With Danilo's selected W2.52 precharge PEX, the 2.10 ns phase candidate passes 26/26 cases and 4,660/4,660 detailed checks, including invalid-vector suppression and bitline restoration. The smallest selected-WL-off interval before the conservative precharge threshold is 254.477 ps in the slow-profile cases. PCLK/PRECH remain ideal stimuli; there is no 6T access, readback, actual phase generator, or full SRAM timing signoff. | The 102.873935496 fF WL load and 597.056241 fF BL target use current owner evidence; the latter is represented by Danilo's precharge PEX plus a lumped external residual. Implement the captured-control/glitch-free phase source, connect the physical bitcell row and write driver, then test state-dependent read/write/readback. Existing distributed-row matrices keep BL/BLB at ideal VDD and do not include precharge. The 3.3 ns screen and selected 2.10 ns/250 ps/1.80 ns timing values are experimental. See the [phase decision](row_decoder_precharge_pclk_decision_20261009.md), [distributed-row report](row_decoder_distributed_row_pex_20261009.md), and [phase-interface report](row_decoder_precharge_phase_integration_20261009.md). |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
 | P3-10 | Package Person 3 Phase 1 delivery | P3-4 through P3-9, or documented blocker | **Pending.** | Schematics/symbols, benches, layouts, extraction/DRC/LVS, selected CSVs, reports, dimensions, reproducible environment and limitations. |
@@ -171,9 +170,10 @@ criterion.
    sweep at a fixed ideal 20.70 ns falling edge and 3.3 ns settling window is
    complete for all 12 transitions and both Liberty loads. The experimental
    250 ps literal guard passes all cases at 1.95 and 2.10 ns, but this does not
-   define an interface limit. Next, use the actual PCLK source and approved
-   system cycle to sweep phase and falling edge; do not claim frequency closure
-   from ideal PWL clocks.
+   define an interface limit. The 2.10 ns sample is selected as the initial
+   maximin candidate and has passed the bounded interface matrix with Danilo's
+   PEX. Next, use the actual PCLK source and approved system cycle to sweep
+   phase and falling edge; do not claim frequency closure from ideal PWL clocks.
 2. **Current-sizing schematic screens complete:** 36 finite-hold, 42 charge,
    168 low-phase and 168 high-phase cases are archived for TT, SS and FF.
    The phase minima are sampled experimental bounds; the 8 fC injection
@@ -193,10 +193,10 @@ criterion.
    Danilo's W2.52 precharge PEX with ideal PCLK/PRECH sources and passes phase
    ordering and bitline restoration checks. It still lacks the physical 6T
    access path and actual phase generator. The Ceff interpretation is aligned
-   with Danilo's current owner closure. Next, agree whether this is the shared
-   precharge leaf, implement the PCLK/access-enable interface, and integrate
-   bitline behavior with the bitcell row. The 3.3 ns screen and 1.8 ns guard
-   are exploratory, not project requirements.
+   with Danilo's current owner closure. Next, implement the captured-control /
+   PCLK phase source and integrate bitline behavior with the bitcell row, using
+   the selected Danilo PEX input. The 3.3 ns screen and 2.10 ns/250 ps/1.80 ns
+   timing values are exploratory, not project requirements.
 5. If a defined condition fails or agreed margin is insufficient, review the
    responsible sizing/topology, then update affected physical checks and PEX
    when geometry changes. Otherwise retain the current decoder PEX. Package
@@ -212,8 +212,9 @@ The old precharge schematic present on this branch is a draft and the recorded
 netlisting attempt reported open nets, BL/BLB/PRECH shorts, and disconnected
 MOS devices. It remains untouched. André owns the shared precharge block; the
 new test uses a separate, pinned read-only copy of Danilo's extracted W2.52
-PEX and does not select or install a team-wide source revision. No physical
-bitcell read/write path is integrated in that test. Danilo's `95c23c0`
+PEX, selected for Person 3's integration, but does not install a team-wide
+source revision. No physical bitcell read/write path is integrated in that
+test. Danilo's `95c23c0`
 checkpoint supplies an extracted eight-bit row PEX, already connected to
 decoder/WL PEX in a bounded ideal-bitline screen. The latest owner closure on
 `origin/feat/sram-6t-cell` (`5dc00fe`) aligns the current `.t0` table with the
@@ -222,10 +223,10 @@ full-row maximum of 102.873935 fF and paired extra load of 93.351918 fF. The
 without an explicit row use the full-row value; the distributed-row test
 models row PEX directly. The repository has no transistor-level PCLK
 qualifier/generator cell yet. PCLK, precharge release, and read/write interface
-acceptance remain pending; the new ideal phase sequence is only a measured
-interface screen. The 3.3 ns settling screen and 1.8 ns guard remain
-exploratory, not final decoder timing limits. Do not silently modify either
-owner's source.
+acceptance remain pending; the ideal phase sequence is only a measured
+interface screen. The 3.3 ns settling screen and selected 2.10 ns/250 ps/1.80 ns
+timing values remain experimental, not final decoder timing limits. Do not
+silently modify either owner's source.
 Preserve Danilo's bitcell sizes, testbenches, reports and layouts while
 consuming approved interfaces and physical views.
 
@@ -236,8 +237,8 @@ consuming approved interfaces and physical views.
 | 07/10 | Capture/PCLK pre-layout timing budget measured; retain B7 and limits |
 | 08/10 | Current decoder DRC/LVS/PEX and selected OP matrices complete; corrected row Ceff received; current-schematic capture/PCLK measured at both loads |
 | 09/10 | Combined decoder/WL PEX and distributed-row matrices, plus bounded decoder/WL/Danilo-precharge phase-interface screen; PCLK/PRECH waveforms remain ideal |
-| 10/10 | Review with André whether Danilo's candidate is the shared precharge leaf; define the actual PCLK/PRECH source and timing window |
-| 11/10 | Connect the agreed bitline phase path to the physical bitcell row and continue write/readback integration if interfaces are available |
+| 10/10 | Define and capture the transistor-level PCLK/PRECH phase source using the selected Danilo precharge interface and 2.10 ns timing candidate |
+| 11/10 | Replace ideal phase stimuli in the integration bench; connect the physical bitcell row and continue write/readback integration if interfaces are available |
 | 12/10 | P3-9 team interface review, reproduce critical results, assemble handoff |
 | 13/10 | P3-10 Phase 1 handoff with explicit completed/pending status |
 
