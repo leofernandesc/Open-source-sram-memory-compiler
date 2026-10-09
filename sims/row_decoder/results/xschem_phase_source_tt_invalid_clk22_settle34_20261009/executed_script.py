@@ -282,8 +282,7 @@ def netlist_xschem_phase_source(folder: Path) -> dict:
                    for block in child_subckts]
     require(set(child_names) == {"phase_delay_inv", "phase_and3", "phase_or2"},
             f"Unexpected Xschem phase-source hierarchy: {child_names}")
-    subckt = "\n".join(
-        active_top + [""] + [block.rstrip() for block in child_subckts]).rstrip() + "\n"
+    subckt = "\n".join(active_top + [""] + child_subckts) + "\n"
     top_body = "\n".join(active_top)
     require(len(re.findall(r"(?im)^XDL\d+\s", top_body)) == 80,
             "Xschem phase source does not contain 80 delay stages")

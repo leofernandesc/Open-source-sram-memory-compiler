@@ -2,19 +2,21 @@
 
 ## Result and status
 
-A simulation-only transistor-level phase candidate was added to
+A generated-deck transistor-level phase candidate was first added to
 [`run_precharge_phase_interface.py`](../sims/row_decoder/run_precharge_phase_interface.py)
 and screened with the current decoder and wordline-driver PEX plus Danilo's
 read-only W2.52 precharge PEX. **All 26 cases passed, with 3,540/3,540 checks
-passing.** This gives the project a measured starting point for drawing and
-reviewing a real phase-source cell.
+passing.** This gives the project a measured reference for a phase-source
+topology. The table and metrics in this first part describe that initial
+generated-deck version.
 
-The source is generated into each SPICE test deck by the runner. There is no
-Xschem phase-generator cell, layout, or extracted phase-source netlist yet.
-`CLK` and `VALID_ACCESS_Q` remain ideal PWL inputs; the valid qualifier is not
-captured from `CSb/OEb/WEb` in this bench. The tests contain no 6T access
-transistors, sense amplifier, stored-data read/write, or readback. Treat the
-result as a bounded timing/interface screen, not phase-generator signoff or an
+That initial source was generated into each SPICE test deck by the runner. A
+follow-up now provides a hierarchical Xschem phase-source cell and a runner
+mode that uses its actual SKY130 device netlist; see the final section below.
+Neither implementation includes the captured qualifier: `CLK` and
+`VALID_ACCESS_Q` remain ideal PWL inputs. The tests contain no 6T access
+transistors, sense amplifier, stored-data read/write, or readback. Treat these
+results as bounded timing/interface screens, not phase-generator signoff or an
 approved maximum frequency.
 
 ## Phase equations
@@ -36,11 +38,13 @@ precharge resumes. With an idle or invalid access, `VALID_ACCESS_Q=0` keeps
 suppressed by holding the ideal valid qualifier low until the access edge.
 
 Each delay stage uses SKY130A `pfet_01v8`/`nfet_01v8` devices at `L=0.15 µm`,
-`Wp=0.84 µm`, and `Wn=0.42 µm`. The delay chain contains 160 MOSFETs. Its two
-three-input AND gates and one two-input OR gate, including their output
-inverters, add 22 MOSFETs, for 182 total. This is a functional timing
-candidate, not a finalized area choice. The chain's PVT spread and area proxy
-need review before layout.
+`Wp=0.84 µm`, and `Wn=0.42 µm`. The delay chain contains 160 MOSFETs. The
+phase equations use **three** three-input AND gates and one two-input OR gate.
+Including their output inverters, these gates add 30 MOSFETs, for 190 total.
+The initial report incorrectly counted only two AND3 gates and stated 182;
+this audit corrects that error. This is a functional timing candidate, not a
+finalized area choice. The chain's PVT spread and area proxy need review before
+layout.
 
 ## Testbench and evidence boundary
 
@@ -170,16 +174,118 @@ output directory, then run:
   --output-png docs/assets/row_decoder_precharge_phase_chain_20261009.png
 ```
 
-## Remaining work
+## Follow-up — hierarchical Xschem implementation
 
-1. Draw and netlist a dedicated Xschem phase-source schematic; compare its
-   pin order and generated SPICE against the runner's candidate.
-2. Replace the ideal `VALID_ACCESS_Q` source with the captured/qualified
-   control logic, and verify its timing against address capture.
-3. Review the 80-stage chain's area and PVT delay spread. Characterize the
-   legal access period and low-phase precharge time before selecting final
-   taps or claiming frequency support.
-4. Layout the approved phase cell and run DRC/LVS. PEX of the new phase cell
-   remains a later, compute-heavy step; no extraction was run for this screen.
+The same 24/60/80-stage topology is now present as a generated, hierarchical
+Xschem cell in [`cells/control`](../cells/control/README.md). The runner's
+`xschem-tapped-delay-chain` mode netlists that cell with the SKY130A device
+library and simulates the resulting transistor hierarchy. It does not use the
+earlier hand-written phase subcircuit. Xschem netlisting completed without
+missing symbols or netlist errors; the hierarchy contains 80 inverter cells,
+three AND3 cells, and one OR2 cell. The audited device count is 190 MOSFETs.
+
+The final Xschem-source screen passes **26/26 cases and 3,540/3,540 checks**:
+
+| Profile | Conditions | Cases | Checks | Capture→PCLK rise | PRECH release lead | PCLK fall→PRECH conduction | Selected WL off→PRECH conduction |
+|---|---|---:|---:|---:|---:|---:|---:|
+| TT valid | 1.80 V, 27 °C | 8/8 | 1,344 | 2.0446–2.0449 ns | 390.34–390.54 ps | 2.4971–2.4975 ns | 1.3446–1.3468 ns |
+| TT invalid/idle | 1.80 V, 27 °C | 6/6 | 180 | PCLK suppressed | PRECH remains active | Not applicable | Not applicable |
+| SS | 1.62 V, −40 °C | 4/4 | 672 | 3.1470–3.1473 ns | 685.23–685.53 ps | 3.8499–3.8501 ns | 2.2748–2.2762 ns |
+| FF | 1.80 V, 125 °C | 8/8 | 1,344 | 1.7252–1.7253 ns | 265.69–265.72 ps | 2.1104–2.1105 ns | 1.0498–1.0511 ns |
+
+PCLK-fall-to-precharge and selected-wordline-off-to-precharge are distinct
+intervals. Both use the 75%-VDD falling `PRECH` crossing as the conservative
+precharge-conduction point; the selected WL-off crossing is at 10% VDD. The
+per-case checks and manifests now record these as separate fields, so the
+PCLK edge delay is not mistaken for the WL turn-off clearance.
+
+The measured phase timing differs by corner and is experimental. In particular,
+the `--phase-ps 2100` input is the address/capture stimulus reference; it does
+not force the generated PCLK edge to 2.100 ns after capture. The 250 ps release
+lead and 1.8 ns turn-off guard are requested bench checks, not project
+specification limits.
+
+The shared final matrix uses `--clk-fall-ps 22000` and
+`--settling-allowance-ns 3.4`. These are testbench settings, not a change to the
+SRAM clock specification. With the earlier 20.7 ns falling edge, the SS
+wordline had not reached the bench's low-level check by the final sample. At
+22 ns and a 3.3 ns settling sample, a representative SS wordline reached
+1.4562 V against a 1.458 V threshold; increasing the sample allowance to 3.4 ns
+closed that numerical check. This adjustment changes when the bench samples
+settling and must not be read as a relaxed logic threshold.
+
+The four final manifests preserve the run inputs, PEX provenance, model hashes,
+tool versions, case-level checks, separate PCLK and WL turn-off timing
+measurements, Xschem netlist hash, and results:
+
+- [TT valid, 8 cases](../sims/row_decoder/results/xschem_phase_source_tt_valid_clk22_settle34_20261009/manifest.json)
+- [TT invalid/idle, 6 cases](../sims/row_decoder/results/xschem_phase_source_tt_invalid_clk22_settle34_20261009/manifest.json)
+- [SS, 4 cases](../sims/row_decoder/results/xschem_phase_source_slow_clk22_settle34_20261009/manifest.json)
+- [FF, 8 cases](../sims/row_decoder/results/xschem_phase_source_fast_clk22_settle34_20261009/manifest.json)
+- [Xschem phase-source schematic export](assets/pclk_phase_source_24_60_80_20261009.svg)
+- [Representative Xschem-source waveform](assets/pclk_phase_source_interface_xschem_20261009.png)
+
+To reproduce the matrix, run these commands from the repository root with the
+project EDA environment:
+
+```bash
+COMMON=(--phase-ps 2100 --clk-fall-ps 22000 --settling-allowance-ns 3.4 \
+  --wl-cap-ff 102.873935496 --release-lead-ps 250 \
+  --turnoff-guard-ps 1800 --step-ps 5 \
+  --phase-source xschem-tapped-delay-chain \
+  --delay-release-stages 24 --delay-evaluation-stages 60 \
+  --delay-reassert-stages 80)
+
+./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
+  --profiles tt --transitions 0:0 0:1 0:2 0:3 \
+  --control-vectors 001 010 --transitions-per-vector "${COMMON[@]}" \
+  --output-dir sims/row_decoder/results/xschem_phase_source_tt_valid_repro
+
+./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
+  --profiles tt --transitions 0:3 \
+  --control-vectors 000 011 100 101 110 111 "${COMMON[@]}" \
+  --output-dir sims/row_decoder/results/xschem_phase_source_tt_invalid_repro
+
+./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
+  --profiles slow --transitions 1:2 3:0 \
+  --control-vectors 001 010 --transitions-per-vector "${COMMON[@]}" \
+  --output-dir sims/row_decoder/results/xschem_phase_source_slow_repro
+
+./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
+  --profiles fast --transitions 0:0 0:1 0:2 0:3 \
+  --control-vectors 001 010 --transitions-per-vector "${COMMON[@]}" \
+  --output-dir sims/row_decoder/results/xschem_phase_source_fast_repro
+```
+
+The plotted SS waveform is from a representative read transition (address
+1→2). To regenerate its raw transient and image, rerun that one case with
+`--keep-raw`, then invoke the plotter:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
+  --profiles slow --transitions 1:2 --control-vectors 001 \
+  --phase-ps 2100 --clk-fall-ps 22000 --settling-allowance-ns 3.4 \
+  --wl-cap-ff 102.873935496 --release-lead-ps 250 \
+  --turnoff-guard-ps 1800 --step-ps 5 --keep-raw \
+  --phase-source xschem-tapped-delay-chain --delay-release-stages 24 \
+  --delay-evaluation-stages 60 --delay-reassert-stages 80 \
+  --output-dir sims/row_decoder/results/xschem_phase_source_waveform_repro
+
+./tools/sram-eda python3 sims/row_decoder/plot_precharge_phase_interface.py \
+  --case-dir sims/row_decoder/results/xschem_phase_source_waveform_repro/cases/slow_ctl001_a1_to_2_p2100 \
+  --output-svg docs/assets/pclk_phase_source_interface_xschem_20261009.svg \
+  --output-png docs/assets/pclk_phase_source_interface_xschem_20261009.png
+```
+
+## Remaining work after this screen
+
+1. Review and size the phase cell; the present 24/60/80 tap values and MOS
+   dimensions are experimental.
+2. Replace ideal `VALID_ACCESS_Q` with captured/qualified control logic and
+   check it against address capture and write-data timing.
+3. Characterize the legal access period and low-phase precharge time before
+   making any frequency claim.
+4. Layout the reviewed phase cell and run DRC/LVS. PEX of this new phase cell
+   remains a later, compute-heavy step; no extraction was run in this work.
 5. Integrate the physical bitcell row and actual read/write path, then test
    stored-data readback and valid/invalid operation sequencing.

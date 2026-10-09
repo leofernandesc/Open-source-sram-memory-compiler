@@ -1,0 +1,20 @@
+v {xschem version=3.4.6 file_version=1.2}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+T {phase_delay_inv} -55 -6 0 0 0.3 0.3 {}
+T {@name} 110 -45 0 0 0.2 0.2 {}
+P 4 5 -40 -40 -40 40 40 40 40 -40 -40 -40 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=VDD dir=inout}
+L 7 0 -30 0 -20 {}
+T {VDD} 5 -26 0 0 0.2 0.2 {}
+B 5 -52.5 -2.5 -47.5 2.5 {name=A dir=in}
+L 4 -50 0 -40 0 {}
+T {A} -35 -4 0 0 0.2 0.2 {}
+B 5 47.5 -2.5 52.5 2.5 {name=Y dir=out}
+L 4 40 0 50 0 {}
+T {Y} 35 -4 0 1 0.2 0.2 {}
+B 5 -2.5 27.5 2.5 32.5 {name=VSS dir=inout}
+L 7 0 30 0 20 {}
+T {VSS} 5 16 0 0 0.2 0.2 {}

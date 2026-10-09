@@ -10,8 +10,9 @@ integration, along with an initial phase timing point from the
 measured sweep. The resulting decision and new verification are recorded in
 the [phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
 That decision does not amend `specs/technical_specification.md` or modify
-either owner's source; implementation with a real phase generator remains
-open.
+either owner's source. An experimental hierarchical Xschem phase source has
+since been added in this branch and screened against the selected PEX inputs;
+its captured qualifier, layout, and PEX remain open.
 
 ## Precharge schematic review
 
@@ -217,13 +218,15 @@ loads over the required process/voltage/temperature conditions. Verify that:
 
 The bounded phase-interface bench consumes Danilo's PEX as a pinned,
 read-only input selected for Person 3's integration work. It does not merge or
-modify the team-wide precharge source. In this branch, PCLK and PRECH are still
-ideal testbench inputs because the transistor-level control generator is not
-implemented. Neither this screen nor Danilo's separate G7 results establish
-integrated SRAM timing or qualify the dynamic decoder with real control capture
-and bitcell read/write behavior.
+modify the team-wide precharge source. The runner retains ideal PCLK/PRECH
+mode and now also has experimental generated-deck and hierarchical Xschem
+transistor-source modes. The latter passed the 26-case sampled TT/SS/FF and
+invalid-vector matrix; see the [phase-source report](row_decoder_tapped_phase_generator_screen_20261009.md).
+Neither that screen nor Danilo's separate G7 results establish integrated
+SRAM timing or qualify the dynamic decoder with real control capture and
+bitcell read/write behavior.
 
-### Follow-up — transistor-level simulation candidate, 2026-10-09
+### Follow-up — generated-deck transistor-level candidate, 2026-10-09
 
 The simulation runner now generates a transistor-level 24/60/80-tap phase
 candidate in each SPICE deck. It drives PCLK and PRECH from transistor logic,
@@ -232,6 +235,20 @@ candidate passed 26/26 cases and 3,540/3,540 checks across the sampled TT, SS,
 and FF profiles with Danilo's pinned W2.52 PEX. It does not change the
 recommendation above: capture the access qualifier without glitches, then
 generate separate non-overlapping PCLK and PRECH phases. The tap-chain result
-is a baseline for a dedicated Xschem implementation, not a completed phase
-source. Its area, timing spread, actual capture circuit, phase windows, layout,
-and PEX remain to be reviewed. See the [candidate report](row_decoder_tapped_phase_generator_screen_20261009.md).
+provided the timing baseline for the hierarchical Xschem follow-up below. The
+Xschem phase source is now implemented and screened, while its area, final
+sizing, actual capture circuit, phase windows, layout, and PEX remain to be
+reviewed. See the [candidate report](row_decoder_tapped_phase_generator_screen_20261009.md).
+
+### Follow-up — hierarchical Xschem phase source, 2026-10-09
+
+The 24/60/80-stage candidate is now implemented as a hierarchical Xschem cell
+under `cells/control/` and can be selected with
+`--phase-source xschem-tapped-delay-chain`. The simulation runner netlists this
+checked-in hierarchy using the SKY130A device symbols; the Xschem netlist
+contains 190 MOSFETs. This implementation passed 26/26 cases and 3,540/3,540
+checks in the selected decoder/WL/Danilo-precharge PEX interface matrix. The
+test uses an ideal external clock and ideal `VALID_ACCESS_Q`; it has no phase
+cell layout/PEX, captured qualifier, bitcell read/write path, or full SRAM
+readback. Its bench clock and sampling windows are experimental. Detailed
+numbers and manifests are in the [phase-source report](row_decoder_tapped_phase_generator_screen_20261009.md).

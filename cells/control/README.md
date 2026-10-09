@@ -1,0 +1,66 @@
+# Phase-control cells
+
+`pclk_phase_source.sch` is an experimental transistor-level source for the
+dynamic row decoder's `PCLK` and the bitline precharge leaf's active-low
+`PRECH` input. It belongs to the Person 3 peripheral integration work; it does
+not modify the decoder, Danilo's bitcell, or the shared precharge source.
+
+## Interface
+
+| Pin | Direction | Meaning |
+|---|---|---|
+| `CLK` | input | SRAM clock |
+| `VALID_ACCESS_Q` | input | Already captured and qualified read/write enable |
+| `VDD`, `VSS` | supply | SKY130A 1.8 V core rails |
+| `PCLK` | output | Dynamic decoder precharge/evaluate phase; low precharges |
+| `PRECH` | output | Active-low bitline precharge/equalization enable |
+
+The cell does **not** capture `CSb`, `OEb`, or `WEb`; it requires a stable,
+glitch-free `VALID_ACCESS_Q` from upstream control capture. The simulation
+runner currently models `CLK` and `VALID_ACCESS_Q` as ideal sources, so this
+cell alone is not a complete SRAM control path.
+
+## Experimental topology
+
+An 80-stage chain of CMOS inverters provides taps at stages 24, 60, and 80:
+
+```text
+CLK_RELEASED = CLK AND DLY24
+PRECH_SET    = CLK_RELEASED OR DLY80
+PCLK         = VALID_ACCESS_Q AND CLK AND DLY60
+PRECH        = VALID_ACCESS_Q AND PRECH_SET
+```
+
+The AND and OR functions use static CMOS gates. The delay chain uses SKY130A
+`pfet_01v8`/`nfet_01v8` devices at `L=0.15 µm`, `Wp=0.84 µm`, and
+`Wn=0.42 µm`. The output inverters in the phase-logic gates use
+`Wp=3.0 µm` and `Wn=1.5 µm`; the OR gate's pull-up PMOS devices use
+`Wp=1.68 µm`. These are initial experimental values, not final sizing.
+
+The hierarchy contains 160 delay-chain MOSFETs, three 8-MOS AND3 gates, and
+one 6-MOS OR2 gate: **190 MOSFETs total**. This count was audited from the
+Xschem-generated SPICE hierarchy. An earlier simulation-only report counted
+only two AND3 gates and stated 182; that was a counting error, corrected in
+the phase-source follow-up report.
+
+## Use and limits
+
+Open the top schematic with:
+
+```bash
+./tools/sram-eda xschem cells/control/pclk_phase_source.sch
+```
+
+Regenerate the new hierarchy deterministically with:
+
+```bash
+python3 tools/generate_pclk_phase_source.py --write
+python3 tools/generate_pclk_phase_source.py --check
+```
+
+The Xschem netlist can be used in the existing decoder/WL/precharge PEX
+interface runner with `--phase-source xschem-tapped-delay-chain`. The measured
+24/60/80 taps and the clock/sample windows remain experimental: the cell has no
+layout, DRC, LVS, phase-source PEX, captured qualifier, or bitcell read/write
+path. Do not interpret the numbers as a specification limit, maximum
+frequency, reliability result, or signoff.

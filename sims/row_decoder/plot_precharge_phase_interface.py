@@ -89,17 +89,21 @@ def main() -> int:
     axes[0].text(pre_assert, 0.70*vdd,
                  f" PRECH reassert {pre_assert:.2f} ns", va="top", fontsize=8)
     axes[0].set_xlim(0, t_ns[-1])
-    source_label = ("transistor-level tapped phase candidate"
-                    if phase_source == "tapped-delay-chain" else "ideal PCLK/PRECH")
+    if phase_source == "xschem-tapped-delay-chain":
+        source_label = "hierarchical Xschem SKY130 transistor phase source"
+        source_note = ("Hierarchical Xschem phase logic; ideal CLK/VALID_ACCESS_Q. Decoder, WL and 8 precharge use PEX; "
+                       "lumped BL loads; no 6T read/write path.")
+    elif phase_source == "tapped-delay-chain":
+        source_label = "generated-deck transistor-level tapped phase candidate"
+        source_note = ("Generated transistor phase logic; ideal CLK/VALID_ACCESS_Q. Decoder, WL and 8 precharge use PEX; "
+                       "lumped BL loads; no 6T read/write path.")
+    else:
+        source_label = "ideal PCLK/PRECH"
+        source_note = ("Ideal PCLK/PRECH sources; decoder, WL driver and eight precharge leaves use SKY130A PEX. "
+                       "Bitlines use capacitive loads; no 6T array/read/write path is included.")
     fig.suptitle("Dynamic row decoder and precharge phase interface\n"
                  f"{metadata['profile']} · {metadata['operation']} · address {metadata['old_address']}→{metadata['new_address']} · {source_label}",
                  y=0.99)
-    if phase_source == "tapped-delay-chain":
-        source_note = ("24/60/80-stage transistor phase; ideal CLK/VALID_ACCESS_Q. Decoder, WL and 8 precharge use PEX; "
-                       "lumped BL loads; no 6T read/write path.")
-    else:
-        source_note = ("Ideal PCLK/PRECH sources; decoder, WL driver and eight precharge leaves use SKY130A PEX. "
-                       "Bitlines use capacitive loads; no 6T array/read/write path is included.")
     fig.text(0.5, 0.005,
              source_note,
              ha="center", fontsize=7)
