@@ -32,7 +32,9 @@ passou no refinamento de 1 ps.
 O escopo fechado cobre bitcell, leafs físicas e qualificação elétrica G7. O
 decodificador 2→4 agora tem arquitetura dinâmica e um netlist SPICE candidato
 em `cells/row_decoder_2to4.spice`; seu sizing, simulação e qualificação física
-permanecem pendentes. A integração macro 4×8 segue na **Fase 2**. Yield de
+permanecem pendentes. A integração macro 4×8 e a qualificação do decoder dinâmico estão
+planejadas para a **Fase 2**, com essa realocação ainda pendente de validação
+formal pela equipe/orientadores. Yield de
 produção, ruído estatístico completo, DC-SNM-PVT e teto de potência macro ficam
 fora do gate. Consulte [estado do fechamento](docs/phase1_leaf_cell_closure.md).
 
@@ -62,7 +64,9 @@ seguintes profundidades:
 | 32×8 | 256 bits |
 
 A configuração 4×8 é o primeiro macro planejado para a Fase 2; a Fase 1 fecha a
-qualificação de engenharia da bitcell e das leafs físicas.
+qualificação de engenharia da bitcell e das leafs físicas. A inclusão da
+qualificação do decoder nessa fase é uma decisão de planejamento ainda pendente
+de validação formal pela equipe/orientadores.
 
 ## Views e verificação previstas
 
@@ -445,7 +449,7 @@ extração passou `120/120`, com `C_BL,PEX,max=519,179340 fF` e teto
 | Write driver — baseline G3 pré-layout | conectividade corrigida; em `65 fF + 17 fF` de WL, `WE=2,20 ns`, `WL_IN` em `3,20 ns` e largura `1,0 ns` passaram `60/60`; estes números são baseline pré-layout. G7 atual passou `60/60` com WE `2,20 ns`, WL_IN `3,40 ns`, flip máximo `0,720280 ns` e recuperação máxima `3,978840 ns`. |
 | Hold/Read SNM | medidos em `tt/ff/ss/fs/sf`; pior Read SNM=288,342 mV |
 | WLVM, leakage e Monte Carlo | WLVM exploratório e leakage/MC de SNM medidos; o sense possui critério estatístico de engenharia para freeze, enquanto potência macro continua sem requisito numérico aprovado |
-| Layout, DRC, LVS e parasitas | G6/G7 físicos e cargas requalificados com `.t0`; leitura G7 `60/60`, escrita G7 `60/60`, CBL limite `597,056241 fF`, WL extra `93,351918 fF`. **Fase 1 fechada** no escopo da célula/leafs. Decoder dinâmico tem netlist SPICE candidato; sua qualificação e a macro 4×8 seguem na Fase 2. |
+| Layout, DRC, LVS e parasitas | G6/G7 físicos e cargas requalificados com `.t0`; leitura G7 `60/60`, escrita G7 `60/60`, CBL limite `597,056241 fF`, WL extra `93,351918 fF`. **Fase 1 fechada** no escopo da célula/leafs. Decoder dinâmico tem netlist SPICE candidato; sua qualificação e a macro 4×8 estão planejadas para a Fase 2, pendentes de validação formal da equipe/orientadores. |
 
 ## Próxima fase e limites de escopo
 

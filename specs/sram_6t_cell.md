@@ -195,7 +195,9 @@ requalificados, e a Fase 1 está `CLOSED_ENGINEERING_QUALIFICATION` para a
 bitcell e suas leafs físicas. O decoder 2→4 foi alterado para uma arquitetura
 dinâmica e tem um netlist SPICE candidato em `cells/row_decoder_2to4.spice`.
 Simulação, sizing, captura Xschem, layout/DRC/LVS e integração da macro 4×8
-continuam pendentes na Fase 2. Evidências, critérios e limitações da Fase 1:
+continuam planejados para a Fase 2. Essa realocação do decoder altera o
+planejamento original do entregável de periféricos e permanece pendente de
+validação formal pela equipe/orientadores. Evidências, critérios e limitações da Fase 1:
 [`docs/phase1_leaf_cell_closure.md`](../docs/phase1_leaf_cell_closure.md). Para a
 conferência manual Magic/Netgen, consulte
 [`docs/validacao_manual_drc_lvs_sky130a.md`](../docs/validacao_manual_drc_lvs_sky130a.md).
@@ -203,7 +205,8 @@ conferência manual Magic/Netgen, consulte
 ## Escopo posterior à Fase 1
 
 Yield de produção, ruído estatístico completo, DC-SNM PVT e teto de potência
-macro não foram reivindicados e seguem fora do escopo da Fase 1. A Fase 2
-abrange o decodificador 2→4 e a integração macro 4×8. Os resultados de
+macro não foram reivindicados e seguem fora do escopo da Fase 1. No planejamento
+atual, a Fase 2 abrange o decodificador 2→4 e a integração macro 4×8; essa
+realocação permanece pendente de validação formal pela equipe/orientadores. Os resultados de
 screening pré-layout continuam identificados como tal nas tabelas históricas
 deste documento.

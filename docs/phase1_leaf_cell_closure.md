@@ -31,9 +31,10 @@ lento foi refinado a 1 ps e passou com recuperação de `3,979500 ns`.
 **Estado: `CLOSED_ENGINEERING_QUALIFICATION` no escopo da Fase 1.** Após esse
 fechamento, a arquitetura do decoder 2→4 foi alterada de estática para dinâmica
 e foi criado um candidato transistor-level em `cells/row_decoder_2to4.spice`.
-O decoder continua sendo trabalho da Fase 2: sizing, transientes PVT,
-charge-sharing/leakage, captura Xschem, layout, DRC/LVS e integração macro 4×8
-seguem pendentes. A alteração do decoder não reabre os gates medidos da
+No planejamento atual, o decoder dinâmico foi realocado para a Fase 2: sizing, transientes
+PVT, charge-sharing/leakage, captura Xschem, layout, DRC/LVS e integração macro
+4×8 seguem pendentes. Essa realocação altera o planejamento original associado
+ao entregável do decodificador e requer validação formal da equipe/orientadores. A alteração do decoder não reabre os gates medidos da
 bitcell/leafs; a qualificação do novo bloco precisa de evidências próprias.
 
 ## Gates finais da Fase 1 — 08/10/2026
@@ -47,7 +48,7 @@ bitcell/leafs; a qualificação do novo bloco precisa de evidências próprias.
 | C_WL | Linha e bitcell 60/60; diferença pareada máxima `93,351918 fF` | **Fechado**; aplicar como carga WL extra |
 | Leitura G7 | CBL `597,056241 fF`; ΔBL min `0,334350 V`; setup min `804,60 ps`; `t_res` max `0,246350 ns`; disturb max `0,196491 V` | **Fechado**, 60/60; casos críticos refinados a 1 ps passaram |
 | Escrita G7 | CBL por lado/caso `597,056241 fF`; flip max `0,720280 ns`; recuperação max `3,978840 ns`; folga WL30 min `79,696 ps` | **Fechado**, 60/60; caso lento refinado a 1 ps passou |
-| Decodificador dinâmico 2→4 e macro 4×8 | Candidato SPICE em `cells/row_decoder_2to4.spice`; sem simulação elétrica nem layout/DRC/LVS | **Fase 2 — integração de macro**, qualificação e integração pendentes |
+| Decodificador dinâmico 2→4 e macro 4×8 | Candidato SPICE em `cells/row_decoder_2to4.spice`; sem simulação elétrica nem layout/DRC/LVS | **Planejado para a Fase 2 — pendente de validação da equipe/orientadores**, qualificação e integração pendentes |
 
 ### Conferência manual de DRC/LVS — 08/10/2026
 
