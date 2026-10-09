@@ -78,6 +78,13 @@ The schematic baseline also shows transient PFET `VBS` below −0.10 V: the
 minimum is −0.141933 V in FF and −0.120349 V in SS. The extracted layout reduces
 the corresponding post-initialization PEX minima to the ranges above.
 
+In the operating-point FF `00→00` probe, baseline device `x1.m1` reaches
+`VBS` = −0.141931 V at 10.1075 ns. At that sample its `A0B` diffusion is
+1.941931 V while the tied bulk/supply is 1.8 V; the gate is near 0 V. The
+same probe's PEX PFET `VBS` minimum is −0.077979 V. This is consistent with an
+overshoot on the schematic `A0B` node that is damped by the extracted network;
+it does not identify a rail short.
+
 ## UIC initialization artifact and one operating-point probe
 
 The archived PEX deck starts with `.tran ... uic`. In the first FF `00→00`
@@ -112,6 +119,18 @@ PFET `VBS` excursion in the UIC PEX waveform is a forced initial-condition
 transient. It does not establish the no-UIC result for every address pair or
 corner. The no-UIC case still has negative NFET and positive PFET `VGS`
 samples, so the published signed `VGS` range question remains open.
+
+The remaining FF PEX `VGS` extrema in this probe are traceable to specific
+nodes:
+
+| Device and time | Measured terminal values | Interpretation |
+|---|---|---|
+| NFET `x1.22`, 4.9975 ns, `VGS` = −1.479475 V | Gate `A0T.t3` = 0.0104 V; diffusion nodes `EVAL_GND.t3` = 1.4899 V and `net2.t1` = 1.5876 V; local `PCLK.t3` = 0.7929 V. | The input gate is low while both stack nodes retain charge during the PCLK edge. This is consistent with an off evaluation branch; it does not resemble an accidental gate-to-rail short. |
+| PFET `x1.27`, 20.0265 ns, `VGS` = +0.078286 V | Gate `N2.t3` = 1.8783 V; source-side VDD diffusion = 1.8000 V; `DEC2.t0` = 0.0055 V; local `PCLK.t3` = 1.8002 V. | The dynamic node is about 78 mV above local VDD while the unselected DEC output remains low, consistent with clock/feedthrough overshoot. |
+
+These node readings are measured from the archived raw waveform; the circuit
+explanations are inferences. They make a wiring mistake less likely for these
+two extrema, while leaving PDK signed-range acceptance unresolved.
 
 ## Reproduction and evidence
 
