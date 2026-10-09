@@ -155,13 +155,13 @@ manifests, netlists and executed scripts are retained under
 
 ## Remaining work and limits
 
-1. Repeat the capture/PCLK study with the current decoder R-C PEX and WL-driver
-   PEX, if the available extracted interfaces can be combined without changing
-   their source ownership. The current three matrices use a schematic decoder
-   and schematic WL drivers.
+1. The combined current decoder/WL-driver PEX capture study is now recorded in
+   the [2026-10-09 report](row_decoder_capture_combined_pex_20261009.md). Its
+   selected 1.50 ns matrix identifies SS settling and literal-guard failures;
+   the two earlier phases in this report remain schematic-only results.
 2. Test additional address/PCLK edge slew and capture-phase points using the
-   measured load. The two phase points here are a selected-point check, not a
-   sampled minimum or a clock-frequency sweep.
+   measured load. The phase points in this and the combined report are selected
+   checks, not a sampled minimum or a clock-frequency sweep.
 3. Connect the actual row or a reviewed distributed row model, including
    coupling and the correct WL-driver interface. The lumped 102.874 fF load
    does not replace this integration.

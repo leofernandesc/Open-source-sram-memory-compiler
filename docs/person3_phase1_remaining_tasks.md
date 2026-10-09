@@ -52,6 +52,22 @@ waveform checks and 250 ps literal guard pass 72/72 cases; the custom 1.95 V
 screen passes 28/72. The physical row and current decoder/WL-driver PEX are
 not combined in this capture bench, and owner/model acceptance remains open.
 
+**Combined decoder/WL PEX capture study, 2026-10-09:** the current decoder
+R-C PEX and four WL-driver R-C PEX instances were audited and combined with the
+same 102.873935496 fF full-row load. At 1.50 ns, TT and FF pass 24/24 each;
+in the original run with a 20.00 ns falling edge and 3 ns settling allowance,
+all 24 SS cases miss the WL settling screen, and only 2/24 meet the 250 ps
+literal guard. All 72 pass the separate 1.95 V screen, which is not reliability
+signoff. A two-transition SS pilot at a 2.10 ns phase and
+20.70 ns falling edge passes with a 3.3 ns screen, but does not qualify the full
+matrix or approve a longer clock cycle. The later full SS phase sweep held the
+20.70 ns falling edge and 3.3 ns settling allowance fixed: all 24 cases pass
+functional and voltage screens at 1.50, 1.80, 1.95 and 2.10 ns, while the
+250 ps literal guard passes 2/24, 13/24, 24/24 and 24/24, respectively. The
+1.95 ns point is the earliest passing phase among these samples only; it is not
+an approved interface limit or supported frequency. See the [combined PEX
+report](row_decoder_capture_combined_pex_20261009.md).
+
 **Historical evidence:** B7 pre-layout qualification (264 cases), the 204-case
 contract campaign, 15 numerical comparisons and the captured-address budget
 remain archived for their original source revisions. The current inverter,
@@ -89,12 +105,12 @@ current physical-row capture result.
 | ID | Task | Dependency | Status and next action | Completion evidence |
 |---|---|---|---|---|
 | P3-1 | Review retained decoder source, buffer delay and internal contract | Electrical correction | **Functional and operating-point matrices complete; source-level model review complete; project/model acceptance pending.** | All 16 ordered pairs pass baseline/PEX functional checks at 5 ps and 1 ps in TT/SS/FF, and all 96 1 ps operating-point cases pass functional checks. At FF, 10 baseline cases exceed the custom 1.95 V magnitude screen by at most 4.674 mV; the 0.5 ps refinement is timestep-stable, while all matching PEX cases pass. External-terminal `VGS` screening remains outside the published model-validity ranges. The source audit documents the ngspice BSIM4 `A2`/`A1` clamp and warn-only negative `Eta0`/`Pdibl` checks; model-owner/advisor acceptance remains open. See [matrix report](row_decoder_opinit_matrix_20261008.md) and [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md). No physical-row or reliability qualification is claimed.
-| P3-2 | Establish captured-address/PCLK timing budget | Current source/PEX; control interface coordination | **Current schematic measured; PEX and broader edge/phase sweep pending.** Matched 17.4/102.874 fF matrices pass waveform logic and the 250 ps literal guard at 1.25 ns; the corrected-load run also passes at 1.50 ns. Use 1.50 ns as a provisional next-study point, then repeat with decoder and WL-driver PEX if their extracted interfaces can be combined. Review the physical PCLK source. | Current-source netlist hash `2c8e802f...`; 72/72 logic and guard cases at both selected phases, but only 28/72 pass the custom voltage screen. Q uses Liberty-derived PWL, PCLK is ideal, row load is lumped Ceff and DFF load is not extracted. No external setup/hold or Fmax claim. See [requalification report](row_decoder_capture_load_requalification_20261008.md). |
+| P3-2 | Establish captured-address/PCLK timing budget | Current source/PEX; control interface coordination | **Measured: full SS phase sweep at four points with a fixed ideal falling edge and settling window.** Functional/voltage screens pass 24/24 at each point. The 250 ps literal guard passes 2/24 at 1.50 ns, 13/24 at 1.80 ns, and 24/24 at 1.95 and 2.10 ns. Next: characterize the actual PCLK generator and repeat the sweep over its approved edge/window range; advisor review of the experimental guard remains open. | Fixed 20.70 ns fall, 3.3 ns allowance, 12 address transitions and both Liberty Q loads; row Ceff is lumped. The 1.95 ns point is the earliest passing sampled point, not an approved interface delay or Fmax. Q-pin capacitance, external setup/hold, metastability and signed model-domain/reliability acceptance remain open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md) and [schematic requalification](row_decoder_capture_load_requalification_20261008.md). |
 | P3-3 | Create decoder layout under `layout/row_decoder/` | P3-1; record PCLK pin assumptions | **Complete; current routed revision.** Nine external pins, four separate evaluation stacks, internal address literals, VDD/VSS body ties and isolated EVAL_GND are present. | `row_decoder_layout.mag`, flattened view and generation scripts; see the layout README and validation log. |
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
-| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Decoder PEX extraction and functional matrices complete; capture bench remains schematic; acceptance pending.** | Current decoder PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix is complete; a targeted 10-pair FF refinement at 0.5 ps confirms the baseline custom screen excess is timestep-stable and all matching PEX pairs pass. External-terminal `VGS` excursions and baseline PFET `VBS` findings remain outside at least one published signed model-validity interval under the audited convention; ngspice's FF parameter-warning behavior is documented. Project/model-owner acceptance remains open. New capture/PCLK runs use schematic WL buffers and lumped row Ceff, not the decoder PEX. |
-| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Corrected row-capacitance evidence received and used as a lumped bench load; physical integration and owner acceptance pending.** Danilo's `95c23c0` provides 60/60 PASS `.t0` data, with maximum full-row Ceff 102.873935496 fF and maximum paired additional load 93.351918068 fF. | Join decoder → four WL drivers → physical row or reviewed distributed model for each address and coupling condition. Check all four WL paths and deassertion against actual CLK/PCLK, access enable and BL/BLB precharge. Preserve the captured CSV/hash; its lumped-cap use is not completed physical integration. |
+| P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Current decoder PEX, combined decoder/WL PEX capture matrix, and four-point full SS phase sweep complete; model acceptance and actual PCLK integration pending.** | Current decoder PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix and targeted 0.5 ps FF refinement are complete. In the original combined capture run (20.00 ns fall and 3 ns settling), TT/FF pass 24/24 while all 24 SS cases miss the settling contract. The follow-up SS sweep uses four WL-driver PEX instances and corrected lumped row Ceff: it passes all 3,840 waveform checks at each of four phases, with 2/24, 13/24, 24/24 and 24/24 cases passing the separate 250 ps guard. Voltage screens pass but are not reliability signoff. External-terminal model-domain review remains open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md). |
+| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Corrected row-capacitance evidence is used with decoder and WL-driver PEX as a lumped load; distributed row integration and owner acceptance pending.** Danilo's `95c23c0` provides 60/60 PASS `.t0` data, with maximum full-row Ceff 102.873935496 fF and maximum paired additional load 93.351918068 fF. | Join decoder → four WL drivers → physical row or reviewed distributed model for each address and coupling condition. Check all four WL paths and deassertion against actual CLK/PCLK, access enable and BL/BLB precharge. Preserve the captured CSV/hash; the combined leaf-PEX plus lumped-C bench is not completed physical integration. |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
 | P3-10 | Package Person 3 Phase 1 delivery | P3-4 through P3-9, or documented blocker | **Pending.** | Schematics/symbols, benches, layouts, extraction/DRC/LVS, selected CSVs, reports, dimensions, reproducible environment and limitations. |
@@ -118,10 +134,14 @@ criterion.
 
 ### Decoder closure sequence after the operating-point matrix
 
-1. The current-schematic captured-address/PCLK study is measured at 17.4 and
-   102.874 fF, at 1.25 and 1.50 ns. Next, combine current decoder and WL-driver
-   PEX if the extracted interfaces permit, then measure address/clock edge and
-   phase sensitivity while keeping the model screens visible.
+1. The current-schematic study and a matched combined decoder/WL-driver PEX
+   study are measured at the 102.874 fF full-row load. A four-point SS phase
+   sweep at a fixed ideal 20.70 ns falling edge and 3.3 ns settling window is
+   complete for all 12 transitions and both Liberty loads. The experimental
+   250 ps literal guard passes all cases at 1.95 and 2.10 ns, but this does not
+   define an interface limit. Next, use the actual PCLK source and approved
+   system cycle to sweep phase and falling edge; do not claim frequency closure
+   from ideal PWL clocks.
 2. Repeat current-sizing noise, retention and phase-duration experiments.
    Cover crossed voltage/temperature conditions as diagnostics; the three
    existing PVT points are not a complete characterization grid.
@@ -161,8 +181,8 @@ interfaces and capacitance data.
 |---|---|
 | 07/10 | Capture/PCLK pre-layout timing budget measured; retain B7 and limits |
 | 08/10 | Current decoder DRC/LVS/PEX and selected OP matrices complete; corrected row Ceff received; current-schematic capture/PCLK measured at both loads |
-| 09/10 | Combine decoder/WL-driver PEX for capture/PCLK if feasible; extend edge/phase sensitivity and begin noise/retention tests |
-| 10/10 | Current-sizing noise/retention/phase-duration and additional PVT diagnostics; model criteria review in parallel |
+| 09/10 | Combined decoder/WL-driver PEX matrix and four-point SS phase sweep at fixed falling edge complete |
+| 10/10 | Review actual PCLK/control timing if interfaces are available; continue current-sizing noise/retention/phase-duration and model-criteria review |
 | 11/10 | P3-7 physical row/WL and P3-8 write integration after review of corrected owner inputs |
 | 12/10 | P3-9 team interface review, reproduce critical results, assemble handoff |
 | 13/10 | P3-10 Phase 1 handoff with explicit completed/pending status |
