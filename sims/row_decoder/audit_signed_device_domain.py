@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Audit polarity-oriented MOS terminal voltages in archived decoder waveforms.
 
-This is a postprocessor: it does not netlist or simulate. For each MOS sample,
-it treats the lower-potential diffusion as the effective source for NFETs and
-the higher-potential diffusion as the effective source for PFETs, then checks
-the resulting VGS/VDS/VBS values against the published SKY130 1.8 V ranges.
-That source/drain convention is an engineering screen, not a PDK signoff rule.
+This postprocessor measures the external terminals of each MOS subcircuit.
+It treats the lower-potential diffusion as the effective source for NFETs and
+the higher-potential diffusion as the effective source for PFETs, then compares
+those terminal-derived VGS/VDS/VBS values with the published SKY130 ranges.
+It does not read the intrinsic BSIM4 model states behind series/body resistance.
+This is an engineering screen, not exact intrinsic bias or a PDK signoff rule.
 """
 from __future__ import annotations
 
@@ -276,12 +277,13 @@ def main() -> int:
         "scope": (
             f"Postprocessing of archived {args.expected_cases}-case baseline and extracted-PEX "
             f"waveforms for profile(s) {', '.join(args.profiles)}. "
+            "The voltages are derived from external MOS subcircuit terminals, not intrinsic BSIM4 states. "
             "For each sample, the lower-potential diffusion is treated as NFET effective source and "
             "the higher-potential diffusion as PFET effective source. Published SKY130 VGS/VDS/VBS "
             "ranges are compared under that convention. This is an engineering screen, not a PDK "
             "model-owner qualification, reliability assessment, or signoff."
         ),
-        "published_ranges_source": "https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248",
+        "published_ranges_source": "https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L4-L100",
         "operating_window": {"name": "after_startup", "start_ns": args.after_ns,
                              "definition": "all archived samples at or after this time"},
         "full_transient_window": "all samples in each archived waveform, including UIC startup",

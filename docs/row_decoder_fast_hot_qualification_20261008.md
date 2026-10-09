@@ -29,7 +29,7 @@ e `VBS` de -1,95 a +0,3 V; para `pfet_01v8`, `VDS` e `VGS` vão de 0 a -1,95 V
 e `VBS` de -0,1 a +1,95 V. Os registros atuais guardam as tensões entre pinos,
 mas ainda não fazem uma avaliação assinada e orientada por tipo de dispositivo
 para essas três variáveis. A definição de faixa está na
-[documentação de dispositivos do SKY130](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248).
+[documentação de dispositivos do SKY130](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L4-L100).
 
 | Métrica PEX | Máximo a 1 ps | Diferença máxima entre 5 ps e 1 ps |
 |---|---:|---:|
@@ -49,8 +49,8 @@ Os 38 logs ngspice foram inspecionados. Não apresentam linhas `Error:`; todos
 os processos e manifests indicam conclusão sem erro. O ngspice registra,
 porém, avisos para parâmetros dos modelos FF, incluindo `A2 > 1` (o ngspice
 limita `A2` a 1 e define `A1` a 0), `Eta0 < 0` e alguns valores negativos de
-`Pdibl1`/`Pdibl2`. O [check BSIM4 do ngspice 44.2 para `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L435-L459)
-confirma que `A2` e `A1` são alterados; os [checks dos parâmetros negativos](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L521-L529)
+`Pdibl1`/`Pdibl2`. O [check BSIM4 do ngspice 44.2 para `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L485-L498)
+confirma que `A2` e `A1` são alterados; os [checks dos parâmetros negativos](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L471-L575)
 emitem avisos sem modificar `Eta0`, `Pdibl1` ou `Pdibl2` nessa rotina. Os 38
 logs da campanha selecionada apresentaram `A2` e `Pdibl1` nas bins PFET
 `pshort_model.32/.40`, `Pdibl2` em `pshort_model.32`, e `Eta0` nas bins NFET

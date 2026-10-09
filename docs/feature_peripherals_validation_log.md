@@ -1121,14 +1121,14 @@ checks an internal dynamic-node voltage against the same number, while
 PDK-domain check. The maximum PEX terminal magnitude was 1.878690 V at 1 ps
 and 1.878005 V in the directed 0.5 ps case. These project screens do not
 establish reliability or signed device-model validity. The PDK ranges are
-documented in [device-details.rst](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248).
+documented in [device-details.rst](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L4-L100).
 
 The 38 retained ngspice text logs contain no `Error:` lines, but they report
 FF model warnings: several `A2` values exceed 1, causing ngspice to clamp `A2`
 and reset `A1`, and negative `Eta0`, `Pdibl1` and `Pdibl2` values are also
-reported. The versioned [ngspice 44.2 BSIM4 check for `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L435-L459)
+reported. The versioned [ngspice 44.2 BSIM4 check for `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L485-L498)
 sets `A2` to 1 and `A1` to 0 when `A2 > 1`. Its [checks for negative `Eta0`,
-`Pdibl1` and `Pdibl2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L521-L529)
+`Pdibl1` and `Pdibl2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L471-L575)
 print warnings without changing those parameters in that validation routine.
 There are no fatal `Error:` lines. The warnings come from FF model parameter
 validation; they are not evidence of a schematic connectivity error. The
@@ -1417,3 +1417,37 @@ audited convention, so model-owner/project acceptance and margin remain open.
 The source references, exact distinctions and provenance are in the
 [signed-bias audit](row_decoder_signed_bias_domain_audit_20261008.md). No
 schematic or layout change and no new extraction resulted from this review.
+
+## 2026-10-08: review correction and intrinsic-state probe
+
+The [latest-analysis review](row_decoder_analysis_review_20261008.md) reproduced
+all signed audit records and waveform/netlist/manifest provenance for 116
+archived OP/refinement waveforms. All 15,312 archived functional checks are
+PASS. Links to PDK/ngspice source were corrected to actual source-file lines;
+historical result metadata and hashes were preserved.
+
+The signed audit derives biases from external MOS subcircuit terminals; the
+BSIM4 states use intrinsic nodes behind series/body resistance. A new FF
+11-to-00 baseline probe at 0.5 ps saved intrinsic VGS/VDS/VBS for M12 and M1.
+Its 104 functional checks pass and all original external traces are bitwise
+identical. At the critical M12 sample, external/intrinsic VGS is
+−0.670351/−0.674755 V. M1 minimum external/intrinsic VBS is
+−0.141914/−0.120427 V. This preserves the model-domain concern while correcting
+the claim that terminal-derived biases are exact intrinsic model biases.
+Evidence is retained under
+`sims/row_decoder/results/decoder_analysis_review_20261008/`.
+
+Current-sizing capture/PCLK, noise/retention, load and additional PVT
+characterization can proceed with model limitations recorded. Project model
+acceptance gates final qualification, rather than all further simulations.
+The three measured PVT points do not establish an exhaustive PVT grid, and
+1-to-0.5 ps stability with Gear does not establish independence of other
+methods/tolerances. The 1 ns output settling allowance also remains a bench
+criterion, not an agreed CLK/PCLK/precharge integration deadline.
+
+The fetched Danilo checkpoint `d7a6ebb` contains bitcell and eight-bit WL row
+physical views, but explicitly invalidates the first 08/10 WL-load PVT due to
+access-tap initialization. Its corrected latch-output (`.t0`) PVT and approved
+row load remain the integration dependency. These remote owner files were
+reviewed read-only; no merge or owner-source changes occurred. Decoder
+schematic, layout and PEX remain unchanged, with no new extraction.

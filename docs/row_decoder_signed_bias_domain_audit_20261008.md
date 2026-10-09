@@ -20,7 +20,7 @@ the 1.8 V devices:
 | `pfet_01v8` | 0 to −1.95 V | 0 to −1.95 V | −0.10 to +1.95 V |
 
 These are published model operating ranges, not reliability limits or a
-standalone signoff criterion. See the [SKY130 device documentation](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248).
+standalone signoff criterion. See the [SKY130 device documentation](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L4-L100).
 
 ## Measurement method
 
@@ -29,12 +29,16 @@ address pairs at 1 ps in FF (1.8 V, 125 °C) and SS (1.62 V, −40 °C), for bot
 the schematic baseline and current extracted PEX. It covers 45 MOS devices per
 case: 29 decoder devices plus 16 devices in four unchanged WL drivers.
 
-For each sample, it orients the MOS source to the lower-potential diffusion for
-an NFET and the higher-potential diffusion for a PFET, then derives `VGS`,
-`VDS` and `VBS`. This is an engineering interpretation of reverse-mode
+For each sample, it orients the external MOS subcircuit source to the
+lower-potential diffusion terminal for an NFET and the higher-potential
+diffusion terminal for a PFET, then derives terminal `VGS`, `VDS` and `VBS`.
+The script does not save intrinsic BSIM4 states behind series/body resistances.
+This is an engineering interpretation of reverse-mode
 operation. The ngspice 44.2 BSIM4 implementation switches to `VGD` and `VBD`
-when its polarity-normalized `VDS` is negative; see the [ngspice source](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5ld.c#L3923-L3948).
-It is still a screening convention, not a PDK model-owner approval.
+when its polarity-normalized `VDS` is negative; see the [ngspice source](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5ld.c#L983-L997).
+It is still an external-terminal screening convention. The [subsequent review](row_decoder_analysis_review_20261008.md)
+measured external/intrinsic differences in a targeted FF probe; the archived
+audit is not an exact intrinsic channel-bias measurement or a PDK approval.
 
 The script records full-transient extrema and a second window starting at 1 ns.
 The 1 ns cutoff is diagnostic: it separates the UIC initialization interval
@@ -183,17 +187,20 @@ voltages “where SPICE models are valid.” For the 1.8 V NFET it lists `VGS` a
 `VGS` and `VDS` from 0 to −1.95 V and `VBS` from −0.10 to +1.95 V. These are
 model-validity ranges in that reference, not a standalone silicon reliability
 or lifetime limit. The PDK reference does not publish a separate `VGD` range.
-See the [SKY130 device reference](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L196-L248).
+See the [SKY130 device reference](https://github.com/google/skywater-pdk/blob/main/docs/rules/device-details.rst#L4-L100).
 
-The ngspice 44.2 BSIM4 source uses the named source terminal when its
+The ngspice 44.2 BSIM4 source uses the named intrinsic source node when its
 polarity-normalized `VDS` is nonnegative. When it is negative, the code
 reverses channel orientation and evaluates with `VGD` and `VBD`. This supports
 the audit's use of the lower-potential diffusion as the NFET effective source
 and the higher-potential diffusion as the PFET effective source when
-reconstructing channel-oriented biases from terminal waveforms. It confirms
-the simulator's source/drain reversal behavior; it does not establish that
-every transient bias in this circuit is covered by the published model range.
-See [ngspice's BSIM4 load code](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5ld.c#L3923-L3948).
+reconstructing source-oriented external terminal biases. The simulator's
+voltage differences use its internal `dNodePrime`, `sNodePrime`, `gNodePrime`
+and `bNodePrime`; see the [node differences in the load code](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5ld.c#L364-L372).
+The external-terminal reconstruction is not an exact measurement of those
+intrinsic states. Source/drain reversal support does not establish that every
+transient bias is covered by the published model range.
+See [ngspice's BSIM4 load code](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5ld.c#L983-L997).
 
 This clarifies the two decoder findings:
 
@@ -210,9 +217,14 @@ This clarifies the two decoder findings:
   direct violation of a published `VGD` limit or a reliability signoff result.
   At the refined FF `11→00` sample for `x1.m12`, the named-terminal values are
   `VDS=+1.284323 V`, `VGS=−0.670351 V`, and `VGD=−1.954674 V`. Since `VDS` is
-  positive for this NFET, ngspice uses its named source for `VGS`; the
-  drain-referenced `VGD` screen is separate from that model `VGS` value. All
-  corresponding PEX samples remain below the custom screen.
+  positive for this NFET's external terminals, the external effective source
+  is its named source. The subsequent probe reads the model state and finds
+  intrinsic `VGS=−0.674755 V` at this same sample, compared with the external
+  `−0.670351 V`. The drain-referenced `VGD` screen is separate from both
+  `VGS` measurements. All corresponding PEX samples remain below the custom
+  screen. The absence of a separate `VGD` row in this public table does not
+  establish acceptable gate/drain stress or an exemption from electrical
+  qualification.
 
 The FF logs identify these as BSIM 4.5 parameter checks. The tagged ngspice
 44.2 source shows that `A2 > 1` is actively clamped to 1 and `A1` is set to 0
@@ -221,8 +233,8 @@ by the check routine. The same routine warns when `Eta0`, `Pdibl1` or
 FF simulations therefore completed without fatal errors, but their results
 include the ngspice `A2`/`A1` adjustment and the negative parameters that the
 model checker merely warns about. See the [BSIM4 parameter checks for `Eta0`
-and `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L2596-L2639)
-and [`Pdibl1`/`Pdibl2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L2752-L2767).
+and `A2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L471-L498)
+and [`Pdibl1`/`Pdibl2`](https://github.com/imr/ngspice/blob/ngspice-44.2/src/spicelib/devices/bsim4v5/b4v5check.c#L566-L575).
 
 The retained matrix manifest records ngspice 44.2 and hashes the recursive
 SKY130 model include closure. Installed PDK metadata identifies open_pdks
@@ -235,13 +247,22 @@ advisors still need to accept the use of these signed off-state biases and the
 FF model adjustments for this project before sizing can be called fully
 qualified.
 
-## Remaining work before electrical closure
+## Review correction and remaining work before electrical closure
+
+The [review of the latest analyses](row_decoder_analysis_review_20261008.md)
+reproduces the archived numerical results and records a new two-device FF
+intrinsic-state probe. Signed external-terminal findings remain useful, but
+must not be described as exact intrinsic BSIM4 biases. Project acceptance is a
+condition for final qualification, rather than a blanket prerequisite for
+collecting further current-sizing characterization data.
 
 1. Obtain model-maintainer/advisor acceptance of the effective-source
    convention, signed off-state `VGS` excursions, FF BSIM4 parameter handling,
    and the diagnostic `VGD` screen. The source-level review above is complete;
-   the project's interpretation and acceptance margin remain unresolved. Do
-   not change transistor sizes solely to make the custom `VGD` screen green.
+   the project's interpretation and acceptance margin remain unresolved.
+   Capture/PCLK, noise, retention and broader PVT characterization can proceed
+   in parallel with that review. Do not change transistor sizes solely to
+   make the custom `VGD` screen green.
 2. If review confirms a real operating-range issue or sets a stricter
    acceptance criterion, investigate the identified devices and transitions,
    then rerun the affected functional/electrical matrices. Update layout,

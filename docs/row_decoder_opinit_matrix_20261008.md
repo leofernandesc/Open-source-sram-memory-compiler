@@ -36,9 +36,11 @@ PDK or reliability signoff.
 ## Signed device-bias audit
 
 The post-startup audit window begins at 1 ns. It treats the lower-potential
-diffusion as the effective source for NFETs and the higher-potential diffusion
-as the effective source for PFETs. This is an engineering screen for reverse
-operation, not an approved model-owner convention.
+external diffusion terminal as the effective source for NFETs and the
+higher-potential external diffusion terminal as the effective source for
+PFETs. These are terminal-derived voltages. Intrinsic BSIM4 states behind the
+model's series/body resistances can differ; the [subsequent review and probe](row_decoder_analysis_review_20261008.md)
+measure that distinction. This is an engineering screen for reverse operation.
 
 Across the three corners, the PEX `VDS` and `VBS` values stayed within the
 published ranges in this window. The schematic baseline PFET `VBS` crossed
@@ -69,8 +71,10 @@ The same 10 baseline cases remained just above the screen, with a maximum of
 1.954674 V; all 10 PEX cases remained below it, with a maximum of 1.879681 V.
 Across the selected cases, the largest change in the reported maximum
 terminal magnitude between 1 ps and 0.5 ps was 0.037 mV for the baseline and
-0.014 mV for PEX. The small baseline excess is therefore repeatable under
-this timestep refinement rather than a numerical-step artifact.
+0.014 mV for PEX. The small baseline excess is therefore repeatable for these
+two maximum timesteps with the same Gear method. This refinement does not by
+itself rule out sensitivity to another integration method, solver tolerance
+or model.
 
 The largest baseline sample is FF `11→00`, device `x1.m12`, at 5.03325 ns:
 `VGD = −1.954674 V`. At that sample, `A1B = −34.741 mV`, `N1 = 1.919933 V`,
@@ -85,8 +89,11 @@ The PEX result is below the screen for all 10 refined pairs.
 
 The threshold crossing should not trigger an arbitrary resize before the
 team agrees what the 1.95 V VGD screen means for this model and topology.
-The larger open item is still the signed `VGS` interpretation and the FF
-BSIM4 warnings, not logic functionality.
+Signed-bias interpretation and FF BSIM4 warnings remain open for final
+qualification. Current-sizing characterization can proceed with those
+limitations recorded; it does not require a new extraction or prior closure
+of the model review. These matrices cover three specified PVT points, rather
+than every combination of process, voltage, temperature and load.
 
 ## Evidence and reproduction
 
