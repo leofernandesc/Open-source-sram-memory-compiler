@@ -2154,3 +2154,41 @@ Liberty-derived `VALID_ACCESS_Q`; this run did not connect the real qualifier
 output to PCLK/PRECH, the decoder, the row, or precharge. Setup/hold,
 metastability, startup before the first edge, phase-source PEX, read/write
 integration, and extraction remain open. No extraction was run.
+
+## 2026-10-09 UTC: captured qualifier to PCLK/PRECH loaded interface screen
+
+The new `run_captured_phase_interface.py` runner freshly netlists the
+`captured_pclk_phase_source.sch` hierarchy, so the actual mode connects the
+transistor-level SKY130 FD SC HD qualifier output to the existing
+transistor-level PCLK/PRECH phase source. Both that mode and the comparison
+mode drive the same current decoder/WL PEX and eight pinned Danilo precharge
+PEX instances with the same bitline residual load. The comparison uses a
+`dfxtp_1` Liberty-timed Q PWL; it is a timing-table reference rather than an
+exact transistor-level DFF/load match.
+
+The representative TT valid-read case (`001`, address `0→3`, 1.80 V, 27 °C)
+passed 342/342 checks in the paired actual/reference runs. Captured-Q to PCLK
+50% crossing was 1,828.682 ps versus 1,827.562 ps for the Liberty reference
+(+1.120 ps). PRECH release lead was 391.913 ps versus 391.968 ps, and PCLK
+fall to PRECH conduction was 2,253.998 ps versus 2,253.994 ps. A TT invalid
+`000` case passed 66/66 checks: post-capture Q samples remained low, PCLK
+peaked at 4.958 mV, and active-low PRECH remained below 0.385 mV. These are
+two representative cases only, not broad corner/control qualification.
+
+The captured Q reached −72.2 mV and 1.9471 V in the valid case; the invalid
+case reached −7.2 mV and 1.9471 V over its full transient. This test has no
+rail-excursion acceptance limit, so those peaks remain an electrical/model
+review item. The phase chain has no layout, DRC/LVS, or PEX. Setup/hold skew,
+startup, clock-period qualification, the remaining controls/address
+transitions/corners, and physical bitcell read/write/readback remain open.
+Both logs report `No compatibility mode selected!`, but no missing OSDI
+libraries or fatal model-resolution errors. No extraction was run.
+
+The exact manifests, generated netlists, per-case checks, and logs are in
+[`captured_phase_interface_tt_read_20261009`](../sims/row_decoder/results/captured_phase_interface_tt_read_20261009/)
+and
+[`captured_phase_interface_invalid000_tt_20261009`](../sims/row_decoder/results/captured_phase_interface_invalid000_tt_20261009/).
+The valid-read directory also contains representative CSV traces and the
+comparison plot.
+The [dedicated report](row_decoder_captured_phase_interface_20261009.md)
+contains reproduction commands and the remaining three-profile matrix plan.

@@ -16,9 +16,10 @@ not modify the decoder, Danilo's bitcell, or the shared precharge source.
 | `PRECH` | output | Active-low bitline precharge/equalization enable |
 
 The cell does **not** capture `CSb`, `OEb`, or `WEb`; it requires a stable,
-glitch-free `VALID_ACCESS_Q` from upstream control capture. The simulation
-runner currently models `CLK` and `VALID_ACCESS_Q` as ideal sources, so this
-cell alone is not a complete SRAM control path.
+glitch-free `VALID_ACCESS_Q` from upstream control capture. The older phase
+interface runner models `CLK` and `VALID_ACCESS_Q` as ideal sources. A newer
+paired screen composes the actual qualifier and phase cells under PEX loading;
+neither runner is a complete SRAM control path.
 
 ## Captured access qualifier
 
@@ -61,9 +62,26 @@ library. Reproduce it with:
 This screen passes the sampled control captures and holds in TT/SS/FF and
 measures clock-to-Q threshold crossings. It logs missing OSDI library warnings
 and observes Q excursions beyond VSS/VDD, which have no acceptance criterion
-in this test. It does not simulate the actual qualifier-to-PCLK/PRECH path or
-establish setup/hold, clock-frequency, reliability, or signoff limits. Results
-and per-run provenance are in the [captured qualifier report](../../docs/row_decoder_valid_access_capture_20261009.md).
+in this isolated test. It does not by itself establish setup/hold,
+clock-frequency, reliability, or signoff limits. Results and per-run
+provenance are in the [captured qualifier report](../../docs/row_decoder_valid_access_capture_20261009.md).
+
+The composed `captured_pclk_phase_source.sch` hierarchy has a separate,
+paired transistor-level interface screen:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
+  --output-dir sims/row_decoder/results/captured_phase_interface_tt_read_repro
+```
+
+The current evidence covers one TT valid-read address transition and one TT
+invalid control vector with decoder/WL and pinned precharge PEX loading. The
+valid case passes 342/342 checks and the invalid case 66/66. The TT PCLK edge
+differs by 1.120 ps from a Liberty-timed Q reference in the measured read
+case. This is a bounded nominal comparison; broader control/address/corner
+coverage, setup/hold, startup, phase-source PEX, and physical 6T read/write
+integration remain open. See the [captured phase-interface report](../../docs/row_decoder_captured_phase_interface_20261009.md)
+for exact metrics, evidence files, warnings, and the planned matrix.
 
 ## Experimental topology
 
@@ -111,6 +129,6 @@ interface runner with `--phase-source xschem-tapped-delay-chain`. The initial
 sizing comparison and full-matrix evidence are in
 [`docs/phase_delay_inverter_sizing_screen_20261009.md`](../../docs/phase_delay_inverter_sizing_screen_20261009.md).
 The measured 24/60/80 taps and clock/sample windows remain experimental: the
-cell has no layout, DRC, LVS, phase-source PEX, captured qualifier, or complete
-6T bitcell read/write path. Do not interpret the numbers as a specification
-limit, maximum frequency, reliability result, or signoff.
+cell has no layout, DRC, LVS, or phase-source PEX, and the full 6T bitcell
+read/write path is not integrated. Do not interpret the numbers as a
+specification limit, maximum frequency, reliability result, or signoff.
