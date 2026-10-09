@@ -1778,3 +1778,25 @@ decoder-to-bitline electrical test requires the owner-reviewed precharge
 interface and an agreed PCLK/access-enable source. No new electrical
 simulation was run in this readiness audit, and no other owner's files were
 changed.
+
+## 2026-10-09 UTC: read-only precharge netlist review and proposed PCLK phases
+
+The current `cells/precharge/precharge.sch` was netlisted read-only in the
+SKY130A Xschem container using `xschem -n -q -s`. The generated
+`precharge_review.spice` has an empty `.subckt precharge` port list and three
+PMOS instances whose twelve terminals map to separate anonymous nets. Source
+inspection also confirms the drawn `BL`, `BLB`, and `PRECH` wires share the
+`(450,-160)` junction. The source hash remains
+`2331e0e438d037c62cc6e47498c7c89bec0fdecf06c4da8c39869e40da031f04`; André's
+schematic was not changed and is not ready for integrated simulation.
+
+The proposed interface keeps decoder `PCLK` (low=dynamic-node precharge,
+high=evaluation) separate from active-low bitline `PRECH` (low=precharge on).
+For valid accesses, release bitline precharge after capture, raise decoder PCLK
+only after a characterized address/data settling guard, and reassert bitline
+precharge only after decoder evaluation has stopped and wordlines have fallen.
+For idle, disabled, and invalid accesses, keep both controls low. The timing
+proposal and its PVT/PEX limits are recorded in the
+[precharge/PCLK review](precharge_pclk_interface_review_20261009.md). No
+electrical simulation was run because the current precharge netlist is
+disconnected.

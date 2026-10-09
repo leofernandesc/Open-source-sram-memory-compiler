@@ -116,6 +116,17 @@ and [decoder characterization](row_decoder_contract_characterization.md#captured
 The 17.4 fF load and source revision in that archived campaign are not the
 current physical-row capture result.
 
+**Precharge/PCLK interface review, 2026-10-09:** a fresh read-only Xschem
+netlist of the existing precharge draft has no subcircuit ports and shows all
+three PMOS devices disconnected; its drawn BL, BLB, and PRECH wires also meet
+at one junction. The owner source remains untouched. The proposed phase path
+separates decoder `PCLK` from active-low bitline `PRECH` and waits for wordline
+turn-off before reasserting bitline precharge. This is an integration proposal,
+not a frozen specification or measured phase generator. See the
+[precharge/PCLK review](precharge_pclk_interface_review_20261009.md). P3-7
+integration remains blocked on the owner-corrected precharge leaf, an actual
+phase generator, and bitcell read/write verification.
+
 ## Ordered work and acceptance evidence
 
 | ID | Task | Dependency | Status and next action | Completion evidence |
