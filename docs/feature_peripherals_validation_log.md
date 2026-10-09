@@ -46,8 +46,15 @@ The tested schematic is the two-stage non-inverting CMOS buffer in
 pre-layout full-row estimate from [`cwl_pre_layout_estimate.md`](cwl_pre_layout_estimate.md).
 The 50 fF point is a stress load, not the estimated physical row capacitance.
 
-The transient smoke runner netlists the current Xschem schematic, checks its
-pin/device contract, and applies these output-level criteria:
+The original transient smoke runner netlisted the current Xschem schematic and
+checked its pin set and device list, but did not check that the testbench's
+positional instance order matched the schematic's declared terminal order. A
+2026-10-09 audit found that mismatch; the original schematic rows in the table
+below are retained for history but are superseded as evidence. The PEX rows
+used the correct PEX pin order and remain valid. See the corrected
+requalification entry below.
+
+The runner applies these output-level criteria:
 
 - `WL` before the input transition is at or below 10% of VDD;
 - `WL` at the high sample is at or above 90% of VDD;
@@ -68,6 +75,21 @@ cases passed. The PEX screen covered the same matrix using the existing
 At TT/1.80 V/27 °C, schematic-to-PEX delay was 0.18622 to 0.24933 ns at
 17.4 fF, and 0.41541 to 0.47787 ns at 50 fF. These are leaf-level results;
 the PEX does not include the complete physical row/interconnect.
+
+### 2026-10-09 pin-order audit and corrected WL-driver requalification
+
+An audit found that the prior smoke runner used the PEX terminal order for the
+Xschem schematic. The actual schematic formal order is `VDD WL_IN WL VSS`,
+while the PEX order is `VDD VSS WL_IN WL`. Therefore, the previously recorded
+schematic smoke matrix is superseded as evidence; the PEX matrix is unaffected.
+The runner now constructs the instance according to its subcircuit header and
+records both 50%- and 90%-crossing delay. Corrected schematic and existing PEX
+matrices each pass 36/36 cases at TT/SS/FF, 1.62/1.80 V, −40/27/125 °C and
+17.4/50 fF. The maximum measured eight-bit row load was also screened at
+SS/1.62 V/−40 °C with a longer input pulse: schematic and PEX both pass 1/1 at
+102.873935496 fF. This is a lumped leaf-load result, not a distributed array
+simulation. See the detailed [pin-order and full-row report](wl_driver_pin_order_and_full_row_requalification_20261009.md)
+and its reproduction CSVs.
 
 Reproduction commands:
 
@@ -1594,3 +1616,18 @@ and saved as
 No new extraction, DRC, LVS, schematic edit or layout edit was performed. The
 physical row is still represented by lumped Ceff, and actual PCLK generation,
 external setup/hold and accepted timing limits remain open.
+
+## 2026-10-09: current-sizing dynamic-decoder hold and phase screens
+
+The current 29-MOS decoder netlist was freshly generated and used for four
+schematic-level campaigns: 36 finite-hold, 42 charge-injection, 168 low-phase,
+and 168 high-phase cases, each across TT, SS and FF. All manifests completed
+with the same current netlist hash. All 36 finite holds passed at 10, 100 and
+1000 ns; charge up to 4 fC passed all sampled cases, while 4 of 6 cases at 8 fC
+were tagged `REJECTED_PERTURBATION`. The minimum sampled phase durations passing
+all rows were 0.4/0.6/0.4 ns low and 0.5/0.75/0.5 ns high for TT/SS/FF. These are
+exploratory bounds for the 17.4 fF bench load and 50 ps PCLK/address edges;
+they do not establish a noise budget, clock-stop limit, safe period or Fmax.
+See the [current-sizing report](row_decoder_current_sizing_contract_20261009.md)
+and its per-case summaries/manifests. Broader crossed-PVT and actual-PCLK
+integration remain open.

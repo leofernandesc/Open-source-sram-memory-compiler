@@ -75,13 +75,16 @@ report](row_decoder_capture_combined_pex_20261009.md).
 contract campaign, 15 numerical comparisons and the captured-address budget
 remain archived for their original source revisions. The current inverter,
 precharge and stack sizing differs; those broad results do not qualify it.
-Repeat the relevant PVT, noise/retention and captured-address/fanout campaigns
-before extending the selected decoder closure to those operating conditions.
-The [characterization record](row_decoder_contract_characterization.md)
-separates archived B6 schedule-specific results from new simultaneous-address,
-numeric-accuracy and buffered-address experiments. Leonardo chose electrical
-margin and robustness as the sizing priority. This choice is already recorded;
-it does not need to be requested again.
+On 2026-10-09, the current 29-MOS source was freshly netlisted and used for
+414 finite-hold, charge-injection and low/high-phase-duration cases across TT,
+SS and FF. The measured results and per-case evidence are in the
+[current-sizing contract report](row_decoder_current_sizing_contract_20261009.md).
+Those schematic screens do not replace broader crossed-PVT, captured-address/
+fanout with actual PCLK, or combined physical-row work. The
+[characterization record](row_decoder_contract_characterization.md)
+separates archived B6/B7 evidence from these current-source experiments. Leonardo
+chose electrical margin and robustness as the sizing priority. This choice is
+already recorded; it does not need to be requested again.
 
 Wordline and write drivers already have schematic/PEX experiments and local
 DRC/LVS results recorded in the [validation log](feature_peripherals_validation_log.md).
@@ -113,7 +116,7 @@ current physical-row capture result.
 | P3-4 | Close decoder DRC | P3-3 | **Complete for the current routed revision.** Magic `drc(full)` reports zero errors after `drc catchup` on both the routed top cell and flattened view. | `reports/route.log`, `reports/drc_flat.log`; Magic 8.3.684 routing and SKY130A tech 1.0.493. |
 | P3-5 | Extract devices and close decoder LVS | P3-4 | **Complete for the current routed revision.** Connectivity-only extraction matches the retained schematic uniquely; the separate P3-6 artifact contains distributed R-C parasitics. | `row_decoder_flat_extracted.spice`, `reports/lvs.log`, `reports/lvs.out`: 29 devices (17 NFET, 12 PFET), 22 nets, matching external pins and bulk nets. |
 | P3-6 | Extract parasitics and repeat critical electrical tests | P3-5 | **Current decoder PEX, combined decoder/WL PEX capture matrix, and four-point full SS phase sweep complete; model acceptance and actual PCLK integration pending.** | Current decoder PEX is 29 MOS / 762 R / 389 C. Matched baseline/PEX matrices pass at 5 ps and 1 ps in TT/SS/FF. The full 96-case 1 ps operating-point matrix and targeted 0.5 ps FF refinement are complete. In the original combined capture run (20.00 ns fall and 3 ns settling), TT/FF pass 24/24 while all 24 SS cases miss the settling contract. The follow-up SS sweep uses four WL-driver PEX instances and corrected lumped row Ceff: it passes all 3,840 waveform checks at each of four phases, with 2/24, 13/24, 24/24 and 24/24 cases passing the separate 250 ps guard. Voltage screens pass but are not reliability signoff. External-terminal model-domain review remains open. See [combined PEX report](row_decoder_capture_combined_pex_20261009.md). |
-| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Corrected row-capacitance evidence is used with decoder and WL-driver PEX as a lumped load; distributed row integration and owner acceptance pending.** Danilo's `95c23c0` provides 60/60 PASS `.t0` data, with maximum full-row Ceff 102.873935496 fF and maximum paired additional load 93.351918068 fF. | Join decoder → four WL drivers → physical row or reviewed distributed model for each address and coupling condition. Check all four WL paths and deassertion against actual CLK/PCLK, access enable and BL/BLB precharge. Preserve the captured CSV/hash; the combined leaf-PEX plus lumped-C bench is not completed physical integration. |
+| P3-7 | Review row loads and WL behavior with physical row | Current decoder PEX; approved bitcell/row electrical input | **Corrected row-capacitance evidence is used with decoder and WL-driver PEX as a lumped load; isolated WL leaf also passes the maximum Ceff screen. Distributed row integration and owner acceptance remain pending.** Danilo's `95c23c0` provides 60/60 PASS `.t0` data, with maximum full-row Ceff 102.873935496 fF and maximum paired additional load 93.351918068 fF. The current WL leaf passes 1/1 schematic and 1/1 PEX at SS/1.62 V/−40 °C with that lumped load. | Join decoder → four WL drivers → physical row or reviewed distributed model for each address and coupling condition. Check all four WL paths and deassertion against actual CLK/PCLK, access enable and BL/BLB precharge. Preserve the captured CSV/hash; the combined leaf-PEX plus lumped-C bench is not completed physical integration. See the [WL pin-order audit and requalification](wl_driver_pin_order_and_full_row_requalification_20261009.md). |
 | P3-8 | Complete write-driver integration checks | Valid bitcell/precharge and control sequence | **Pending owner-interface review.** Keep Danilo/André source read-only until their block interfaces are agreed. | Write 0/1, WE release/Hi-Z, both BL/BLB loads, precharge isolation and bitcell readback with schematic/PEX evidence. |
 | P3-9 | Close the 4x8 transistor-level interface review | Qualified leaves from all three owners | **Pending; team dependency.** | No conflicting drivers; correct row mapping, address stability, phase sequencing and explicit rails. |
 | P3-10 | Package Person 3 Phase 1 delivery | P3-4 through P3-9, or documented blocker | **Pending.** | Schematics/symbols, benches, layouts, extraction/DRC/LVS, selected CSVs, reports, dimensions, reproducible environment and limitations. |
@@ -145,9 +148,12 @@ criterion.
    define an interface limit. Next, use the actual PCLK source and approved
    system cycle to sweep phase and falling edge; do not claim frequency closure
    from ideal PWL clocks.
-2. Repeat current-sizing noise, retention and phase-duration experiments.
-   Cover crossed voltage/temperature conditions as diagnostics; the three
-   existing PVT points are not a complete characterization grid.
+2. **Current-sizing schematic screens complete:** 36 finite-hold, 42 charge,
+   168 low-phase and 168 high-phase cases are archived for TT, SS and FF.
+   The phase minima are sampled experimental bounds; the 8 fC injection
+   cases are not a system noise budget. If these conditions are retained for
+   final qualification, repeat selected points with the combined current PEX,
+   approved PCLK and broader crossed voltage/temperature conditions.
 3. In parallel, extend targeted intrinsic-bias probes and agree acceptance
    criteria for model-domain and margin findings. This decision gates final
    qualification, not further exploratory simulation. The existing source

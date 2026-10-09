@@ -35,13 +35,40 @@ def netlist_leaf(root: Path, name: str, pins: set[str], devices: set[str]) -> st
             raise RuntimeError(f"Xschem netlist failed for {name}: {result.stdout} {result.stderr}")
         lines = netlist.read_text(encoding="utf-8").splitlines()
     header = next((line for line in lines if line.startswith("**.subckt ")), "")
-    if set(header.split()[2:]) != pins:
+    formal_pins = header.split()[2:]
+    if len(formal_pins) != len(set(formal_pins)) or set(formal_pins) != pins:
         raise RuntimeError(f"Wrong pin contract for {name}: {header}")
     body = [line for line in lines if line.startswith(("X", "+"))]
     actual = {line.split()[0] for line in body if line.startswith("X")}
     if actual != devices or any(re.search(r"\bnet\d+\b", line) for line in body):
         raise RuntimeError(f"Open or unexpected devices in {name}: {actual}")
     return f".subckt {name} {' '.join(header.split()[2:])}\n" + "\n".join(body) + f"\n.ends {name}\n"
+
+
+def instance_line(subckt: str, instance: str, terminals: dict[str, str]) -> str:
+    """Build an X-instance in the formal pin order declared by its subcircuit."""
+    header = next(
+        (line.split() for line in subckt.splitlines()
+         if re.match(r"^\.subckt\s+\S+\s+", line, re.IGNORECASE)),
+        None,
+    )
+    if header is None:
+        raise RuntimeError("Cannot instantiate a subcircuit without a .subckt header")
+    formal_pins = [pin.upper() for pin in header[2:]]
+    terminal_map: dict[str, str] = {}
+    for pin, node in terminals.items():
+        normalized = pin.upper()
+        if normalized in terminal_map:
+            raise RuntimeError(f"Duplicate terminal name ignoring case: {pin}")
+        terminal_map[normalized] = node
+    if (len(formal_pins) != len(set(formal_pins))
+            or set(formal_pins) != set(terminal_map)):
+        raise RuntimeError(
+            f"Subcircuit pin contract mismatch: formal={formal_pins}, "
+            f"provided={sorted(terminal_map)}"
+        )
+    nodes = [terminal_map[formal] for formal in formal_pins]
+    return f"{instance} {' '.join(nodes)} {header[1]}"
 
 
 def pex_leaf(root: Path, name: str, expected_pins: tuple[str, ...]) -> str:
@@ -66,6 +93,10 @@ def pex_leaf(root: Path, name: str, expected_pins: tuple[str, ...]) -> str:
 
 
 def precharge_deck(subckt: str, corner: str, vdd: float, temp_c: float, cap_ff: float) -> str:
+    xpre = instance_line(
+        subckt, "XPRE", {"VDD": "vdd", "BL": "bl", "BLB": "blb",
+                         "PRECH": "prech", "VSS": "0"}
+    )
     return f"""* Precharge/equalization with two unequal initial bitline voltages.
 .lib "{MODEL_LIB}" {corner}
 .temp {temp_c:g}
@@ -74,7 +105,7 @@ VDD vdd 0 {vdd:g}
 VPRE prech 0 PULSE({vdd:g} 0 1n 50p 50p 4n 10n)
 CBL bl 0 {cap_ff:g}f
 CBLB blb 0 {cap_ff:g}f
-XPRE vdd bl blb prech 0 precharge
+{xpre}
 .ic v(bl)={0.2*vdd:.12g} v(blb)={0.7*vdd:.12g}
 .options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-9 iabstol=1e-12
 .tran 10p 7n 0 10p uic
@@ -88,22 +119,30 @@ XPRE vdd bl blb prech 0 precharge
 """
 
 
-def wl_deck(subckt: str, corner: str, vdd: float, temp_c: float, cap_ff: float) -> str:
+def wl_deck(
+    subckt: str, corner: str, vdd: float, temp_c: float, cap_ff: float,
+    pulse_width_ns: float, high_sample_ns: float, low_sample_ns: float,
+) -> str:
+    xwl = instance_line(
+        subckt, "XWL", {"VDD": "vdd", "VSS": "0", "WL_IN": "wl_in", "WL": "wl"}
+    )
+    stop_ns = max(5.0, high_sample_ns + 0.1, low_sample_ns + 0.1)
     return f"""* Two-stage WL driver with a capacitive wordline screening load.
 .lib "{MODEL_LIB}" {corner}
 .temp {temp_c:g}
 {subckt}
 VDD vdd 0 {vdd:g}
-VIN wl_in 0 PULSE(0 {vdd:g} 1n 100p 100p 2n 10n)
+VIN wl_in 0 PULSE(0 {vdd:g} 1n 100p 100p {pulse_width_ns:g}n 10n)
 CWL wl 0 {cap_ff:g}f
-XWL vdd 0 wl_in wl wl_driver
+{xwl}
 .options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-9 iabstol=1e-12
-.tran 10p 5n 0 10p
+.tran 10p {stop_ns:g}n 0 10p
 .meas tran wl_before find v(wl) at=0.9n
-.meas tran wl_high find v(wl) at=2.9n
-.meas tran wl_low find v(wl) at=4.0n
+.meas tran wl_high find v(wl) at={high_sample_ns:g}n
+.meas tran wl_low find v(wl) at={low_sample_ns:g}n
 .meas tran t_in_50 when v(wl_in)={0.5*vdd:.12g} rise=1
 .meas tran t_wl_50 when v(wl)={0.5*vdd:.12g} rise=1
+.meas tran t_wl_90 when v(wl)={0.9*vdd:.12g} rise=1
 .end
 """
 
@@ -143,6 +182,18 @@ def main() -> int:
         "--wl-cap-ff", nargs="+", type=float, default=[17.4, 50],
         help="Full-row pre-layout estimate (17.4 fF) plus the historical 50 fF stress point.",
     )
+    parser.add_argument(
+        "--wl-pulse-width-ns", type=float, default=2.0,
+        help="Input high time for the WL-driver test pulse (default: 2 ns).",
+    )
+    parser.add_argument(
+        "--wl-high-sample-ns", type=float, default=2.9,
+        help="Time to check WL >= 90%% VDD (default: 2.9 ns).",
+    )
+    parser.add_argument(
+        "--wl-low-sample-ns", type=float, default=4.0,
+        help="Time to check WL <= 10%% VDD after deassertion (default: 4.0 ns).",
+    )
     parser.add_argument("--timeout-s", type=float, default=45)
     parser.add_argument("--pex", action="store_true", help="Use Magic RC-extracted leaf netlists.")
     parser.add_argument("--output", type=Path, default=root / "sims" / "leaf_peripheral_smoke_pvt.csv")
@@ -179,7 +230,11 @@ def main() -> int:
                 deck = (
                     precharge_deck(subckts[block], corner, vdd, temp_c, cap_ff)
                     if block == "precharge" else
-                    wl_deck(subckts[block], corner, vdd, temp_c, cap_ff)
+                    wl_deck(
+                        subckts[block], corner, vdd, temp_c, cap_ff,
+                        args.wl_pulse_width_ns, args.wl_high_sample_ns,
+                        args.wl_low_sample_ns,
+                    )
                 )
                 returncode, values, output = run_deck(deck, args.timeout_s)
                 if block == "precharge":
@@ -201,7 +256,10 @@ def main() -> int:
                         pass_logic = False
                     delay_ns = ""
                 else:
-                    required = ("wl_before", "wl_high", "wl_low", "t_in_50", "t_wl_50")
+                    required = (
+                        "wl_before", "wl_high", "wl_low", "t_in_50",
+                        "t_wl_50", "t_wl_90",
+                    )
                     pass_logic = all(key in values for key in required) and (
                         values["wl_before"] <= 0.1 * vdd
                         and values["wl_high"] >= 0.9 * vdd
@@ -210,11 +268,17 @@ def main() -> int:
                     delay_ns = (values["t_wl_50"] - values["t_in_50"]) * 1e9 if all(
                         key in values for key in ("t_wl_50", "t_in_50")
                     ) else ""
+                    delay_90_ns = (values["t_wl_90"] - values["t_in_50"]) * 1e9 if all(
+                        key in values for key in ("t_wl_90", "t_in_50")
+                    ) else ""
+                if block == "precharge":
+                    delay_90_ns = ""
                 rows.append({
                     "block": block, "corner": corner, "vdd_v": vdd,
                     "temp_c": temp_c, "cap_ff": cap_ff,
                     "status": "PASS" if returncode == 0 and pass_logic else "FAIL",
                     "returncode": returncode, "delay_50_ns": delay_ns,
+                    "delay_90_ns": delay_90_ns,
                     "bl_charged_v": values.get("bl_charged", ""),
                     "blb_charged_v": values.get("blb_charged", ""),
                     "bl_released_v": values.get("bl_released", ""),

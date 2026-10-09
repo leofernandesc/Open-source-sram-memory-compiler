@@ -85,19 +85,21 @@
   <section class="slide">
     <div class="eyebrow">02 · Wordline driver</div>
     <h2>Wordline driver — simulação e layout</h2>
-    <p>Buffer CMOS não inversor de dois estágios, com larguras de 0,42 µm e 0,84 µm e L=0,15 µm. A resposta foi simulada com a carga estimada da linha e com uma carga de stress.</p>
+    <p>Buffer CMOS não inversor de dois estágios, com larguras de 0,42 µm e 0,84 µm e L=0,15 µm. Uma auditoria corrigiu a ordem dos pinos do testbench; schematic e PEX foram simulados novamente. Também foi aplicado o Ceff máximo da linha como carga concentrada.</p>
     <div class="grid three">
-      <div class="card"><div class="metric">36/36</div><div class="label">casos aprovados no esquemático</div></div>
-      <div class="card"><div class="metric">36/36</div><div class="label">casos aprovados com o PEX existente</div></div>
+      <div class="card"><div class="metric">36/36</div><div class="label">cantos e cargas de referência, schematic corrigido</div></div>
+      <div class="card"><div class="metric">36/36</div><div class="label">mesma matriz com o PEX existente</div></div>
       <div class="card"><div class="metric">0</div><div class="label">violações DRC na folha</div></div>
     </div>
-    <table><thead><tr><th>Carga</th><th>Atraso máximo esquemático</th><th>Atraso máximo PEX</th><th>Canto limitante</th></tr></thead><tbody>
-      <tr><td>17,4 fF estimados</td><td>0,291 ns</td><td>0,386 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
-      <tr><td>50 fF stress</td><td>0,665 ns</td><td>0,760 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+    <table><thead><tr><th>Carga</th><th>t50 schematic / PEX</th><th>t90 schematic / PEX</th><th>Condição</th></tr></thead><tbody>
+      <tr><td>17,4 fF</td><td>0,291 / 0,386 ns</td><td>0,563 / 0,721 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+      <tr><td>50 fF</td><td>0,665 / 0,760 ns</td><td>1,409 / 1,566 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+      <tr><td>102,874 fF</td><td>1,271 / 1,364 ns</td><td>2,781 / 2,937 ns</td><td>Stress cruzado: Ceff máximo FF + driver SS</td></tr>
     </tbody></table>
     <figure class="evidence"><a href="assets/wl_driver_schematic.svg"><img src="assets/wl_driver_schematic.svg" alt="Esquemático Xschem do buffer CMOS de dois estágios do wordline driver"></a><figcaption>Esquemático exportado do Xschem com a configuração SKY130A. <a href="../cells/wordline_driver/wl_driver.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
     <p><strong class="ok">LVS:</strong> match único, com 4 MOS e 5 redes. O PEX atual representa a folha e não inclui a linha física completa.</p>
-    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#wordline-driver">registro de validação</a> · <a href="../sims/wl_driver_smoke_3corner_pvt.csv">CSV PVT</a></p>
+    <p>A carga de 102,874 fF é concentrada e não reproduz a linha física distribuída. O testbench antigo usava a ordem de pinos do PEX no schematic; a matriz antiga de schematic foi substituída por esta repetição corrigida.</p>
+    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#wordline-driver">registro</a> · <a href="wl_driver_pin_order_and_full_row_requalification_20261009.md">auditoria e método</a> · <a href="../sims/wl_driver_smoke_3corner_pvt_pinorderfix_20261009.csv">CSV schematic</a> · <a href="../sims/wl_driver_pex_smoke_3corner_pvt_pinorderfix_20261009.csv">CSV PEX</a> · <a href="../sims/wl_driver_smoke_full_row_ss_20261009.csv">Ceff schematic</a> · <a href="../sims/wl_driver_pex_smoke_full_row_ss_20261009.csv">Ceff PEX</a></p>
   </section>
 
   <section class="slide">
@@ -221,8 +223,10 @@
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
       <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>A aceitação final dos critérios de bias/modelo segue em revisão.</li><li>Revisar a origem de PCLK e repetir o orçamento na janela do sistema; a varredura SS ideal de quatro fases está registrada.</li><li>Validar consumo com driver e fonte real de PCLK.</li><li>Integrar a linha física distribuída; o máximo Ceff corrigido já foi aplicado como carga concentrada no bench.</li><li>Executar escrita integrada com bitcell e precharge.</li></ul></div>
     </div>
+    <p>O decoder atual também passou por 414 ensaios schematic de retenção finita, injeção de carga e duração das fases em TT/SS/FF: 36/36 holds passaram; o menor ponto amostrado que passou em todas as linhas foi 0,6 ns na fase baixa SS e 0,75 ns na fase alta SS. A carga de 8 fC provocou resposta perturbada em 4/6 combinações de perfil e nó.</p>
+    <p>Esses resultados são telas exploratórias para a forma de onda e grade ensaiadas. Não definem orçamento de ruído, tolerância a clock parado, limite de fase ou frequência máxima. A revisão com o PCLK real e a aceitação dos critérios seguem pendentes.</p>
     <p class="bad"><strong>Integração:</strong> a tentativa de leitura registrada parou durante a geração do netlist do precharge, antes do ngspice. Esse resultado pertence à versão ensaiada; a versão atual do responsável ainda precisa ser conferida antes de uma nova execução integrada com André.</p>
-    <p class="source">Evidências de <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> e da <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">tentativa de integração</a>.</p>
+    <p class="source">Evidências: <a href="row_decoder_current_sizing_contract_20261009.md">414 ensaios do decoder</a> · <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> · <a href="feature_peripherals_validation_log.md#integration-attempt-and-blocker">tentativa de integração</a>.</p>
   </section>
 
   <section class="slide">
@@ -231,7 +235,7 @@
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Captura/PCLK no esquemático atual, cargas 17,4 e 102,874 fF</td><td>Matriz medida; tela de 1,95 V ainda parcial</td></tr>
       <tr><td>09/10</td><td>Matriz PEX combinada e varredura SS em quatro fases, com queda fixa</td><td>12 transições × 2 cargas em cada ponto; margem experimental registrada</td></tr>
-      <tr><td>10/10</td><td>Revisar a janela com o PCLK real, se a interface estiver definida; ruído e retenção</td><td>Condição de clock documentada; dependências de interface identificadas</td></tr>
+      <tr><td>10/10</td><td>Revisar a janela com o PCLK real, se a interface estiver definida; interpretar os ensaios de ruído e hold finito</td><td>Condição de clock documentada; critérios e dependências de interface identificados</td></tr>
       <tr><td>11/10</td><td>Validar carga física da linha e escrita integrada</td><td>Dec→WL→bitcell; write 0/1 e readback</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir o fluxo</td><td>Checks integrados com estados, fases e rails explícitos</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>
