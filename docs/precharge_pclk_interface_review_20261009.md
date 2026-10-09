@@ -164,18 +164,29 @@ and the bitline precharge-gate fanout must be included in timing analysis.
 
 ## Timing evidence and limits
 
-The existing combined decoder/WL PEX study on `feature/peripherals` used an
-**ideal** delayed PCLK, not a transistor-level PCLK generator or Danilo's
-precharge PEX. Danilo's separate G7 read/write matrices did include the
-W2.52 precharge PEX but did not qualify the actual PCLK generator for this
-dynamic decoder. The combined study's full SS phase sweep passed functional and
+The earlier combined decoder/WL PEX study on `feature/peripherals` used an
+**ideal** delayed PCLK and did not include Danilo's precharge PEX. Danilo's
+separate G7 read/write matrices did include the W2.52 precharge PEX but did not
+qualify the actual PCLK generator for this dynamic decoder. A follow-up
+interface screen now combines the current decoder PEX, four WL-driver PEX
+instances and eight copies of Danilo's W2.52 precharge PEX. It uses ideal PWL
+sources for both PCLK and PRECH. The completed TT valid and invalid vectors,
+selected slow-corner transitions, and FF address-target cases passed 26/26
+cases. The smallest measured selected-WL-off interval before the 75%-VDD
+precharge threshold was 254.477 ps with a nominal 1.8 ns turn-off guard. The
+full method, data and limits are in the
+[phase-interface report](row_decoder_precharge_phase_integration_20261009.md).
+
+The earlier combined study's full SS phase sweep passed functional and
 voltage screens at sampled capture-to-PCLK delays of 1.50, 1.80, 1.95, and
 2.10 ns; the separate exploratory 250 ps literal guard passed 2/24, 13/24,
 24/24, and 24/24 cases, respectively. The 1.95 ns point is only the earliest
 passing sampled point for that experiment. It is not an approved delay,
-frequency limit, or complete SRAM timing result. The study also did not model
-the precharge cell, control capture circuit, or actual PCLK distribution. See
-the [combined PEX report](row_decoder_capture_combined_pex_20261009.md).
+frequency limit, or complete SRAM timing result. That earlier study did not
+model the precharge cell, control capture circuit, or actual PCLK distribution.
+The new bounded interface screen does not model a transistor-level control
+generator or bitcell access path either. See the
+[combined PEX report](row_decoder_capture_combined_pex_20261009.md).
 
 No numeric delay is fixed here. Characterize the rising evaluation delay and
 the falling-edge precharge-release delay over the required process/voltage/
@@ -188,8 +199,9 @@ temperature conditions and actual extracted loads. Verify that:
 5. invalid/idle/disabled controls never assert a row;
 6. a precharge phase occurs before the first valid access after power-up.
 
-Until the corrected precharge candidate is agreed and integrated with the
-actual phase generator, `PCLK` remains an ideal testbench input for the
-existing decoder results. Those decoder results do not establish integrated
-SRAM timing; Danilo's G7 results qualify his separately configured read/write
-flows, not this dynamic decoder interface.
+The bounded phase-interface bench consumes Danilo's PEX as a pinned,
+read-only input, but this does not merge or select the team-wide precharge
+source. In this branch, PCLK and PRECH are still ideal testbench inputs because
+the transistor-level control generator is not implemented. Neither this screen
+nor Danilo's separate G7 results establish integrated SRAM timing or qualify
+the dynamic decoder with real control capture and bitcell read/write behavior.

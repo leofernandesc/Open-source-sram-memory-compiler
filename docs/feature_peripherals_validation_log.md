@@ -1822,3 +1822,67 @@ Coordinate with André to review and select Danilo's candidate for the shared
 precharge interface. The candidate still has no actual PCLK phase generator
 for the dynamic decoder on `feature/peripherals`. See the updated
 [precharge/PCLK review](precharge_pclk_interface_review_20261009.md).
+
+## 2026-10-09 UTC: decoder/WL/precharge phase-interface PEX screen
+
+To continue Person 3's dynamic-decoder integration without changing either
+owner's source, Danilo's `precharge_w2p52_flat` PEX was copied byte-for-byte
+from `origin/feat/sram-6t-cell` commit `5dc00fe02e43492267516c3e448e935456406a1d`
+into `sims/row_decoder/inputs/`. SHA-256 is
+`cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423`.
+Its interface is `VDD BL BLB PRECH VSS`, with three PFETs, 20 resistors and
+30 capacitors; `PRECH` is active low. Its source revision and Danilo-reported
+DRC/LVS/Ceff evidence are kept in the
+[provenance sidecar](../sims/row_decoder/inputs/precharge_w2p52_pex_5dc00fe.provenance.json).
+His physical validation is cited, not rerun here.
+
+The new runner freshly netlists the current decoder and combines its PEX with
+four wordline-driver PEXs and eight instances of Danilo's precharge PEX. It
+uses the current `102.873935496 fF` full-row WL load. Each bitline combines the
+precharge leaf with a `583.992055 fF` lumped external residual to represent the
+`597.056241 fF` target after subtracting the owner-reported maximum leaf Ceff
+of `13.064186 fF`. This equivalent load is approximate and is not a distributed
+physical bitline model.
+
+The stimuli are ideal PWL waveforms: decoder PCLK is released for evaluation,
+and active-low bitline PRECH is released before evaluation then reasserted
+after the PCLK falling edge. With a 250 ps nominal PRECH release lead, a 1.8 ns
+nominal post-fall guard, 50 ps ramps and a 5 ps maximum transient step, the
+final campaigns passed **26/26 ngspice cases**, **4,660/4,660 detailed
+checks**, and **1,460/1,460 phase checks**:
+
+- TT valid read/write transitions: 8/8 cases;
+- TT invalid/idle/disabled controls: 6/6 cases;
+- SS, 1.62 V/−40 °C, selected transitions: 4/4 cases;
+- FF, 1.80 V/125 °C, all four target rows: 8/8 cases.
+
+At the 10% VDD wordline-off and 75% VDD precharge-threshold definitions, the
+smallest selected-WL-off margin was `254.477 ps` in the SS cases. The minimum
+sampled bitline voltage before valid evaluation was `1.619687 V` at 1.62 V,
+above the test's 90% VDD screen. These are bounded simulation results, not
+silicon guarantees or approved timing limits.
+
+Exploratory failures are retained as evidence for the guard choice. A TT
+500 ps pilot reasserted PRECH while the selected WL was still active by
+`637.466 ps`; an SS 1.5 ns pilot missed the WL-off screen by `52.963 ps` and
+its initial precharge ended below the 90% VDD bitline threshold. The final
+campaign uses 1.8 ns and a longer startup-conditioning interval. That setting
+is not asserted to be optimal or sufficient for untested conditions.
+
+The result is limited to phase sequencing, decoder/WL response and bitline
+restoration. There is no transistor-level PCLK/PRECH generator, captured
+control circuit, 6T access path, sense amplifier, write operation or data
+readback. TT/FF cover four 0→row transitions, SS covers two selected
+transitions, and no fully crossed PVT/mismatch campaign was run. No new layout,
+DRC, LVS or extraction was run. The older `cells/precharge/precharge.sch`,
+Danilo's source and André's source remain unchanged; the test copy does not
+establish the team's shared precharge revision.
+
+The reproducible runner and plotting script are
+[`run_precharge_phase_interface.py`](../sims/row_decoder/run_precharge_phase_interface.py)
+and
+[`plot_precharge_phase_interface.py`](../sims/row_decoder/plot_precharge_phase_interface.py).
+The [phase-interface report](row_decoder_precharge_phase_integration_20261009.md)
+contains exact commands, matrix links, waveform evidence and limitations. The
+figure is
+[`row_decoder_precharge_phase_sequence_20261009.svg`](assets/row_decoder_precharge_phase_sequence_20261009.svg).

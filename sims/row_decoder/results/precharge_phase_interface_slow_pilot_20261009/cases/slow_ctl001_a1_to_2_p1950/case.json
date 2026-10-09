@@ -1,0 +1,56 @@
+{
+  "case": "slow_ctl001_a1_to_2_p1950",
+  "profile": "slow",
+  "control_vector_csb_oeb_web": "001",
+  "operation": "read",
+  "old_address": 1,
+  "new_address": 2,
+  "selected_row": 2,
+  "phase_ps": 1950.0,
+  "clk_fall_ps": 20700.0,
+  "wl_cap_ff": 102.873935496,
+  "bitline_external_load_ff": 583.992055,
+  "bitline_target_effective_ceiling_ff": 597.056241,
+  "phase_checks_pass": 44,
+  "phase_checks_fail": 20,
+  "decoder_logic_checks_fail": 0,
+  "decoder_model_upper_result": "PASS",
+  "decoder_terminal_magnitude_result": "PASS",
+  "status": "REJECTED_SCREEN",
+  "ngspice_returncode": 0,
+  "precharge_timing": {
+    "bitline_external_load_ff": 583.992055,
+    "bitline_target_effective_ceiling_ff": 597.056241,
+    "precharge_releases": [
+      {
+        "cycle": "prime",
+        "precharge_release_s": 4.7625e-09,
+        "pclk_rise_s": 5e-09,
+        "lead_ps": 237.50000000000048
+      },
+      {
+        "cycle": "access",
+        "precharge_release_s": 1.50125e-08,
+        "pclk_rise_s": 1.6950000000000003e-08,
+        "lead_ps": 1937.5000000000032
+      }
+    ],
+    "precharge_reassertions": [
+      {
+        "cycle": "prime",
+        "pclk_fall_s": 1e-08,
+        "precharge_assert_s": 1.14875e-08,
+        "turnoff_margin_ps": 1487.4999999999993,
+        "selected_wl_below_10pct_s": 1.1540462509341435e-08
+      },
+      {
+        "cycle": "access",
+        "pclk_fall_s": 2.07e-08,
+        "precharge_assert_s": 2.21875e-08,
+        "turnoff_margin_ps": 1487.4999999999993,
+        "selected_wl_below_10pct_s": 2.2226876847352998e-08
+      }
+    ],
+    "bitline_minimum_at_end_v": 1.619470527912063
+  }
+}
