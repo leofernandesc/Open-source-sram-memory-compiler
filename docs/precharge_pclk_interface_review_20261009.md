@@ -175,14 +175,19 @@ The earlier combined decoder/WL PEX study on `feature/peripherals` used an
 **ideal** delayed PCLK and did not include Danilo's precharge PEX. Danilo's
 separate G7 read/write matrices did include the W2.52 precharge PEX but did not
 qualify the actual PCLK generator for this dynamic decoder. A follow-up
-interface screen now combines the current decoder PEX, four WL-driver PEX
+interface screen combines the current decoder PEX, four WL-driver PEX
 instances and eight copies of Danilo's W2.52 precharge PEX. It uses ideal PWL
-sources for both PCLK and PRECH. The completed TT valid and invalid vectors,
-selected slow-corner transitions, and FF address-target cases passed 26/26
-cases. The smallest measured selected-WL-off interval before the 75%-VDD
-precharge threshold was 254.477 ps with a nominal 1.8 ns turn-off guard. The
-full method, data and limits are in the
-[phase-interface report](row_decoder_precharge_phase_integration_20261009.md).
+sources for both PCLK and PRECH. Review found that the first matrix released
+PRECH at the access capture edge rather than 250 ps before PCLK; its result is
+retained as historical evidence, not as verification of the intended lead.
+The corrected TT valid and invalid vectors, selected slow-corner transitions,
+and FF address-target cases passed 26/26 cases and 4,660/4,660 detailed checks.
+The smallest measured selected-WL-off interval before the 75%-VDD precharge
+threshold was 262.786 ps with a nominal 1.8 ns turn-off guard. The corrected
+method, data and limits are in the
+[phase decision report](row_decoder_precharge_pclk_decision_20261009.md); the
+[initial phase-interface report](row_decoder_precharge_phase_integration_20261009.md)
+is marked as superseded for PRECH release timing.
 
 The earlier combined study's full SS phase sweep passed functional and
 voltage screens at sampled capture-to-PCLK delays of 1.50, 1.80, 1.95, and
@@ -196,10 +201,10 @@ generator or bitcell access path either. See the
 [combined PEX report](row_decoder_capture_combined_pex_20261009.md).
 
 The initial experimental timing choice is 2.10 ns from captured rising edge to
-PCLK evaluation, a nominal 250 ps PRECH release lead before PCLK rises, and a
-nominal 1.80 ns PRECH reassertion guard after PCLK falls. A follow-up screen
-with Danilo's PEX passed at that setting; its measurements and limits are in
-the [phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
+PCLK evaluation, a nominal 250 ps PRECH release lead before both PCLK rising
+edges, and a nominal 1.80 ns PRECH reassertion guard after PCLK falls. The
+corrected follow-up screen with Danilo's PEX passed at that setting; its
+measurements and limits are in the [phase decision report](row_decoder_precharge_pclk_decision_20261009.md).
 These are not specification limits. Characterize the real generator and its
 loads over the required process/voltage/temperature conditions. Verify that:
 

@@ -1887,7 +1887,7 @@ contains exact commands, matrix links, waveform evidence and limitations. The
 figure is
 [`row_decoder_precharge_phase_sequence_20261009.svg`](assets/row_decoder_precharge_phase_sequence_20261009.svg).
 
-## 2026-10-09 UTC: selected 2.10 ns precharge/PCLK phase candidate
+## 2026-10-09 UTC: initial 2.10 ns precharge/PCLK phase candidate
 
 Person 3's decoder integration uses Danilo's W2.52 precharge PEX. The 2.10 ns
 point was selected by comparing measured timing slacks across the sampled
@@ -1918,3 +1918,39 @@ PCLK and PRECH are still ideal bench stimuli: this run does not qualify a real
 phase generator or include captured-control devices, a 6T access path, read or
 write behavior, or data readback. No new extraction, layout, DRC or LVS was
 performed.
+
+## 2026-10-09 UTC: correction to PRECH access-release timing
+
+Review of `run_precharge_phase_interface.py` found that the first interface
+campaign set the access-cycle PRECH release to the 15 ns capture edge. At a
+17.1 ns PCLK evaluation edge, that provided about 2.09 ns lead; the 237.5 ps
+measured release lead applied only to the initial conditioning pulse. The
+earlier 26-case result did pass for the waveform it simulated, but it does not
+verify the intended 250 ps access lead. The same scheduling issue affected the
+earlier 1.95 ns phase-interface report. Those result directories remain
+unchanged as historical records and are superseded for phase-ordering claims.
+
+The runner now releases PRECH 250 ps nominally before each PCLK rising edge.
+The corrected 2.10 ns matrix was rerun against the same pinned Danilo W2.52
+precharge PEX and current decoder/WL PEX:
+
+- TT valid read/write: 8/8 cases, 1,792/1,792 checks;
+- TT invalid/idle/disabled: 6/6 cases, 180/180 checks;
+- slow profile: 4/4 cases, 896/896 checks;
+- fast profile: 8/8 cases, 1,792/1,792 checks;
+- total: 26/26 cases, 4,660/4,660 checks and 1,460/1,460 phase checks.
+
+The corrected access release lead measures 237.5 ps after accounting for the
+50 ps PRECH ramp. The minimum selected-WL-off interval before the conservative
+75%-VDD precharge threshold is 262.786 ps in the slow-profile cases. Minimum
+sampled bitline voltage before evaluation is 1.624086 V at 1.62 V, above the
+1.458 V screen. These remain bounded ideal-source interface results; they do
+not validate a physical phase generator or bitcell access path.
+
+Corrected results and reproduction commands:
+
+- [phase decision and waveform](row_decoder_precharge_pclk_decision_20261009.md)
+- [corrected TT valid matrix](../sims/row_decoder/results/precharge_phase_interface_tt_valid_phase2100_release250_20261009/manifest.json)
+- [corrected TT invalid matrix](../sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_release250_20261009/manifest.json)
+- [corrected slow matrix](../sims/row_decoder/results/precharge_phase_interface_slow_phase2100_release250_20261009/manifest.json)
+- [corrected fast matrix](../sims/row_decoder/results/precharge_phase_interface_ff_phase2100_release250_20261009/manifest.json)

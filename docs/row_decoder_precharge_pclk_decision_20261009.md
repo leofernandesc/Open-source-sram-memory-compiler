@@ -70,6 +70,20 @@ experimental bench conditions.
 
 ## Verification with Danilo's PEX
 
+### Correction to the first 2.10 ns phase-interface run
+
+The first 2.10 ns matrix passed electrically, but its access-cycle `PRECH`
+release was scheduled at the address-capture edge (`15 ns`) instead of 250 ps
+before the access `PCLK` rise (`17.1 ns`). Thus it simulated roughly 2.09 ns
+of release lead for the access cycle. The initial conditioning pulse did use
+the intended 250 ps nominal lead. That first matrix is retained as historical
+data, but it does **not** verify the intended access-phase release timing.
+
+The runner was corrected to schedule `PRECH` 250 ps before both PCLK rising
+edges. The campaigns below are the corrected replacement; their manifests
+record the updated runner hash. The earlier 2.10 ns campaign directories remain
+unchanged and are superseded for phase-ordering claims.
+
 The selected phase candidate was screened with the current decoder PEX, four
 wordline-driver PEX instances, eight copies of Danilo's W2.52 precharge PEX,
 the current 102.873935496 fF row load, and lumped residual bitline capacitance.
@@ -83,12 +97,12 @@ Ideal PWL sources drove PCLK and PRECH. At a maximum transient step of 5 ps:
 | Fast profile, 1.80 V / 125 °C, all target rows | 8 | 1,792 | 8/8 pass |
 | **Total** | **26** | **4,660** | **26/26 pass** |
 
-The phase-ordering subset passed 1,460/1,460 checks. The minimum measured
+The corrected phase-ordering subset passed 1,460/1,460 checks. The minimum measured
 selected-WL-off interval before the conservative 75%-VDD precharge-conduction
-threshold was 254.477 ps in the slow-profile cases. The observed PRECH release
+threshold was 262.786 ps in the slow-profile cases. The observed PRECH release
 lead was 237.5 ps; the observed PCLK-fall-to-precharge threshold interval was
 1,787.5 ps. The minimum sampled bitline voltage before valid evaluation was
-1.545430 V at 1.62 V, above the bench's 90%-VDD screen of 1.458 V.
+1.624086 V at 1.62 V, above the bench's 90%-VDD screen of 1.458 V.
 
 ### Representative waveform
 
@@ -98,16 +112,16 @@ PRECH reassertion. It uses ideal PWL phase sources and extracted decoder,
 wordline-driver, and precharge leaves; it contains no 6T access path and is not
 counted in the 26-case matrix.
 
-![2.10 ns decoder and bitline-precharge phase waveform](assets/row_decoder_precharge_phase_sequence_phase2100_20261009.png)
+![2.10 ns decoder and bitline-precharge phase waveform](assets/row_decoder_precharge_phase_sequence_phase2100_release250_20261009.png)
 
-[waveform-case manifest](../sims/row_decoder/results/precharge_phase_interface_tt_phase2100_waveform_20261009/manifest.json)
+[waveform-case manifest](../sims/row_decoder/results/precharge_phase_interface_tt_waveform_phase2100_release250_20261009/manifest.json)
 
 The four result sets are archived in:
 
-- [TT valid accesses](../sims/row_decoder/results/precharge_phase_interface_tt_valid_phase2100_20261009/manifest.json)
-- [TT invalid and idle vectors](../sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_20261009/manifest.json)
-- [Slow profile](../sims/row_decoder/results/precharge_phase_interface_slow_phase2100_20261009/manifest.json)
-- [Fast profile](../sims/row_decoder/results/precharge_phase_interface_ff_phase2100_20261009/manifest.json)
+- [TT valid accesses](../sims/row_decoder/results/precharge_phase_interface_tt_valid_phase2100_release250_20261009/manifest.json)
+- [TT invalid and idle vectors](../sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_release250_20261009/manifest.json)
+- [Slow profile](../sims/row_decoder/results/precharge_phase_interface_slow_phase2100_release250_20261009/manifest.json)
+- [Fast profile](../sims/row_decoder/results/precharge_phase_interface_ff_phase2100_release250_20261009/manifest.json)
 
 The reproduction commands use a fresh output directory for each campaign:
 
@@ -118,7 +132,7 @@ The reproduction commands use a fresh output directory for each campaign:
   --phase-ps 2100 --clk-fall-ps 20700 --settling-allowance-ns 3.3 \
   --wl-cap-ff 102.873935496 --release-lead-ps 250 \
   --turnoff-guard-ps 1800 --prime-pclk-rise-ns 6 --step-ps 5 \
-  --output-dir sims/row_decoder/results/precharge_phase_interface_tt_valid_phase2100_20261009
+  --output-dir sims/row_decoder/results/precharge_phase_interface_tt_valid_phase2100_release250_20261009
 
 ./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
   --profiles tt --transitions 0:3 \
@@ -126,7 +140,7 @@ The reproduction commands use a fresh output directory for each campaign:
   --phase-ps 2100 --clk-fall-ps 20700 --settling-allowance-ns 3.3 \
   --wl-cap-ff 102.873935496 --release-lead-ps 250 \
   --turnoff-guard-ps 1800 --prime-pclk-rise-ns 6 --step-ps 5 \
-  --output-dir sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_20261009
+  --output-dir sims/row_decoder/results/precharge_phase_interface_invalid_tt_phase2100_release250_20261009
 
 ./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
   --profiles slow --transitions 1:2 3:0 \
@@ -134,7 +148,7 @@ The reproduction commands use a fresh output directory for each campaign:
   --phase-ps 2100 --clk-fall-ps 20700 --settling-allowance-ns 3.3 \
   --wl-cap-ff 102.873935496 --release-lead-ps 250 \
   --turnoff-guard-ps 1800 --prime-pclk-rise-ns 6 --step-ps 5 \
-  --output-dir sims/row_decoder/results/precharge_phase_interface_slow_phase2100_20261009
+  --output-dir sims/row_decoder/results/precharge_phase_interface_slow_phase2100_release250_20261009
 
 ./tools/sram-eda python3 sims/row_decoder/run_precharge_phase_interface.py \
   --profiles fast --transitions 0:0 0:1 0:2 0:3 \
@@ -142,7 +156,7 @@ The reproduction commands use a fresh output directory for each campaign:
   --phase-ps 2100 --clk-fall-ps 20700 --settling-allowance-ns 3.3 \
   --wl-cap-ff 102.873935496 --release-lead-ps 250 \
   --turnoff-guard-ps 1800 --prime-pclk-rise-ns 6 --step-ps 5 \
-  --output-dir sims/row_decoder/results/precharge_phase_interface_ff_phase2100_20261009
+  --output-dir sims/row_decoder/results/precharge_phase_interface_ff_phase2100_release250_20261009
 ```
 
 Regenerate the representative waveform case with `--keep-raw`, then plot it:
@@ -153,13 +167,16 @@ Regenerate the representative waveform case with `--keep-raw`, then plot it:
   --phase-ps 2100 --clk-fall-ps 20700 --settling-allowance-ns 3.3 \
   --wl-cap-ff 102.873935496 --release-lead-ps 250 \
   --turnoff-guard-ps 1800 --prime-pclk-rise-ns 6 --step-ps 5 --keep-raw \
-  --output-dir sims/row_decoder/results/precharge_phase_interface_tt_phase2100_waveform_20261009
+  --output-dir sims/row_decoder/results/precharge_phase_interface_tt_waveform_phase2100_release250_20261009
 
 ./tools/sram-eda python3 sims/row_decoder/plot_precharge_phase_interface.py \
-  --case-dir sims/row_decoder/results/precharge_phase_interface_tt_phase2100_waveform_20261009/cases/tt_ctl001_a0_to_3_p2100 \
-  --output-svg docs/assets/row_decoder_precharge_phase_sequence_phase2100_20261009.svg \
-  --output-png docs/assets/row_decoder_precharge_phase_sequence_phase2100_20261009.png
+  --case-dir sims/row_decoder/results/precharge_phase_interface_tt_waveform_phase2100_release250_20261009/cases/tt_ctl001_a0_to_3_p2100 \
+  --output-svg docs/assets/row_decoder_precharge_phase_sequence_phase2100_release250_20261009.svg \
+  --output-png docs/assets/row_decoder_precharge_phase_sequence_phase2100_release250_20261009.png
 ```
+
+The original result folders without the `release250` suffix are kept for audit
+and should not be used as evidence for the 250 ps access-release requirement.
 
 ## Limits and next work
 

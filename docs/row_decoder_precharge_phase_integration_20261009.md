@@ -1,13 +1,25 @@
 # Decoder, wordline and Danilo precharge phase-interface screen — 2026-10-09
 
-## Purpose and result
+## Purpose and result — initial run, release timing superseded
+
+**Correction status:** this report records the first phase-interface campaign.
+Its access-cycle `PRECH` release was inadvertently placed at the capture edge,
+not 250 ps before access `PCLK`. The original results therefore describe an
+earlier release schedule and do not verify the stated 250 ps access lead. The
+runner and full 2.10 ns matrix have since been corrected; use the updated
+[phase decision report](row_decoder_precharge_pclk_decision_20261009.md) and
+its `release250` manifests for current phase-ordering evidence. The archived
+results below are left unchanged for audit.
+The reproduction commands retained later in this report now invoke the
+corrected runner and therefore will not recreate the historical access-release
+waveforms; use the commands in the phase decision report for current results.
 
 This is a bounded electrical interface screen for the dynamic 2-to-4 decoder
 owned by Person 3. It consumes the extracted SKY130A precharge candidate from
 Danilo's branch as a read-only simulation dependency. It does not replace the
 precharge source shared by the team or approve a final system timing contract.
 
-The final campaigns completed **26/26 ngspice cases** and **4,660/4,660
+The initial campaigns completed **26/26 ngspice cases** and **4,660/4,660
 detailed checks** with no failures. The runner's phase-check summary contains
 **1,460/1,460 passing checks**. The tested cases cover valid read/write
 sequences in TT, selected transitions in the slow corner, all address targets
