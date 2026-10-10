@@ -2284,3 +2284,42 @@ and [waveform plot](../sims/row_decoder/results/captured_row_address_interface_t
 preserve the evidence. The source-level address setup/hold sweep, other
 addresses/control vectors, SS/FF integration, startup, phase-source PEX, and
 physical bitcell-row read/write/readback remain pending.
+
+## 2026-10-10 UTC: row-address register input setup/hold screen
+
+Added `sims/row_decoder/run_row_address_setup_hold.py` to freshly netlist the
+two `dfxtp_1` instances from `row_address_capture.sch`, verify their pin order,
+and create a simulation-only single-bit wrapper from that generated mapping.
+The project schematic was not changed. The sweep exercises A0 and A1, rising
+and falling D transitions, and 14 offsets around the second rising CLK edge in
+each of TT, SS, and FF: **168 timing points total**.
+
+All three transient runs completed without fatal errors or missing OSDI
+libraries. Logs report `No compatibility mode selected!`. The measured Q at
+700 ps after capture matched the expected value in **114/114 points with
+nonnegative Liberty slack**. Four points per profile place the D 50% crossing
+exactly at the CLK 50% crossing and have no side-specific Liberty reference;
+the remaining negative-slack points are exploratory aperture observations,
+not expected-state pass/fail checks. No side-specific case was outside its
+Liberty table range.
+
+The sampled pre-edge Q transition brackets were −50→−25 ps for rising data
+and −75→−50 ps for falling data in TT; −75→−50 ps and −200→−150 ps in SS;
+and −25→0 ps and −50→−25 ps in FF. The nearest tested post-edge crossing was
++10 ps, at which all four bit/polarity paths retained the old value. These
+coarse sampled brackets are not timing requirements or metastability
+characterization. The largest referenced setup value is 352.786 ps for SS
+falling data. Native PM3 and Liberty operating points differ, as detailed in
+the [report](row_decoder_address_setup_hold_20261010.md).
+
+Reproduce in a new directory with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_address_setup_hold.py \
+  --output-dir sims/row_decoder/results/row_address_setup_hold_repro
+```
+
+The [manifest](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/manifest.json),
+[per-point measurements](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/checks.csv),
+[plot](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/setup_hold_aperture.png),
+SPICE decks, and logs preserve the run. No parasitic extraction was performed.

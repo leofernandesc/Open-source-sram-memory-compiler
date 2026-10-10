@@ -75,9 +75,21 @@ the functional screen with:
   --output-dir sims/row_decoder/results/row_address_capture_repro
 ```
 
-The transistor-level PEX result is a single loaded nominal case. Address
-setup/hold, remaining transitions/corners, metastability, startup, and a
-physical bitcell row remain open; see the [address-capture report](../../docs/row_decoder_address_capture_20261009.md).
+The address inputs now have a separate isolated transistor-level setup/hold
+screen: 168 points for A0/A1 rising/falling transitions across TT/SS/FF, with
+114/114 Q checks passing where the measured margin is nonnegative against the
+matching Liberty reference. These are sampled cell-level results, not timing
+limits or signoff. Reproduce with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_address_setup_hold.py \
+  --output-dir sims/row_decoder/results/row_address_setup_hold_repro
+```
+
+The transistor-level PEX integration remains a single loaded nominal case.
+Broader address/control transitions and corners, metastability, startup, and a
+physical bitcell row remain open; see the [address-capture report](../../docs/row_decoder_address_capture_20261009.md)
+and the [setup/hold report](../../docs/row_decoder_address_setup_hold_20261010.md).
 The valid-access control input has a separate transistor-level setup/hold
 screen; see the [report](../../docs/row_decoder_valid_access_setup_hold_20261009.md).
 
@@ -110,8 +122,10 @@ checks. A later paired run uses `captured_row_decoder_control.sch`, so
 transistor-level A0/A1 registers now feed the decoder PEX. The valid-read
 `001`, address `0→3` pair passes 350/350 checks; the actual PCLK edge differs
 by 1.117 ps from the Liberty-timed reference. These are bounded nominal
-comparisons. Broader control/address/corner coverage, address setup/hold,
-startup, phase-source PEX, and physical 6T read/write integration remain open.
+comparisons. The isolated address setup/hold screen is now complete, but
+broader integrated control/address/corner coverage, startup, phase-source PEX,
+and physical 6T read/write integration remain open. See the [address
+setup/hold report](../../docs/row_decoder_address_setup_hold_20261010.md).
 See the [captured phase-interface report](../../docs/row_decoder_captured_phase_interface_20261009.md)
 for the historical and follow-up results, exact evidence files, warnings, and
 the planned matrix.

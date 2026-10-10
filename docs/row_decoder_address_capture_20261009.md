@@ -77,18 +77,45 @@ and [matched timing summary](../sims/row_decoder/results/captured_row_address_in
 record the exact inputs, model and source hashes. The run uses existing PEX
 files; no extraction was performed.
 
+## Follow-up: isolated address setup/hold screen — 2026-10-10
+
+The address register has now been screened independently at its D inputs in
+TT, SS, and FF. The **168-point** matrix covers A0 and A1, rising and falling
+data transitions, and 14 offsets around the rising clock edge. All
+**114/114** samples with nonnegative margin against the matching Liberty
+reference captured the expected value. Four points per profile put the D
+crossing exactly at the clock edge and therefore have no side-specific
+reference; no tested point was outside its Liberty table range.
+
+The closest sampled pre-edge crossing that captured new data was −50/−75 ps
+(rising/falling) in TT, −75/−200 ps in SS, and −25/−50 ps in FF. At the nearest
+tested post-edge crossing of +10 ps, all four address-bit/polarity paths
+retained the old value. Falling-data setup references were larger than rising
+references in all three Liberty profiles; SS falling data was the largest at
+352.786 ps. These are sampled observations from an isolated DFF screen, not
+setup/hold limits or signoff. See the [setup/hold report](row_decoder_address_setup_hold_20261010.md)
+for exact transition brackets, corner conditions, waveform, and limitations.
+
+The runner freshly netlists the schematic and derives a testbench-only
+single-bit wrapper from the Xschem `dfxtp_1` instance pin mapping; it does not
+change the project schematic. The [manifest](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/manifest.json),
+[measurements](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/checks.csv),
+and [plot](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/setup_hold_aperture.png)
+preserve the run and model provenance.
+
 ## Limits and next checks
 
-Only one address transition, one valid-read vector, and one TT operating point
-have been tested with the captured address connected to decoder/WL/precharge
-PEX. There is no address setup/hold sweep, write-vector screen, full control
-matrix, or SS/FF qualification for this integrated path. The register has no
-reset and write-data capture is not included. A physical bitcell row and
-read/write/readback path are not connected.
+The isolated address-register setup/hold screen is complete, but only one
+address transition, one valid-read vector, and one TT operating point have been
+tested with the captured address connected to decoder/WL/precharge PEX. There
+is no write-vector screen, full integrated control/address matrix, or SS/FF
+qualification for this loaded path. The register has no reset and write-data
+capture is not included. A physical bitcell row and read/write/readback path
+are not connected.
 
-Next, sweep address setup/hold independently in TT/SS/FF, then extend the
-captured-address PEX matrix across valid read/write controls and all ordered
-row transitions. Keep address-pin timing results separate from the existing
+Next, extend the captured-address PEX matrix across valid read/write controls,
+all ordered row transitions, and available PVT profiles. Keep these loaded
+path checks separate from the isolated address-pin timing and existing
 valid-access control setup/hold measurements. Then connect a physical bitcell
 row and evaluate read/write/readback when the shared interfaces are ready.
 
@@ -97,6 +124,13 @@ row and evaluate read/write/readback when the shared interfaces are ready.
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_row_address_capture.py \
   --output-dir sims/row_decoder/results/row_address_capture_repro
+```
+
+Reproduce the isolated address setup/hold screen with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_address_setup_hold.py \
+  --output-dir sims/row_decoder/results/row_address_setup_hold_repro
 ```
 
 Reproduce the captured-address-to-decoder PEX case in a separate result

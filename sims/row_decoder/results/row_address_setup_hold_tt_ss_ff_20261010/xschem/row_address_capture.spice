@@ -1,0 +1,13 @@
+** sch_path: /work/cells/control/row_address_capture.sch
+**.subckt row_address_capture CLK A0 A1 VDD VSS A0_Q A1_Q
+*.iopin VDD
+*.iopin VSS
+*.ipin CLK
+*.ipin A0
+*.ipin A1
+*.opin A0_Q
+*.opin A1_Q
+XA0_FF CLK A0 VSS VSS VDD VDD A0_Q sky130_fd_sc_hd__dfxtp_1
+XA1_FF CLK A1 VSS VSS VDD VDD A1_Q sky130_fd_sc_hd__dfxtp_1
+**.ends
+.end
