@@ -103,15 +103,27 @@ change the project schematic. The [manifest](../sims/row_decoder/results/row_add
 and [plot](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/setup_hold_aperture.png)
 preserve the run and model provenance.
 
+## Follow-up: valid-write path — 2026-10-10
+
+The captured address/control/phase wrapper also passed a paired TT valid-write
+screen: control `010`, address `3→0`. Both the transistor-level and
+Liberty-reference modes passed 175/175 checks. The actual PCLK rising edge was
+1,828.672 ps after the capture edge, 1.124 ps later than the reference; the
+PRECH release lead differed by 0.048 ps. This checks captured write control
+and row selection only; it does not write/read data in a physical bitcell.
+The qualifier output reached −72.195 mV and 1.947143 V, with no accepted
+rail-excursion limit. See the [captured phase-interface report](row_decoder_captured_phase_interface_20261009.md)
+and [write-case manifest](../sims/row_decoder/results/captured_address_write_tt_20261010/manifest.json).
+
 ## Limits and next checks
 
 The isolated address-register setup/hold screen is complete, but only one
-address transition, one valid-read vector, and one TT operating point have been
-tested with the captured address connected to decoder/WL/precharge PEX. There
-is no write-vector screen, full integrated control/address matrix, or SS/FF
-qualification for this loaded path. The register has no reset and write-data
-capture is not included. A physical bitcell row and read/write/readback path
-are not connected.
+valid-read vector/address transition and one valid-write vector/address
+transition have been tested with the captured address connected to
+decoder/WL/precharge PEX, both at TT only. There is no full integrated
+control/address matrix or SS/FF qualification for this loaded path. The
+register has no reset and write-data capture is not included. A physical
+bitcell row and read/write/readback path are not connected.
 
 Next, extend the captured-address PEX matrix across valid read/write controls,
 all ordered row transitions, and available PVT profiles. Keep these loaded

@@ -63,6 +63,42 @@ captured write-data path, and no attached physical bitcell row. The
 [integrated manifest](../sims/row_decoder/results/captured_row_address_interface_tt_20261009/manifest.json)
 contain the detailed evidence. No extraction was performed for this run.
 
+## Follow-up: valid-write control with captured address — 2026-10-10
+
+Added a second paired TT case with valid-write control `010` and address
+transition `3→0`. It uses the current transistor-level PCLK/PRECH source,
+captured row-address and access-control registers, decoder/WL PEX, four
+wordline-driver PEX instances, the pinned read-only Danilo precharge PEX, and
+the existing lumped bitline residual. The test applies the input address
+500 ps before capture and changes the live address during the high phase.
+This is a write-control/row-selection screen; no physical bitcell data is
+written or read back.
+
+The actual and Liberty-reference modes each passed **175/175 checks**, for
+350/350 checks total, with no simulation errors or screen rejections. The
+actual captured `VALID_ACCESS_Q` remained asserted for write vector `010`, and
+`A0_Q/A1_Q` captured row 0 and held it after the live inputs changed. No WL was
+asserted while PRECH was active. The measured phase comparisons are:
+
+| Measurement | Captured transistor-level path | Liberty-timed reference | Difference |
+|---|---:|---:|---:|
+| CLK capture edge to PCLK 50% rise | 1,828.672 ps | 1,827.548 ps | +1.124 ps |
+| PRECH 75% release to PCLK 50% rise | 391.907 ps | 391.954 ps | −0.048 ps |
+| PCLK 50% fall to PRECH 75% assertion | 2,253.999 ps | 2,254.000 ps | −0.001 ps |
+| Valid-access Q 50% clock-to-Q rise | 184.010 ps | 307.041 ps | −123.031 ps |
+
+The captured qualifier reaches −72.195 mV and 1.947143 V in the actual run.
+The bench has no accepted rail-excursion criterion; this remains an electrical
+and model review item even though the sampled logic checks pass. Both ngspice
+logs report `No compatibility mode selected!`, with no missing OSDI library
+or fatal model error. No extraction was performed.
+
+The [run manifest](../sims/row_decoder/results/captured_address_write_tt_20261010/manifest.json),
+[350 paired checks](../sims/row_decoder/results/captured_address_write_tt_20261010/checks.csv),
+[summary metrics](../sims/row_decoder/results/captured_address_write_tt_20261010/summary.csv),
+and [matched timing comparison](../sims/row_decoder/results/captured_address_write_tt_20261010/matched_comparison.csv)
+preserve the evidence and provenance.
+
 ## Simulated path and setup
 
 The actual case freshly netlists `captured_pclk_phase_source.sch`, which
@@ -88,10 +124,10 @@ from the project specification.
 
 ## Limits and review items
 
-- Only one valid control vector, one address transition, and one invalid vector
-  were run, all at TT, 1.80 V and 27 °C. The other valid address transitions,
-  write vector, invalid vectors, SS/FF profiles, and setup/hold skew remain
-  open.
+- Valid-read `001`/address `0→3` and valid-write `010`/address `3→0` are now
+  covered at TT, 1.80 V and 27 °C, along with one earlier invalid vector `000`.
+  Other address/control combinations, invalid vectors, SS/FF profiles, and
+  integrated setup/hold skew remain open.
 - The captured Q reaches −72.2 mV and 1.9471 V in the valid run, and −7.2 mV
   and 1.9471 V in the invalid run. This bench has no rail-excursion acceptance
   criterion; the overshoot remains for electrical/model review. Passing the

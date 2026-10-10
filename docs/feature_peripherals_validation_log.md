@@ -2323,3 +2323,40 @@ The [manifest](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261
 [per-point measurements](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/checks.csv),
 [plot](../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/setup_hold_aperture.png),
 SPICE decks, and logs preserve the run. No parasitic extraction was performed.
+
+## 2026-10-10 UTC: captured valid-write row-selection screen
+
+Ran a second actual captured-address/control/phase case through the current
+decoder and wordline PEX with the pinned Danilo precharge PEX: valid-write
+control `010`, row transition `3→0`, TT at 1.80 V/27 °C. The input address
+was presented 500 ps before the rising capture edge and changed during the
+high phase. The actual transistor-level path and its Liberty-timed reference
+each passed **175/175 checks** (**350/350 total**); there were no simulation
+errors or screen rejections. Captured A0/A1 selected row 0 and held after the
+live input change, and no WL asserted while PRECH was active.
+
+The measured actual capture-to-PCLK delay was 1,828.672 ps versus 1,827.548 ps
+for the reference (+1.124 ps). PRECH release lead differed by −0.048 ps and
+PCLK-fall-to-PRECH conduction by −0.001 ps. `VALID_ACCESS_Q` reached
+−72.195 mV and 1.947143 V; there is no accepted rail-excursion criterion, so
+the voltage/model review remains open. Logs report `No compatibility mode
+selected!`, with no missing OSDI library or fatal error. This is a
+write-control/row-selection test only: it does not write stored data into a
+physical bitcell. No extraction was performed.
+
+Reproduce with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
+  --output-dir sims/row_decoder/results/captured_address_write_tt_repro \
+  --profiles tt --control-vectors 010 --transitions 3:0 \
+  --phase-ps 2100 --clk-fall-ps 20700 \
+  --settling-allowance-ns 3.3 --wl-cap-ff 102.873935496 --step-ps 5
+```
+
+The [manifest](../sims/row_decoder/results/captured_address_write_tt_20261010/manifest.json),
+[350 checks](../sims/row_decoder/results/captured_address_write_tt_20261010/checks.csv),
+[summary metrics](../sims/row_decoder/results/captured_address_write_tt_20261010/summary.csv),
+and [matched comparison](../sims/row_decoder/results/captured_address_write_tt_20261010/matched_comparison.csv)
+retain the evidence. The broader control/address/corner matrix and physical
+bitcell write/readback remain pending.
