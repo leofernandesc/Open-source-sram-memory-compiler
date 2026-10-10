@@ -1,0 +1,416 @@
+{
+  "campaign": "captured_q_to_transistor_phase_source_matched_interface",
+  "started_utc": "2026-10-10T07:16:22.965915+00:00",
+  "complete": true,
+  "scope": "Current dynamic decoder and four WL-driver R-C PEX instances plus eight pinned Danilo precharge PEX instances and lumped BL residuals. Actual mode netlists the captured row-address registers, valid-access qualifier and transistor phase source as one wrapper. Reference mode drives address-Q and valid-access-Q with dfxtp_1 Liberty-timed PWL waveforms. The source outputs drive the same downstream PEX in both modes.",
+  "model_family": "SKY130 native ngspice PM3 model library for decoder, WL, precharge, phase logic and standard cells",
+  "native_model_corner_by_profile": {
+    "tt": "tt",
+    "slow": "ss",
+    "fast": "ff"
+  },
+  "q_reference": {
+    "type": "dfxtp_1 Liberty output arc as PWL",
+    "load_pf": 0.003434554,
+    "arcs": {
+      "tt": {
+        "clock_to_q_rise_ns": 0.3070411263955726,
+        "clock_to_q_fall_ns": 0.2971512162868439,
+        "q_rise_transition_ns": 0.047479135220609765,
+        "q_fall_transition_ns": 0.030448816287418697,
+        "library": "sky130_fd_sc_hd__tt_025C_1v80.lib",
+        "voltage_v": 1.8,
+        "temperature_c": 25.0,
+        "input_slew_ns": 0.0531329,
+        "output_load_pf": 0.003434554
+      }
+    }
+  },
+  "control_equation": "VALID_ACCESS_D = !CSb AND (OEb XOR WEb)",
+  "initial_conditioning": "Controls start at 111; the first 5 ns clock pulse captures invalid/disabled Q=0 and the old address. The target control vector is applied at 5.8 ns; the target row address is applied with 500 ps nominal setup. Both are captured on the 15 ns rising edge.",
+  "post_capture_hold_challenge": "At 15.8 ns, live controls change to the opposite validity class; live address inputs change to the complement of the target address. The captured control and A0_Q/A1_Q must hold through the high phase.",
+  "address_capture": {
+    "schematic": "cells/control/row_address_capture.sch",
+    "external_setup_lead_ps": 500.0,
+    "live_address_change_ns": 15.8,
+    "reference": "dfxtp_1 Liberty clock-to-Q PWL from the same address transition",
+    "actual_input_energy_probes": [
+      "v(A0_IN)*i(VA0_IN)",
+      "v(A1_IN)*i(VA1_IN)"
+    ]
+  },
+  "sampling": {
+    "capture_after_edge_ps": 700.0,
+    "high_phase_after_edge_ps": 1500.0,
+    "post_fall_delay_ns": 1.0
+  },
+  "pclk_phase_source": {
+    "schematic": "cells/control/pclk_phase_source.sch",
+    "equations": {
+      "PCLK": "VALID_ACCESS_Q AND CLK AND DLY60",
+      "PRECH": "VALID_ACCESS_Q AND ((CLK AND DLY24) OR DLY80)"
+    },
+    "delay_taps": [
+      24,
+      60,
+      80
+    ],
+    "phase_device_sizing_um": {
+      "pfet_w": 1.26,
+      "nfet_w": 0.42,
+      "l": 0.15
+    }
+  },
+  "precharge_candidate": {
+    "subcircuit": "precharge_w2p52_flat",
+    "pins": [
+      "VDD",
+      "BL",
+      "BLB",
+      "PRECH",
+      "VSS"
+    ],
+    "mos_devices": 3,
+    "resistors": 20,
+    "capacitors": 30,
+    "negative_capacitors": 0,
+    "sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+    "source_provenance": {
+      "artifact": "precharge_w2p52_pex_5dc00fe.spice",
+      "source_repository": "leofernandesc/Open-source-sram-memory-compiler",
+      "source_branch": "feat/sram-6t-cell",
+      "source_commit": "5dc00fe02e43492267516c3e448e935456406a1d",
+      "source_path": "layout/precharge/experimental_w2p52/pex/precharge_w2p52_pex.spice",
+      "source_sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+      "subcircuit": "precharge_w2p52_flat",
+      "pin_order": [
+        "VDD",
+        "BL",
+        "BLB",
+        "PRECH",
+        "VSS"
+      ],
+      "device_candidate": {
+        "topology": "three-PMOS precharge and equalization",
+        "nominal_width_um": 0.42,
+        "physical_width_um": 2.52,
+        "channel_length_um": 0.15,
+        "precharge_polarity": "active low"
+      },
+      "owner_reported_evidence": {
+        "report_path": "docs/phase1_leaf_cell_closure.md",
+        "reported_pex_ceff_pvt_ff": [
+          11.469724,
+          13.064186
+        ],
+        "reported_pex_ceff_cases": "60/60 PASS",
+        "reported_magic_drc_errors": 0,
+        "reported_netgen_lvs": "unique structural match",
+        "independently_rerun_in_this_branch": false
+      },
+      "use_in_feature_peripherals": "Read-only PEX dependency for decoder/precharge phase-interface simulation; this copy does not replace the shared precharge source or establish a new owner-approved integration revision."
+    },
+    "instances": [
+      "XPRECH0 net1 BL0 BLB0 PRECH GND precharge_w2p52_flat",
+      "XPRECH1 net1 BL1 BLB1 PRECH GND precharge_w2p52_flat",
+      "XPRECH2 net1 BL2 BLB2 PRECH GND precharge_w2p52_flat",
+      "XPRECH3 net1 BL3 BLB3 PRECH GND precharge_w2p52_flat",
+      "XPRECH4 net1 BL4 BLB4 PRECH GND precharge_w2p52_flat",
+      "XPRECH5 net1 BL5 BLB5 PRECH GND precharge_w2p52_flat",
+      "XPRECH6 net1 BL6 BLB6 PRECH GND precharge_w2p52_flat",
+      "XPRECH7 net1 BL7 BLB7 PRECH GND precharge_w2p52_flat"
+    ]
+  },
+  "decoder_wl_pex_evidence": {
+    "row_decoder": {
+      "pex_sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+      "counts": {
+        "mos": 29,
+        "resistors": 762,
+        "capacitors": 389
+      },
+      "dynamic_gate_nodes": {
+        "0": "N0.t3",
+        "1": "N1.t3",
+        "2": "N2.t3",
+        "3": "N3.t3"
+      },
+      "dynamic_segment_nodes": {
+        "0": [
+          "N0",
+          "N0.n0",
+          "N0.n1",
+          "N0.t0",
+          "N0.t1",
+          "N0.t2",
+          "N0.t3"
+        ],
+        "1": [
+          "N1",
+          "N1.n0",
+          "N1.n1",
+          "N1.t0",
+          "N1.t1",
+          "N1.t2",
+          "N1.t3"
+        ],
+        "2": [
+          "N2",
+          "N2.n0",
+          "N2.n1",
+          "N2.t0",
+          "N2.t1",
+          "N2.t2",
+          "N2.t3"
+        ],
+        "3": [
+          "N3",
+          "N3.n0",
+          "N3.n1",
+          "N3.t0",
+          "N3.t1",
+          "N3.t2",
+          "N3.t3"
+        ]
+      },
+      "capture_literal_nodes": {
+        "A0B": "x1.a0b.t0",
+        "A1B": "x1.a1b.t0",
+        "A0T": "x1.a0t.t0",
+        "A1T": "x1.a1t.t1"
+      }
+    },
+    "wl_driver": {
+      "subcircuit_pins_in_testbench_order": [
+        "VDD",
+        "WL_IN",
+        "WL",
+        "VSS"
+      ],
+      "source_pins_in_xschem_order": [
+        "VDD",
+        "WL_IN",
+        "WL",
+        "VSS"
+      ],
+      "pex_pins_in_magic_order": [
+        "VDD",
+        "VSS",
+        "WL_IN",
+        "WL"
+      ],
+      "pex_pin_order_adapted_without_changing_top_instances": true,
+      "mos_devices": 4,
+      "resistors": 99,
+      "capacitors": 43,
+      "mos_signature_match_current_xschem_and_flat_extraction": true,
+      "negative_capacitors": 0,
+      "sha256": {
+        "cells/wordline_driver/wl_driver.sch": "fcbd66081215bbbc32ff3ddb2655bf74f5ad55c6ac952b31159b64d3fb0b86d4",
+        "layout/wl_driver/wl_driver_flat.mag": "785d5fb367572e85514471ff3c6b1634b7b613bf1a1e106ce4c0a403a14e365a",
+        "layout/wl_driver/wl_driver_flat.ext": "2e3acdbe46cb741907271b337c6881092326b9e139e51f817fd26b5f13672956",
+        "layout/wl_driver/wl_driver_flat_extracted.spice": "ef7faf1175cf9a4c3e19a30cd7c60319f5050234a4c9f1eeec3ee5b3c1d53e9e",
+        "layout/wl_driver/pex/wl_driver_pex.spice": "68a3d7234d6d002d38655c10eace999729222b4a9078568feb71c0867eecfdc0"
+      }
+    },
+    "topology_scope": "Current decoder R-C PEX and four hierarchical WL-driver R-C PEX instances; the explicitly configured lumped WL load is recorded in wordline_load."
+  },
+  "wordline_load_ff": 102.873935496,
+  "bitline_load": {
+    "target_effective_ceiling_ff": 597.056241,
+    "precharge_leaf_max_ceff_ff": 13.064186,
+    "external_residual_ff_per_side": 583.992055,
+    "interpretation": "lumped residual using pinned precharge leaf evidence; not a distributed bitline"
+  },
+  "experimental_checks": {
+    "minimum_release_lead_ps": 250.0,
+    "minimum_wl_turnoff_guard_ps": 1800.0,
+    "not_specification_limits": true
+  },
+  "maximum_step_ps": 5.0,
+  "source_hashes": {
+    "sims/row_decoder/run_captured_phase_interface.py": "3658f8111d90f464568bf7a57c00dbda7968a5328d59cbf11ee3e4a5fed555f3",
+    "cells/control/captured_row_decoder_control.sch": "ba3528dc6e7a34ca1ff649c8813bb7f4f46b4ddb9df02e8afac0744a97432a9a",
+    "cells/control/captured_row_decoder_control.sym": "d2eff0dada824cfca0cf62ec4ab8d8c15f318f361859b684d097aaa6b80cced8",
+    "cells/control/row_address_capture.sch": "6e1b09dd3897084bfa31bf6aac03e92e3a73e37894393d60efb3de9efa3fdc8e",
+    "cells/control/row_address_capture.sym": "c456f60fb2cabf2af00ea3d8043aa521086f018b1c4a8737e2dedf6be5bf00f0",
+    "cells/control/captured_pclk_phase_source.sch": "806c01c2ff0d477a8a0c66d88da3cec04d3f8e6bd293f0023867d23b7a6daf1d",
+    "cells/control/captured_pclk_phase_source.sym": "b3ff6d9ec0461e0aba5c48c1ea99255b44d84551b30f08475672c269b77063be",
+    "cells/control/valid_access_capture.sch": "dbcec10f951a18936a920e9a854a1b8512851a0584e867edb38bfca2b4291e43",
+    "cells/control/valid_access_capture.sym": "f77b9cecc2f80e0ff8dbe78d50c820b4c0243d9e7e6e853439f323add2d16791",
+    "cells/control/pclk_phase_source.sch": "c78996b99abadbc7a9c0c6e1db5ad50fb7b720df5921349021b7cb7b17ae4b09",
+    "cells/control/pclk_phase_source.sym": "44bc6e7e4e62c3aa54a7a8bbc20c92293c48ebb0633aa03a51b8189c69d50e1f",
+    "cells/control/phase_delay_inv.sch": "695c054e2c13be72563d53bea8bac5de262a52183f8813115600f037b0327c6f",
+    "cells/control/phase_delay_inv.sym": "4eebbf2041bd0ee6de407ba1e968ab89d8cfdb3b8eac12f8a2f4421f73eeac9b",
+    "cells/control/phase_and3.sch": "a0f2ee388996e1a8c43d295cf3dcf0d07e3fc1dde05b43cc28d7c3e6e9e11564",
+    "cells/control/phase_and3.sym": "fee5fd0e3974ba4bb11f7de0546e4636ec5e416548f99164b77695e14e2859e3",
+    "cells/control/phase_or2.sch": "cd0f7bd06dc59eba1456ce542ba3383b2c446c6640dcc5ba12824936bba12102",
+    "cells/control/phase_or2.sym": "c0a1db8b4df24e444fccae0a0e499d2eb1568253b337003ab0ab61b706640670",
+    "tools/generate_pclk_phase_source.py": "cc79627ddc913c5863cf24d55294c198a8fc506bcda163513fe7eb9c818e47a6"
+  },
+  "xschem_wrapper_netlist_sha256": "18deae4ce4b1574be47b366dac35afa314a2ee5765127f06fe18c60862ed5ce0",
+  "active_wrapper_subcircuit_sha256": "251d6ce00498f882c85af959be53d86a78d73722462cebdaf6c51a28dc9fa5b2",
+  "simulation_input_netlist_sha256": "e2b2696bf862ee35c2a5b10ec1ded5c0a12370593ca39b2ff98f929ae6ab6e80",
+  "pdk_sha256": {
+    "sky130.lib.spice": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e",
+    "sky130_fd_sc_hd.spice": "304da9725492089107bb20840a4020558b028487d300f8df79bbbad5332aaa99",
+    "sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135"
+  },
+  "tools": {
+    "xschem": "XSCHEM V3.4.6\nCopyright (C) 1998-2024 Stefan Schippers\n\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n\nUsing run time directory XSCHEM_SHAREDIR = /opt/xschem/313acc8/share/xschem\nSourcing /opt/xschem/313acc8/share/xschem/xschemrc init file\nSourcing /work/xschemrc init file",
+    "ngspice": "******\n** ngspice-44.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2024, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Jan 21 05:28:45 UTC 2026\n******"
+  },
+  "case_count": 2,
+  "cases": [
+    {
+      "label": "tt_ctl001_a0_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 0,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a0_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 0,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    }
+  ],
+  "results": [
+    {
+      "case": "tt_ctl001_a0_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "0:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00923118649231,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7997018840728696,
+        "a1_q_post_capture_v": 2.3562058406174793e-05,
+        "a0_q_after_live_address_change_v": 1.799999863256577,
+        "a1_q_after_live_address_change_v": -5.769466816698205e-07,
+        "capture_to_pclk_rise_ps": 1828.677498009642,
+        "prech_release_lead_before_pclk_ps": 391.91212010140003,
+        "pclk_fall_to_precharge_conduction_ps": 2253.975605545912,
+        "q_min_v": -0.07220144952341656,
+        "q_max_v": 1.947177405791465
+      }
+    },
+    {
+      "case": "tt_ctl001_a0_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "0:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5607969311936,
+        "prech_release_lead_before_pclk_ps": 391.9630016164723,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9772352225755,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a0_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "0:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00921926782885,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -1.5561150339672412e-05,
+        "a1_q_post_capture_v": 1.7997461379231368,
+        "a0_q_after_live_address_change_v": -4.0015270371452783e-07,
+        "a1_q_after_live_address_change_v": 1.799999695793516,
+        "capture_to_pclk_rise_ps": 1828.6778156649173,
+        "prech_release_lead_before_pclk_ps": 391.9086327663265,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9887292865906,
+        "q_min_v": -0.0722016032890227,
+        "q_max_v": 1.947177405791465
+      }
+    },
+    {
+      "case": "tt_ctl001_a0_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "0:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5670402146552,
+        "prech_release_lead_before_pclk_ps": 391.9653876352116,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9934763239908,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    }
+  ],
+  "warnings": {
+    "native_pm3_osdi": "Each ngspice log must be reviewed for unavailable OSDI startup libraries.",
+    "rail_excursions": "No Q/PCLK/PRECH rail-excursion acceptance limit is defined by this bench."
+  },
+  "finished_utc": "2026-10-10T07:20:12.944835+00:00",
+  "status": "PASS",
+  "simulation_errors": [],
+  "screen_rejections": 0,
+  "warnings_by_run": {
+    "cases/tt_ctl001_a0_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a0_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a0_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a0_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    }
+  },
+  "summary_files": [
+    "summary.csv",
+    "matched_comparison.csv",
+    "checks.csv"
+  ],
+  "cases_completed": 4
+}

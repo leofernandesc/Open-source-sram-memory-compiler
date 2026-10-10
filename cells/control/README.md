@@ -62,13 +62,13 @@ physical row are not included in this wrapper.
 
 The Xschem/functional screen checks all four address values, output hold after
 live input changes, and the wrapper hierarchy: 4/4 captures, 8/8 hold checks,
-and the expected subcircuit connections pass. A follow-up transistor-level TT
-screen connects `A0_Q/A1_Q` through the current decoder and WL PEX with the
-pinned precharge PEX. For valid read `001`, address `0→3`, all four sampled
-address checks pass after capture and after the live inputs change; the paired
-actual/reference run passes 350/350 checks. This is one setup point and one
-nominal address transition, not a setup/hold or PVT qualification. Reproduce
-the functional screen with:
+and the expected subcircuit connections pass. The initial representative
+transistor-level TT case connects `A0_Q/A1_Q` through the current decoder and
+WL PEX with the pinned precharge PEX. For valid read `001`, address `0→3`, all
+four sampled address checks pass after capture and after the live inputs
+change; the paired actual/reference run passes 350/350 checks. This one case
+is one setup point and one nominal address transition, not a setup/hold or PVT
+qualification. Reproduce the functional screen with:
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_row_address_capture.py \
@@ -86,9 +86,12 @@ limits or signoff. Reproduce with:
   --output-dir sims/row_decoder/results/row_address_setup_hold_repro
 ```
 
-The transistor-level PEX integration now has two loaded nominal TT cases:
-valid read `001`/address `0→3` and valid write `010`/address `3→0`. Broader
-address/control transitions and corners, metastability, startup, and a
+The transistor-level PEX integration now selects all four decoder outputs
+under valid-read control `001`, from old address 0, at TT. One valid-write
+case (`010`, `3→0`) is also covered. The four read pairs pass 1,400/1,400
+checks; the write pair passes 350/350. All are nominal row-selection cases,
+not full ordered-transition or physical-bitcell read/write qualification.
+The other ordered address pairs and corners, metastability, startup, and a
 physical bitcell row remain open; see the [address-capture report](../../docs/row_decoder_address_capture_20261009.md)
 and the [setup/hold report](../../docs/row_decoder_address_setup_hold_20261010.md).
 The valid-access control input has a separate transistor-level setup/hold
@@ -121,13 +124,14 @@ The earlier evidence covers one TT valid-read case and one TT invalid control
 vector with decoder/WL and pinned precharge PEX loading: 342/342 and 66/66
 checks. A later paired run uses `captured_row_decoder_control.sch`, so
 transistor-level A0/A1 registers now feed the decoder PEX. The valid-read
-`001`, address `0→3` pair passes 350/350 checks; the valid-write `010`,
-address `3→0` pair also passes 350/350 checks. The actual PCLK edge differs
-1.117 ps from its Liberty-timed reference for the read case and 1.124 ps for
-the write case. These are bounded nominal comparisons. The isolated address
-setup/hold screen is now complete, but broader integrated
-control/address/corner coverage, startup, phase-source PEX, and physical 6T
-read/write integration remain open. See the [address
+`001` cases target rows 0, 1, 2 and 3 from old address 0; each actual/reference
+pair passes 350/350 checks (1,400 total). The valid-write `010`, address
+`3→0` pair passes 350/350 checks. The actual PCLK edge differs 1.111–1.117 ps
+from its Liberty-timed reference in the new read cases, 1.117 ps in the
+original read case, and 1.124 ps in the write case. These are bounded nominal
+comparisons. The isolated address setup/hold screen is now complete, but
+broader integrated control/address/corner coverage, startup, phase-source
+PEX, and physical 6T read/write integration remain open. See the [address
 setup/hold report](../../docs/row_decoder_address_setup_hold_20261010.md).
 See the [captured phase-interface report](../../docs/row_decoder_captured_phase_interface_20261009.md)
 for the historical and follow-up results, exact evidence files, warnings, and

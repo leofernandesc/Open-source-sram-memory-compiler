@@ -2360,3 +2360,41 @@ The [manifest](../sims/row_decoder/results/captured_address_write_tt_20261010/ma
 and [matched comparison](../sims/row_decoder/results/captured_address_write_tt_20261010/matched_comparison.csv)
 retain the evidence. The broader control/address/corner matrix and physical
 bitcell write/readback remain pending.
+
+## 2026-10-10 UTC: captured valid-read row-selection screens
+
+Extended the same paired TT path for valid-read control `001`. One run covered
+old row 0 to targets 1 and 2; a second covered target 0 (`0→0`). Across the
+three new cases, actual transistor-level and Liberty-reference modes passed
+**1,050/1,050 checks**, with no simulation errors or screen rejections. Each
+case selects exactly one expected WL, captures A0/A1 before the rising edge,
+holds the captured address after the live inputs change, and keeps WL inactive
+while PRECH is active. Together with the earlier `0→3` read case, all four
+decoder output rows are now exercised under the read control at TT. Four read
+pairs total 1,400/1,400 checks; adding the separately tested write-control
+case `010`, `3→0`, brings the five valid paired cases to 1,750/1,750 checks.
+
+In the new cases, actual PCLK rising delay was 1,828.677–1,828.678 ps after
+capture, 1.111–1.117 ps later than the matched reference. `VALID_ACCESS_Q`
+spanned −72.202 mV to 1.947177 V; the bench has no accepted rail-excursion
+criterion, so electrical/model review remains open. Logs print `No
+compatibility mode selected!`, with no missing OSDI library or fatal model
+error. These are still row-selection/control checks: no physical bitcell is
+connected, and no stored data is written, read, or read back. The new cases
+use old address 0; valid-write has only the separate `3→0` case. Other
+valid-control/address combinations and SS/FF qualification remain open. No
+extraction was performed.
+
+The [rows 1/2 manifest](../sims/row_decoder/results/captured_address_read_rows1_2_tt_20261010/manifest.json),
+[rows 1/2 checks](../sims/row_decoder/results/captured_address_read_rows1_2_tt_20261010/checks.csv),
+[row 0 manifest](../sims/row_decoder/results/captured_address_read_row0_tt_20261010/manifest.json),
+and [row 0 checks](../sims/row_decoder/results/captured_address_read_row0_tt_20261010/checks.csv)
+preserve the exact decks and logs. Reproduce all three new cases with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
+  --output-dir sims/row_decoder/results/captured_address_read_rows012_tt_repro \
+  --profiles tt --control-vectors 001 --transitions 0:0 0:1 0:2 \
+  --transitions-per-vector --phase-ps 2100 --clk-fall-ps 20700 \
+  --settling-allowance-ns 3.3 --wl-cap-ff 102.873935496 --step-ps 5
+```

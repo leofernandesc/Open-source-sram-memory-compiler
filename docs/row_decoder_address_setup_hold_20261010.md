@@ -101,10 +101,11 @@ This is an isolated register-input screen with a nominal capacitive Q load. It
 does not model the external address source, clock-tree or routing parasitics,
 metastability statistics, repeated-cycle timing, or a project-approved setup/
 hold budget. The single sample of Q is not a reliability or timing signoff.
-The captured-address PEX integration now has two representative TT cases:
-valid read `001` with `0→3`, and valid write `010` with `3→0`. It does not yet
-cover the full control/address/corner matrix, and the address setup/hold sweep
-is not integrated with the decoder PEX.
+The captured-address PEX integration now selects all four row outputs under
+valid-read control `001` from old address 0 at TT, and has one valid-write
+case (`010`, `3→0`). It does not yet cover all 16 ordered old/new address
+pairs or the full control/corner matrix, and the address setup/hold sweep is
+not integrated with the decoder PEX.
 
 Next, extend the actual captured-address-to-decoder/WL/precharge PEX path across
 valid read and write controls, all ordered address transitions, and available

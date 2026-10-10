@@ -2,9 +2,10 @@
 
 ## Result
 
-The captured qualifier and transistor-level phase source were simulated as one
-electrical path for two representative SKY130 conditions at TT, 1.80 V and
-27 °C: valid read vector `001` with address transition `0→3`, and invalid
+The initial paired screen combined the captured qualifier and transistor-level
+phase source into one electrical path for two representative SKY130 conditions
+at TT, 1.80 V and 27 °C: valid read vector `001` with address transition
+`0→3`, and invalid
 vector `000`. Each was compared with a Liberty-timed `dfxtp_1` Q waveform
 feeding the same transistor-level phase source and downstream PEX. The valid
 read pair passed **342/342 checks**; the invalid pair passed **66/66 checks**.
@@ -99,6 +100,34 @@ The [run manifest](../sims/row_decoder/results/captured_address_write_tt_2026101
 and [matched timing comparison](../sims/row_decoder/results/captured_address_write_tt_20261010/matched_comparison.csv)
 preserve the evidence and provenance.
 
+## Follow-up: valid-read selection of all four rows at TT — 2026-10-10
+
+Two additional runs select read targets 1 and 2 from old address 0, and a
+third selects target 0 from old address 0. Together with the earlier read
+case targeting row 3, valid-read control `001` now selects each of the four
+decoder outputs in a representative TT case at 1.80 V/27 °C. The three new
+paired cases pass **1,050/1,050 checks** (175 actual plus 175 reference
+checks per case), with no simulation errors or screen rejections. Across all
+four read targets, the paired count is **1,400/1,400**. The earlier valid-write
+control `010`, address `3→0`, adds one more representative case, for
+**1,750/1,750 checks** across the five valid cases now recorded here.
+
+For the three new cases, the actual PCLK rising edge occurs 1,828.677–1,828.678
+ps after capture, 1.111–1.117 ps later than the Liberty-timed reference. The
+actual `VALID_ACCESS_Q` spans −72.202 mV to 1.947177 V. There is no accepted
+rail-excursion criterion, so the voltage/model review remains open despite
+the sampled logic checks passing. Logs report `No compatibility mode
+selected!`; none reports a missing OSDI library or fatal model error.
+
+This covers target selection from old address 0, including the `0→0` hold
+case; it is **not** the full set of 16 ordered old/new row-address pairs. The
+write control still has only the `3→0` case, and none of these tests writes
+data into or reads back a physical bitcell. The [row 1/2 manifest](../sims/row_decoder/results/captured_address_read_rows1_2_tt_20261010/manifest.json),
+[row 1/2 checks](../sims/row_decoder/results/captured_address_read_rows1_2_tt_20261010/checks.csv),
+[row 0 manifest](../sims/row_decoder/results/captured_address_read_row0_tt_20261010/manifest.json),
+and [row 0 checks](../sims/row_decoder/results/captured_address_read_row0_tt_20261010/checks.csv)
+preserve both runs.
+
 ## Simulated path and setup
 
 The actual case freshly netlists `captured_pclk_phase_source.sch`, which
@@ -124,10 +153,11 @@ from the project specification.
 
 ## Limits and review items
 
-- Valid-read `001`/address `0→3` and valid-write `010`/address `3→0` are now
-  covered at TT, 1.80 V and 27 °C, along with one earlier invalid vector `000`.
-  Other address/control combinations, invalid vectors, SS/FF profiles, and
-  integrated setup/hold skew remain open.
+- Valid-read `001` now targets all four decoder rows from old address 0 at TT,
+  1.80 V and 27 °C; valid-write `010` has one `3→0` case. One earlier invalid
+  vector `000` is also covered. The other valid-control/address combinations,
+  broader invalid-control transitions, SS/FF profiles, and integrated
+  setup/hold skew remain open.
 - The captured Q reaches −72.2 mV and 1.9471 V in the valid run, and −7.2 mV
   and 1.9471 V in the invalid run. This bench has no rail-excursion acceptance
   criterion; the overshoot remains for electrical/model review. Passing the
@@ -169,8 +199,9 @@ waveform inspection is needed.
 
 ## Remaining matrix
 
-On the stronger machine, first cover both valid operations, all four row
-transitions, and all three model profiles:
+On the stronger machine, first cover both valid operations targeting each row
+from old address 0, and all three model profiles (24 paired cases, 48
+actual/reference ngspice runs):
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
@@ -179,7 +210,8 @@ transitions, and all three model profiles:
   --output-dir sims/row_decoder/results/captured_phase_interface_valid_3profile
 ```
 
-Then cover all six invalid/idle control vectors in TT/SS/FF:
+Then cover all six invalid/idle control vectors with the `0→3` challenge in
+TT/SS/FF (18 paired cases, 36 actual/reference ngspice runs):
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
@@ -188,8 +220,28 @@ Then cover all six invalid/idle control vectors in TT/SS/FF:
   --output-dir sims/row_decoder/results/captured_phase_interface_invalid_3profile
 ```
 
+After the first-stage screens pass, cover the 12 ordered address pairs whose
+old address is 1, 2 or 3. The first-stage valid screen already covers the four
+pairs from old address 0. Together, the two stages cover all 16 ordered
+old/new pairs for both valid operations and all three profiles. Run this
+expanded stage on the stronger machine; the selected-row and invalid-vector
+screens do not replace it.
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
+  --profiles tt slow fast --control-vectors 001 010 \
+  --transitions 1:0 1:1 1:2 1:3 2:0 2:1 2:2 2:3 3:0 3:1 3:2 3:3 \
+  --transitions-per-vector \
+  --output-dir sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile
+```
+
+This remaining valid-operation matrix contains 72 paired cases (144 actual/
+reference ngspice runs); it is intentionally a separate high-compute step.
+
 At the observed runtime of roughly one to one-and-a-half minutes per ngspice
-netlist, these 84 paired-mode simulations are expected to take around 1.5–2
-hours, depending on the machine. The matrix still does not sweep setup/hold
-skew, phase placement, clock period, or supply/temperature within a model
-profile; those need separate scoped runs after this matrix is reviewed.
+netlist, the first-stage valid/invalid screens above (84 actual/reference runs)
+are expected to take around 1.5–2 hours. The remaining ordered-address stage
+is roughly 2.5–3.5 hours at that observed rate. These estimates depend on the
+machine. The matrix does not sweep setup/hold skew, phase placement, clock
+period, or supply/temperature within a model profile; those need separate
+scoped runs after this matrix is reviewed.

@@ -115,15 +115,30 @@ The qualifier output reached −72.195 mV and 1.947143 V, with no accepted
 rail-excursion limit. See the [captured phase-interface report](row_decoder_captured_phase_interface_20261009.md)
 and [write-case manifest](../sims/row_decoder/results/captured_address_write_tt_20261010/manifest.json).
 
+## Follow-up: valid-read selection of all row outputs — 2026-10-10
+
+The same captured-address PEX path was run for valid-read control `001` with
+target rows 1 and 2 (`0→1`, `0→2`) and target row 0 (`0→0`). Each actual and
+Liberty-reference pair passed all 350 checks; the row-1/2 run passed 700/700
+and the row-0 run passed 350/350. Together with the earlier `0→3` read case,
+the four decoder outputs have now each been selected in a TT read-control
+case. The three new cases reached PCLK 1.111–1.117 ps later than their matched
+Liberty references. The actual qualifier output still spans −72.202 mV to
+1.947177 V; no accepted rail-excursion criterion is defined. These remain
+row-selection tests without a physical bitcell or stored-data readback. See
+the [paired phase-interface report](row_decoder_captured_phase_interface_20261009.md),
+[row 1/2 manifest](../sims/row_decoder/results/captured_address_read_rows1_2_tt_20261010/manifest.json),
+and [row 0 manifest](../sims/row_decoder/results/captured_address_read_row0_tt_20261010/manifest.json).
+
 ## Limits and next checks
 
-The isolated address-register setup/hold screen is complete, but only one
-valid-read vector/address transition and one valid-write vector/address
-transition have been tested with the captured address connected to
-decoder/WL/precharge PEX, both at TT only. There is no full integrated
-control/address matrix or SS/FF qualification for this loaded path. The
-register has no reset and write-data capture is not included. A physical
-bitcell row and read/write/readback path are not connected.
+The isolated address-register setup/hold screen is complete. Under captured
+decoder/WL/precharge PEX, valid-read control `001` now selects each of the four
+row outputs from old address 0 in TT; valid-write control `010` has one TT
+case (`3→0`). This does not cover all 16 ordered old/new address pairs, other
+control/address combinations, or SS/FF qualification. The register has no
+reset and write-data capture is not included. A physical bitcell row and
+read/write/readback path are not connected.
 
 Next, extend the captured-address PEX matrix across valid read/write controls,
 all ordered row transitions, and available PVT profiles. Keep these loaded
