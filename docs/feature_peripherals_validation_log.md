@@ -2167,8 +2167,8 @@ PEX instances with the same bitline residual load. The comparison uses a
 exact transistor-level DFF/load match.
 
 The representative TT valid-read case (`001`, address `0→3`, 1.80 V, 27 °C)
-passed 342/342 checks in the paired actual/reference runs. Captured-Q to PCLK
-50% crossing was 1,828.682 ps versus 1,827.562 ps for the Liberty reference
+passed 342/342 checks in the paired actual/reference runs. PCLK's 50% crossing
+occurred 1,828.682 ps after the rising capture edge versus 1,827.562 ps for the Liberty reference
 (+1.120 ps). PRECH release lead was 391.913 ps versus 391.968 ps, and PCLK
 fall to PRECH conduction was 2,253.998 ps versus 2,253.994 ps. A TT invalid
 `000` case passed 66/66 checks: post-capture Q samples remained low, PCLK
@@ -2192,3 +2192,95 @@ The valid-read directory also contains representative CSV traces and the
 comparison plot.
 The [dedicated report](row_decoder_captured_phase_interface_20261009.md)
 contains reproduction commands and the remaining three-profile matrix plan.
+
+## 2026-10-09 UTC: valid-access qualifier setup/hold screen
+
+Added `sims/row_decoder/run_valid_access_setup_hold.py` to measure the actual
+`VALID_ACCESS_D` input of `dfxtp_1` in the existing `valid_access_capture.sch`
+cell. The runner freshly netlists the Xschem source, exposes that existing D
+wire as an extra port only in the generated simulation subcircuit, then runs
+one ngspice transient per PM3 profile with independent setup/hold instances.
+No project schematic was altered for this measurement.
+
+The 48-point screen completed without ngspice errors: 8 setup and 8 hold
+offsets in each of TT/SS/FF. All 24/24 sampled hold cases retained Q. Sampled
+setup capture boundaries are coarse and profile-dependent: 150–200 ps TT,
+300–500 ps SS, and 50–100 ps FF external control lead. These are testbench
+observations, not timing requirements. The minimum interpolated Liberty hold
+slack among sampled cases is +104.670 ps TT, +385.971 ps SS, and +32.322 ps FF.
+
+The FF case at 100 ps Q sample-captures despite −18.204 ps calculated Liberty
+setup slack, while the 50 ps case does not capture and has −68.595 ps slack.
+This emphasizes that the single sampled SPICE result and the Liberty timing
+reference are separate, non-signoff evidence. The native PM3 operating points
+also differ from the Liberty points (notably FF uses 1.80 V/125 °C against a
+1.65 V/100 °C Liberty table). All logs print `No compatibility mode
+selected!`; no missing OSDI library or fatal model error was recorded.
+
+The method, waveforms, Liberty references, exact coarse brackets, and remaining
+limits are in the [setup/hold report](row_decoder_valid_access_setup_hold_20261009.md).
+Machine-readable checks and provenance are in
+[`checks.csv`](../sims/row_decoder/results/valid_access_setup_hold_tt_ss_ff_v2_20261009/checks.csv)
+and the [manifest](../sims/row_decoder/results/valid_access_setup_hold_tt_ss_ff_v2_20261009/manifest.json).
+The phase source has no layout/PEX, and metastability, startup, system timing,
+and a supported operating frequency remain unqualified.
+
+## 2026-10-09 UTC: captured row-address register and control wrapper
+
+Added `cells/control/row_address_capture.sch`, a two-bit rising-edge register
+using two SKY130 FD SC HD `dfxtp_1` cells, with outputs `A0_Q` and `A1_Q`.
+Added `captured_row_decoder_control.sch` to group the registered address with
+the existing qualified access and PCLK/PRECH phase hierarchy. This leaves the
+dynamic decoder and other owners' leaf sources unchanged. The wrapper netlists
+with the intended port order and connects both captured address outputs to its
+top-level pins.
+
+The new Icarus functional check captured all four row addresses (**4/4**) and
+retained the outputs after live input changes while CLK was high and after its
+falling edge (**8/8 hold checks**). Xschem also generated the composed
+address/control/phase hierarchy without missing symbols. Reproduce with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_address_capture.py \
+  --output-dir sims/row_decoder/results/row_address_capture_repro
+```
+
+The [manifest and generated netlists](../sims/row_decoder/results/row_address_capture_integrated_20261009/manifest.json)
+retain the checks and source/PDK hashes. This is a logic-level and structural
+screen: no setup/hold or transistor-level address timing has been measured,
+and the wrapper does not yet include the decoder PEX, physical bitcell row, or
+write-data capture.
+
+## 2026-10-09 UTC: captured row address connected to decoder PEX
+
+Updated `run_captured_phase_interface.py` to use
+`captured_row_decoder_control.sch` in its transistor-level mode. The captured
+A0/A1 outputs now directly drive the current dynamic decoder PEX, along with
+the existing WL-driver PEX, Danilo's pinned read-only precharge PEX, and the
+established lumped bitline residual. The matched reference continues to use
+Liberty-timed `dfxtp_1` Q waveforms on the same downstream network. The
+address-source current probes are mapped to their actual `VA0_IN`/`VA1_IN`
+sources for the reported source-energy calculation.
+
+At TT, 1.80 V/27 °C, valid-read vector `001`, address `0→3`, the run passed
+**350/350 checks** across actual and reference modes. In the actual path, all
+four sampled address checks passed: the two captured bits held the selected
+address after the rising edge and after the live inputs changed to the
+complement at 15.8 ns. The input transition was placed 500 ps before the 15 ns
+capture edge; this is one setup point, not a setup/hold boundary.
+
+The actual rising-capture-edge-to-PCLK delay is 1,828.679 ps versus 1,827.562 ps for the
+Liberty reference (+1.117 ps). PRECH release lead is 391.916 ps versus
+391.968 ps; PCLK-fall to PRECH conduction is 2,254.000 ps versus 2,253.994 ps.
+These measurements replace the earlier single read-case comparison only for
+the updated wrapper/address path; the prior invalid-vector case remains a
+separate result. All current checks use existing PEX inputs: **no extraction
+was run**.
+
+The new [manifest](../sims/row_decoder/results/captured_row_address_interface_tt_20261009/manifest.json),
+[per-check CSV](../sims/row_decoder/results/captured_row_address_interface_tt_20261009/checks.csv),
+[timing comparison](../sims/row_decoder/results/captured_row_address_interface_tt_20261009/matched_comparison.csv),
+and [waveform plot](../sims/row_decoder/results/captured_row_address_interface_tt_20261009/captured_phase_vs_liberty_tt_read_a0_to_3.png)
+preserve the evidence. The source-level address setup/hold sweep, other
+addresses/control vectors, SS/FF integration, startup, phase-source PEX, and
+physical bitcell-row read/write/readback remain pending.

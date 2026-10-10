@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Compare the transistor-level captured control path with a Liberty-Q reference.
+"""Compare the transistor-level captured row-control path with a Liberty-Q reference.
 
 Both cases use the checked-in transistor-level PCLK/PRECH source, current
 decoder/WL-driver PEX, and the pinned Danilo precharge PEX. The captured case
-instantiates the complete Xschem control/phase wrapper; the reference drives
-the same phase source with a PWL Q edge derived from the dfxtp_1 Liberty arc.
+instantiates the Xschem row-address register, access qualifier, and phase
+source. The reference drives the decoder address and phase source with Q PWLs
+derived from the dfxtp_1 Liberty arcs.
 """
 from __future__ import annotations
 
@@ -34,11 +35,14 @@ NATIVE_MODEL = PDK_ROOT / "libs.tech/ngspice/sky130.lib.spice"
 SC_LIBRARY = PDK_ROOT / "libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice"
 LIBERTY_DIR = PDK_ROOT / "libs.ref/sky130_fd_sc_hd/lib"
 CONTROL_DIR = ROOT / "cells/control"
-CAPTURED_SCHEMATIC = CONTROL_DIR / "captured_pclk_phase_source.sch"
-CAPTURED_SYMBOL = CONTROL_DIR / "captured_pclk_phase_source.sym"
+CAPTURED_SCHEMATIC = CONTROL_DIR / "captured_row_decoder_control.sch"
+CAPTURED_SYMBOL = CONTROL_DIR / "captured_row_decoder_control.sym"
+ADDRESS_CAPTURE_SCHEMATIC = CONTROL_DIR / "row_address_capture.sch"
+ADDRESS_CAPTURE_SYMBOL = CONTROL_DIR / "row_address_capture.sym"
 CAPTURE_SCHEMATIC = CONTROL_DIR / "valid_access_capture.sch"
 PHASE_SCHEMATIC = CONTROL_DIR / "pclk_phase_source.sch"
 PHASE_SYMBOL = CONTROL_DIR / "pclk_phase_source.sym"
+ADDRESS_SETUP_LEAD_PS = 500.0
 PRECHARGE_PEX = ROOT / "sims/row_decoder/inputs/precharge_w2p52_pex_5dc00fe.spice"
 PRECHARGE_PROVENANCE = PRECHARGE_PEX.with_suffix(".provenance.json")
 PRECHARGE_SHA256 = "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423"
@@ -47,6 +51,7 @@ MODEL_CORNERS = {"tt": "tt", "slow": "ss", "fast": "ff"}
 ALL_CONTROL_VECTORS = ("000", "001", "010", "011", "100", "101", "110", "111")
 VALID_VECTORS = phase.VALID_VECTORS
 CAPTURE_NS = 15.0
+ADDRESS_HOLD_CHALLENGE_NS = CAPTURE_NS + 0.8
 PRIME_RISE_NS = 5.0
 PRIME_FALL_NS = 10.0
 CONTROL_EDGE_SLEW_PS = 50.0
@@ -113,6 +118,20 @@ def make_control_waveform(index: int, vector: str, vdd: float,
     return phase.contract.pwl(initial, events, stop_s)
 
 
+def make_address_input_waveform(index: int, old: int, new: int, vdd: float,
+                                stop_s: float) -> str:
+    old_bit = (old >> index) & 1
+    new_bit = (new >> index) & 1
+    ramp = CONTROL_EDGE_SLEW_PS * 1e-12
+    target_center = CAPTURE_NS * 1e-9 - ADDRESS_SETUP_LEAD_PS * 1e-12
+    live_change_center = ADDRESS_HOLD_CHALLENGE_NS * 1e-9
+    events = [
+        (target_center-ramp/2, target_center+ramp/2, new_bit*vdd),
+        (live_change_center-ramp/2, live_change_center+ramp/2, (1-new_bit)*vdd),
+    ]
+    return phase.contract.pwl(old_bit*vdd, events, stop_s)
+
+
 def netlist_captured_wrapper(output: Path) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     command = [
@@ -123,9 +142,9 @@ def netlist_captured_wrapper(output: Path) -> dict:
                             stderr=subprocess.STDOUT, timeout=120)
     log = result.stdout
     write_text(output / "xschem.log", log)
-    raw_path = output / "captured_pclk_phase_source.spice"
+    raw_path = output / "captured_row_decoder_control.spice"
     require(result.returncode == 0 and raw_path.is_file(),
-            f"Xschem could not netlist the captured phase wrapper; see {output/'xschem.log'}")
+            f"Xschem could not netlist the captured row-control wrapper; see {output/'xschem.log'}")
     require(not re.search(r"missing symbol|symbol not found|unresolved symbol|Error:",
                           log, re.I),
             f"Xschem reported a netlist problem; see {output/'xschem.log'}")
@@ -134,26 +153,29 @@ def netlist_captured_wrapper(output: Path) -> dict:
     found_top = False
     found_end = False
     for line in raw.splitlines():
-        if line.startswith("**.subckt captured_pclk_phase_source "):
+        if line.startswith("**.subckt captured_row_decoder_control "):
             line = line[2:]
             found_top = True
         elif found_top and not found_end and line.strip() == "**.ends":
-            line = ".ends captured_pclk_phase_source"
+            line = ".ends captured_row_decoder_control"
             found_end = True
         elif line.strip().lower() == ".end":
             continue
         lines.append(line)
     active = "\n".join(lines).rstrip() + "\n"
     expected = (
-        ".subckt captured_pclk_phase_source CLK CSb OEb WEb VDD VSS VALID_ACCESS_Q PCLK PRECH",
+        ".subckt captured_row_decoder_control CLK A0 A1 CSb OEb WEb VDD VSS A0_Q A1_Q VALID_ACCESS_Q PCLK PRECH",
+        "XADDR CLK A0 A1 VDD VSS A0_Q A1_Q row_address_capture",
+        "XPHASE CLK CSb OEb WEb VDD VSS VALID_ACCESS_Q PCLK PRECH captured_pclk_phase_source",
+        "XA0_FF CLK A0 VSS VSS VDD VDD A0_Q sky130_fd_sc_hd__dfxtp_1",
+        "XA1_FF CLK A1 VSS VSS VDD VDD A1_Q sky130_fd_sc_hd__dfxtp_1",
         "XACCESS CLK CSb OEb WEb VDD VSS VALID_ACCESS_Q valid_access_capture",
-        "XPHASE VDD CLK VSS VALID_ACCESS_Q PCLK PRECH pclk_phase_source",
         ".subckt valid_access_capture CLK CSb OEb WEb VDD VSS VALID_ACCESS_Q",
         ".subckt pclk_phase_source VDD CLK VSS VALID_ACCESS_Q PCLK PRECH",
     )
     require(found_top and found_end and all(item in active for item in expected),
-            "Fresh wrapper netlist failed the captured-control/phase hierarchy audit")
-    wrapper_path = output / "captured_phase_hierarchy_active.spice"
+            "Fresh wrapper netlist failed the captured-address/control/phase hierarchy audit")
+    wrapper_path = output / "captured_row_decoder_control_active.spice"
     write_text(wrapper_path, active)
     return {
         "raw_netlist": raw,
@@ -189,9 +211,26 @@ def add_xschem_path(deck: str, netlist: dict, case: dict, mode: str,
         sources.append(f"V{name}_IN {name} {vss} {waveform}")
 
     if mode == "actual":
+        for source in ("VA0", "VA1"):
+            deck, count = re.subn(rf"(?im)^{source}\s+[^\n]*\n", "", deck, count=1)
+            require(count == 1, f"Could not replace ideal {source} address source")
+        save_match = re.search(r"(?im)^\.save\s+([^\n]+)$", deck)
+        require(save_match is not None, "Base deck has no waveform .save line")
+        save_tokens = [token for token in save_match[1].split()
+                       if token.lower() not in {"i(va0)", "i(va1)"}]
+        save_tokens.extend(("v(A0_IN)", "v(A1_IN)",
+                            "i(VA0_IN)", "i(VA1_IN)"))
+        deck = (deck[:save_match.start()] + ".save " + " ".join(save_tokens)
+                + deck[save_match.end():])
+        for index, (source, node) in enumerate((("VA0_IN", "A0_IN"),
+                                                 ("VA1_IN", "A1_IN"))):
+            waveform = make_address_input_waveform(
+                index, int(case["old"]), int(case["new"]), vdd, stop_s)
+            sources.append(f"{source} {node} {vss} {waveform}")
         instance = (
-            f"XCAPTURED PHASE_CLK CSb OEb WEb {ports['VDD']} {vss} "
-            "VALID_ACCESS_Q PHASE_PCLK PRECH captured_pclk_phase_source"
+            f"XCAPTURED PHASE_CLK A0_IN A1_IN CSb OEb WEb {ports['VDD']} {vss} "
+            f"{ports['A0']} {ports['A1']} VALID_ACCESS_Q PHASE_PCLK PRECH "
+            "captured_row_decoder_control"
         )
     else:
         expected = vector_value(case["control_vector"])
@@ -209,8 +248,8 @@ def add_xschem_path(deck: str, netlist: dict, case: dict, mode: str,
         instance,
         f"VPCLK {nodes['PCLK']} PHASE_PCLK 0",
     ]
-    # Keep the actual control/phase hierarchy attached to the same device
-    # model and PEX network as the existing decoder interface bench.
+    # Keep the actual address/control/phase hierarchy attached to the same
+    # device model and PEX network as the existing decoder interface bench.
     deck, count = re.subn(r"(?im)^VPCLK\s+\S+\s+\S+\s+[^\n]+\n", "", deck, count=1)
     require(count == 1, "Could not replace the ideal PCLK source")
     deck = replace_native_model(deck, case["profile"])
@@ -288,6 +327,37 @@ def q_checks(raw: dict[str, np.ndarray], case: dict, schedule: dict,
         "peak_below_vss_v": max(0.0, -float(np.min(q))),
         "peak_above_vdd_v": max(0.0, float(np.max(q))-vdd),
     }
+    return checks, metrics
+
+
+def address_checks(raw: dict[str, np.ndarray], case: dict, schedule: dict,
+                   ports: dict, vdd: float) -> tuple[list[dict], dict]:
+    time = raw["time"]
+    capture_edge = phase.crossing(time, phase.trace(raw, "CAPCLK"), 0.5*vdd,
+                                  True, (CAPTURE_NS-0.2)*1e-9,
+                                  (CAPTURE_NS+0.2)*1e-9)
+    require(capture_edge is not None,
+            f"Missing row-address capture edge in {case['label']}")
+    target = int(case["new"])
+    samples = {
+        "post_capture": capture_edge + Q_CAPTURE_SAMPLE_PS*1e-12,
+        "after_live_address_change": capture_edge + Q_HIGH_HOLD_SAMPLE_PS*1e-12,
+    }
+    checks = []
+    metrics = {}
+    for bit, pin in enumerate(("A0", "A1")):
+        signal = phase.trace(raw, ports[pin])
+        expected = (target >> bit) & 1
+        for label, sample_time in samples.items():
+            value = float(np.interp(sample_time, time, signal))
+            result = logic_level(value, vdd)
+            checks.append({
+                "case": case["label"], "mode": case["mode"],
+                "control_vector": case["control_vector"],
+                "check": f"{pin}_Q_{label}", "value": value,
+                "expected": expected, "result": "PASS" if result == expected else "FAIL",
+            })
+            metrics[f"{pin.lower()}_q_{label}_v"] = value
     return checks, metrics
 
 
@@ -518,8 +588,12 @@ def main() -> int:
     require(NATIVE_MODEL.is_file() and SC_LIBRARY.is_file(),
             "Native SKY130 PM3 model library or standard-cell SPICE file is missing")
     require(all(path.is_file() for path in (CAPTURED_SCHEMATIC, CAPTURED_SYMBOL,
-            CAPTURE_SCHEMATIC, PHASE_SCHEMATIC, PHASE_SYMBOL, PRECHARGE_PEX,
-            PRECHARGE_PROVENANCE)), "A required project source or PEX input is missing")
+            ADDRESS_CAPTURE_SCHEMATIC, ADDRESS_CAPTURE_SYMBOL,
+            CAPTURE_SCHEMATIC, PHASE_SCHEMATIC, PHASE_SYMBOL,
+            CONTROL_DIR / "captured_pclk_phase_source.sch",
+            CONTROL_DIR / "captured_pclk_phase_source.sym",
+            PRECHARGE_PEX, PRECHARGE_PROVENANCE)),
+            "A required project source or PEX input is missing")
 
     transitions = []
     for item in args.transitions:
@@ -579,7 +653,11 @@ def main() -> int:
     source_hashes = {
         str(path.relative_to(ROOT)): sha256(path)
         for path in (Path(__file__).resolve(), CAPTURED_SCHEMATIC, CAPTURED_SYMBOL,
-                     CAPTURE_SCHEMATIC, PHASE_SCHEMATIC, PHASE_SYMBOL,
+                     ADDRESS_CAPTURE_SCHEMATIC, ADDRESS_CAPTURE_SYMBOL,
+                     CONTROL_DIR / "captured_pclk_phase_source.sch",
+                     CONTROL_DIR / "captured_pclk_phase_source.sym",
+                     CAPTURE_SCHEMATIC, CONTROL_DIR / "valid_access_capture.sym",
+                     PHASE_SCHEMATIC, PHASE_SYMBOL,
                      CONTROL_DIR / "phase_delay_inv.sch", CONTROL_DIR / "phase_delay_inv.sym",
                      CONTROL_DIR / "phase_and3.sch", CONTROL_DIR / "phase_and3.sym",
                      CONTROL_DIR / "phase_or2.sch", CONTROL_DIR / "phase_or2.sym",
@@ -592,8 +670,9 @@ def main() -> int:
         "complete": False,
         "scope": ("Current dynamic decoder and four WL-driver R-C PEX instances plus eight pinned "
                   "Danilo precharge PEX instances and lumped BL residuals. Actual mode netlists "
-                  "the captured qualifier and Xschem transistor phase source as one wrapper; "
-                  "reference mode drives that same phase source with a dfxtp_1 Liberty-timed Q PWL. "
+                  "the captured row-address registers, valid-access qualifier and transistor "
+                  "phase source as one wrapper. Reference mode drives address-Q and valid-access-Q "
+                  "with dfxtp_1 Liberty-timed PWL waveforms. "
                   "The source outputs drive the same downstream PEX in both modes."),
         "model_family": "SKY130 native ngspice PM3 model library for decoder, WL, precharge, phase logic and standard cells",
         "native_model_corner_by_profile": MODEL_CORNERS,
@@ -602,9 +681,18 @@ def main() -> int:
                         "arcs": arcs},
         "control_equation": "VALID_ACCESS_D = !CSb AND (OEb XOR WEb)",
         "initial_conditioning": ("Controls start at 111; the first 5 ns clock pulse captures invalid/disabled "
-                                 "Q=0. The target vector is applied at 5.8 ns and captured on the 15 ns rising edge."),
+                                 "Q=0 and the old address. The target control vector is applied at 5.8 ns; "
+                                 "the target row address is applied with 500 ps nominal setup. Both are captured "
+                                 "on the 15 ns rising edge."),
         "post_capture_hold_challenge": ("At 15.8 ns, live controls change to the opposite validity class; "
-                                        "the captured Q must hold through the high phase and following falling edge."),
+                                        "live address inputs change to the complement of the target address. "
+                                        "The captured control and A0_Q/A1_Q must hold through the high phase."),
+        "address_capture": {"schematic": "cells/control/row_address_capture.sch",
+                            "external_setup_lead_ps": ADDRESS_SETUP_LEAD_PS,
+                            "live_address_change_ns": ADDRESS_HOLD_CHALLENGE_NS,
+                            "reference": "dfxtp_1 Liberty clock-to-Q PWL from the same address transition",
+                            "actual_input_energy_probes": ["v(A0_IN)*i(VA0_IN)",
+                                                            "v(A1_IN)*i(VA1_IN)"]},
         "sampling": {"capture_after_edge_ps": Q_CAPTURE_SAMPLE_PS,
                      "high_phase_after_edge_ps": Q_HIGH_HOLD_SAMPLE_PS,
                      "post_fall_delay_ns": Q_FALL_HOLD_SAMPLE_NS},
@@ -697,6 +785,8 @@ def main() -> int:
             raw = sim["raw"]
             vdd = float(schedule["vdd"])
             q_rows, q_metrics = q_checks(raw, mode_case, schedule, vdd)
+            address_rows, address_metrics = address_checks(
+                raw, mode_case, schedule, ports, vdd)
             phase_info, raw_phase_metrics = measured_phase(
                 raw, mode_case, nodes, schedule, vdd)
             phase_checks, phase_metrics = phase.evaluate_phase_interface(
@@ -704,17 +794,39 @@ def main() -> int:
                 args.release_lead_ps, args.turnoff_guard_ps,
                 enforce_release_lead=True)
             if case["control_vector"] in VALID_VECTORS:
+                contract_raw = raw
+                contract_schedule = schedule
+                if mode == "actual":
+                    # The base decoder contract reports energy contributed by
+                    # its address sources. In the transistor-level capture
+                    # path, those are the external input sources VA0_IN/VA1_IN,
+                    # while the decoder pins are driven by the register Qs.
+                    # Alias only for that reporting calculation; leave the
+                    # waveform used by all electrical checks untouched.
+                    require(all(name in raw for name in
+                                ("i(va0_in)", "i(va1_in)",
+                                 "v(a0_in)", "v(a1_in)")),
+                            "Missing row-address capture input voltage/current probes")
+                    contract_raw = dict(raw)
+                    contract_raw["i(va0)"] = raw["i(va0_in)"]
+                    contract_raw["i(va1)"] = raw["i(va1_in)"]
+                    contract_schedule = {
+                        **schedule,
+                        "ports": {**schedule["ports"],
+                                  "A0": "A0_IN", "A1": "A1_IN"},
+                    }
                 decoder_run, decoder_checks, terminal_rows = phase.contract.analyze(
-                    raw, sim_case, nodes, devices, terminals, schedule)
+                    contract_raw, sim_case, nodes, devices, terminals,
+                    contract_schedule)
                 decoder_failures = decoder_run["check_fail"]
             else:
                 decoder_checks, terminal_rows = [], []
                 decoder_failures = 0
-            checks = q_rows + phase_checks + decoder_checks
+            checks = q_rows + address_rows + phase_checks + decoder_checks
             all_checks.extend(checks)
             check_failures = sum(row.get("result") != "PASS" for row in checks)
             # Keep both the phase function's checks and the direct edge metrics.
-            metrics = {**q_metrics, **raw_phase_metrics,
+            metrics = {**q_metrics, **address_metrics, **raw_phase_metrics,
                        "precharge_timing": phase_metrics,
                        "decoder_model_upper_result": (decoder_run["model_upper_result"]
                            if case["control_vector"] in VALID_VECTORS else "NOT_EVALUATED"),
@@ -739,6 +851,9 @@ def main() -> int:
                                 "decoder_logic_check_failures": decoder_failures,
                                 "metrics": {key: metrics.get(key) for key in (
                                     "capture_to_q_rise_ps", "capture_to_q_fall_ps",
+                                    "a0_q_post_capture_v", "a1_q_post_capture_v",
+                                    "a0_q_after_live_address_change_v",
+                                    "a1_q_after_live_address_change_v",
                                     "capture_to_pclk_rise_ps",
                                     "prech_release_lead_before_pclk_ps",
                                     "pclk_fall_to_precharge_conduction_ps",

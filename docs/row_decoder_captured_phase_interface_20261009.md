@@ -19,7 +19,7 @@ completed PVT qualification.
 
 | Measurement | Captured transistor-level path | Liberty-timed Q reference | Difference |
 |---|---:|---:|---:|
-| Valid-read Q capture to PCLK 50% rise | 1,828.682 ps | 1,827.562 ps | +1.120 ps |
+| CLK capture edge to PCLK 50% rise | 1,828.682 ps | 1,827.562 ps | +1.120 ps |
 | PRECH 75% rise to PCLK 50% rise | 391.913 ps | 391.968 ps | −0.054 ps |
 | PCLK 50% fall to PRECH 75% falling crossing | 2,253.998 ps | 2,253.994 ps | +0.004 ps |
 | Valid-read Q 50% clock-to-Q rise | 184.009 ps | 307.041 ps | −123.032 ps |
@@ -31,6 +31,37 @@ a timing-table reference, not a transistor-level DFF instance or an exact
 extracted-load match to the qualifier's phase-logic input.
 
 ![Captured qualifier and phase-source waveforms against the Liberty reference](../sims/row_decoder/results/captured_phase_interface_tt_read_20261009/captured_phase_vs_liberty_tt_read_a0_to_3.png)
+
+## Follow-up: registered row address connected to PEX
+
+The earlier paired runs above used transistor-level capture of the qualified
+access bit but supplied the row address from a Liberty-timed PWL source. A
+follow-up run now uses `captured_row_decoder_control.sch`, which composes the
+two-bit rising-edge row-address register with the captured access qualifier
+and the existing PCLK/PRECH source. Its `A0_Q/A1_Q` outputs directly drive the
+current dynamic decoder PEX. The same decoder/WL/precharge network is used in
+the Liberty-timed reference mode.
+
+For the TT valid-read `001`, address `0→3` case, the input address is presented
+500 ps before the 15 ns rising edge and inverted at 15.8 ns while CLK remains
+high. The captured A0/A1 values remain high at the post-capture and live-input
+change samples. Both paired modes pass all **350 checks** in the run; the
+actual-mode register-to-decoder path passes its four sampled address checks.
+
+| Measurement | Captured address/control/phase path | Liberty-timed reference | Difference |
+|---|---:|---:|---:|
+| CLK capture edge to PCLK 50% rise | 1,828.679 ps | 1,827.562 ps | +1.117 ps |
+| PRECH 75% release to PCLK 50% rise | 391.916 ps | 391.968 ps | −0.052 ps |
+| PCLK 50% fall to PRECH 75% assertion | 2,254.000 ps | 2,253.994 ps | +0.006 ps |
+| Valid-access Q 50% clock-to-Q rise | 184.009 ps | 307.041 ps | −123.032 ps |
+
+This advances the address path from a structural/functional wrapper check to
+one loaded transistor-level PEX case. It is not an address setup/hold sweep or
+a PVT/control/address qualification. The wrapper still has no reset, no
+captured write-data path, and no attached physical bitcell row. The
+[dedicated address report](row_decoder_address_capture_20261009.md) and
+[integrated manifest](../sims/row_decoder/results/captured_row_address_interface_tt_20261009/manifest.json)
+contain the detailed evidence. No extraction was performed for this run.
 
 ## Simulated path and setup
 

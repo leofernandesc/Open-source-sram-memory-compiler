@@ -1,0 +1,93 @@
+{
+  "campaign": "row_address_capture_functional",
+  "started_utc": "2026-10-09T23:32:47.059543+00:00",
+  "complete": true,
+  "scope": "Xschem-generated SKY130 FD SC HD structural Verilog with functional models; checks all two-bit address values at rising CLK edges and output hold only.",
+  "interface": "CLK, A0, A1, VDD, VSS -> A0_Q, A1_Q",
+  "capture_edge": "rising edge of CLK",
+  "reset": "none; outputs are unspecified until first rising edge",
+  "checks": {
+    "address_values_captured": 4,
+    "capture_checks_passed": 4,
+    "hold_while_high_checks_passed": 4,
+    "hold_after_falling_edge_checks_passed": 4
+  },
+  "source_sha256": {
+    "cells/control/row_address_capture.sch": "6e1b09dd3897084bfa31bf6aac03e92e3a73e37894393d60efb3de9efa3fdc8e",
+    "cells/control/row_address_capture.sym": "c456f60fb2cabf2af00ea3d8043aa521086f018b1c4a8737e2dedf6be5bf00f0",
+    "sims/row_decoder/tb_row_address_capture.v": "7488d7c9fac7f72d61003d8d89bb9acfb467e71fcf24232e3502c51111c8d602",
+    "cells/control/captured_row_decoder_control.sch": "ba3528dc6e7a34ca1ff649c8813bb7f4f46b4ddb9df02e8afac0744a97432a9a",
+    "cells/control/captured_row_decoder_control.sym": "d2eff0dada824cfca0cf62ec4ab8d8c15f318f361859b684d097aaa6b80cced8",
+    "cells/control/captured_pclk_phase_source.sch": "806c01c2ff0d477a8a0c66d88da3cec04d3f8e6bd293f0023867d23b7a6daf1d",
+    "cells/control/captured_pclk_phase_source.sym": "b3ff6d9ec0461e0aba5c48c1ea99255b44d84551b30f08475672c269b77063be",
+    "cells/control/valid_access_capture.sch": "dbcec10f951a18936a920e9a854a1b8512851a0584e867edb38bfca2b4291e43",
+    "cells/control/valid_access_capture.sym": "f77b9cecc2f80e0ff8dbe78d50c820b4c0243d9e7e6e853439f323add2d16791",
+    "cells/control/pclk_phase_source.sch": "c78996b99abadbc7a9c0c6e1db5ad50fb7b720df5921349021b7cb7b17ae4b09",
+    "cells/control/pclk_phase_source.sym": "44bc6e7e4e62c3aa54a7a8bbc20c92293c48ebb0633aa03a51b8189c69d50e1f",
+    "cells/control/phase_delay_inv.sch": "695c054e2c13be72563d53bea8bac5de262a52183f8813115600f037b0327c6f",
+    "cells/control/phase_delay_inv.sym": "4eebbf2041bd0ee6de407ba1e968ab89d8cfdb3b8eac12f8a2f4421f73eeac9b",
+    "cells/control/phase_and3.sch": "a0f2ee388996e1a8c43d295cf3dcf0d07e3fc1dde05b43cc28d7c3e6e9e11564",
+    "cells/control/phase_and3.sym": "fee5fd0e3974ba4bb11f7de0546e4636ec5e416548f99164b77695e14e2859e3",
+    "cells/control/phase_or2.sch": "cd0f7bd06dc59eba1456ce542ba3383b2c446c6640dcc5ba12824936bba12102",
+    "cells/control/phase_or2.sym": "c0a1db8b4df24e444fccae0a0e499d2eb1568253b337003ab0ab61b706640670",
+    "sims/row_decoder/run_row_address_capture.py": "ef9fc2b37b8c79f185c758b2cb2ca2732a85a63eabe36340aa7ca4e30f8fd076"
+  },
+  "pdk_model_sha256": {
+    "sky130_fd_sc_hd.v": "fbf3b406a2ee7b47e4d28ab3f2ebf80e2a755a316fe8fb1f4b1873f71b563f3b",
+    "primitives.v": "7d4b1441d06b0f2b9662befa675a0484d77149e04eb42a5f1fa2d4cfded7b2ce"
+  },
+  "finished_utc": "2026-10-09T23:32:47.408939+00:00",
+  "xschem_command": [
+    "xschem",
+    "-w",
+    "-n",
+    "-q",
+    "-o",
+    "/work/sims/row_decoder/results/row_address_capture_integrated_20261009",
+    "/work/cells/control/row_address_capture.sch"
+  ],
+  "iverilog_command": [
+    "iverilog",
+    "-g2012",
+    "-DFUNCTIONAL",
+    "-DUNIT_DELAY=#0",
+    "-s",
+    "tb_row_address_capture",
+    "-o",
+    "/work/sims/row_decoder/results/row_address_capture_integrated_20261009/simv",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+    "/work/sims/row_decoder/results/row_address_capture_integrated_20261009/row_address_capture.v",
+    "/work/sims/row_decoder/tb_row_address_capture.v"
+  ],
+  "results": {
+    "status": "PASS",
+    "failures": 0
+  },
+  "structural_integration": {
+    "status": "PASS",
+    "captured_row_address_outputs": [
+      "A0_Q",
+      "A1_Q"
+    ],
+    "phase_outputs": [
+      "PCLK",
+      "PRECH"
+    ],
+    "valid_access_output": "VALID_ACCESS_Q",
+    "decoder_and_bitcell_row_included": false
+  },
+  "limitations": [
+    "No transistor-level timing, setup/hold, metastability, startup, or PVT screen.",
+    "This leaf is not yet integrated into the captured decoder/PCLK/bitcell-row path."
+  ],
+  "artifacts": [
+    "row_address_capture.v",
+    "xschem.log",
+    "iverilog.log",
+    "simulation.log",
+    "row_address_capture.vcd",
+    "control_wrapper_xschem.log",
+    "control_wrapper/captured_row_decoder_control.spice"
+  ]
+}

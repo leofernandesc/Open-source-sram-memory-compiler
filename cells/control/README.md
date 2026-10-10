@@ -33,9 +33,9 @@ VALID_ACCESS_Q = capture(VALID_ACCESS_D, rising edge of CLK)
 
 This enables exactly one of read or write when `CSb` is active low, and rejects
 idle, simultaneous read/write, and chip-disabled controls. It captures only the
-qualified access bit; address and write-data capture are outside this cell. The
-cell has no reset, so `VALID_ACCESS_Q` is unspecified until the first rising
-clock edge.
+qualified access bit; row-address capture is implemented separately, and
+write-data capture remains outside these cells. The cell has no reset, so
+`VALID_ACCESS_Q` is unspecified until the first rising clock edge.
 
 `captured_pclk_phase_source.sch` hierarchically connects this qualifier to the
 existing `pclk_phase_source.sch`; it leaves the phase-source implementation
@@ -50,6 +50,36 @@ Verilog models. This is not an analog timing simulation of the standard-cell
 path or a simulation of the assembled qualifier plus transistor-level phase
 source. See the [captured qualifier report](../../docs/row_decoder_valid_access_capture_20261009.md)
 for the evidence and remaining limits.
+
+## Captured row-address interface
+
+`row_address_capture.sch` uses two positive-edge `dfxtp_1` registers to
+capture `A0` and `A1` and expose `A0_Q`/`A1_Q` to the dynamic decoder.
+`captured_row_decoder_control.sch` groups these outputs with the existing
+`VALID_ACCESS_Q`, `PCLK`, and active-low `PRECH` phase interface. It preserves
+the decoder and phase-source leaf cells as separate hierarchy; the decoder and
+physical row are not included in this wrapper.
+
+The Xschem/functional screen checks all four address values, output hold after
+live input changes, and the wrapper hierarchy: 4/4 captures, 8/8 hold checks,
+and the expected subcircuit connections pass. A follow-up transistor-level TT
+screen connects `A0_Q/A1_Q` through the current decoder and WL PEX with the
+pinned precharge PEX. For valid read `001`, address `0→3`, all four sampled
+address checks pass after capture and after the live inputs change; the paired
+actual/reference run passes 350/350 checks. This is one setup point and one
+nominal address transition, not a setup/hold or PVT qualification. Reproduce
+the functional screen with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_row_address_capture.py \
+  --output-dir sims/row_decoder/results/row_address_capture_repro
+```
+
+The transistor-level PEX result is a single loaded nominal case. Address
+setup/hold, remaining transitions/corners, metastability, startup, and a
+physical bitcell row remain open; see the [address-capture report](../../docs/row_decoder_address_capture_20261009.md).
+The valid-access control input has a separate transistor-level setup/hold
+screen; see the [report](../../docs/row_decoder_valid_access_setup_hold_20261009.md).
 
 The isolated qualifier also has a transistor-level ngspice screen using the
 official SKY130 FD SC HD SPICE subcircuits and the PDK native PM3 corner
@@ -74,14 +104,17 @@ paired transistor-level interface screen:
   --output-dir sims/row_decoder/results/captured_phase_interface_tt_read_repro
 ```
 
-The current evidence covers one TT valid-read address transition and one TT
-invalid control vector with decoder/WL and pinned precharge PEX loading. The
-valid case passes 342/342 checks and the invalid case 66/66. The TT PCLK edge
-differs by 1.120 ps from a Liberty-timed Q reference in the measured read
-case. This is a bounded nominal comparison; broader control/address/corner
-coverage, setup/hold, startup, phase-source PEX, and physical 6T read/write
-integration remain open. See the [captured phase-interface report](../../docs/row_decoder_captured_phase_interface_20261009.md)
-for exact metrics, evidence files, warnings, and the planned matrix.
+The earlier evidence covers one TT valid-read case and one TT invalid control
+vector with decoder/WL and pinned precharge PEX loading: 342/342 and 66/66
+checks. A later paired run uses `captured_row_decoder_control.sch`, so
+transistor-level A0/A1 registers now feed the decoder PEX. The valid-read
+`001`, address `0→3` pair passes 350/350 checks; the actual PCLK edge differs
+by 1.117 ps from the Liberty-timed reference. These are bounded nominal
+comparisons. Broader control/address/corner coverage, address setup/hold,
+startup, phase-source PEX, and physical 6T read/write integration remain open.
+See the [captured phase-interface report](../../docs/row_decoder_captured_phase_interface_20261009.md)
+for the historical and follow-up results, exact evidence files, warnings, and
+the planned matrix.
 
 ## Experimental topology
 
