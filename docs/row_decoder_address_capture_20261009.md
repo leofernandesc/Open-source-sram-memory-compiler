@@ -166,7 +166,8 @@ directory with:
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
   --output-dir sims/row_decoder/results/captured_row_address_interface_tt_repro \
-  --profiles tt --control-vectors 001 --transitions 0:3
+  --profiles tt --control-vectors 001 --transitions 0:3 \
+  --q-sample-ps 700 --hold-challenge-ps 800
 ```
 
 - [runner](../sims/row_decoder/run_row_address_capture.py)

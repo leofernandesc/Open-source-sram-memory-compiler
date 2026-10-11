@@ -295,27 +295,40 @@
   </section>
 
   <section class="slide">
-    <div class="eyebrow">12 · Estado físico e integração</div>
+    <div class="eyebrow">12 · Matriz de interface capturada</div>
+    <h2>Matriz válida passa em TT, SS e FF</h2>
+    <p>O reteste cruza leitura <code>001</code> e escrita <code>010</code>, quatro destinos a partir da linha antiga 0 e três perfis SKY130. Com amostra de Q em +900 ps, desafio às entradas em +1.100 ps, queda externa de CLK em 22,50 ns e janela de assentamento de 3,8 ns, os 24 casos pareados concluíram sem erro do ngspice. Essa janela é experimental; ainda não define clock ou frequência aprovados.</p>
+    <div class="grid">
+      <div class="card"><h3 class="ok">8.400 / 8.400</h3><p>checks aprovados; 48/48 simulações atuais e Liberty-reference passaram.</p></div>
+      <div class="card"><h3 class="warn">5,93 mV</h3><p>margem mínima da WL assentada em SS sobre a tela de 0,9·VDD; margem estreita.</p></div>
+      <div class="card"><h3 class="warn">Q fora dos rails</h3><p>VALID_ACCESS_Q ainda tem excursões sem critério de aceitação definido.</p></div>
+    </div>
+    <figure class="evidence"><a href="../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_pclk_wl3_timing.png"><img src="../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_pclk_wl3_timing.png" alt="Diagnóstico inicial em SS: PCLK, nó dinâmico N3, DEC3 e WL3, antes de ampliar a janela de assentamento"></a><figcaption>Diagnóstico da execução inicial em SS: WL3 cruza 90% cerca de 99 ps depois do início da descida de PCLK, mostrando por que a janela curta reprovou. Este gráfico não representa o reteste aprovado. <a href="../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/captured_phase_vs_liberty_tt_read_a0_to_3.png">Forma de onda TT do reteste</a> · <a href="../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/manifest.json">manifesto do reteste</a> · <a href="../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/checks.csv">8.400 checks</a>.</figcaption></figure>
+    <p class="warn">O reteste passa o screen selecionado, mas ainda não fecha a qualificação: a margem WL em SS é estreita, a janela não foi aprovada como requisito do projeto e VALID_ACCESS_Q atingiu −0,113 V e 1,812 V em SS, sem limite de excursão aceito. Ainda faltam os controles inválidos, os 12 pares de endereço restantes, startup, teste integrado de setup/hold e a linha física de bitcells com escrita, leitura armazenada e readback.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">13 · Estado físico e integração</div>
     <h2>O que está concluído e o que falta</h2>
     <p><strong>Escopo confirmado da Fase 1:</strong> o decoder dinâmico 2→4 atual em <code>feature/peripherals</code> é o bloco da Pessoa 3 e segue até caracterização, layout, DRC e LVS. O candidato SPICE mantido na branch do Danilo não substitui essa implementação.</p>
     <div class="grid">
       <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
-      <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>A aceitação final dos critérios de bias/modelo segue em revisão.</li><li>Ampliar a matriz PEX do Q transistor-level real para controles, endereços e cantos; revisar partida e setup/hold integrado.</li><li>Repetir o caminho físico com bitlines livres durante avaliação e a linha de bitcells conectada.</li><li>Executar escrita integrada com bitcell, precharge e readback.</li><li>Caracterizar consumo e janela de clock com a origem real de PCLK.</li></ul></div>
+      <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>Acordar o timing e a margem mínimos; o ponto que passou em SS tem 5,93 mV sobre a tela de assentamento.</li><li>Executar os seis controles inválidos/idle e os 12 pares de endereço restantes; avaliar startup e setup/hold integrado.</li><li>Conectar a linha física de bitcells e fazer escrita, leitura armazenada e readback.</li><li>Obter layout/PEX da origem de PCLK/PRECH e revisar as excursões dos sinais capturados.</li><li>Fechar critérios de bias/modelo, potência e janela de clock.</li></ul></div>
     </div>
     <p>O decoder atual também passou por 414 ensaios schematic de retenção finita, injeção de carga e duração das fases em TT/SS/FF: 36/36 holds passaram; o menor ponto amostrado que passou em todas as linhas foi 0,6 ns na fase baixa SS e 0,75 ns na fase alta SS. A carga de 8 fC provocou resposta perturbada em 4/6 combinações de perfil e nó.</p>
     <p>Esses resultados são telas exploratórias para a forma de onda e grade ensaiadas. Não definem orçamento de ruído, tolerância a clock parado, limite de fase ou frequência máxima. A revisão com o PCLK real e a aceitação dos critérios seguem pendentes.</p>
-    <p class="bad"><strong>Limite atual:</strong> cinco ensaios TT conectam a captura real do qualificador e de A0/A1 ao PCLK/PRECH, decoder/WL PEX e precharge PEX: quatro alvos de leitura sob controle `001` (linhas 0–3 a partir da linha antiga 0) e um controle de escrita `010` (3→0); o ensaio inválido `000` é uma rodada TT anterior. A tela isolada de setup/hold do endereço passou 168 pontos, mas não substitui a matriz integrada PEX das 16 transições ordenadas entre endereços, controles e corners. Ainda faltam a linha física de bitcells, escrita de dados, leitura armazenada e readback, além de partida, layout/PEX do phase source e revisão das excursões de Q.</p>
+    <p class="bad"><strong>Limite atual:</strong> o reteste da matriz válida passou 8.400/8.400 checks em TT/SS/FF (24 casos, 48 simulações) sob uma janela experimental; o ponto SS fica apenas 5,93 mV acima da tela mínima de WL assentada, e a frequência/timing do projeto continua sem aprovação. Foram testados somente os quatro destinos a partir do endereço antigo 0, com leitura `001` e seleção de leitura/escrita `010`; ainda faltam os 12 pares ordenados restantes e os controles inválidos. A tela isolada de setup/hold passou 168 pontos, mas não substitui a qualificação integrada. Ainda faltam linha física de bitcells, escrita real, leitura armazenada e readback, startup, critério para as excursões de Q e layout/PEX do phase source.</p>
     <p class="source">Evidências: <a href="row_decoder_current_sizing_contract_20261009.md">414 ensaios do decoder</a> · <a href="row_decoder_distributed_row_pex_20261009.md">caminho distribuído</a> · <a href="row_decoder_tapped_phase_generator_screen_20261009.md">candidato de geração de fase</a> · <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a>.</p>
   </section>
 
   <section class="slide">
-    <div class="eyebrow">13 · Próximas tarefas até 13/10</div>
+    <div class="eyebrow">14 · Próximas tarefas até 13/10</div>
     <h2>Plano de fechamento</h2>
     <table><thead><tr><th>Data</th><th>Tarefa</th><th>Evidência de saída</th></tr></thead><tbody>
       <tr><td>08/10</td><td>Captura/PCLK no esquemático atual, cargas 17,4 e 102,874 fF</td><td>Matriz medida; tela de 1,95 V ainda parcial</td></tr>
       <tr><td>09/10</td><td>Matrizes de decoder → WL → linha física, sequência de precharge e sizing do phase source</td><td>26/26 casos da cadeia, sizing comparado e atraso de VALID_ACCESS_Q triado em TT/SS/FF</td></tr>
       <tr><td>09/10</td><td>Implementar e verificar a captura funcional do qualificador em Xschem</td><td>8/8 vetores e 16/16 retenções; wrapper hierárquico netlistado</td></tr>
-      <tr><td>10/10</td><td>Medir setup/hold isolado de A0/A1 em TT/SS/FF; ampliar a matriz PEX do caminho capturado para controles, endereços e perfis</td><td>168 pontos medidos; 114/114 Q checks com margem Liberty não negativa; expansão PEX ainda pendente</td></tr>
+      <tr><td>10/10</td><td>Medir setup/hold isolado de A0/A1 e executar matriz válida do caminho capturado em TT/SS/FF; 48/48 simulações e 8.400/8.400 checks passaram na janela experimental. O aceite do timing e da margem permanece pendente.</td><td>48/48 simulações; manifesto e checks do reteste ligados no slide anterior</td></tr>
       <tr><td>11/10</td><td>Substituir CLK/qualificador ideais, conectar o caminho de bitlines à linha de bitcells e avançar escrita/readback</td><td>Teste elétrico com estado armazenado, fases explícitas e limites documentados</td></tr>
       <tr><td>12/10</td><td>Revisar interfaces e reproduzir os testes físicos/elétricos disponíveis</td><td>Checks integrados com estados, fases e rails explícitos; pendências externas listadas</td></tr>
       <tr><td>13/10</td><td>Organizar a entrega da Fase 1</td><td>Artefatos, evidências reproduzíveis e pendências registradas</td></tr>

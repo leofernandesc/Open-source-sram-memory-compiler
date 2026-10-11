@@ -2351,7 +2351,8 @@ Reproduce with:
   --output-dir sims/row_decoder/results/captured_address_write_tt_repro \
   --profiles tt --control-vectors 010 --transitions 3:0 \
   --phase-ps 2100 --clk-fall-ps 20700 \
-  --settling-allowance-ns 3.3 --wl-cap-ff 102.873935496 --step-ps 5
+  --settling-allowance-ns 3.3 --q-sample-ps 700 --hold-challenge-ps 800 \
+  --wl-cap-ff 102.873935496 --step-ps 5
 ```
 
 The [manifest](../sims/row_decoder/results/captured_address_write_tt_20261010/manifest.json),
@@ -2396,5 +2397,137 @@ preserve the exact decks and logs. Reproduce all three new cases with:
   --output-dir sims/row_decoder/results/captured_address_read_rows012_tt_repro \
   --profiles tt --control-vectors 001 --transitions 0:0 0:1 0:2 \
   --transitions-per-vector --phase-ps 2100 --clk-fall-ps 20700 \
-  --settling-allowance-ns 3.3 --wl-cap-ff 102.873935496 --step-ps 5
+  --settling-allowance-ns 3.3 --q-sample-ps 700 --hold-challenge-ps 800 \
+  --wl-cap-ff 102.873935496 --step-ps 5
 ```
+
+## 2026-10-11 UTC: initial captured valid-control/address matrix in TT/SS/FF
+
+Ran the valid-read (`001`) and valid-write (`010`) controls for transitions
+from old address 0 to rows 0–3 in all three native SKY130 model profiles. Each
+of the 24 logical cases has an actual transistor-level path and a matched
+Liberty-timed reference: 48 ngspice runs completed with zero simulation
+errors. The current decoder and four WL-driver PEX instances, pinned read-only
+Danilo precharge PEX, and the established lumped BL residual were used. No PEX
+or other extraction was performed in this work.
+
+The run manifest reports `complete=true` and `status=REVIEW_REQUIRED`. The
+per-mode results are TT actual/reference 8/8 PASS, FF actual/reference 8/8
+PASS, and SS actual/reference 0/8 PASS. The combined check CSV contains 8,400
+rows: 8,352 PASS and 48 FAIL. All 16 SS actual/reference results are
+`REJECTED_SCREEN`; this is not a project-specification signoff result.
+
+The SS findings are separated by mechanism:
+
+- 32 selected-WL checks fail the experimental 0.9·VDD end-level and
+  settled-minimum screens in both actual and reference paths. The failing
+  end-level values range from 1.43783 to 1.44059 V, and settled minima from
+  1.37357 to 1.37642 V, against a 1.458 V floor at 1.62 V. A focused waveform
+  diagnostic on row 3 measured PCLK falling through 90% at 22.184933 ns and
+  WL3 rising through 90% at 22.283966 ns (99.033 ps later). The Liberty
+  reference gives 22.184824 ns and 22.278566 ns (93.742 ps later). This shows
+  the loaded WL response is late relative to this experimental PCLK waveform;
+  the specification does not establish this exact high time or deadline.
+- 16 Liberty-reference Q/address checks sample at capture +700 ps. The SS
+  Liberty Q 50% clock-to-Q crossing is about 677.1 ps, leaving only about
+  23 ps before sampling. The reference level is 1.045 V at the sample, below
+  the 1.458 V high threshold. Eight failures are `VALID_ACCESS_Q_capture` and
+  eight are expected-high A0_Q/A1_Q samples. This flags the reference monitor's
+  sample timing and must be corrected or justified before treating those
+  samples as a logic failure.
+
+The actual SS `VALID_ACCESS_Q` spans −0.11279 to 1.81175 V at a 1.62 V supply.
+The bench has no accepted rail-excursion limit, so this remains an electrical
+and model review item.
+
+The diagnostic plot and selected CSV traces were exported from two temporary
+SS raw waveforms; the large raw files were removed after review. Retained
+evidence includes the [matrix manifest](../sims/row_decoder/results/captured_phase_interface_valid_3profile/manifest.json),
+[summary](../sims/row_decoder/results/captured_phase_interface_valid_3profile/summary.csv),
+[matched comparison](../sims/row_decoder/results/captured_phase_interface_valid_3profile/matched_comparison.csv),
+[all checks](../sims/row_decoder/results/captured_phase_interface_valid_3profile/checks.csv),
+[SS diagnostic plot](../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_pclk_wl3_timing.png),
+[waveform CSV](../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_selected_waveforms.csv),
+and [edge summary](../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_wl_timing_summary.json).
+
+The first full-matrix attempt found a runner schedule-mutation bug: actual-mode
+measured phase edges were reused as the Liberty reference edge schedule. The
+runner now clones the schedule per mode. The incomplete attempt is excluded
+from evidence; the final matrix above completed on the corrected runner. All
+48 final simulation logs report `No compatibility mode selected!`, but none
+reports a missing OSDI library or fatal model-resolution error.
+
+The next retest and updated limits are recorded below.
+
+## 2026-10-11 UTC: retest of captured valid-control/address matrix
+
+Reran the same 24 logical cases using the experimental schedule
+`phase_ps=2100`, `clk_fall_ps=22500`, `settling_allowance_ns=3.8`, a captured-Q
+sample at +900 ps, and a live-input challenge at +1100 ps. The row load is
+102.873935496 fF and the maximum transient step is 5 ps. This schedule passes
+the current testbench screens; it is not an approved project clock period,
+frequency, or interface timing requirement.
+
+The run completed 48/48 actual/reference ngspice simulations with zero
+simulation errors or screen rejections. The manifest reports
+`complete=true` and `status=PASS`. All 8,400/8,400 checks pass, with 8/8 actual
+and 8/8 Liberty-reference cases passing in each of TT, SS, and FF. The
+selected-WL SS minimum end level is 1.52050 V and its minimum settled level is
+1.46393 V, 5.93 mV above the experimental 0.9·VDD floor of 1.458 V. The
+measured margin is narrow and applies only to the tested load and schedule.
+
+This retest resolves the two screen failures observed in the initial matrix:
+the longer candidate evaluation window passes the selected-WL screens, and
+the +900 ps monitor sample occurs after the SS Liberty-reference output has
+settled above the testbench's high threshold. The external inputs still change
+at +1100 ps and captured state is checked later in the high phase. The earlier
+failed run remains preserved as diagnostic evidence rather than being
+rewritten.
+
+The Liberty reference is a PWL from `dfxtp_1` arcs, not a transistor-level
+flip-flop at exactly the same supply as the native-PM3 path. Its slow table is
+at 1.60 V while the slow PM3 deck runs at 1.62 V; its fast table is at 1.65 V
+while the fast PM3 deck runs at 1.80 V. TT is 1.80 V in both. This limits the
+meaning of the pairwise timing comparison to a reference screen.
+
+The actual captured control/address path still has unresolved rail excursions:
+`VALID_ACCESS_Q` spans −72.20 mV to 1.94718 V in TT, −112.79 mV to 1.81175 V
+in SS, and −36.93 mV to 1.90417 V in FF. No accepted limit for these excursions
+is defined in the bench, so this PASS does not close electrical/model-domain
+or reliability review. The native SKY130 PM3 logs completed with no missing
+OSDI library or fatal model error; they print the informational
+`No compatibility mode selected!` notice.
+
+The path still consists of current decoder and four WL-driver R-C PEX
+instances, the pinned read-only Danilo `precharge_w2p52_flat` PEX, and a lumped
+bitline residual. No extraction was run. The matrix covers valid read `001`
+and valid write `010` from old address 0 to targets 0–3. It selects the row
+for a write-control case but does not write data into a physical bitcell or
+read it back. Invalid controls, the 12 remaining ordered address pairs,
+integrated setup/hold, startup, and physical bitcell operations remain open.
+
+Evidence: [passing manifest](../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/manifest.json),
+[summary](../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/summary.csv),
+[matched comparison](../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/matched_comparison.csv),
+[all checks](../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/checks.csv),
+and [representative TT waveform plot](../sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011/captured_phase_vs_liberty_tt_read_a0_to_3.png).
+
+Reproduce in the project container with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
+  --profiles tt slow fast --control-vectors 001 010 \
+  --transitions 0:0 0:1 0:2 0:3 --transitions-per-vector \
+  --phase-ps 2100 --clk-fall-ps 22500 \
+  --settling-allowance-ns 3.8 --q-sample-ps 900 \
+  --hold-challenge-ps 1100 --wl-cap-ff 102.873935496 \
+  --step-ps 5 \
+  --output-dir sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011
+```
+
+Before treating this point as a qualified interface condition, the project
+team still needs to accept its clock/PCLK schedule and define margin criteria.
+Then sweep around it, run the invalid/idle controls and remaining address
+pairs, and proceed to physical-row read/write/readback when the bitcell
+interface is available. The phase source still has no layout/PEX, and the
+captured-Q rail excursions still need review.

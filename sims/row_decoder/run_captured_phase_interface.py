@@ -51,12 +51,12 @@ MODEL_CORNERS = {"tt": "tt", "slow": "ss", "fast": "ff"}
 ALL_CONTROL_VECTORS = ("000", "001", "010", "011", "100", "101", "110", "111")
 VALID_VECTORS = phase.VALID_VECTORS
 CAPTURE_NS = 15.0
-ADDRESS_HOLD_CHALLENGE_NS = CAPTURE_NS + 0.8
+ADDRESS_HOLD_CHALLENGE_NS = CAPTURE_NS + 1.1
 PRIME_RISE_NS = 5.0
 PRIME_FALL_NS = 10.0
 CONTROL_EDGE_SLEW_PS = 50.0
-CONTROL_UPDATE_AFTER_EDGE_NS = 0.8
-Q_CAPTURE_SAMPLE_PS = 700.0
+CONTROL_UPDATE_AFTER_EDGE_NS = 1.1
+Q_CAPTURE_SAMPLE_PS = 900.0
 Q_HIGH_HOLD_SAMPLE_PS = 1500.0
 Q_FALL_HOLD_SAMPLE_NS = 1.0
 Q_LIBERTY_LOAD_PF = capture.LIBERTY_LOADS_PF["nominal"]
@@ -544,6 +544,7 @@ def threshold_pct(path: Path, key: str) -> float:
 
 
 def main() -> int:
+    global ADDRESS_HOLD_CHALLENGE_NS, CONTROL_UPDATE_AFTER_EDGE_NS, Q_CAPTURE_SAMPLE_PS
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True,
                         help="New result directory; must not already exist")
@@ -564,10 +565,23 @@ def main() -> int:
                         help="Experimental minimum PRECH release lead screen")
     parser.add_argument("--turnoff-guard-ps", type=float, default=1800.0,
                         help="Experimental minimum wordline turn-off guard")
+    parser.add_argument("--q-sample-ps", type=float, default=900.0,
+                        help="Settled captured-Q sample after CLK rising edge")
+    parser.add_argument("--hold-challenge-ps", type=float, default=1100.0,
+                        help="Time after CLK rising edge to change live controls/address")
     parser.add_argument("--wl-cap-ff", type=float, default=102.873935496)
     parser.add_argument("--step-ps", type=float, default=5.0)
     parser.add_argument("--keep-raw", action="store_true")
     args = parser.parse_args()
+
+    require(math.isfinite(args.q_sample_ps) and args.q_sample_ps > 0,
+            "Q sample delay must be finite and positive")
+    require(math.isfinite(args.hold_challenge_ps)
+            and args.q_sample_ps < args.hold_challenge_ps < Q_HIGH_HOLD_SAMPLE_PS,
+            "Require Q sample < live-input hold challenge < later hold sample")
+    Q_CAPTURE_SAMPLE_PS = args.q_sample_ps
+    CONTROL_UPDATE_AFTER_EDGE_NS = args.hold_challenge_ps / 1000.0
+    ADDRESS_HOLD_CHALLENGE_NS = CAPTURE_NS + CONTROL_UPDATE_AFTER_EDGE_NS
 
     output = (ROOT / args.output_dir).resolve()
     require(not output.exists(), f"Choose a new output directory: {output}")
@@ -684,7 +698,7 @@ def main() -> int:
                                  "Q=0 and the old address. The target control vector is applied at 5.8 ns; "
                                  "the target row address is applied with 500 ps nominal setup. Both are captured "
                                  "on the 15 ns rising edge."),
-        "post_capture_hold_challenge": ("At 15.8 ns, live controls change to the opposite validity class; "
+        "post_capture_hold_challenge": (f"At {ADDRESS_HOLD_CHALLENGE_NS:g} ns, live controls change to the opposite validity class; "
                                         "live address inputs change to the complement of the target address. "
                                         "The captured control and A0_Q/A1_Q must hold through the high phase."),
         "address_capture": {"schematic": "cells/control/row_address_capture.sch",
@@ -694,6 +708,7 @@ def main() -> int:
                             "actual_input_energy_probes": ["v(A0_IN)*i(VA0_IN)",
                                                             "v(A1_IN)*i(VA1_IN)"]},
         "sampling": {"capture_after_edge_ps": Q_CAPTURE_SAMPLE_PS,
+                     "live_input_change_after_edge_ps": args.hold_challenge_ps,
                      "high_phase_after_edge_ps": Q_HIGH_HOLD_SAMPLE_PS,
                      "post_fall_delay_ns": Q_FALL_HOLD_SAMPLE_NS},
         "pclk_phase_source": {"schematic": "cells/control/pclk_phase_source.sch",
@@ -763,9 +778,14 @@ def main() -> int:
         mode_results = {}
         for mode in ("actual", "liberty_reference"):
             mode_case = {**case, "mode": mode}
+            # measured_phase() replaces the nominal phase references in its
+            # schedule with the measured transistor-level PCLK edges. Keep
+            # that mode-local: the paired Liberty reference must still be
+            # checked against the requested external PHASE_CLK edge.
+            mode_schedule = dict(schedule)
             mode_dir = output / "cases" / case["label"] / mode
             deck_mode = add_xschem_path(deck, wrapper_info, mode_case, mode,
-                                        arc, schedule, ports, nodes)
+                                        arc, mode_schedule, ports, nodes)
             sim = run_simulation(deck_mode, mode_dir, mode_case, mode,
                                  manifest["pdk_sha256"]["sky130.lib.spice"])
             if sim["status"] == "ERROR":
@@ -783,19 +803,19 @@ def main() -> int:
                                      "mode": mode, "status": "ERROR"})
                 continue
             raw = sim["raw"]
-            vdd = float(schedule["vdd"])
-            q_rows, q_metrics = q_checks(raw, mode_case, schedule, vdd)
+            vdd = float(mode_schedule["vdd"])
+            q_rows, q_metrics = q_checks(raw, mode_case, mode_schedule, vdd)
             address_rows, address_metrics = address_checks(
-                raw, mode_case, schedule, ports, vdd)
+                raw, mode_case, mode_schedule, ports, vdd)
             phase_info, raw_phase_metrics = measured_phase(
-                raw, mode_case, nodes, schedule, vdd)
+                raw, mode_case, nodes, mode_schedule, vdd)
             phase_checks, phase_metrics = phase.evaluate_phase_interface(
-                raw, mode_case, nodes, schedule, phase_info,
+                raw, mode_case, nodes, mode_schedule, phase_info,
                 args.release_lead_ps, args.turnoff_guard_ps,
                 enforce_release_lead=True)
             if case["control_vector"] in VALID_VECTORS:
                 contract_raw = raw
-                contract_schedule = schedule
+                contract_schedule = mode_schedule
                 if mode == "actual":
                     # The base decoder contract reports energy contributed by
                     # its address sources. In the transistor-level capture
@@ -811,8 +831,8 @@ def main() -> int:
                     contract_raw["i(va0)"] = raw["i(va0_in)"]
                     contract_raw["i(va1)"] = raw["i(va1_in)"]
                     contract_schedule = {
-                        **schedule,
-                        "ports": {**schedule["ports"],
+                        **mode_schedule,
+                        "ports": {**mode_schedule["ports"],
                                   "A0": "A0_IN", "A1": "A1_IN"},
                     }
                 decoder_run, decoder_checks, terminal_rows = phase.contract.analyze(
