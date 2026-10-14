@@ -367,10 +367,13 @@ resolved for this testbench run: the selected-WL screens pass at the longer
 candidate window, and the Q monitor samples after settling. The broader
 qualification is still open. Next, agree an acceptable PCLK/system timing and
 margin with the project team, then sweep around the passing candidate to
-measure margin rather than adopting this point as a timing limit. After that,
-run the invalid/idle control vectors and the 12 remaining ordered address
-pairs using the agreed schedule. These screens still do not replace physical
-bitcell row read/write/readback, startup, or integrated setup/hold tests.
+measure margin rather than adopting this point as a timing limit. The invalid
+control vectors and all 16 ordered valid address pairs have now been screened
+at the same candidate schedule. The SS selected-WL result remains close to the
+bench threshold, so passing this screen does not establish the required
+electrical margin or an approved clock. These screens still do not replace
+physical bitcell row read/write/readback, startup, or integrated setup/hold
+tests.
 
 The initial short-window matrix command is retained for historical reproduction
 (24 paired cases, 48 actual/reference runs; superseded by the passing retest):
@@ -382,9 +385,41 @@ The initial short-window matrix command is retained for historical reproduction
   --output-dir sims/row_decoder/results/captured_phase_interface_valid_3profile
 ```
 
-Next matrix: cover all six invalid/idle control vectors with the `0→3`
-challenge in TT/SS/FF (18 paired cases, 36 actual/reference ngspice runs),
-after the project accepts the timing condition to use:
+## 2026-10-13 UTC: captured invalid-control matrix
+
+Ran all six invalid/idle control vectors (`000`, `011`, `100`, `101`, `110`,
+`111`) with the captured address transition `0→3` in TT, SS, and FF. The
+candidate schedule matches the passing valid matrix (`phase_ps=2100`, external
+`CLK` falling at 22.50 ns, 3.8 ns settling allowance, Q sample at +900 ps,
+live-input challenge at +1100 ps, 102.873935496 fF WL load, and 5 ps maximum
+transient step). This remains an experimental test condition, not an accepted
+clock or interface requirement.
+
+All 18 logical cases completed in actual and Liberty-reference modes: 36/36
+simulations passed with zero simulation errors, and all 1,332/1,332 checks
+passed (444 per corner). No run reported a missing OSDI library. Across the
+matrix, the worst measured peaks were 6.01 mV on PCLK, 3.34 mV on active-low
+PRECH, 2.03 mV on any DEC output, and 0.537 mV on any WL output. The lowest
+internal dynamic-node voltage was 1.57583 V in SS, above the test's 0.9·VDD
+floor of 1.458 V. These values establish behavior only for the tested load,
+transition, model profiles, and schedule; they are not reliability limits.
+
+The test checked that invalid access leaves `VALID_ACCESS_Q` low, keeps PCLK
+and PRECH in the inactive phase, leaves all four dynamic nodes precharged, and
+does not assert any DEC or WL output. It also checked the bitline end state and
+that captured control/address values hold after the live inputs change. The
+actual path uses the current decoder/WL PEX, the pinned read-only Danilo
+precharge PEX, and lumped bitline residual capacitance. No new extraction was
+run; no physical bitcell data write/readback or pre-first-clock startup test
+was included. The Liberty path remains a PWL reference, not a transistor-level
+flip-flop at matched SS/FF supply.
+
+Evidence: [manifest](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/manifest.json),
+[summary](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/summary.csv),
+[matched comparison](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/matched_comparison.csv),
+and [all checks](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/checks.csv).
+
+Reproduce in the project container with:
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
@@ -392,14 +427,14 @@ after the project accepts the timing condition to use:
   --transitions 0:3 --phase-ps 2100 --clk-fall-ps 22500 \
   --settling-allowance-ns 3.8 --q-sample-ps 900 \
   --hold-challenge-ps 1100 --wl-cap-ff 102.873935496 --step-ps 5 \
-  --output-dir sims/row_decoder/results/captured_phase_interface_invalid_3profile
+  --output-dir sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013
 ```
 
-Then cover the 12 ordered address pairs whose old address is 1, 2 or 3. The
-passing valid screen already covers the four pairs from old address 0.
-Together, these stages cover all 16 ordered old/new pairs for both valid
-operations and all three profiles. These row-selection tests do not substitute
-for a physical bitcell read/write/readback path.
+The valid screen from 2026-10-11 covers the four ordered pairs from old
+address 0. The 2026-10-14 campaign below covers the other 12 pairs, completing
+all 16 ordered old/new pairs for both valid operations and all three profiles.
+These row-selection tests do not substitute for a physical bitcell
+read/write/readback path.
 
 ```bash
 ./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
@@ -409,10 +444,151 @@ for a physical bitcell read/write/readback path.
   --output-dir sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile
 ```
 
-This remaining valid-operation matrix contains 72 paired cases (144 actual/
-reference ngspice runs); it is intentionally a separate high-compute step.
+That remaining valid-operation matrix contains 72 logical cases (144 actual/
+reference ngspice runs) and is now complete. Its detailed result follows.
 
-The invalid and remaining ordered-address commands are suspended until the
-review above closes. The simulations do not sweep setup/hold skew, phase
-placement, clock period, or supply/temperature within a model profile; those
-need separate scoped runs after the acceptance conditions are agreed.
+The simulations do not sweep setup/hold skew, phase placement, clock period,
+or supply/temperature within a model profile; those need separate scoped runs
+after the acceptance conditions are agreed.
+
+## 2026-10-14 UTC: complete ordered valid-address matrix
+
+Completed the 12 remaining ordered transitions (`1→0` through `3→3`, including
+same-row captures) for valid read control `001` and valid write control `010`
+in TT, SS, and FF. The candidate conditions were `phase_ps=2100`, external
+`CLK` falling at 22.50 ns, a 3.8 ns evaluation/settling window, Q sampling at
+capture +900 ps, live-input challenge at +1100 ps, 102.873935496 fF WL load,
+and a 5 ps maximum transient step. These are experimental bench settings, not
+approved interface timing or a supported frequency.
+
+All 72 logical cases completed in actual transistor-level and Liberty-timed
+reference modes: **144/144 simulations PASS**, with no screen rejections or
+ngspice errors, and **25,200/25,200 checks PASS** (4,200 checks per profile).
+There were no missing OSDI libraries or other warning/error lines in the 144
+ngspice logs. The prior old-address-0 matrix contributes 24 logical cases,
+48 actual/reference simulations, and 8,400/8,400 checks. Together the two
+campaigns cover all 16 ordered address pairs × two valid control vectors ×
+three profiles: **96 logical cases, 192 actual/reference simulations, and
+33,600/33,600 checks**.
+
+The lowest selected-WL settled minimum in this added matrix is 1.462972 V in
+SS at 1.62 V supply, only **4.972 mV above** the bench's 0.9·VDD screen
+(1.458 V). This is a narrow measured pass, not a project-approved margin. The
+monitored captured-control Q still spans −72.202 mV to 1.947143 V in TT,
+−112.786 mV to 1.811754 V in SS, and −36.924 mV to 1.904168 V in FF. The
+project has not accepted a rail-excursion criterion for Q, so these observations
+remain open for electrical and model-domain review.
+
+For the paired timing reference, actual capture-to-PCLK delay is 1.104–1.134 ps
+later in TT, 2.589–2.600 ps later in SS, and 0.730–0.750 ps later in FF. The
+reference uses Liberty-derived PWL timing and does not model a transistor-level
+capture flip-flop at the same SS/FF supplies; these deltas are comparison
+evidence, not timing signoff.
+
+The actual path reused the current decoder/WL PEX, the pinned read-only Danilo
+precharge PEX, and the documented lumped bitline residual. **No new extraction
+was run.** The test verifies captured row selection and control/phase behavior;
+write control `010` does not write data into a physical 6T cell or read it back.
+Startup before the first capture edge, integrated setup/hold, approved clock
+timing, phase-source layout/PEX, and physical-row read/write/readback remain
+open.
+
+During the first campaign attempt, a 180 s per-run timeout stopped one slow
+ngspice case and exposed a runner bug: `TimeoutExpired` output could be bytes,
+causing the handler to fail while concatenating it with text. The runner now
+decodes timeout output, supports `--ngspice-timeout-s` and safe `--resume`, and
+checks the recorded simulation inputs before reusing completed cases. The
+completed manifest records both execution attempts. Its top-level result list
+was reconstructed from the 144 per-mode `case.json` files after a resume-path
+bug left that list empty; the manifest records that repair. No simulation data
+was edited.
+
+Evidence: [repaired campaign manifest](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/manifest.json),
+[summary](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/summary.csv),
+[matched actual/reference comparison](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/matched_comparison.csv),
+and [25,200 per-check results](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/checks.csv).
+The [selected-WL margin plot](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/full_valid_matrix_selected_wl_margin.png)
+combines the old-address-0 and remaining-address campaigns, using the actual
+transistor-level checks for all 96 valid cases:
+
+![Selected wordline settled-minimum margin over the experimental 0.9·VDD screen for all 16 ordered pairs, read/write controls, and TT/SS/FF](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/full_valid_matrix_selected_wl_margin.png)
+
+Recreate the derived plot from the retained per-mode check CSVs with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/plot_captured_valid_matrix_margin.py
+```
+
+To reproduce from scratch in a fresh output directory (this is a long-running
+campaign):
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/run_captured_phase_interface.py \
+  --profiles tt slow fast --control-vectors 001 010 \
+  --transitions 1:0 1:1 1:2 1:3 2:0 2:1 2:2 2:3 3:0 3:1 3:2 3:3 \
+  --transitions-per-vector --phase-ps 2100 --clk-fall-ps 22500 \
+  --settling-allowance-ns 3.8 --q-sample-ps 900 \
+  --hold-challenge-ps 1100 --wl-cap-ff 102.873935496 --step-ps 5 \
+  --ngspice-timeout-s 600 \
+  --output-dir sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_repro
+```
+
+## 2026-10-14 UTC: SS selected-WL settling-window exploration
+
+To investigate the narrow SS selected-wordline screen, the worst observed
+transition (`1→2`) was rerun for valid read (`001`) and write (`010`) at the
+same 2.10 ns phase, 1.62 V SS supply, captured address, and 102.873935496 fF
+WL load. Each campaign includes the transistor-level path and its
+Liberty-timed reference.
+
+| External CLK fall | Settling allowance | Actual read WL2 minimum | Actual write WL2 minimum | Margin over 0.9·VDD |
+|---:|---:|---:|---:|---:|
+| 22.5 ns | 3.8 ns | 1.462972 V | 1.462972 V | +4.972 mV |
+| 24.0 ns | 3.8 ns | 1.462972 V | 1.462972 V | +4.972 mV |
+| 25.0 ns | 3.8 ns | 1.462972 V | 1.462972 V | +4.972 mV |
+| 24.0 ns | 5.5 ns | 1.602516 V | 1.602516 V | +144.516 mV |
+| 25.0 ns | 5.5 ns | 1.602516 V | 1.602516 V | +144.516 mV |
+
+The screen's settled minimum is taken from `PCLK` rising plus the requested
+settling allowance through the measured `PCLK` falling edge. At a fixed 3.8 ns
+allowance, moving the external CLK fall from 22.5 to 25 ns did not change the
+measured minimum. At fixed CLK fall (24 or 25 ns), changing the allowance from
+3.8 to 5.5 ns moved the beginning of the measurement window later and raised
+the measured minimum by about 139.544 mV. Paired Liberty-reference deltas were
+1.406 mV at 3.8 ns and 0.177 mV at 5.5 ns.
+
+This is a measurement-window effect, not evidence that transistor sizing or
+the physical circuit improved. The metric deliberately excludes the earlier
+part of WL's rise when the allowance is increased; it does not report the
+minimum over the full active pulse or prove the bitcell's required access
+time. The required settling time and available access interval still need an
+accepted system timing target and a controlled sweep.
+
+The three additional campaigns (24 ns/5.5 ns, 25 ns/3.8 ns, and 25 ns/5.5 ns)
+completed **12/12 runs and 2,100/2,100 checks** with no simulation errors or
+warning/error lines. The two 5.5 ns campaigns measured 1.602516 V on the
+actual path and 1.602693 V on the Liberty reference for both operations. The
+experimental floor was 1.458 V. This is waveform-screen evidence only, not
+bitcell access margin, SNM, reliability signoff, approved clock timing, or an
+Fmax claim.
+
+The first 24 ns/5.5 ns attempt completed ngspice but post-processing rejected
+the recovery window because the generated `.tran` stopped before that window
+ended. This was a truncated-record testbench error, not an electrical
+failure. The runner now extends its transient tail to at least 500 ps beyond
+the requested recovery check and records the stop policy in the campaign
+manifest. The corrected 24 ns/5.5 ns retest and the 25 ns/5.5 ns run both pass.
+The incomplete first-attempt output is excluded from the qualified evidence
+set; the failure and correction are recorded here.
+
+Evidence: [25 ns/5.5 ns manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/manifest.json),
+[24 ns/5.5 ns retest manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall24000_settle5500_20261014_retest/manifest.json),
+[25 ns/3.8 ns manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle3800_20261014/manifest.json),
+[window comparison plot](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/ss_selected_wl_window_comparison.png),
+[checks at 25 ns/5.5 ns](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/checks.csv),
+and the [plot generator](../sims/row_decoder/plot_ss_margin_window_exploration.py).
+Recreate the plot with:
+
+```bash
+./tools/sram-eda python3 sims/row_decoder/plot_ss_margin_window_exploration.py
+```

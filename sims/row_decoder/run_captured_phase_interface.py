@@ -271,6 +271,15 @@ def add_xschem_path(deck: str, netlist: dict, case: dict, mode: str,
     return deck
 
 
+def extend_transient_stop(deck: str, stop_s: float) -> str:
+    """Extend .tran when the requested recovery window exceeds its default."""
+    deck, count = re.subn(
+        r"(?im)^(\.tran\s+\S+\s+)\S+",
+        lambda match: match.group(1) + f"{stop_s:.14g}", deck, count=1)
+    require(count == 1, "Could not extend the transient stop time")
+    return deck
+
+
 def logic_level(value: float, vdd: float) -> int | None:
     if value >= 0.9*vdd:
         return 1
@@ -453,7 +462,7 @@ def measured_phase(raw: dict[str, np.ndarray], case: dict, nodes: dict,
 
 
 def run_simulation(deck: str, case_dir: Path, case: dict, mode: str,
-                   model_hash: str) -> dict:
+                   model_hash: str, timeout_s: float) -> dict:
     case_dir.mkdir(parents=True, exist_ok=True)
     deck_path = case_dir / "case.spice"
     raw_path = case_dir / "waveform.raw"
@@ -462,10 +471,19 @@ def run_simulation(deck: str, case_dir: Path, case: dict, mode: str,
     try:
         proc = subprocess.run(["ngspice", "-n", "-b", str(deck_path)],
                               cwd=case_dir, text=True, stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT, timeout=180)
+                              stderr=subprocess.STDOUT, timeout=timeout_s)
     except subprocess.TimeoutExpired as exc:
-        write_text(log_path, (exc.stdout or "") + (exc.stderr or ""))
-        return {"mode": mode, "status": "ERROR", "error": "ngspice timeout"}
+        # subprocess may expose TimeoutExpired output as bytes even when
+        # text=True was requested. Decode it explicitly so a timeout remains
+        # a recorded case result instead of crashing the whole campaign.
+        output = ""
+        for chunk in (exc.stdout, exc.stderr):
+            if chunk:
+                output += (chunk.decode("utf-8", errors="replace")
+                           if isinstance(chunk, bytes) else str(chunk))
+        write_text(log_path, output)
+        return {"mode": mode, "status": "ERROR",
+                "error": f"ngspice timeout after {timeout_s:g} s"}
     write_text(log_path, proc.stdout)
     fatal = ("could not find a valid modelname", "fatal error in ngspice",
              "simulation interrupted due to error", "error on line",
@@ -571,6 +589,10 @@ def main() -> int:
                         help="Time after CLK rising edge to change live controls/address")
     parser.add_argument("--wl-cap-ff", type=float, default=102.873935496)
     parser.add_argument("--step-ps", type=float, default=5.0)
+    parser.add_argument("--ngspice-timeout-s", type=float, default=180.0,
+                        help="Per-run ngspice timeout in seconds (default: 180)")
+    parser.add_argument("--resume", action="store_true",
+                        help="Resume an incomplete result directory with matching inputs")
     parser.add_argument("--keep-raw", action="store_true")
     args = parser.parse_args()
 
@@ -584,7 +606,11 @@ def main() -> int:
     ADDRESS_HOLD_CHALLENGE_NS = CAPTURE_NS + CONTROL_UPDATE_AFTER_EDGE_NS
 
     output = (ROOT / args.output_dir).resolve()
-    require(not output.exists(), f"Choose a new output directory: {output}")
+    if args.resume:
+        require(output.is_dir() and (output / "manifest.json").is_file(),
+                f"--resume requires an existing result directory and manifest: {output}")
+    else:
+        require(not output.exists(), f"Choose a new output directory: {output}")
     require(output.is_relative_to(ROOT), "Output directory must remain inside the repository")
     require(set(args.profiles) and len(set(args.profiles)) == len(args.profiles),
             "Profile list must be unique and nonempty")
@@ -599,6 +625,8 @@ def main() -> int:
             "settling window must fit inside the high phase")
     require(math.isfinite(args.step_ps) and args.step_ps > 0,
             "transient maximum step must be positive")
+    require(math.isfinite(args.ngspice_timeout_s) and args.ngspice_timeout_s > 0,
+            "ngspice timeout must be finite and positive")
     require(NATIVE_MODEL.is_file() and SC_LIBRARY.is_file(),
             "Native SKY130 PM3 model library or standard-cell SPICE file is missing")
     require(all(path.is_file() for path in (CAPTURED_SCHEMATIC, CAPTURED_SYMBOL,
@@ -637,7 +665,7 @@ def main() -> int:
         for profile, path in lib_paths.items()
     }
 
-    output.mkdir(parents=True)
+    output.mkdir(parents=True, exist_ok=args.resume)
     xschem_dir = output / "xschem"
     wrapper_info = netlist_captured_wrapper(xschem_dir)
     with tempfile.TemporaryDirectory(prefix="captured-phase-pex-") as temp_name:
@@ -649,6 +677,8 @@ def main() -> int:
     (output / "simulation_input_netlist.spice").write_text(netlist, encoding="utf-8")
 
     cases = []
+    transient_stop_tail_ns = max(5.0, args.settling_allowance_ns + 0.5)
+    transient_stop_ns = args.clk_fall_ps / 1000.0 + transient_stop_tail_ns
     for profile in args.profiles:
         for vector in args.control_vectors:
             selected_transitions = (transitions if args.transitions_per_vector
@@ -660,6 +690,8 @@ def main() -> int:
                     "old": old, "new": new, "phase_ps": args.phase_ps,
                     "clk_fall_ps": args.clk_fall_ps,
                     "settling_allowance_ns": args.settling_allowance_ns,
+                    "transient_stop_tail_ns": transient_stop_tail_ns,
+                    "transient_stop_ns": transient_stop_ns,
                     **thresholds[profile],
                 })
 
@@ -728,7 +760,13 @@ def main() -> int:
         "experimental_checks": {"minimum_release_lead_ps": args.release_lead_ps,
                                 "minimum_wl_turnoff_guard_ps": args.turnoff_guard_ps,
                                 "not_specification_limits": True},
+        "transient_stop_policy": {
+            "tail_after_external_clock_fall_ns": transient_stop_tail_ns,
+            "minimum_tail_ns": 5.0,
+            "recovery_check_tail_ns": 0.5,
+            "interpretation": "Extends transient record when requested settling window exceeds the default 5 ns tail."},
         "maximum_step_ps": args.step_ps,
+        "ngspice_timeout_s": args.ngspice_timeout_s,
         "source_hashes": source_hashes,
         "xschem_wrapper_netlist_sha256": wrapper_info["sha256"],
         "active_wrapper_subcircuit_sha256": wrapper_info["active_sha256"],
@@ -742,6 +780,50 @@ def main() -> int:
         "warnings": {"native_pm3_osdi": "Each ngspice log must be reviewed for unavailable OSDI startup libraries.",
                      "rail_excursions": "No Q/PCLK/PRECH rail-excursion acceptance limit is defined by this bench."},
     }
+    if args.resume:
+        manifest_path = output / "manifest.json"
+        saved_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        require(not saved_manifest.get("complete"),
+                "Cannot resume a campaign already marked complete")
+        resume_input_fields = (
+            "campaign", "scope", "model_family",
+            "native_model_corner_by_profile", "q_reference",
+            "control_equation", "initial_conditioning",
+            "post_capture_hold_challenge", "address_capture", "sampling",
+            "pclk_phase_source", "precharge_candidate",
+            "decoder_wl_pex_evidence", "wordline_load_ff", "bitline_load",
+            "experimental_checks", "transient_stop_policy",
+            "maximum_step_ps", "case_count", "cases",
+            "simulation_input_netlist_sha256", "pdk_sha256",
+            "xschem_wrapper_netlist_sha256",
+            "active_wrapper_subcircuit_sha256", "tools",
+        )
+        for key in resume_input_fields:
+            require(saved_manifest.get(key) == manifest.get(key),
+                    f"Resume input mismatch for manifest field {key}")
+        runner_path = str(Path(__file__).resolve().relative_to(ROOT))
+        old_hashes = saved_manifest.get("source_hashes", {})
+        new_hashes = manifest.get("source_hashes", {})
+        for key in set(old_hashes) | set(new_hashes):
+            if key == runner_path:
+                continue
+            require(old_hashes.get(key) == new_hashes.get(key),
+                    f"Resume source mismatch for {key}")
+        history = saved_manifest.get("execution_history")
+        if history is None:
+            history = [{
+                "runner_sha256": old_hashes.get(runner_path),
+                "ngspice_timeout_s": 180.0,
+                "started_utc": saved_manifest.get("started_utc"),
+            }]
+        history.append({
+            "runner_sha256": script_hash,
+            "ngspice_timeout_s": args.ngspice_timeout_s,
+            "resumed_utc": datetime.now(timezone.utc).isoformat(),
+        })
+        saved_manifest["execution_history"] = history
+        saved_manifest["ngspice_timeout_s"] = args.ngspice_timeout_s
+        manifest = saved_manifest
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n",
                                            encoding="utf-8")
 
@@ -752,7 +834,8 @@ def main() -> int:
     representative_case_requested = any(
         case["profile"] == "tt" and case["control_vector"] == "001"
         and case["old"] == 0 and case["new"] == 3 for case in cases)
-    representative_saved = False
+    representative_saved = ((output / "actual_representative.csv").is_file()
+                             and (output / "liberty_reference_representative.csv").is_file())
     for case in cases:
         profile = case["profile"]
         arc = arcs[profile]
@@ -774,7 +857,8 @@ def main() -> int:
                          "first_fall": PRIME_FALL_NS*1e-9,
                          "second_rise": (CAPTURE_NS*1000+args.phase_ps)*1e-12,
                          "second_fall": args.clk_fall_ps*1e-12,
-                         "stop": args.clk_fall_ps*1e-12+5e-9})
+                         "stop": transient_stop_ns*1e-9})
+        deck = extend_transient_stop(deck, float(schedule["stop"]))
         mode_results = {}
         for mode in ("actual", "liberty_reference"):
             mode_case = {**case, "mode": mode}
@@ -784,10 +868,64 @@ def main() -> int:
             # checked against the requested external PHASE_CLK edge.
             mode_schedule = dict(schedule)
             mode_dir = output / "cases" / case["label"] / mode
+            cached_case_path = mode_dir / "case.json"
+            cached_checks_path = mode_dir / "checks.csv"
+            if args.resume and cached_case_path.is_file() and cached_checks_path.is_file():
+                cached_result = json.loads(cached_case_path.read_text(encoding="utf-8"))
+                if cached_result.get("status") in ("PASS", "REJECTED_SCREEN"):
+                    require(cached_result.get("case") == case["label"]
+                            and cached_result.get("mode") == mode
+                            and cached_result.get("profile") == profile
+                            and cached_result.get("control_vector") == case["control_vector"],
+                            f"Cached result identity mismatch for {case['label']} {mode}")
+                    with cached_checks_path.open(newline="", encoding="utf-8") as stream:
+                        all_checks.extend(csv.DictReader(stream))
+                    cached_metrics = cached_result.get("metrics", {})
+                    result_rows.append({
+                        "case": case["label"], "mode": mode, "profile": profile,
+                        "control_vector": case["control_vector"],
+                        "address_transition": f"{case['old']}:{case['new']}",
+                        "status": cached_result["status"],
+                        "check_failures": cached_result.get("check_failures"),
+                        "decoder_logic_check_failures": cached_result.get(
+                            "decoder_logic_check_failures"),
+                        "metrics": {key: cached_metrics.get(key) for key in (
+                            "capture_to_q_rise_ps", "capture_to_q_fall_ps",
+                            "a0_q_post_capture_v", "a1_q_post_capture_v",
+                            "a0_q_after_live_address_change_v",
+                            "a1_q_after_live_address_change_v",
+                            "capture_to_pclk_rise_ps",
+                            "prech_release_lead_before_pclk_ps",
+                            "pclk_fall_to_precharge_conduction_ps",
+                            "q_min_v", "q_max_v")},
+                    })
+                    summary_rows.append({
+                        "case": case["label"], "profile": profile,
+                        "control_vector": case["control_vector"],
+                        "address_transition": f"{case['old']}:{case['new']}",
+                        "mode": mode, "status": cached_result["status"],
+                        "q_capture_ps": cached_metrics.get(
+                            "capture_to_q_rise_ps",
+                            cached_metrics.get("capture_to_q_fall_ps", "")),
+                        "capture_to_pclk_rise_ps": cached_metrics.get(
+                            "capture_to_pclk_rise_ps", ""),
+                        "precharge_release_lead_ps": cached_metrics.get(
+                            "prech_release_lead_before_pclk_ps", ""),
+                        "pclk_fall_to_precharge_conduction_ps": cached_metrics.get(
+                            "pclk_fall_to_precharge_conduction_ps", ""),
+                        "q_min_v": cached_metrics.get("q_min_v", ""),
+                        "q_max_v": cached_metrics.get("q_max_v", ""),
+                        "check_failures": cached_result.get("check_failures"),
+                        "decoder_logic_check_failures": cached_result.get(
+                            "decoder_logic_check_failures"),
+                    })
+                    mode_results[mode] = cached_result
+                    continue
             deck_mode = add_xschem_path(deck, wrapper_info, mode_case, mode,
                                         arc, mode_schedule, ports, nodes)
             sim = run_simulation(deck_mode, mode_dir, mode_case, mode,
-                                 manifest["pdk_sha256"]["sky130.lib.spice"])
+                                 manifest["pdk_sha256"]["sky130.lib.spice"],
+                                 args.ngspice_timeout_s)
             if sim["status"] == "ERROR":
                 result = {"case": case["label"], "mode": mode, "status": "ERROR",
                           "error": sim["error"]}
@@ -801,6 +939,7 @@ def main() -> int:
                 summary_rows.append({"case": case["label"], "profile": profile,
                                      "control_vector": case["control_vector"],
                                      "mode": mode, "status": "ERROR"})
+                write_text(mode_dir / "case.json", json.dumps(result, indent=2))
                 continue
             raw = sim["raw"]
             vdd = float(mode_schedule["vdd"])
@@ -951,6 +1090,7 @@ def main() -> int:
         "finished_utc": datetime.now(timezone.utc).isoformat(),
         "complete": not failures,
         "status": "PASS" if not failures and not failed_rows else "REVIEW_REQUIRED",
+        "results": result_rows,
         "simulation_errors": failures,
         "screen_rejections": len(failed_rows),
         "warnings_by_run": warning_summary,

@@ -2531,3 +2531,105 @@ Then sweep around it, run the invalid/idle controls and remaining address
 pairs, and proceed to physical-row read/write/readback when the bitcell
 interface is available. The phase source still has no layout/PEX, and the
 captured-Q rail excursions still need review.
+
+## 2026-10-13: captured invalid-control matrix
+
+Screened all six invalid `CSb/OEb/WEb` vectors (`000`, `011`, `100`, `101`,
+`110`, `111`) through the transistor-level captured control and phase path
+with a 0→3 address transition, across TT/SS/FF. The current decoder and WL
+PEX, pinned read-only Danilo precharge PEX, and documented lumped BL residual
+were reused; no new extraction was run.
+
+The run completed 18 logical cases in actual and Liberty-reference modes:
+36/36 simulations passed with zero simulation errors, and 1,332/1,332 checks
+passed. The worst observed invalid-state peaks were 6.01 mV PCLK, 3.34 mV
+PRECH, 2.03 mV on any DEC output, and 0.537 mV on any WL output. The minimum
+dynamic-node voltage was 1.57583 V in SS, above the experimental 0.9·VDD floor
+of 1.458 V. There were no missing OSDI libraries. These are testbench results
+at one candidate schedule and load, not accepted operating limits or
+reliability signoff. They do not cover physical bitcell write/readback or
+startup before the first clock edge.
+
+Full per-run evidence and the reproduction command are in the [captured
+interface report](row_decoder_captured_phase_interface_20261009.md#2026-10-13-utc-captured-invalid-control-matrix),
+including the [manifest](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/manifest.json),
+[summary](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/summary.csv),
+and [checks](../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/checks.csv).
+
+## 2026-10-14 UTC: all valid ordered row-address transitions
+
+Completed the remaining 12 ordered address transitions for valid read (`001`)
+and valid write (`010`) across TT, SS, and FF. The run used the same
+experimental candidate as the prior old-address-0 matrix: 2.10 ns phase,
+external CLK falling at 22.50 ns, 3.8 ns settling allowance, captured-Q sample
+at +900 ps, live-input challenge at +1100 ps, and 102.873935496 fF WL load.
+These values are characterization inputs, not approved system timing.
+
+The campaign completed 72 logical cases, each in actual and Liberty-reference
+modes: **144/144 mode runs passed**, with no screen rejections or ngspice
+errors; **25,200/25,200 waveform checks passed**. There were no missing OSDI
+libraries and no other warning/error lines in the run logs. Together with the
+prior old-address-0 campaign, the valid captured-path matrix now covers all
+16 ordered row-address pairs, both valid controls, and all three profiles:
+96 logical cases, 192 mode runs, and 33,600/33,600 checks.
+
+The minimum selected-WL settled value in this added matrix is 1.462972 V in
+SS, 4.972 mV above the experimental 0.9·VDD threshold of 1.458 V. The captured
+control node still reaches −112.786 mV and 1.811754 V in SS; the observed
+TT/FF extrema are documented in the [interface report](row_decoder_captured_phase_interface_20261009.md).
+No accepted Q rail-excursion limit, model-domain guardband, or project clock
+target is defined, so the measured pass is not qualification or reliability
+signoff. The Liberty reference is PWL-timed and is not a matched-supply
+transistor-level flip-flop reference in SS/FF.
+
+The run reused the existing decoder and WL PEX, pinned read-only Danilo
+precharge PEX, and lumped bitline residual. No extraction was performed. It
+checks row selection/control timing only; it did not write data to or read
+back from physical bitcells. Startup, integrated setup/hold, phase-source
+layout/PEX, approved timing/margin criteria, and the physical row data path
+remain pending.
+
+The initial run stopped at a 180 s per-simulation timeout and exposed two
+runner issues: `TimeoutExpired` output could be bytes and crash the timeout
+handler, and a resumed campaign retained an empty top-level `results` array.
+The runner now decodes timeout text, accepts a configurable per-run timeout,
+validates all recorded simulation inputs before resume, and reconstructs the
+top-level results on completion. The final manifest's 144 result rows were
+reconstructed from the per-mode `case.json` evidence and marked with a repair
+note; no simulation measurements were changed. The manifest records the
+180 s initial attempt and the 600 s resumed execution.
+
+Evidence: [manifest](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/manifest.json),
+[summary](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/summary.csv),
+[matched actual/reference comparison](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/matched_comparison.csv),
+and [all 25,200 checks](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/checks.csv).
+The [full-matrix margin plot](../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/full_valid_matrix_selected_wl_margin.png)
+is derived from the selected-WL check rows in both valid-matrix campaigns;
+recreate it with `./tools/sram-eda python3 sims/row_decoder/plot_captured_valid_matrix_margin.py`.
+
+## 2026-10-14 UTC: focused SS WL settling-window experiment
+
+The critical SS address transition `1→2` was run for valid read and write.
+At fixed 3.8 ns settling allowance, external CLK falls at 22.5, 24, and 25 ns
+all gave an actual selected-WL minimum of 1.462972 V (+4.972 mV over the
+experimental 0.9·VDD floor). At fixed 24 or 25 ns CLK fall, increasing the
+settling allowance to 5.5 ns gave 1.602516 V (+144.516 mV). The measured
+minimum therefore follows the start of the selected measurement window, while
+clock-fall placement made little difference in the sampled range. The paired
+Liberty reference differed from the actual path by 1.406 mV at 3.8 ns and
+0.177 mV at 5.5 ns.
+
+Three new schedules (24 ns/5.5 ns, 25 ns/3.8 ns, and 25 ns/5.5 ns) completed
+12/12 actual/reference runs and 2,100/2,100 checks with no simulation errors.
+The 5.5 ns screen intentionally excludes 1.7 ns more of the WL rising edge;
+this is a measurement-window effect, not evidence of better transistor sizing
+or a bitcell access margin. The acceptable access time and clock period are
+not set by the specification. The runner's `.tran` record was extended to
+include the post-fall recovery check; the first 24 ns/5.5 ns post-processing
+attempt had a too-short record, not an electrical failure. No new extraction
+was run. See the [detailed report](row_decoder_captured_phase_interface_20261009.md#2026-10-14-utc-ss-selected-wl-settling-window-exploration),
+[25 ns/5.5 ns manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/manifest.json),
+[24 ns/5.5 ns retest manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall24000_settle5500_20261014_retest/manifest.json),
+[25 ns/3.8 ns manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle3800_20261014/manifest.json),
+[checks](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/checks.csv),
+and [window comparison plot](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/ss_selected_wl_window_comparison.png).
