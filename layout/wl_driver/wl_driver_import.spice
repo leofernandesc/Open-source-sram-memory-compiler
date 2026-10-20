@@ -1,0 +1,7 @@
+* Magic import alias for the project wordline driver.
+.subckt wl_driver_sram6t VDD VSS WL_IN WL
+XMP1 WL_N WL_IN VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMP2 WL   WL_N  VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.84 nf=1
+XMN2 WL   WL_N  VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.84 nf=1
+.ends wl_driver_sram6t

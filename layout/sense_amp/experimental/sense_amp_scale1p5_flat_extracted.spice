@@ -1,0 +1,12 @@
+* NGSPICE file created from sense_amp_scale1p5_flat.ext - technology: sky130A
+
+.subckt sense_amp_scale1p5_flat VDD VSS BL BLB SCLK SA_OUT SA_OUTB
+X0 a_615_n3098# SA_OUT SA_OUTB VSS sky130_fd_pr__nfet_01v8 ad=0.2842 pd=2.54 as=0.2842 ps=2.54 w=0.98 l=0.15
+X1 a_615_n3098# SA_OUTB SA_OUT VSS sky130_fd_pr__nfet_01v8 ad=0.2842 pd=2.54 as=0.2842 ps=2.54 w=0.98 l=0.15
+X2 BLB SCLK SA_OUTB VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+X3 VSS SCLK a_615_n3098# VSS sky130_fd_pr__nfet_01v8 ad=0.2842 pd=2.54 as=0.2842 ps=2.54 w=0.98 l=0.15
+X4 VDD SA_OUTB SA_OUT VDD sky130_fd_pr__pfet_01v8 ad=0.5481 pd=4.36 as=0.5481 ps=4.36 w=1.89 l=0.15
+X5 VDD SA_OUT SA_OUTB VDD sky130_fd_pr__pfet_01v8 ad=0.5481 pd=4.36 as=0.5481 ps=4.36 w=1.89 l=0.15
+X6 SA_OUT SCLK BL VDD sky130_fd_pr__pfet_01v8 ad=0.58 pd=4.58 as=0.58 ps=4.58 w=2 l=0.15
+.ends
+

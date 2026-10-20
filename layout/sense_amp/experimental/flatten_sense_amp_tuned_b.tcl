@@ -1,0 +1,8 @@
+load sense_amp_tuned_b
+save sense_amp_tuned_b_routed_hier
+flatten sense_amp_tuned_b_flat
+load sense_amp_tuned_b_flat
+drc check
+drc count total
+save sense_amp_tuned_b_flat
+quit -noprompt
