@@ -1,0 +1,116 @@
+timestamp 1791472742
+version 8.3
+tech sky130A
+style ngspice()
+scale 1000 1 500000
+resistclasses 4400000 2200000 950000 3050000 120000 197000 114000 191000 120000 197000 114000 191000 48200 319800 2000000 48200 48200 12800 125 125 47 47 29 5
+use bitcell_6t_pu_device bitcell_6t_pu_device_1 1 0 900 0 1 -1000
+use bitcell_6t_pu_device bitcell_6t_pu_device_0 1 0 200 0 1 -1000
+use bitcell_6t_pd_device bitcell_6t_pd_device_1 1 0 800 0 1 -1900
+use bitcell_6t_pd_device bitcell_6t_pd_device_0 1 0 200 0 1 -1900
+use bitcell_6t_acc_device bitcell_6t_acc_device_1 1 0 2000 0 1 -1900
+use bitcell_6t_acc_device bitcell_6t_acc_device_0 1 0 1400 0 1 -1900
+port "BLB" 2 -255 -2925 -205 -2875 m3
+port "BL" 1 -255 -2775 -205 -2725 m3
+port "WL" 4 -255 -2625 -205 -2575 m3
+port "VSS" 3 -255 -2475 -205 -2425 m3
+port "VDD" 0 -255 -425 -205 -375 m3
+node "BLB" 5 1206.53 -255 -2925 m3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15840 824 91056 2336 289800 7068 0 0 0 0 0 0
+node "BL" 4 487.461 -255 -2775 m3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14400 744 78456 2036 289800 7068 0 0 0 0 0 0
+node "WL" 8 864.729 -255 -2625 m3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 55008 3056 75516 1966 289800 7068 0 0 0 0 0 0
+node "VSS" 18 2094.74 -255 -2475 m3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 87840 4592 403536 10616 289800 7068 0 0 0 0 0 0
+node "m1_220_n2026#" 13 1301.09 220 -2026 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 88128 4720 291032 6152 289800 7068 0 0 0 0 0 0
+node "m1_n196_n1755#" 15 2107.77 -196 -1755 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 82800 4344 308364 7846 289800 7068 0 0 0 0 0 0
+node "VDD" 10 1505.09 -255 -425 m3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 41760 2256 194880 5312 289800 7068 0 0 0 0 0 0
+substrate "VSUBS" 0 0 -1073741817 -1073741817 space 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cap "WL" "BL" 1915.79
+cap "m1_220_n2026#" "BL" 44.6888
+cap "m1_n196_n1755#" "WL" 106.909
+cap "m1_n196_n1755#" "m1_220_n2026#" 3143.87
+cap "VDD" "WL" 0.683991
+cap "VDD" "m1_220_n2026#" 2366.76
+cap "m1_n196_n1755#" "BL" 22.2844
+cap "VDD" "BL" 0.0541643
+cap "VDD" "m1_n196_n1755#" 699.416
+cap "WL" "BLB" 189.653
+cap "m1_220_n2026#" "BLB" 1.44093
+cap "BLB" "BL" 1846.1
+cap "m1_n196_n1755#" "BLB" 84.9075
+cap "VDD" "BLB" 0.0541643
+cap "VSS" "WL" 2413.86
+cap "m1_220_n2026#" "VSS" 465.896
+cap "VSS" "BL" 360.155
+cap "m1_n196_n1755#" "VSS" 621.02
+cap "VDD" "VSS" 40.1178
+cap "VSS" "BLB" 378.774
+cap "m1_220_n2026#" "WL" 8.86977
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "WL" 1.02333
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_n73_n60#" -57.7381
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_0/a_15_n60#" 1.04208
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_pu_device_0/a_n73_n42#" 53.8483
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" 1.16745
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "WL" 0.539854
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_1/a_15_n60#" 0.629016
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_15_n60#" -1.4375
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_pu_device_0/a_n73_n42#" -0.348888
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" 2.0063
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_1/a_15_n60#" 0.243963
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" 47.038
+cap "bitcell_6t_acc_device_1/a_15_n60#" "bitcell_6t_acc_device_0/a_n73_n60#" 21.8876
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_1/a_n73_n60#" 74.2769
+cap "bitcell_6t_acc_device_0/a_n33_n148#" "bitcell_6t_acc_device_0/a_15_n60#" -6.11578
+cap "bitcell_6t_acc_device_1/a_15_n60#" "bitcell_6t_acc_device_0/a_15_n60#" -0.151854
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_pu_device_0/a_n73_n42#" 6.93645
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_15_n60#" -2.04287
+cap "bitcell_6t_acc_device_1/a_15_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" -8.3788
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" -15.1625
+cap "bitcell_6t_acc_device_1/a_15_n60#" "bitcell_6t_acc_device_1/a_n73_n60#" -57.0637
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_0/a_15_n60#" 4.20364
+cap "bitcell_6t_pu_device_0/a_n73_n42#" "bitcell_6t_acc_device_0/a_n33_n148#" -0.0496934
+cap "bitcell_6t_acc_device_0/a_n33_n148#" "bitcell_6t_acc_device_1/a_n73_n60#" -0.0134402
+cap "bitcell_6t_acc_device_0/a_n33_n148#" "bitcell_6t_acc_device_0/a_n73_n60#" 0.640508
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_1/a_n73_n60#" -0.025524
+cap "bitcell_6t_acc_device_1/a_15_n60#" "bitcell_6t_acc_device_0/a_n73_n60#" 0.0645401
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_1/a_n73_n60#" 11.7354
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "WL" 0.0400141
+cap "bitcell_6t_acc_device_0/a_15_n60#" "bitcell_6t_acc_device_0/a_n73_n60#" 0.0128445
+cap "bitcell_6t_pu_device_0/a_n73_n42#" "bitcell_6t_acc_device_0/a_n73_n60#" 77.8822
+cap "bitcell_6t_pu_device_0/a_n73_n42#" "bitcell_6t_acc_device_1/a_n73_n60#" 43.7563
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_1/a_15_n60#" 0.0651096
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_1/a_n73_n60#" 7.428
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_pu_device_0/a_n73_n42#" 89.226
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_15_n60#" 0.0651096
+cap "bitcell_6t_pu_device_0/a_n73_n42#" "bitcell_6t_acc_device_0/a_n33_n148#" 0.0427302
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" 1.55564
+cap "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_pu_device_0/a_n73_n42#" 67.7237
+cap "bitcell_6t_pu_device_0/a_n73_n42#" "bitcell_6t_acc_device_0/a_15_n60#" 0.0227732
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_n73_n60#" 5.68434e-14
+cap "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_acc_device_0/a_n33_n148#" -2.22045e-16
+merge "bitcell_6t_acc_device_0/a_n73_n60#" "bitcell_6t_acc_device_0/a_n175_n234#" -1555.44 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -66759 -4206 0 0 0 0 0 0 0 0 0 0
+merge "bitcell_6t_acc_device_0/a_n175_n234#" "bitcell_6t_pd_device_0/a_15_n126#"
+merge "bitcell_6t_pd_device_0/a_15_n126#" "bitcell_6t_pd_device_1/a_n33_n214#"
+merge "bitcell_6t_pd_device_1/a_n33_n214#" "bitcell_6t_pu_device_0/a_15_n42#"
+merge "bitcell_6t_pu_device_0/a_15_n42#" "bitcell_6t_pu_device_1/a_n33_n139#"
+merge "bitcell_6t_pu_device_1/a_n33_n139#" "m1_220_n2026#"
+merge "m1_220_n2026#" "bitcell_6t_acc_device_1/a_n175_n234#"
+merge "bitcell_6t_acc_device_1/a_n175_n234#" "bitcell_6t_pd_device_0/a_n73_n126#"
+merge "bitcell_6t_pd_device_0/a_n73_n126#" "bitcell_6t_pd_device_0/a_n175_n300#"
+merge "bitcell_6t_pd_device_0/a_n175_n300#" "bitcell_6t_pd_device_1/a_n73_n126#"
+merge "bitcell_6t_pd_device_1/a_n73_n126#" "bitcell_6t_pd_device_1/a_n175_n300#"
+merge "bitcell_6t_pd_device_1/a_n175_n300#" "VSS"
+merge "VSS" "bitcell_6t_pu_device_0/VSUBS"
+merge "bitcell_6t_pu_device_0/VSUBS" "bitcell_6t_pu_device_1/VSUBS"
+merge "bitcell_6t_pu_device_1/VSUBS" "VSUBS"
+merge "bitcell_6t_pu_device_0/a_n73_n42#" "bitcell_6t_pu_device_0/w_n211_n261#" -471.238 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -18240 -1208 0 0 0 0 0 0 0 0 0 0
+merge "bitcell_6t_pu_device_0/w_n211_n261#" "bitcell_6t_pu_device_1/a_n73_n42#"
+merge "bitcell_6t_pu_device_1/a_n73_n42#" "bitcell_6t_pu_device_1/w_n211_n261#"
+merge "bitcell_6t_pu_device_1/w_n211_n261#" "VDD"
+merge "bitcell_6t_acc_device_0/a_n33_n148#" "bitcell_6t_acc_device_1/a_n33_n148#" -199.124 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -6120 -484 0 0 -117600 -2884 0 0 0 0 0 0
+merge "bitcell_6t_acc_device_1/a_n33_n148#" "WL"
+merge "bitcell_6t_acc_device_1/a_n73_n60#" "bitcell_6t_pd_device_0/a_n33_n214#" -436.365 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -26016 -1612 0 0 0 0 0 0 0 0 0 0
+merge "bitcell_6t_pd_device_0/a_n33_n214#" "bitcell_6t_pd_device_1/a_15_n126#"
+merge "bitcell_6t_pd_device_1/a_15_n126#" "bitcell_6t_pu_device_0/a_n33_n139#"
+merge "bitcell_6t_pu_device_0/a_n33_n139#" "bitcell_6t_pu_device_1/a_15_n42#"
+merge "bitcell_6t_pu_device_1/a_15_n42#" "m1_n196_n1755#"
+merge "bitcell_6t_acc_device_0/a_15_n60#" "BL" -63.4806 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -5520 -332 0 0 0 0 0 0 0 0 0 0
+merge "bitcell_6t_acc_device_1/a_15_n60#" "BLB" -53.3427 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -5520 -332 0 0 0 0 0 0 0 0 0 0

@@ -1,0 +1,9 @@
+# Project-local Xschem configuration for the SKY130A PDK.
+set XSCHEM_LIBRARY_PATH {}
+append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library
+
+if {[info exists ::env(PDK_ROOT)] && [info exists ::env(PDK)]} {
+    append XSCHEM_LIBRARY_PATH :$::env(PDK_ROOT)/$::env(PDK)/libs.tech/xschem
+} else {
+    append XSCHEM_LIBRARY_PATH :/usr/local/share/pdk/sky130A/libs.tech/xschem
+}

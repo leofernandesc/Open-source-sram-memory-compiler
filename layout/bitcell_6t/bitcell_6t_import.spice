@@ -1,0 +1,12 @@
+* Physical import netlist for the canonical 6T bitcell.
+* Electrical W/L sizing matches cells/bitcell_6t.spice.  The additional
+* parameters only control Magic SKY130 PCell generation so parent routing can
+* provide DRC-clean contacts and metal.
+.subckt bitcell_6t_import_sram6t VDD BL BLB VSS WL
+XPU_L Q  QB VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XPU_R QB Q  VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XPD_L Q  QB VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XPD_R QB Q  VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XACC_L Q  WL BL  VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.60 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+XACC_R QB WL BLB VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.60 nf=1 guard=1 full_metal=0 viasrc=100 viadrn=100 viagate=100 viagt=100
+.ends bitcell_6t_import_sram6t
