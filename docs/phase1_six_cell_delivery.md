@@ -83,6 +83,9 @@ DRC/LVS evidence are closed for these hashes. The
 
 Full electrical Phase 1 acceptance still requires a documented local timing
 contract and resolution/acceptance of the decoder's model-domain findings.
+The [frozen decoder/WL local-interface campaign](row_decoder_canonical_pair_requalification_20261028.md)
+uses the selected 1.68/5.04 µm WL stages. Earlier captured-path results used
+the smaller 0.42/0.84 µm driver and do not transfer automatically to this pair.
 The 0.9·VDD screen, 2.10 ns phase, 3.8 ns measurement allowance and sampled
 250 ps guard remain experimental. No new nominal temperature, clock frequency,
 rail-excursion allowance or reliability limit is approved by this physical

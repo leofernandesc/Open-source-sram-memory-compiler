@@ -1,5 +1,12 @@
 # Captured control to PCLK/PRECH interface screen — 2026-10-09
 
+**Source-selection note, 2026-10-28:** this archived campaign uses the
+0.42/0.84 µm WL driver identified in its manifests. The six-cell release now
+selects 1.68/5.04 µm stages. See the
+[canonical-pair local-interface report](row_decoder_canonical_pair_requalification_20261028.md)
+for measurements with that selected pair. The captured-path passing counts
+below remain tied to their original sources and controlled schedule.
+
 ## Result
 
 The initial paired screen combined the captured qualifier and transistor-level

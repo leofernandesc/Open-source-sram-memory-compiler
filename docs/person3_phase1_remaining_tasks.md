@@ -12,6 +12,13 @@ layout/PEX and compiler work are assigned to Phase 2 by the current scope
 decision. Local decoder timing-contract and model-domain acceptance remain
 open electrical items; the new physical PASS does not close them.
 
+**Current selected-pair characterization:** the
+[canonical decoder/WL campaign](row_decoder_canonical_pair_requalification_20261028.md)
+uses the frozen release PEX and the reinforced 1.68/5.04 µm WL driver. The
+older captured-interface campaign below used the 0.42/0.84 µm driver; its
+passing counts apply to those original inputs. The new local campaign excludes
+capture/phase-generation circuitry and does not approve system timing.
+
 Owner: Leonardo. Branch: `feature/peripherals`. Updated: 2026-10-14.
 Target: 2026-10-13. This is a dependency-based work plan, not evidence that a
 pending check has passed. The compiler and generated macro views belong to

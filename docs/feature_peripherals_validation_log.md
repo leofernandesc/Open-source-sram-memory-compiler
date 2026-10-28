@@ -2700,3 +2700,46 @@ The six-cell physical verifier was rerun successfully to refresh its binding
 to the corrected audit-script hash. Its DRC/LVS and 30 negative controls still
 pass. The retained G7 supporting result and all cell/mask/PEX bytes remain
 unchanged; no new parasitic extraction or electrical simulation was performed.
+
+## 2026-10-28: local decoder/WL requalification with the frozen pair
+
+Added `run_canonical_decoder_wl.py`, which checks the frozen release hashes
+and instantiates its unchanged 29-MOS decoder PEX plus four selected
+1.68/5.04 µm WL-driver PEX leaves. This addresses the changed WL selection:
+the old captured-interface matrix used 0.42/0.84 µm stages. The old datasets
+remain archived for their own hashes and stimuli.
+
+An initial TT `0→3` pilot passed; its exploratory files are retained outside
+the checkout in the local SRAM characterization cache. The final campaign
+repeats that transition with the archived final runner. Eight regression tests
+passed, including rejection of changed evidence, wrong row activation, late
+settling and incomplete records. The main matrix then passed 48/48 cases:
+all 16 ordered address pairs in TT/1.8 V/27 °C, SS/1.62 V/−40 °C and
+FF/1.8 V/125 °C. Functional checks passed 2,064/2,064. All 48 cases passed
+the separate 1.95 V external-terminal magnitude screen; ngspice logs contain
+no warning/error lines.
+
+At 102.873935496 fF per WL, PCLK50-to-WL90 ranges are 582.53–590.23 ps
+(TT), 983.81–990.60 ps (SS), and 489.48–496.96 ps (FF). Maximum monitored
+external-terminal magnitude is 1.872857 V. Selected-WL minima in the fixed
+3.8 ns settled window are approximately VDD; the SS minimum is 1.620000 V.
+These screens do not define safe bitcell access timing, intrinsic model
+validity, supported clock frequency or arbitrary power-up behavior.
+
+```bash
+./tools/sram-eda python3 -m unittest discover -s sims/row_decoder \
+  -p 'test_run_canonical_decoder_wl.py' -v
+./tools/sram-eda python3 sims/row_decoder/run_canonical_decoder_wl.py \
+  --output-dir sims/row_decoder/results/canonical_pair_matrix_20261028
+./tools/sram-eda python3 sims/row_decoder/plot_canonical_decoder_wl.py \
+  sims/row_decoder/results/canonical_pair_matrix_20261028
+```
+
+The [report](row_decoder_canonical_pair_requalification_20261028.md) links
+the runner/helper snapshots, native-model hashes, 48 decks and logs, checks,
+bias extrema, six selected waveform CSVs and four inspected/exported figures.
+The new local bench uses controlled PCLK/address, not the capture/phase chain;
+there is no direct numerical before/after comparison with the old captured
+matrix. No layout change, sizing change or new PEX was required. Next, delimit
+the local precharge/address/evaluation contract and resolve signed bias/model
+acceptance. Physical macro/control integration remains Phase 2 work.
