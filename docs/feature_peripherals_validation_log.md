@@ -2798,3 +2798,61 @@ and [integrity check](../sims/row_decoder/results/canonical_timing_review_202610
 The remaining Phase 1 electrical decision is explicit acceptance of the
 bounded timing/margin criteria and disposition of signed intrinsic-model
 findings. Full physical control/PCLK and macro access remain Phase 2 work.
+
+
+## 2026-10-28: canonical intrinsic-state probes and passive-island DC review
+
+Added a focused probe of all 45 actual BSIM4 primitive instances in the frozen
+29-MOS decoder/four-WL-driver pair. Two transitions (1→2, 3→2), three existing
+TT/SS/FF experimental profiles and three initializations give 18 main cases.
+All 522 local timing/selection checks pass. Two OP sensitivity cases add 58
+passing checks. Native wrappers/model includes, primitive identifiers, queried
+states, executable, source/helper snapshots, decks, logs and raw hashes are
+retained. All 211 frozen physical-package files remain byte-identical.
+
+Direct normalized vgs/vds/vbs queries are converted to signed physical biases
+with the BSIM4.5 reverse-mode convention verified against ngspice-44.2 source.
+After 2 ns, NFET VGS reaches -1.710505 V and PFET VGS +0.074380 V. The signs
+remain outside the published signed-range screen with OP initialization.
+VDS/VBS stay inside that screen in the focused main matrix; minimum PFET VBS
+is -0.073722 V, 26.278 mV from its -0.10 V endpoint. Maximum monitored intrinsic
+magnitude is 1.872751 V. Magnitude, signed-range and functional conclusions
+remain separate; these are not reliability/fabrication signoff results.
+
+Unregularized DC initialization of the extracted circuit exposed one passive
+capacitive island, xdec.m1_160_n1740#, coupled through 27.3372 fF and connected
+to no leaf port or MOS terminal. Six requested OP variants wrote transients
+but reported singular-matrix and failed gmin/source-stepping warnings; those
+DC initializations were rejected. Their original decks/logs/error records
+are retained in the new review directory. Complete early-attempt archives and
+two preflights remain in the local characterization cache.
+
+The accepted OP bench adds a simulation-only 1e12-ohm reference to that island
+only. An anchored-UIC control quantifies the effect independently of OP startup.
+The original unmodified UIC remains a control; all six cases reproduce their
+1,800 archived plot samples bitwise after adding intrinsic probes. The R·C
+constant is 27.34 ms, compared with 20.5 ns transients. Raising the reference
+to 1e15 ohm in SS 3→2 and FF 1→2 changes signed extrema by at most 0.10144 mV;
+interpolated WL90 changes are below 0.01 ps, below the 5 ps maximum timestep
+and not a claim of that timing accuracy. No active node or frozen PEX is
+changed. Startup PFET VBS excursions disappear with OP, while the post-startup
+VGS findings persist.
+
+Eleven scientific regression tests pass, covering polarity/reverse-mode
+conversion, unclipped signed findings, absent/nonfinite probes, sampled
+interval duration and exclusion of active terminals from automatic DC anchors.
+The reviewer verifies raw hashes locally, reproduces signed/event CSVs from
+all retained raw probes, rechecks functional measurements and reference
+matches, and verifies native-model and frozen-input hashes. Three exported
+figures were visually inspected. Raw files remain locally ignored; source,
+CSV/event/plot evidence, provenance and checksums are committed for reproduction.
+
+The existing launcher refreshed a stale Xauthority bind before restarting the
+container; the installed toolchain/PDK was reused without reinstallation.
+
+The [intrinsic-state report](row_decoder_canonical_intrinsic_review_20261028.md)
+recommends retaining the circuit and considering a bounded experimental Phase 1
+handoff with the model-domain caveat explicitly open. The proposed acceptance
+is not assumed. Full intrinsic-domain qualification would instead require a
+model/provider or advisor disposition of off-state/reverse-mode validity.
+The report does not silently promote this engineering screen to a foundry rule.

@@ -33,6 +33,21 @@ explicit timing/margin and signed intrinsic-model-domain disposition for this
 bounded reference point; do not infer macro frequency or full bitcell access
 from the local screen. Complete macro/control physical work remains Phase 2.
 
+**Intrinsic-state follow-up measured, 2026-10-28:** the
+[canonical model-state review](row_decoder_canonical_intrinsic_review_20261028.md)
+now probes all 45 decoder/WL MOS in two transitions × three profiles × three
+initializations: 18 main cases and 522/522 functional checks. Two passive-island
+reference-resistance sensitivity cases add 58/58 passing checks. VDS/VBS remain
+inside the published signed-range screen after 2 ns in the focused matrix;
+NFET VGS down to -1.710505 V and PFET VGS up to +0.074380 V persist, including
+with OP initialization. One passive capacitive island prevents unregularized
+DC convergence; the testbench supplies a documented weak reference on that
+island only, with matched UIC and 1000× resistance-sensitivity controls.
+The PEX and all 211 frozen-package files remain unchanged. The recommendation
+is to retain the circuit and consider a bounded experimental Phase 1 handoff
+with an explicit model-domain caveat. Acceptance of that scope remains open;
+these measurements do not grant full model or reliability qualification.
+
 Owner: Leonardo. Branch: `feature/peripherals`. Updated: 2026-10-14.
 Target: 2026-10-13. This is a dependency-based work plan, not evidence that a
 pending check has passed. The compiler and generated macro views belong to

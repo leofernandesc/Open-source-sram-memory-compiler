@@ -103,3 +103,13 @@ scope definition, while its recorded experiments remain valid for their inputs.
 The scope and physical gates can now be reviewed as a concrete package. The
 remaining electrical items must be resolved or explicitly accepted with their
 bounded operating conditions before calling all of Phase 1 electrically closed.
+
+The [focused intrinsic-state review](row_decoder_canonical_intrinsic_review_20261028.md)
+adds 18 main probes and two DC-reference sensitivity cases, with 580/580 local
+functional checks passing. It confirms post-startup signed VGS findings while
+VDS/VBS stay inside the published signed-range screen in the measured subset.
+The weak reference exists only in the OP/anchored-UIC testbench on a passive
+capacitive island, with the original UIC circuit retained as a control. No
+delivered physical artifact is changed. The proposed disposition is a bounded
+experimental handoff with that model-domain limitation explicitly open; team
+acceptance is not assumed or recorded as complete by this report.

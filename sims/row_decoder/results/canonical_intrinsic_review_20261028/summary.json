@@ -1,0 +1,50 @@
+{
+  "status": "MEASURED_REVIEW_REQUIRED",
+  "cases": 18,
+  "devices_per_case": 45,
+  "device_cases": 810,
+  "signed_metric_rows": 4860,
+  "functional_checks": 522,
+  "raw_sha_verified": true,
+  "retained_signed_csvs_reproduced": true,
+  "frozen_files_unchanged": 211,
+  "native_model_hashes_verified": true,
+  "sensitivity": [
+    {
+      "case": "ss_3_to_2_op",
+      "nominal_r_ohm": 1000000000000.0,
+      "sensitivity_r_ohm": 1000000000000000.0,
+      "max_signed_extremum_change_v": 0.00010143868231415887,
+      "wl90_delay_change_ps": 0.007757841597708648,
+      "functional_checks": 29,
+      "max_dc_anchor_current_a": 1.245706211867919e-16
+    },
+    {
+      "case": "ff_1_to_2_op",
+      "nominal_r_ohm": 1000000000000.0,
+      "sensitivity_r_ohm": 1000000000000000.0,
+      "max_signed_extremum_change_v": 9.963683121716471e-05,
+      "wl90_delay_change_ps": 0.0013292193680740638,
+      "functional_checks": 29,
+      "max_dc_anchor_current_a": 1.3258968544060604e-16
+    }
+  ],
+  "uic_reference_cases": 6,
+  "uic_saved_plot_samples_all_bitwise_equal": true,
+  "max_intrinsic_magnitude_v": 1.8727512016368966,
+  "raw_storage": "Ignored local waveform.raw files; hashes are retained. Rerun --keep-raw before this review on another machine.",
+  "scope": "18 focused probes, not an all-address or full PVT intrinsic qualification. Signed-range mapping is an engineering screen.",
+  "runner_sha256": "d97831d59090c0ae4ea19e3459b714996a6ce51b698a32a039651360182e8928",
+  "inputs": {
+    "sims/row_decoder/results/canonical_intrinsic_tt_20261028/manifest.json": "cd2db001d16295f9eb4b9de145942b40ef2bdfbda921a42363b537a29835a99f",
+    "sims/row_decoder/results/canonical_intrinsic_ss_20261028/manifest.json": "87aacbc36b73beb6091e5a12c5cea01b81e3e3af9e80d63699e10472cf0ef0f7",
+    "sims/row_decoder/results/canonical_intrinsic_ff_20261028/manifest.json": "39745371839b0d912f0dd2ee8553cb15e5f8142596f2ec153f3c6cd853aeda60",
+    "sims/row_decoder/results/canonical_intrinsic_sensitivity_ss_20261028/manifest.json": "2746c2987b0043ded652e402015101722954ca439fac2fd19b299cb77cab3aa3",
+    "sims/row_decoder/results/canonical_intrinsic_sensitivity_ff_20261028/manifest.json": "926fe51b738eaaecaeab852f2216e5f9d9a76c6639b5ae22d89ecd9337c1a2cf"
+  },
+  "plots": {
+    "intrinsic_domain_screen.png": "11c6a9297ad0624ae7ac7b2d7883f02bd7efffb4af63540bc9a137ce2b2ede1e",
+    "intrinsic_vbs_startup.png": "0daff149a20b53861402d671fdd15573a63c1c1f0cdedf3eaa57aea7051fe2b2",
+    "intrinsic_vgs_initialization.png": "a8615a6908ce9bd1b2f5bf297080ce46cb769a08c0e6b371961698cbed614d78"
+  }
+}

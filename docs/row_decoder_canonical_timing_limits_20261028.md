@@ -271,3 +271,8 @@ resolution or explicit bounded acceptance. The team must also approve the
 relevant timing/margin criteria and operating conditions. A finite hold sweep
 does not prove indefinite clock stopping or replace a noise/mismatch policy.
 Capture/phase-source layout and full 4×8 write/read/readback remain Phase 2.
+
+The [intrinsic-state follow-up](row_decoder_canonical_intrinsic_review_20261028.md)
+now measures the remaining model-domain question directly on the frozen PEX.
+It retains separate functional, magnitude and signed-range conclusions and
+an explicit, unaccepted proposal for the Phase 1 disposition.
