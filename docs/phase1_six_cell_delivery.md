@@ -81,8 +81,16 @@ DRC/LVS evidence are closed for these hashes. The
 [release audit](../release/phase1/verification/release_audit.json) also confirms
 129 archived electrical rows and their selected leaf PEX hashes.
 
-Full electrical Phase 1 acceptance still requires a documented local timing
-contract and resolution/acceptance of the decoder's model-domain findings.
+Full electrical Phase 1 acceptance still requires explicit acceptance of the
+local timing contract and resolution/acceptance of the decoder's model-domain findings.
+The [local timing proposal](row_decoder_canonical_timing_limits_20261028.md)
+now supplies a measured reference point: PCLK low/high 3/2.5 ns with 2.1 ns
+address lead, 50 ps ramps and 102.873935496 fF/WL. It passes 48/48 ordered
+pair/profile cases and 1,392 checks, including an internal-literal lead screen;
+the smallest measured lead is 895.224 ps against the experimental 250 ps guard.
+The proposal and its margin criteria still require explicit acceptance, and
+signed intrinsic-model-domain qualification remains open. The scope is a local
+two-pulse handoff, rather than supported macro frequency or full SRAM access.
 The [frozen decoder/WL local-interface campaign](row_decoder_canonical_pair_requalification_20261028.md)
 uses the selected 1.68/5.04 µm WL stages. Earlier captured-path results used
 the smaller 0.42/0.84 µm driver and do not transfer automatically to this pair.

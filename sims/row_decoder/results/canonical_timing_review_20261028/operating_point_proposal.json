@@ -1,0 +1,82 @@
+{
+  "status": "PROPOSED_LOCAL_REFERENCE_POINT",
+  "date": "2026-10-28",
+  "decision": "Prefer measured timing margin and robustness over the shorter-lead candidate; no sizing or layout changes.",
+  "reference_schedule": {
+    "pclk_low_ns": 3,
+    "pclk_high_ns": 2.5,
+    "external_address_lead_before_pclk50_ps": 2100,
+    "edge_ramp_ps": 50,
+    "hold_address": "Through evaluation and recovery",
+    "row_load_ff": 102.873935496
+  },
+  "experimental_criteria": {
+    "internal_literal_guard_ps": 250,
+    "continuous_output_reset_dwell_ns": 0.1,
+    "selected_DEC_WL_high90_dwell_ns": 0.25,
+    "external_terminal_magnitude_screen_v": 1.95
+  },
+  "profiles": {
+    "tt": [
+      "tt",
+      1.8,
+      27
+    ],
+    "ss": [
+      "ss",
+      1.62,
+      -40
+    ],
+    "ff": [
+      "ff",
+      1.8,
+      125
+    ]
+  },
+  "confirmed_cases": 48,
+  "unique_ordered_address_pairs_per_profile": 16,
+  "functional_checks": 1392,
+  "measured": {
+    "tt": {
+      "cases": 16,
+      "min_literal_lead_ps": 1459.2606591893064,
+      "min_reset_dwell_ns": 2.383474009008845,
+      "min_selected_high90_dwell_ns": 1.8884359807920705,
+      "max_external_bias_v": 1.8726132554326587,
+      "wl90_delay_min_ps": 581.3438875106373,
+      "wl90_delay_max_ps": 587.1182685697509
+    },
+    "ss": {
+      "cases": 16,
+      "min_literal_lead_ps": 895.2238623961883,
+      "min_reset_dwell_ns": 1.8487521904877828,
+      "min_selected_high90_dwell_ns": 1.4924035635549655,
+      "max_external_bias_v": 1.6893241207734493,
+      "wl90_delay_min_ps": 977.7666412025055,
+      "wl90_delay_max_ps": 985.1621813692083
+    },
+    "ff": {
+      "cases": 16,
+      "min_literal_lead_ps": 1617.7500259387741,
+      "min_reset_dwell_ns": 2.513506792384352,
+      "min_selected_high90_dwell_ns": 1.9814412544336009,
+      "max_external_bias_v": 1.8722707954192095,
+      "wl90_delay_min_ps": 488.37330245814326,
+      "wl90_delay_max_ps": 493.7413572049173
+    }
+  },
+  "campaign_manifests": [
+    "sims/row_decoder/results/canonical_contract_robust_20261028/manifest.json",
+    "sims/row_decoder/results/canonical_contract_robust_ff_remaining_a_20261028/manifest.json",
+    "sims/row_decoder/results/canonical_contract_robust_ff_remaining_b_20261028/manifest.json",
+    "sims/row_decoder/results/canonical_contract_robust_ff_remaining_c_20261028/manifest.json",
+    "sims/row_decoder/results/canonical_contract_robust_ss_remaining_20261028/manifest.json",
+    "sims/row_decoder/results/canonical_contract_robust_tt_remaining_20261028/manifest.json"
+  ],
+  "release_manifest_sha256": "fb3f8cd565ad16a5faac28e291f13d57763a4162a10f0ae22095e22710e555ba",
+  "acceptance_still_open": [
+    "Team acceptance of the bounded timing/margin criteria and operating conditions",
+    "Signed intrinsic BSIM4 model-domain disposition"
+  ],
+  "scope": "Two-pulse local decoder/WL PEX handoff at this exact reference point; no supported macro frequency, physical bitcell access, arbitrary startup, indefinite clock stop, statistical/noise or sustained-cycle qualification."
+}

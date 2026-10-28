@@ -129,3 +129,8 @@ acceptable electrical margin. Resolve the existing signed model-domain
 findings before calling the decoder electrically closed. Capture/PCLK-source
 physical implementation and complete macro read/write/readback remain Phase 2
 tasks under the agreed six-cell boundary.
+
+The [timing-boundary follow-up](row_decoder_canonical_timing_limits_20261028.md)
+now records failing and passing phase/address samples and an all-transition
+larger-margin reference point with the same frozen pair. It preserves the
+distinction between measured screens and approved timing/model qualification.

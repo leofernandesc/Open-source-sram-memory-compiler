@@ -19,6 +19,20 @@ older captured-interface campaign below used the 0.42/0.84 µm driver; its
 passing counts apply to those original inputs. The new local campaign excludes
 capture/phase-generation circuitry and does not approve system timing.
 
+**Local timing proposal measured, 2026-10-28:** the
+[frozen-pair timing-boundary report](row_decoder_canonical_timing_limits_20261028.md)
+retains 120 cases, including 20 intentional timing rejections. The selected
+robustness-oriented reference point (PCLK low 3 ns, high 2.5 ns, external
+address lead 2.1 ns, 50 ps ramps, 102.873935496 fF/WL) passes all 16 ordered
+address pairs in TT/SS/FF: 48/48 cases and 1,392/1,392 local checks, including
+the experimental 250 ps internal-literal guard. Its worst measured guard lead
+is 895.224 ps in SS. The shorter 1.5 ns lead passed its 12 critical cases but
+left only 41.773 ps beyond that guard, so the larger-margin point is selected
+for the proposal. No sizing/layout change or new PEX was needed. Next, obtain
+explicit timing/margin and signed intrinsic-model-domain disposition for this
+bounded reference point; do not infer macro frequency or full bitcell access
+from the local screen. Complete macro/control physical work remains Phase 2.
+
 Owner: Leonardo. Branch: `feature/peripherals`. Updated: 2026-10-14.
 Target: 2026-10-13. This is a dependency-based work plan, not evidence that a
 pending check has passed. The compiler and generated macro views belong to

@@ -2743,3 +2743,58 @@ there is no direct numerical before/after comparison with the old captured
 matrix. No layout change, sizing change or new PEX was required. Next, delimit
 the local precharge/address/evaluation contract and resolve signed bias/model
 acceptance. Physical macro/control integration remains Phase 2 work.
+
+
+## 2026-10-28: frozen decoder/WL timing boundaries and robust local proposal
+
+Kept the frozen 29-MOS decoder and reinforced WL-driver PEX unchanged. Added
+an explicit one-thread ngspice boundary runner, preserving fixed 0.10 ns
+all-output reset and 0.25 ns simultaneous DEC/WL high90 dwell criteria.
+Optional internal-literal probing verifies a 250 ps stable lead before
+PCLK50, including all saved true/complement input-terminal segments.
+
+The complete study retains 120 measured cases, with zero simulator errors:
+100 timing-screen passes and 20 intentional rejections. Those negative points
+include inadequate address lead, incomplete reset and too-short evaluation;
+they remain evidence. All 120 separate external-magnitude screens pass, with
+the maximum 1.919520 V occurring in a rejected boundary case. No signed
+intrinsic-model-domain or reliability approval is inferred from that screen.
+
+The first 2/2.5 ns low/high, 1.5 ns address-lead proposal passed its 12 critical
+cases, but the worst SS literal lead of 291.773 ps left only 41.773 ps beyond
+the diagnostic guard. Following the user's robustness priority, selected
+3/2.5 ns low/high and 2.1 ns address lead as the new local reference proposal.
+It passed all 16 old/new pairs in each TT/SS/FF profile: 48/48 cases and
+1,392/1,392 checks, including the internal guard. Minimum measured literal
+lead is 895.224 ps; minimum reset and high90 dwell are 1.848752/1.492404 ns.
+Each WL carries the pinned 102.873935496 fF full-row load, with 50 ps ramps.
+These are two-pulse local interface screens, not complete SRAM access or a
+supported macro frequency. Finite FF holds of 20/50 ns pass their two cases;
+indefinite clock-stop and statistical/noise acceptance remain unqualified.
+
+Nine analyzer tests pass. Seven artifact-inspection regressions pass in
+normal, -O and -OO Python: 30 total test executions. The inspection accepts
+valid failing boundary data but rejects forged PASS/check/bias values,
+changed runner snapshots, missing cases and incomplete campaigns. It checks
+120-case coverage, per-case recorded decisions, all runner/helper/PEX binding
+hashes and all 211 frozen release files. Recorded counts are 3,386 passed
+and 34 failed diagnostic assertions; the 34 failures belong to the intended
+negative samples. Eight figures, source/model manifests, decks, logs, checks,
+voltage extrema and waveform CSVs are retained with a new checksum index.
+
+Native ngspice startup forced eight threads despite the environment/options
+settings in early resource-control attempts. The accepted runner overrides
+num_threads inside .control and requires the one-thread log marker. Early
+aborted/superseded attempts remain outside the checkout in the local cache;
+accepted jobs used at most three single-thread simulations concurrently.
+No global configuration, sizing, schematic, layout, DRC/LVS evidence or PEX
+was changed, and no new parasitic extraction was performed.
+
+Evidence and reproduction commands are in the
+[timing-boundary report](row_decoder_canonical_timing_limits_20261028.md),
+with the machine-readable
+[reference proposal](../sims/row_decoder/results/canonical_timing_review_20261028/operating_point_proposal.json)
+and [integrity check](../sims/row_decoder/results/canonical_timing_review_20261028/evidence_audit.json).
+The remaining Phase 1 electrical decision is explicit acceptance of the
+bounded timing/margin criteria and disposition of signed intrinsic-model
+findings. Full physical control/PCLK and macro access remain Phase 2 work.
