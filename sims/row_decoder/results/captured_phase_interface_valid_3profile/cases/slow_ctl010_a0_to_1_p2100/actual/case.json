@@ -1,0 +1,1689 @@
+{
+  "case": "slow_ctl010_a0_to_1_p2100",
+  "mode": "actual",
+  "profile": "slow",
+  "control_vector": "010",
+  "operation": "write",
+  "address_transition": "0:1",
+  "status": "REJECTED_SCREEN",
+  "check_failures": 2,
+  "decoder_logic_check_failures": 2,
+  "metrics": {
+    "capture_edge_ns": 14.999999999999998,
+    "q_rise_ns": 15.401570257611532,
+    "q_fall_ns": null,
+    "capture_to_q_rise_ps": 401.5702576115327,
+    "capture_to_q_fall_ps": null,
+    "q_capture_v": 1.620704419667055,
+    "q_high_hold_v": 1.6200890254923705,
+    "q_falling_hold_v": 1.6200488078504942,
+    "q_min_v": -0.1127854472673317,
+    "q_max_v": 1.8117534389296348,
+    "peak_below_vss_v": 0.1127854472673317,
+    "peak_above_vdd_v": 0.1917534389296347,
+    "a0_q_post_capture_v": 1.5815534681931924,
+    "a0_q_after_live_address_change_v": 1.6199732321343174,
+    "a1_q_post_capture_v": -0.0014315240959769401,
+    "a1_q_after_live_address_change_v": -7.2787138458552504e-06,
+    "capture_to_pclk_rise_ps": 3517.4620688244704,
+    "capture_to_prech_release_ps": 2718.1016088172632,
+    "prech_release_lead_before_pclk_ps": 799.3604600072073,
+    "pclk_fall_after_clock_fall_ps": 0.0,
+    "pclk_fall_to_precharge_conduction_ps": 4352.388756654488,
+    "pclk_rise_ns": 18.517462068824468,
+    "pclk_fall_ns": 22.246021746251838,
+    "pclk_rise_slew_ps": 266.3178458047915,
+    "pclk_fall_slew_ps": 120.45712046630013,
+    "prech_release_ns": 17.71810160881726,
+    "prech_assert_ns": 26.598410502906326,
+    "precharge_timing": {
+      "bitline_external_load_ff": 583.992055,
+      "bitline_target_effective_ceiling_ff": 597.056241,
+      "minimum_release_lead_required_ps": 250.0,
+      "release_lead_measurement": "PRECH rising 75% VDD crossing to PCLK rising 50% VDD crossing",
+      "precharge_releases": [
+        {
+          "cycle": "access",
+          "precharge_release_s": 1.7718101608817262e-08,
+          "pclk_rise_s": 1.851746206882447e-08,
+          "lead_ps": 799.3604600072073
+        }
+      ],
+      "precharge_reassertions": [
+        {
+          "cycle": "access",
+          "pclk_fall_s": 2.224602174625184e-08,
+          "precharge_assert_s": 2.6598410502906327e-08,
+          "pclk_fall_to_precharge_conduction_ps": 4352.388756654488,
+          "selected_wl_off_clearance_ps": 2564.5364139962544,
+          "selected_wl_below_10pct_s": 2.4033874088910072e-08
+        }
+      ],
+      "bitline_minimum_at_end_v": 1.620006198779237
+    },
+    "decoder_model_upper_result": "PASS",
+    "decoder_terminal_magnitude_result": "PASS",
+    "terminal_rows": [
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.0",
+        "voltage": "VGS",
+        "min_v": -0.8612572734189807,
+        "max_v": 1.6652349014543097,
+        "min_time_ns": 18.303710573138602,
+        "max_time_ns": 22.1294434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.0",
+        "voltage": "VGD",
+        "min_v": -0.02172932061812019,
+        "max_v": 1.665539299979226,
+        "min_time_ns": 18.303710573138602,
+        "max_time_ns": 22.1294434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.0",
+        "voltage": "VDS",
+        "min_v": -0.8723884944481268,
+        "max_v": 0.030548607389007595,
+        "min_time_ns": 18.51971057313885,
+        "max_time_ns": 22.28643759529475
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.0",
+        "voltage": "VBS",
+        "min_v": -0.8726256300001005,
+        "max_v": 0.029251961024566665,
+        "min_time_ns": 18.52071057313885,
+        "max_time_ns": 22.28643759529475
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.1",
+        "voltage": "VGS",
+        "min_v": -1.6578531655720712,
+        "max_v": 0.13413860256403276,
+        "min_time_ns": 18.625710573138967,
+        "max_time_ns": 1.2944901186193398
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.1",
+        "voltage": "VGD",
+        "min_v": -0.8213545070770386,
+        "max_v": 1.0019261608134244,
+        "min_time_ns": 18.544710573138875,
+        "max_time_ns": 1.1584901186193264
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.1",
+        "voltage": "VDS",
+        "min_v": -1.6560787396512922,
+        "max_v": -0.07106265657147909,
+        "min_time_ns": 22.25143759529471,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.1",
+        "voltage": "VBS",
+        "min_v": -1.657842387025653,
+        "max_v": -0.04330454524632116,
+        "min_time_ns": 18.61771057313896,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.2",
+        "voltage": "VGS",
+        "min_v": -0.025157474922612,
+        "max_v": 1.656698664125503,
+        "min_time_ns": 0.046490118619306534,
+        "max_time_ns": 18.595710573138934
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.2",
+        "voltage": "VGD",
+        "min_v": -1.1203388086495947,
+        "max_v": 0.03767326697927098,
+        "min_time_ns": 0.009912410529698176,
+        "max_time_ns": 18.60071057313894
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.2",
+        "voltage": "VDS",
+        "min_v": 0.06801462707613792,
+        "max_v": 1.6206916554134945,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 1.086490118619319
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.2",
+        "voltage": "VBS",
+        "min_v": -0.03742509722673509,
+        "max_v": 1.620224376023155,
+        "min_time_ns": 5.780236412711381e-05,
+        "max_time_ns": 22.271437595294735
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.3",
+        "voltage": "VGS",
+        "min_v": -1.6556751378319021,
+        "max_v": 0.026959357059804567,
+        "min_time_ns": 5.350503437364898,
+        "max_time_ns": 22.87426933531449
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.3",
+        "voltage": "VGD",
+        "min_v": -0.12091046427139604,
+        "max_v": 0.8881257394469833,
+        "min_time_ns": 5.3525034373648985,
+        "max_time_ns": 15.768051044534348
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.3",
+        "voltage": "VDS",
+        "min_v": -1.5350261644102632,
+        "max_v": -0.07034953054976824,
+        "min_time_ns": 5.345503437364896,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.3",
+        "voltage": "VBS",
+        "min_v": -1.6599080074952461,
+        "max_v": -0.04667902370586757,
+        "min_time_ns": 18.624710573138966,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.4",
+        "voltage": "VGS",
+        "min_v": -1.6892263237181169,
+        "max_v": 1.7161089519962842,
+        "min_time_ns": 15.327051044533848,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.4",
+        "voltage": "VGD",
+        "min_v": -0.07147515925658059,
+        "max_v": 1.7176057112153666,
+        "min_time_ns": 15.327051044533848,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.4",
+        "voltage": "VDS",
+        "min_v": -1.6467267663360792,
+        "max_v": 0.04018587892186006,
+        "min_time_ns": 15.453051044533991,
+        "max_time_ns": 5.3435034373648955
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.4",
+        "voltage": "VBS",
+        "min_v": -1.6473765996423329,
+        "max_v": 0.0388300928089518,
+        "min_time_ns": 15.455051044533993,
+        "max_time_ns": 5.3435034373648955
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.5",
+        "voltage": "VGS",
+        "min_v": -1.6427402383831284,
+        "max_v": 1.6610713464666722,
+        "min_time_ns": 22.27443759529474,
+        "max_time_ns": 18.590710573138928
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.5",
+        "voltage": "VGD",
+        "min_v": -1.6454326376661579,
+        "max_v": 0.04191495641139653,
+        "min_time_ns": 22.273437595294737,
+        "max_time_ns": 18.59371057313893
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.5",
+        "voltage": "VDS",
+        "min_v": -0.05349216395046996,
+        "max_v": 1.6921180610520163,
+        "min_time_ns": 22.807410997656245,
+        "max_time_ns": 18.76771057313913
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.5",
+        "voltage": "VBS",
+        "min_v": -0.05320388215562932,
+        "max_v": 1.694285242777145,
+        "min_time_ns": 22.807410997656245,
+        "max_time_ns": 18.769710573139132
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.6",
+        "voltage": "VGS",
+        "min_v": -0.13644964127754572,
+        "max_v": 1.665635922877482,
+        "min_time_ns": 0.0005621789454443418,
+        "max_time_ns": 22.1294434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.6",
+        "voltage": "VGD",
+        "min_v": 0.053527429889423134,
+        "max_v": 1.6656464465948535,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.1284434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.6",
+        "voltage": "VDS",
+        "min_v": -0.6443042515324663,
+        "max_v": 0.0008957553931603254,
+        "min_time_ns": 0.1384901186193063,
+        "max_time_ns": 22.284437595294747
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.6",
+        "voltage": "VBS",
+        "min_v": -0.6443952493370808,
+        "max_v": 0.0010688361700483548,
+        "min_time_ns": 0.1394901186193063,
+        "max_time_ns": 22.28543759529475
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.7",
+        "voltage": "VGS",
+        "min_v": -1.6524801837668193,
+        "max_v": 1.647120601457087,
+        "min_time_ns": 5.350503437364898,
+        "max_time_ns": 22.863620741168305
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.7",
+        "voltage": "VGD",
+        "min_v": -0.0377040005651826,
+        "max_v": 1.6472125425010815,
+        "min_time_ns": 5.350503437364898,
+        "max_time_ns": 22.861410997656307
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.7",
+        "voltage": "VDS",
+        "min_v": -1.6753666916831902,
+        "max_v": 0.004142437184724525,
+        "min_time_ns": 5.79731568081538,
+        "max_time_ns": 22.273437595294737
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.7",
+        "voltage": "VBS",
+        "min_v": -1.6754889741413448,
+        "max_v": 0.004766171015048881,
+        "min_time_ns": 5.799315680815381,
+        "max_time_ns": 22.27443759529474
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.8",
+        "voltage": "VGS",
+        "min_v": -0.9170471049525141,
+        "max_v": 0.7661514652311345,
+        "min_time_ns": 5.344503437364896,
+        "max_time_ns": 15.460051044533998
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.8",
+        "voltage": "VGD",
+        "min_v": -0.8682604479813237,
+        "max_v": 0.8306793030951177,
+        "min_time_ns": 18.522710573138852,
+        "max_time_ns": 7.269401735507217
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.8",
+        "voltage": "VDS",
+        "min_v": -0.6116373940597641,
+        "max_v": 0.2574036239942632,
+        "min_time_ns": 22.281437595294744,
+        "max_time_ns": 18.52071057313885
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.8",
+        "voltage": "VBS",
+        "min_v": -1.0324370339125506,
+        "max_v": -0.004692593350239471,
+        "min_time_ns": 5.932401735506807,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.9",
+        "voltage": "VGS",
+        "min_v": -1.641060937963706,
+        "max_v": 0.17818270910495648,
+        "min_time_ns": 18.304710573138603,
+        "max_time_ns": 0.0006748169203080629
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.9",
+        "voltage": "VGD",
+        "min_v": -1.64168055149703,
+        "max_v": 0.04561390318858494,
+        "min_time_ns": 18.303710573138602,
+        "max_time_ns": 22.1284434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.9",
+        "voltage": "VDS",
+        "min_v": -0.046863681682217884,
+        "max_v": 1.1533624311496964,
+        "min_time_ns": 18.801710573139168,
+        "max_time_ns": 0.0017392983838740096
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.9",
+        "voltage": "VBS",
+        "min_v": -0.046816899090902364,
+        "max_v": 1.1313640090867887,
+        "min_time_ns": 18.80371057313917,
+        "max_time_ns": 0.004934049606317831
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.10",
+        "voltage": "VGS",
+        "min_v": -1.6459959732632257,
+        "max_v": 1.7016706814612268,
+        "min_time_ns": 22.87326933531449,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.10",
+        "voltage": "VGD",
+        "min_v": -1.6213971683027983,
+        "max_v": 0.08321884850114714,
+        "min_time_ns": 18.642710573138988,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.10",
+        "voltage": "VDS",
+        "min_v": -0.024735199288705267,
+        "max_v": 1.6494452223483647,
+        "min_time_ns": 22.87226933531449,
+        "max_time_ns": 5.338503437364894
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.10",
+        "voltage": "VBS",
+        "min_v": -0.026174929836190408,
+        "max_v": 1.6541067749649956,
+        "min_time_ns": 22.87226933531449,
+        "max_time_ns": 5.342503437364895
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.11",
+        "voltage": "VGS",
+        "min_v": -1.652669001016433,
+        "max_v": 1.6471056440717848,
+        "min_time_ns": 5.351503437364898,
+        "max_time_ns": 22.863055336486347
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.11",
+        "voltage": "VGD",
+        "min_v": -1.657333604350464,
+        "max_v": 0.02767263267530251,
+        "min_time_ns": 5.350503437364898,
+        "max_time_ns": 22.87226933531449
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.11",
+        "voltage": "VDS",
+        "min_v": -0.05618145658009022,
+        "max_v": 1.625300569812092,
+        "min_time_ns": 5.801315680815382,
+        "max_time_ns": 22.270437595294734
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.11",
+        "voltage": "VBS",
+        "min_v": -0.0561053244302947,
+        "max_v": 1.6252285824446007,
+        "min_time_ns": 5.801315680815382,
+        "max_time_ns": 22.271437595294735
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.12",
+        "voltage": "VGS",
+        "min_v": -1.6406405845023637,
+        "max_v": 0.17660323259383082,
+        "min_time_ns": 18.304710573138603,
+        "max_time_ns": 0.0005621789454443418
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.12",
+        "voltage": "VGD",
+        "min_v": -1.6416609720373534,
+        "max_v": 0.04561614758769417,
+        "min_time_ns": 18.303710573138602,
+        "max_time_ns": 22.1284434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.12",
+        "voltage": "VDS",
+        "min_v": -0.04053653476425767,
+        "max_v": 1.1674805859191106,
+        "min_time_ns": 18.62871057313897,
+        "max_time_ns": 0.0012959319032499364
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.12",
+        "voltage": "VBS",
+        "min_v": -0.040064726381155547,
+        "max_v": 1.1195607240318906,
+        "min_time_ns": 18.631710573138974,
+        "max_time_ns": 0.003945440057878502
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.13",
+        "voltage": "VGS",
+        "min_v": -1.6664249392544637,
+        "max_v": 0.05474244268815753,
+        "min_time_ns": 18.655710573139004,
+        "max_time_ns": 5.803315680815382
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.13",
+        "voltage": "VGD",
+        "min_v": -1.0162414219911475,
+        "max_v": 0.9152017453137586,
+        "min_time_ns": 6.851401735507089,
+        "max_time_ns": 1.0974901186193202
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.13",
+        "voltage": "VDS",
+        "min_v": -1.459655171541859,
+        "max_v": -0.0661070642626215,
+        "min_time_ns": 0.8944901186193037,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.13",
+        "voltage": "VBS",
+        "min_v": -1.6656523289166771,
+        "max_v": -0.04211803229538405,
+        "min_time_ns": 22.1284434929539,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.14",
+        "voltage": "VGS",
+        "min_v": -1.6893297365917204,
+        "max_v": 1.71593729937385,
+        "min_time_ns": 15.327051044533848,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.14",
+        "voltage": "VGD",
+        "min_v": -1.6913349116931902,
+        "max_v": 0.09785004288071253,
+        "min_time_ns": 15.327051044533848,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.14",
+        "voltage": "VDS",
+        "min_v": -0.02826322751109278,
+        "max_v": 1.6504704053299812,
+        "min_time_ns": 15.459051044533997,
+        "max_time_ns": 5.331503437364892
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.14",
+        "voltage": "VBS",
+        "min_v": -0.028192261967992627,
+        "max_v": 1.6558176570850731,
+        "min_time_ns": 15.458051044533995,
+        "max_time_ns": 5.335503437364894
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.15",
+        "voltage": "VGS",
+        "min_v": -1.6524247324824461,
+        "max_v": 1.6478260492585275,
+        "min_time_ns": 5.3435034373648955,
+        "max_time_ns": 15.461051044533999
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.15",
+        "voltage": "VGD",
+        "min_v": -0.040281067777699596,
+        "max_v": 1.648161089126917,
+        "min_time_ns": 5.3435034373648955,
+        "max_time_ns": 15.460051044533998
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.15",
+        "voltage": "VDS",
+        "min_v": -1.6798197660612084,
+        "max_v": 0.05598160901729148,
+        "min_time_ns": 5.816315680815387,
+        "max_time_ns": 15.701051044534271
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.15",
+        "voltage": "VBS",
+        "min_v": -1.6799778312464915,
+        "max_v": 0.05517812349981651,
+        "min_time_ns": 5.818315680815387,
+        "max_time_ns": 15.701051044534271
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.16",
+        "voltage": "VGS",
+        "min_v": -1.6527182705891768,
+        "max_v": 1.6477807337277735,
+        "min_time_ns": 5.344503437364896,
+        "max_time_ns": 15.460051044533998
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.16",
+        "voltage": "VGD",
+        "min_v": -1.659870044532583,
+        "max_v": 0.0282407174048378,
+        "min_time_ns": 5.344503437364896,
+        "max_time_ns": 15.459051044533997
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.16",
+        "voltage": "VDS",
+        "min_v": -0.060601071403964646,
+        "max_v": 1.6712103200499664,
+        "min_time_ns": 5.820315680815388,
+        "max_time_ns": 15.695051044534265
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.16",
+        "voltage": "VBS",
+        "min_v": -0.060543734704567864,
+        "max_v": 1.673358351190062,
+        "min_time_ns": 5.820315680815388,
+        "max_time_ns": 15.69805104453427
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.17",
+        "voltage": "VGS",
+        "min_v": -1.6410494928561339,
+        "max_v": 1.665041685650445,
+        "min_time_ns": 18.304710573138603,
+        "max_time_ns": 22.1284434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.17",
+        "voltage": "VGD",
+        "min_v": -1.6416815037294712,
+        "max_v": 0.04561488289798277,
+        "min_time_ns": 18.303710573138602,
+        "max_time_ns": 22.1284434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.17",
+        "voltage": "VDS",
+        "min_v": -0.04193285593690321,
+        "max_v": 1.6421692578193325,
+        "min_time_ns": 18.59371057313893,
+        "max_time_ns": 22.262437595294724
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.17",
+        "voltage": "VBS",
+        "min_v": -0.041334156637987673,
+        "max_v": 1.6442649168220111,
+        "min_time_ns": 18.59371057313893,
+        "max_time_ns": 22.26643759529473
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.18",
+        "voltage": "VGS",
+        "min_v": -1.6426012100603378,
+        "max_v": 1.6610581443703425,
+        "min_time_ns": 22.273437595294737,
+        "max_time_ns": 18.590710573138928
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.18",
+        "voltage": "VGD",
+        "min_v": -0.025877330878465582,
+        "max_v": 1.6609124419932655,
+        "min_time_ns": 22.272437595294736,
+        "max_time_ns": 18.588710573138925
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.18",
+        "voltage": "VDS",
+        "min_v": -1.672161381130328,
+        "max_v": 0.07985180249334416,
+        "min_time_ns": 22.805410997656242,
+        "max_time_ns": 18.770710573139134
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.18",
+        "voltage": "VBS",
+        "min_v": -1.6722821554084235,
+        "max_v": 0.07864246937609681,
+        "min_time_ns": 22.806410997656243,
+        "max_time_ns": 18.770710573139134
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.19",
+        "voltage": "VGS",
+        "min_v": -1.6558761792237389,
+        "max_v": 1.6204558781631033,
+        "min_time_ns": 5.350503437364898,
+        "max_time_ns": 22.134437595294578
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.19",
+        "voltage": "VGD",
+        "min_v": -0.8109975515140686,
+        "max_v": 1.6205192812205043,
+        "min_time_ns": 5.350503437364898,
+        "max_time_ns": 22.139437595294584
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.19",
+        "voltage": "VDS",
+        "min_v": -1.390420554378641,
+        "max_v": 2.5179794407184577e-05,
+        "min_time_ns": 0.8464901186193039,
+        "max_time_ns": 22.032468946713035
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.19",
+        "voltage": "VBS",
+        "min_v": -1.6630468087478296,
+        "max_v": 0.026005483370462754,
+        "min_time_ns": 18.639710573138984,
+        "max_time_ns": 22.273437595294737
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.20",
+        "voltage": "VGS",
+        "min_v": -1.6411397893020443,
+        "max_v": 0.1717809574130333,
+        "min_time_ns": 18.304710573138603,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.20",
+        "voltage": "VGD",
+        "min_v": -1.6416846589235123,
+        "max_v": 0.04561367701880825,
+        "min_time_ns": 18.303710573138602,
+        "max_time_ns": 22.1284434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.20",
+        "voltage": "VDS",
+        "min_v": -0.03767715840239272,
+        "max_v": 1.14290278754688,
+        "min_time_ns": 18.59971057313894,
+        "max_time_ns": 0.0017392983838740096
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.20",
+        "voltage": "VBS",
+        "min_v": -0.037094781519324105,
+        "max_v": 1.1262270661773688,
+        "min_time_ns": 18.60071057313894,
+        "max_time_ns": 0.005
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.21",
+        "voltage": "VGS",
+        "min_v": -0.13452232513648027,
+        "max_v": 1.656684892809914,
+        "min_time_ns": 0.0005621789454443418,
+        "max_time_ns": 18.595710573138934
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.21",
+        "voltage": "VGD",
+        "min_v": 0.054074034980111596,
+        "max_v": 1.6565257861338623,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 18.595710573138934
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.21",
+        "voltage": "VDS",
+        "min_v": -0.6437109950086288,
+        "max_v": 0.0011735765900832717,
+        "min_time_ns": 0.13649011861930632,
+        "max_time_ns": 1.0894901186193193
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.21",
+        "voltage": "VBS",
+        "min_v": -0.6438812075734447,
+        "max_v": 0.0015542228856623432,
+        "min_time_ns": 0.13749011861930632,
+        "max_time_ns": 1.087490118619319
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.22",
+        "voltage": "VGS",
+        "min_v": -0.9487829416163701,
+        "max_v": 1.6324727607950626,
+        "min_time_ns": 15.702051044534272,
+        "max_time_ns": 22.277437595294742
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.22",
+        "voltage": "VGD",
+        "min_v": -0.8561695234731741,
+        "max_v": 1.634544218682592,
+        "min_time_ns": 15.473051044534014,
+        "max_time_ns": 22.28543759529475
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.22",
+        "voltage": "VDS",
+        "min_v": -0.5289210989083765,
+        "max_v": 0.13634196838143986,
+        "min_time_ns": 18.60771057313895,
+        "max_time_ns": 6.294401735506918
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.22",
+        "voltage": "VBS",
+        "min_v": -1.1745170139699186,
+        "max_v": 0.027921597811768232,
+        "min_time_ns": 16.535710573136598,
+        "max_time_ns": 22.280437595294742
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.23",
+        "voltage": "VGS",
+        "min_v": -0.13148690821396913,
+        "max_v": 1.6596094164482311,
+        "min_time_ns": 0.0004933485388712853,
+        "max_time_ns": 18.621710573138962
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.23",
+        "voltage": "VGD",
+        "min_v": 0.061552743010224634,
+        "max_v": 1.6594885914471211,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 18.624710573138966
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.23",
+        "voltage": "VDS",
+        "min_v": -0.6334676027182065,
+        "max_v": 0.0008163837778037257,
+        "min_time_ns": 0.13749011861930632,
+        "max_time_ns": 22.27943759529474
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.23",
+        "voltage": "VBS",
+        "min_v": -0.6335735261083113,
+        "max_v": 0.0009944142631775703,
+        "min_time_ns": 0.1384901186193063,
+        "max_time_ns": 22.283437595294746
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.24",
+        "voltage": "VGS",
+        "min_v": -0.013137278750532833,
+        "max_v": 1.6596227967825743,
+        "min_time_ns": 0.047490118619306534,
+        "max_time_ns": 18.621710573138962
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.24",
+        "voltage": "VGD",
+        "min_v": -1.1106721829721105,
+        "max_v": 0.040523160304563044,
+        "min_time_ns": 0.009912410529698176,
+        "max_time_ns": 18.629710573138972
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.24",
+        "voltage": "VDS",
+        "min_v": 0.16073988369132858,
+        "max_v": 1.620877099416674,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.271437595294735
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.24",
+        "voltage": "VBS",
+        "min_v": -0.008045774268973571,
+        "max_v": 1.620631279742694,
+        "min_time_ns": 5.219199428710776e-05,
+        "max_time_ns": 22.269437595294733
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.25",
+        "voltage": "VGS",
+        "min_v": -1.6474018568089999,
+        "max_v": 1.7018054372258686,
+        "min_time_ns": 22.87226933531449,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.25",
+        "voltage": "VGD",
+        "min_v": -0.0016301232739436584,
+        "max_v": 1.703017866715749,
+        "min_time_ns": 15.679051044534248,
+        "max_time_ns": 5.258858891529464
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.25",
+        "voltage": "VDS",
+        "min_v": -1.6472319905839619,
+        "max_v": 0.03763427762582359,
+        "min_time_ns": 22.862180580320167,
+        "max_time_ns": 5.3495034373648975
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.25",
+        "voltage": "VBS",
+        "min_v": -1.6472197601159666,
+        "max_v": 0.03666752870764009,
+        "min_time_ns": 22.862180580320167,
+        "max_time_ns": 5.3495034373648975
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.26",
+        "voltage": "VGS",
+        "min_v": -0.5005264616458276,
+        "max_v": 1.6350058080514958,
+        "min_time_ns": 15.702051044534272,
+        "max_time_ns": 22.292437595294757
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.26",
+        "voltage": "VGD",
+        "min_v": -0.8561692939789521,
+        "max_v": 1.6348726277282335,
+        "min_time_ns": 15.473051044534014,
+        "max_time_ns": 22.288437595294752
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.26",
+        "voltage": "VDS",
+        "min_v": -0.21720285921316762,
+        "max_v": 0.40032881049629193,
+        "min_time_ns": 18.610710573138952,
+        "max_time_ns": 15.463051044534001
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.26",
+        "voltage": "VBS",
+        "min_v": -0.8626044830289763,
+        "max_v": 0.03054757882161575,
+        "min_time_ns": 5.831719114728913,
+        "max_time_ns": 22.290437595294755
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.27",
+        "voltage": "VGS",
+        "min_v": -0.02980497803941684,
+        "max_v": 1.665634309061406,
+        "min_time_ns": 0.047490118619306534,
+        "max_time_ns": 22.1294434929539
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.27",
+        "voltage": "VGD",
+        "min_v": -1.1247596718794635,
+        "max_v": 0.046862416095384773,
+        "min_time_ns": 0.009912410529698176,
+        "max_time_ns": 18.80271057313917
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.27",
+        "voltage": "VDS",
+        "min_v": 0.08028273639188335,
+        "max_v": 1.6208931542896199,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.273437595294737
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.27",
+        "voltage": "VBS",
+        "min_v": -0.032172385663681885,
+        "max_v": 1.6206151956028054,
+        "min_time_ns": 5.780236412711381e-05,
+        "max_time_ns": 22.271437595294735
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.28",
+        "voltage": "VGS",
+        "min_v": -0.9175708731351918,
+        "max_v": 0.8187853087737148,
+        "min_time_ns": 26.999999999999996,
+        "max_time_ns": 6.669401735507033
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.28",
+        "voltage": "VGD",
+        "min_v": -0.8682680378857814,
+        "max_v": 0.8307143124893123,
+        "min_time_ns": 18.522710573138852,
+        "max_time_ns": 7.269401735507217
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.28",
+        "voltage": "VDS",
+        "min_v": -0.9094524384696656,
+        "max_v": 0.6972389125287729,
+        "min_time_ns": 22.281437595294744,
+        "max_time_ns": 5.3465034373648965
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x1.28",
+        "voltage": "VBS",
+        "min_v": -0.917588471275223,
+        "max_v": -0.007009429788017538,
+        "min_time_ns": 26.999999999999996,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.0",
+        "voltage": "VGS",
+        "min_v": -1.6212373288603596,
+        "max_v": 0.30169815416947393,
+        "min_time_ns": 22.277437595294742,
+        "max_time_ns": 0.13649011861930632
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.0",
+        "voltage": "VGD",
+        "min_v": -0.001275986854642357,
+        "max_v": 0.635164209760481,
+        "min_time_ns": 22.277437595294742,
+        "max_time_ns": 0.1394901186193063
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.0",
+        "voltage": "VDS",
+        "min_v": -1.620050552695368,
+        "max_v": -0.0022544420015792738,
+        "min_time_ns": 22.349410997655728,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.0",
+        "voltage": "VBS",
+        "min_v": -1.620050350353343,
+        "max_v": 0.0012901980742549349,
+        "min_time_ns": 22.349410997655728,
+        "max_time_ns": 5.073066476236925e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.1",
+        "voltage": "VGS",
+        "min_v": -1.6212389169272305,
+        "max_v": 0.30124014953131256,
+        "min_time_ns": 22.277437595294742,
+        "max_time_ns": 0.13649011861930632
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.1",
+        "voltage": "VGD",
+        "min_v": -1.6212740979226608,
+        "max_v": -0.2651526302399416,
+        "min_time_ns": 22.277437595294742,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.1",
+        "voltage": "VDS",
+        "min_v": -4.5901056582975386e-05,
+        "max_v": 1.3991995207244743,
+        "min_time_ns": 22.349410997655728,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.1",
+        "voltage": "VBS",
+        "min_v": -5.015414684850228e-05,
+        "max_v": 1.3309502189042388,
+        "min_time_ns": 22.346410997655724,
+        "max_time_ns": 0.003651904957217471
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.2",
+        "voltage": "VGS",
+        "min_v": 0.0009622574017793747,
+        "max_v": 1.6200491305170066,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.349410997655728
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.2",
+        "voltage": "VGD",
+        "min_v": 0.0023457974600624475,
+        "max_v": 1.6200503854435333,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.349410997655728
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.2",
+        "voltage": "VDS",
+        "min_v": -0.08081284306168976,
+        "max_v": 1.1238117161155597e-06,
+        "min_time_ns": 0.3414901186193056,
+        "max_time_ns": 22.270437595294734
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.2",
+        "voltage": "VBS",
+        "min_v": -0.08109060852502242,
+        "max_v": 0.006420522065788848,
+        "min_time_ns": 0.3484901186193056,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.3",
+        "voltage": "VGS",
+        "min_v": 0.03839365710904197,
+        "max_v": 1.620048978745914,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.349410997655728
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.3",
+        "voltage": "VGD",
+        "min_v": -1.3383292010537717,
+        "max_v": 5.054997278697293e-05,
+        "min_time_ns": 0.001996024743486285,
+        "max_time_ns": 22.349410997655728
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.3",
+        "voltage": "VDS",
+        "min_v": 0.3565645143492235,
+        "max_v": 1.6200014061864045,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.270437595294734
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x2.3",
+        "voltage": "VBS",
+        "min_v": 0.09323490306338983,
+        "max_v": 1.6200014165406642,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.27443759529474
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.0",
+        "voltage": "VGS",
+        "min_v": -1.6950059230760464,
+        "max_v": 1.6727619960660454,
+        "min_time_ns": 18.770710573139134,
+        "max_time_ns": 22.808410997656246
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.0",
+        "voltage": "VGD",
+        "min_v": -0.07820889977644652,
+        "max_v": 1.6730508208101076,
+        "min_time_ns": 18.770710573139134,
+        "max_time_ns": 22.807410997656245
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.0",
+        "voltage": "VDS",
+        "min_v": -1.6641915159249137,
+        "max_v": 0.034990433721729365,
+        "min_time_ns": 18.89771057313928,
+        "max_time_ns": 22.995269335314628
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.0",
+        "voltage": "VBS",
+        "min_v": -1.6650407259802524,
+        "max_v": 0.03490853331481855,
+        "min_time_ns": 18.89871057313928,
+        "max_time_ns": 22.995269335314628
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.1",
+        "voltage": "VGS",
+        "min_v": -1.6951362928081732,
+        "max_v": 1.6727311979593043,
+        "min_time_ns": 18.770710573139134,
+        "max_time_ns": 22.808410997656246
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.1",
+        "voltage": "VGD",
+        "min_v": -1.6980237540693544,
+        "max_v": 0.05309007498378793,
+        "min_time_ns": 18.770710573139134,
+        "max_time_ns": 22.807410997656245
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.1",
+        "voltage": "VDS",
+        "min_v": -0.04552202420872464,
+        "max_v": 1.6513994053789325,
+        "min_time_ns": 18.900710573139282,
+        "max_time_ns": 22.98926933531462
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.1",
+        "voltage": "VBS",
+        "min_v": -0.045849706098297194,
+        "max_v": 1.65415239310814,
+        "min_time_ns": 18.89971057313928,
+        "max_time_ns": 22.992269335314624
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.2",
+        "voltage": "VGS",
+        "min_v": -1.5862249832175432,
+        "max_v": 1.6643171875821907,
+        "min_time_ns": 22.99726933531463,
+        "max_time_ns": 18.900710573139282
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.2",
+        "voltage": "VGD",
+        "min_v": -0.03496141001156823,
+        "max_v": 1.665293741914777,
+        "min_time_ns": 22.995269335314628,
+        "max_time_ns": 18.900710573139282
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.2",
+        "voltage": "VDS",
+        "min_v": -1.5640082534906452,
+        "max_v": 0.004836073432314346,
+        "min_time_ns": 23.18426933531484,
+        "max_time_ns": 19.015710573139412
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.2",
+        "voltage": "VBS",
+        "min_v": -1.5641223358163494,
+        "max_v": 0.006411357729090699,
+        "min_time_ns": 23.19026933531485,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.3",
+        "voltage": "VGS",
+        "min_v": -1.5896462633388606,
+        "max_v": 1.664191852186587,
+        "min_time_ns": 22.99726933531463,
+        "max_time_ns": 18.89971057313928
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.3",
+        "voltage": "VGD",
+        "min_v": -1.651495421514932,
+        "max_v": 0.045428466794645184,
+        "min_time_ns": 22.99626933531463,
+        "max_time_ns": 18.900710573139282
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.3",
+        "voltage": "VDS",
+        "min_v": 0.05565705876939919,
+        "max_v": 1.6228190347054454,
+        "min_time_ns": 23.19926933531486,
+        "max_time_ns": 18.99871057313939
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x3.3",
+        "voltage": "VBS",
+        "min_v": 0.05565940086968779,
+        "max_v": 1.6242739319154151,
+        "min_time_ns": 23.189269335314847,
+        "max_time_ns": 19.0047105731394
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.0",
+        "voltage": "VGS",
+        "min_v": -1.6209968239203307,
+        "max_v": 0.31438584271397774,
+        "min_time_ns": 22.27943759529474,
+        "max_time_ns": 0.13649011861930632
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.0",
+        "voltage": "VGD",
+        "min_v": -0.0013201834754105635,
+        "max_v": 0.6457941123931535,
+        "min_time_ns": 1.0884901186193192,
+        "max_time_ns": 0.1384901186193063
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.0",
+        "voltage": "VDS",
+        "min_v": -1.620046166037353,
+        "max_v": -0.002262280367710978,
+        "min_time_ns": 18.66471057313901,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.0",
+        "voltage": "VBS",
+        "min_v": -1.6200459800783957,
+        "max_v": 0.0012728244894951585,
+        "min_time_ns": 18.66471057313901,
+        "max_time_ns": 5.073066476236925e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.1",
+        "voltage": "VGS",
+        "min_v": -1.62099808384807,
+        "max_v": 0.31399826707947254,
+        "min_time_ns": 22.27943759529474,
+        "max_time_ns": 0.13649011861930632
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.1",
+        "voltage": "VGD",
+        "min_v": -1.621288061310263,
+        "max_v": -0.265569088764808,
+        "min_time_ns": 1.0904901186193194,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.1",
+        "voltage": "VDS",
+        "min_v": -4.192520391521626e-05,
+        "max_v": 1.3990611190594018,
+        "min_time_ns": 18.66471057313901,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.1",
+        "voltage": "VBS",
+        "min_v": -4.578925675025047e-05,
+        "max_v": 1.3309044326025719,
+        "min_time_ns": 18.661710573139008,
+        "max_time_ns": 0.003651904957217471
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.2",
+        "voltage": "VGS",
+        "min_v": 0.0009609097091271323,
+        "max_v": 1.6200446966591822,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 18.665710573139012
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.2",
+        "voltage": "VGD",
+        "min_v": 0.002344402763569789,
+        "max_v": 1.6200459930994322,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 18.665710573139012
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.2",
+        "voltage": "VDS",
+        "min_v": -0.08130307033716216,
+        "max_v": 1.1398983305556244e-06,
+        "min_time_ns": 0.3414901186193056,
+        "max_time_ns": 23.074269335314717
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.2",
+        "voltage": "VBS",
+        "min_v": -0.08157984262906728,
+        "max_v": 0.00640571442093384,
+        "min_time_ns": 0.3484901186193056,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.3",
+        "voltage": "VGS",
+        "min_v": 0.03839216437202109,
+        "max_v": 1.6200445402736008,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 18.66471057313901
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.3",
+        "voltage": "VGD",
+        "min_v": -1.338395251877765,
+        "max_v": 4.616273296753626e-05,
+        "min_time_ns": 0.001996024743486285,
+        "max_time_ns": 18.66471057313901
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.3",
+        "voltage": "VDS",
+        "min_v": 0.3565648350671513,
+        "max_v": 1.6200014261481575,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 23.074269335314717
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x4.3",
+        "voltage": "VBS",
+        "min_v": 0.09323535877991795,
+        "max_v": 1.6200014393978488,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 23.07726933531472
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.0",
+        "voltage": "VGS",
+        "min_v": -1.6214164598613605,
+        "max_v": 0.31417212196294514,
+        "min_time_ns": 22.280437595294742,
+        "max_time_ns": 0.1384901186193063
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.0",
+        "voltage": "VGD",
+        "min_v": -0.0014596862011628795,
+        "max_v": 0.6463634965760428,
+        "min_time_ns": 22.27943759529474,
+        "max_time_ns": 0.1404901186193063
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.0",
+        "voltage": "VDS",
+        "min_v": -1.6200537888824147,
+        "max_v": -0.002268870065885026,
+        "min_time_ns": 22.35141099765573,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.0",
+        "voltage": "VBS",
+        "min_v": -1.620053578979984,
+        "max_v": 0.0012581778515880979,
+        "min_time_ns": 22.35241099765573,
+        "max_time_ns": 5.073066476236925e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.1",
+        "voltage": "VGS",
+        "min_v": -1.6214182885211672,
+        "max_v": 0.3137883639139639,
+        "min_time_ns": 22.280437595294742,
+        "max_time_ns": 0.1384901186193063
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.1",
+        "voltage": "VGD",
+        "min_v": -1.621457471008029,
+        "max_v": -0.26591920960512666,
+        "min_time_ns": 22.280437595294742,
+        "max_time_ns": 5e-05
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.1",
+        "voltage": "VDS",
+        "min_v": -4.884183786679763e-05,
+        "max_v": 1.3990094572057998,
+        "min_time_ns": 22.35241099765573,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.1",
+        "voltage": "VBS",
+        "min_v": -5.33584071646942e-05,
+        "max_v": 1.3309247861484435,
+        "min_time_ns": 22.348410997655726,
+        "max_time_ns": 0.003651904957217471
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.2",
+        "voltage": "VGS",
+        "min_v": 0.0009597767080190087,
+        "max_v": 1.6200522891734168,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.35241099765573
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.2",
+        "voltage": "VGD",
+        "min_v": 0.0023432302625617726,
+        "max_v": 1.6200536197182218,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.35241099765573
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.2",
+        "voltage": "VDS",
+        "min_v": -0.08182805398992687,
+        "max_v": 1.2594633300565938e-06,
+        "min_time_ns": 0.3444901186193056,
+        "max_time_ns": 22.273437595294737
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.2",
+        "voltage": "VBS",
+        "min_v": -0.08210377813433392,
+        "max_v": 0.006401520869856207,
+        "min_time_ns": 0.3514901186193056,
+        "max_time_ns": 0.0007531109923815155
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.3",
+        "voltage": "VGS",
+        "min_v": 0.03839090944024254,
+        "max_v": 1.6200521231412417,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.35241099765573
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.3",
+        "voltage": "VGD",
+        "min_v": -1.338463195416332,
+        "max_v": 5.3788979086810684e-05,
+        "min_time_ns": 0.001996024743486285,
+        "max_time_ns": 22.35241099765573
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.3",
+        "voltage": "VDS",
+        "min_v": 0.356565104690472,
+        "max_v": 1.6200015760817346,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.273437595294737
+      },
+      {
+        "case": "slow_ctl010_a0_to_1_p2100",
+        "device": "x5.3",
+        "voltage": "VBS",
+        "min_v": 0.09323574189314937,
+        "max_v": 1.6200015879358978,
+        "min_time_ns": 5e-05,
+        "max_time_ns": 22.277437595294742
+      }
+    ]
+  }
+}

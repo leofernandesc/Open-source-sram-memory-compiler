@@ -1,0 +1,94 @@
+{
+  "scope": "One FF/1.8V/125C baseline 11-to-00 case; OP initialization; 0.5ps maximum step; two devices only",
+  "source_deck": "sims/row_decoder/results/compact_decoder_fast_opinit_screen_refinement_0p5ps/artifacts/baseline/fast_11_to_00/case.spice",
+  "source_deck_sha256": "229f1f2b01e840dc192b831d6cfe7a5c4a5e2136dd0e5708cebbfc511db284b7",
+  "probe_deck_sha256": "f47707dae2c7b80bbd4b4be5e3f8af8b1c9c34e93fabfe20ae07a84df0d6fada",
+  "raw_sha256": "cfa08bc4ed379481989cbfff652bed8b77a34d26ccbfeee7c66d80a27aa0527f",
+  "ngspice_log_sha256": "0cd304bb81ae3b6f4758bf1bd6c5554d65128189a74adc3fbc1a0b5d123f4eff",
+  "analysis_script_sha256": "752ea8cafa8ab33c3fa8c818cd79dd71850ec35e7d80b3d1ecb0dab60bdcbdbc",
+  "contract_script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a",
+  "model_state_convention": "@vgs/@vds/@vbs are polarity-normalized intrinsic differences; reverse orientation subtracts normalized vds when vds<0; multiply by polarity for physical signed values",
+  "window_start_ns": 1,
+  "model_include_hashes_match_archive": true,
+  "functional_checks": {
+    "pass": 104,
+    "fail": 0
+  },
+  "all_original_saved_traces_bitwise_equal": true,
+  "records": [
+    {
+      "device": "x1.m12",
+      "metric": "VGS",
+      "external_min_v": -1.456563085932973,
+      "external_max_v": 0.5575680340417728,
+      "intrinsic_min_v": -1.4565221180036698,
+      "intrinsic_max_v": 0.557557647708288,
+      "max_abs_difference_v": 0.006343679121000201
+    },
+    {
+      "device": "x1.m12",
+      "metric": "VDS",
+      "external_min_v": 0.34695307729728,
+      "external_max_v": 1.9209471553510418,
+      "intrinsic_min_v": 0.3469530772910394,
+      "intrinsic_max_v": 1.9209468294213607,
+      "max_abs_difference_v": 0.006430013404885582
+    },
+    {
+      "device": "x1.m12",
+      "metric": "VBS",
+      "external_min_v": -1.4602109083707324,
+      "external_max_v": 0.02682126349495269,
+      "intrinsic_min_v": -1.4601494329596578,
+      "intrinsic_max_v": 0.02678767478424566,
+      "max_abs_difference_v": 0.007089013107996922
+    },
+    {
+      "device": "x1.m1",
+      "metric": "VGS",
+      "external_min_v": -1.9419142496731017,
+      "external_max_v": 0.0,
+      "intrinsic_min_v": -1.9204269063287582,
+      "intrinsic_max_v": 0.00015125689983808144,
+      "max_abs_difference_v": 0.11845430634634702
+    },
+    {
+      "device": "x1.m1",
+      "metric": "VDS",
+      "external_min_v": -1.8633329824194231,
+      "external_max_v": -6.811971220432866e-07,
+      "intrinsic_min_v": -1.8631656449476979,
+      "intrinsic_max_v": -4.78565251871288e-07,
+      "max_abs_difference_v": 0.218236745898031
+    },
+    {
+      "device": "x1.m1",
+      "metric": "VBS",
+      "external_min_v": -0.14191424967310162,
+      "external_max_v": 0.0,
+      "intrinsic_min_v": -0.12042675991386043,
+      "intrinsic_max_v": 0.1183196767156669,
+      "max_abs_difference_v": 0.1183196767156669
+    }
+  ],
+  "external_vgd_peak_samples": [
+    {
+      "device": "x1.m12",
+      "time_ns": 5.033249999999996,
+      "external_vgd_v": -1.9546737679051165,
+      "external_vgs_v": -0.6703507065578798,
+      "intrinsic_vgs_v": -0.6747554553694293,
+      "external_vds_v": 1.2843230613472367,
+      "intrinsic_vds_v": 1.2799221886128553
+    },
+    {
+      "device": "x1.m1",
+      "time_ns": 25.10725000000009,
+      "external_vgd_v": -1.9419142496731017,
+      "external_vgs_v": -1.9419142496731017,
+      "intrinsic_vgs_v": -1.9204214872486864,
+      "external_vds_v": -0.14191424967310162,
+      "intrinsic_vds_v": -0.09894928129599845
+    }
+  ]
+}

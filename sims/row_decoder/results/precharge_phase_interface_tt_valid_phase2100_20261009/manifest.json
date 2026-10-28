@@ -1,0 +1,326 @@
+{
+  "campaign": "dynamic_decoder_wl_precharge_phase_interface",
+  "started_utc": "2026-10-09T16:13:53.100698+00:00",
+  "complete": true,
+  "source_branch": "feature/peripherals",
+  "scope": "Current decoder R-C PEX, four WL-driver R-C PEX instances, eight Danilo W2.52 precharge PEX instances and capacitive bitline residuals. Ideal PCLK and PRECH stimuli; no explicit 6T access devices in this integration bench.",
+  "precharge_candidate": {
+    "subcircuit": "precharge_w2p52_flat",
+    "pins": [
+      "VDD",
+      "BL",
+      "BLB",
+      "PRECH",
+      "VSS"
+    ],
+    "mos_devices": 3,
+    "resistors": 20,
+    "capacitors": 30,
+    "negative_capacitors": 0,
+    "sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+    "source_provenance": {
+      "artifact": "precharge_w2p52_pex_5dc00fe.spice",
+      "source_repository": "leofernandesc/Open-source-sram-memory-compiler",
+      "source_branch": "feat/sram-6t-cell",
+      "source_commit": "5dc00fe02e43492267516c3e448e935456406a1d",
+      "source_path": "layout/precharge/experimental_w2p52/pex/precharge_w2p52_pex.spice",
+      "source_sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+      "subcircuit": "precharge_w2p52_flat",
+      "pin_order": [
+        "VDD",
+        "BL",
+        "BLB",
+        "PRECH",
+        "VSS"
+      ],
+      "device_candidate": {
+        "topology": "three-PMOS precharge and equalization",
+        "nominal_width_um": 0.42,
+        "physical_width_um": 2.52,
+        "channel_length_um": 0.15,
+        "precharge_polarity": "active low"
+      },
+      "owner_reported_evidence": {
+        "report_path": "docs/phase1_leaf_cell_closure.md",
+        "reported_pex_ceff_pvt_ff": [
+          11.469724,
+          13.064186
+        ],
+        "reported_pex_ceff_cases": "60/60 PASS",
+        "reported_magic_drc_errors": 0,
+        "reported_netgen_lvs": "unique structural match",
+        "independently_rerun_in_this_branch": false
+      },
+      "use_in_feature_peripherals": "Read-only PEX dependency for decoder/precharge phase-interface simulation; this copy does not replace the shared precharge source or establish a new owner-approved integration revision."
+    },
+    "instances": [
+      "XPRECH0 net1 BL0 BLB0 PRECH GND precharge_w2p52_flat",
+      "XPRECH1 net1 BL1 BLB1 PRECH GND precharge_w2p52_flat",
+      "XPRECH2 net1 BL2 BLB2 PRECH GND precharge_w2p52_flat",
+      "XPRECH3 net1 BL3 BLB3 PRECH GND precharge_w2p52_flat",
+      "XPRECH4 net1 BL4 BLB4 PRECH GND precharge_w2p52_flat",
+      "XPRECH5 net1 BL5 BLB5 PRECH GND precharge_w2p52_flat",
+      "XPRECH6 net1 BL6 BLB6 PRECH GND precharge_w2p52_flat",
+      "XPRECH7 net1 BL7 BLB7 PRECH GND precharge_w2p52_flat"
+    ]
+  },
+  "decoder_wl_pex_evidence": {
+    "row_decoder": {
+      "pex_sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+      "counts": {
+        "mos": 29,
+        "resistors": 762,
+        "capacitors": 389
+      },
+      "dynamic_gate_nodes": {
+        "0": "N0.t3",
+        "1": "N1.t3",
+        "2": "N2.t3",
+        "3": "N3.t3"
+      },
+      "dynamic_segment_nodes": {
+        "0": [
+          "N0",
+          "N0.n0",
+          "N0.n1",
+          "N0.t0",
+          "N0.t1",
+          "N0.t2",
+          "N0.t3"
+        ],
+        "1": [
+          "N1",
+          "N1.n0",
+          "N1.n1",
+          "N1.t0",
+          "N1.t1",
+          "N1.t2",
+          "N1.t3"
+        ],
+        "2": [
+          "N2",
+          "N2.n0",
+          "N2.n1",
+          "N2.t0",
+          "N2.t1",
+          "N2.t2",
+          "N2.t3"
+        ],
+        "3": [
+          "N3",
+          "N3.n0",
+          "N3.n1",
+          "N3.t0",
+          "N3.t1",
+          "N3.t2",
+          "N3.t3"
+        ]
+      },
+      "capture_literal_nodes": {
+        "A0B": "x1.a0b.t0",
+        "A1B": "x1.a1b.t0",
+        "A0T": "x1.a0t.t0",
+        "A1T": "x1.a1t.t1"
+      }
+    },
+    "wl_driver": {
+      "subcircuit_pins_in_testbench_order": [
+        "VDD",
+        "WL_IN",
+        "WL",
+        "VSS"
+      ],
+      "source_pins_in_xschem_order": [
+        "VDD",
+        "WL_IN",
+        "WL",
+        "VSS"
+      ],
+      "pex_pins_in_magic_order": [
+        "VDD",
+        "VSS",
+        "WL_IN",
+        "WL"
+      ],
+      "pex_pin_order_adapted_without_changing_top_instances": true,
+      "mos_devices": 4,
+      "resistors": 99,
+      "capacitors": 43,
+      "mos_signature_match_current_xschem_and_flat_extraction": true,
+      "negative_capacitors": 0,
+      "sha256": {
+        "cells/wordline_driver/wl_driver.sch": "fcbd66081215bbbc32ff3ddb2655bf74f5ad55c6ac952b31159b64d3fb0b86d4",
+        "layout/wl_driver/wl_driver_flat.mag": "785d5fb367572e85514471ff3c6b1634b7b613bf1a1e106ce4c0a403a14e365a",
+        "layout/wl_driver/wl_driver_flat.ext": "2e3acdbe46cb741907271b337c6881092326b9e139e51f817fd26b5f13672956",
+        "layout/wl_driver/wl_driver_flat_extracted.spice": "ef7faf1175cf9a4c3e19a30cd7c60319f5050234a4c9f1eeec3ee5b3c1d53e9e",
+        "layout/wl_driver/pex/wl_driver_pex.spice": "68a3d7234d6d002d38655c10eace999729222b4a9078568feb71c0867eecfdc0"
+      }
+    },
+    "topology_scope": "Current decoder R-C PEX and four hierarchical WL-driver R-C PEX instances; the explicitly configured lumped WL load is recorded in wordline_load."
+  },
+  "wordline_load": {
+    "full_row_max_ff": 102.873935496,
+    "sidecar": "sims/row_decoder/inputs/row_8_wl_pex_capacitance_latch_t0_requal_20261008.provenance.json",
+    "not_double_counted_with_distributed_row": true
+  },
+  "bitline_load": {
+    "target_effective_ceiling_ff": 597.056241,
+    "precharge_leaf_max_ceff_ff": 13.064186,
+    "external_residual_ff_per_side": 583.992055,
+    "interpretation": "Conservative capacitance residual using Danilo's maximum reported W2.52 precharge Ceff; PEX Ceff is state dependent and the complete G7 leaf set is not instantiated."
+  },
+  "phase_assumptions": {
+    "precharge_active_level": "PRECH low",
+    "decoder_precharge_level": "PCLK low",
+    "read_control": "001",
+    "write_control": "010",
+    "invalid_vectors": "all other CSb/OEb/WEb combinations suppress second-cycle PCLK and keep PRECH active",
+    "release_lead_ps": 250.0,
+    "turnoff_guard_ps": 1800.0,
+    "prime_pclk_rise_ns": 6.0,
+    "initial_precharge_until_release_ns": 5.75,
+    "capture_to_pclk_ps": 2100.0,
+    "clock_fall_ps": 20700.0,
+    "all_numeric_phase_margins_are_experimental": true
+  },
+  "tools": {
+    "xschem": "XSCHEM V3.4.6\nCopyright (C) 1998-2024 Stefan Schippers\n\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n\nUsing run time directory XSCHEM_SHAREDIR = /opt/xschem/313acc8/share/xschem\nSourcing /opt/xschem/313acc8/share/xschem/xschemrc init file\nSourcing /work/xschemrc init file",
+    "ngspice": "******\n** ngspice-44.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2024, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Jan 21 05:28:45 UTC 2026\n******"
+  },
+  "model_dependencies_sha256": {
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+    "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135"
+  },
+  "source_hashes": {
+    "runner_sha256": "b3a6188d42340ee85f2376ddb4501e1579720ff15e704221371fb2a8c3e71240",
+    "row_decoder_schematic_sha256": "90f6aa170d7f9b7019b55d3cd43ee4482d9c5d2927f0b0b011a6f5b492c8ec50",
+    "row_decoder_pex_sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+    "wl_driver_schematic_sha256": "fcbd66081215bbbc32ff3ddb2655bf74f5ad55c6ac952b31159b64d3fb0b86d4",
+    "wl_driver_pex_sha256": "68a3d7234d6d002d38655c10eace999729222b4a9078568feb71c0867eecfdc0",
+    "precharge_pex_sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+    "precharge_provenance_sha256": "1756da5b1d49225ae19aa69b6d2c80b7123792a02458c91d7cc1a16c668c9818",
+    "row_ceff_provenance_sha256": "61b526eb0b7895f1b784b7cf60003abddd4db61b6766f00f0d6e77934fd1063f",
+    "input_netlist_sha256": "e2b2696bf862ee35c2a5b10ec1ded5c0a12370593ca39b2ff98f929ae6ab6e80"
+  },
+  "maximum_step_ps": 5.0,
+  "case_count": 8,
+  "cases": [
+    {
+      "label": "tt_ctl001_a0_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 0,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a0_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 0,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a0_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 0,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a0_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 0,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a0_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 0,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a0_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 0,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a0_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 0,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a0_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 0,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 20700.0,
+      "settling_allowance_ns": 3.3,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    }
+  ],
+  "finished_utc": "2026-10-09T16:14:44.169827+00:00",
+  "passed_cases": 8,
+  "failed_cases": 0,
+  "errors": []
+}

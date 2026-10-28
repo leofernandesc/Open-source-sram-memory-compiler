@@ -145,9 +145,17 @@ Precharge is active during the low phase of `CLK`, including idle and disabled c
 
 ## 9. Row Decoder
 
-The SRAM uses a static CMOS row decoder.
+The first 4×8 implementation uses a precharged dynamic 2-to-4 NAND row decoder.
 
-The first 4×8 implementation uses a 2-to-4 decoder.
+During the low phase of `CLK`, internal `PCLK` enables PMOS precharge devices,
+charging the decoder's internal row nodes to `VDD`. Output inverters keep all
+decoded row outputs inactive. During the high phase, precharge ends and the
+address-selected NMOS path discharges one internal node, asserting one decoded
+row output. Evaluation paths must be isolated during precharge to avoid sustained
+contention between `VDD` and `VSS`.
+
+The decoder uses the captured row address. Its evaluation timing must allow the
+address and its complements to settle before a row output is asserted.
 
 The decoder architecture scales with the supported memory depth.
 
@@ -160,6 +168,10 @@ The implementation strategy for the larger decoders is:
 ## 10. Wordline Driver
 
 Each decoder output drives its corresponding wordline through a static CMOS wordline driver.
+
+Physical wordlines may be asserted only for valid read or write access during
+the high clock phase. They remain inactive during precharge, idle, disabled,
+and invalid control conditions.
 
 The driver strength and number of stages will be determined according to the effective wordline load.
 
@@ -254,7 +266,7 @@ The first integrated SRAM contains:
 - 32 6T bitcells;
 - 4 wordlines;
 - 8 differential bitline pairs;
-- one static 2-to-4 row decoder;
+- one dynamic 2-to-4 NAND row decoder;
 - 4 wordline drivers;
 - 8 precharge/equalization circuits;
 - 8 write drivers;

@@ -1,0 +1,352 @@
+{
+  "campaign": "row_address_capture_setup_hold_transistor_level_screen",
+  "started_utc": "2026-10-10T07:01:50.453637+00:00",
+  "complete": true,
+  "status": "MEASURED",
+  "scope": "Each address input of the Xschem row_address_capture.sch is swept through a rising or falling transition around the second rising CLK edge. The freshly netlisted dfxtp_1 instance is used in a testbench-only single-bit wrapper, with one independent instance per timing point.",
+  "profiles": {
+    "tt": {
+      "pm3_corner": "tt",
+      "vdd_v": 1.8,
+      "temperature_c": 27,
+      "liberty_file": "sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "liberty_voltage_v": 1.8,
+      "liberty_temperature_c": 25.0,
+      "liberty_setup_groups": [
+        "setup_rising/rise_constraint",
+        "setup_rising/fall_constraint"
+      ],
+      "liberty_hold_groups": [
+        "hold_rising/rise_constraint",
+        "hold_rising/fall_constraint"
+      ]
+    },
+    "ss": {
+      "pm3_corner": "ss",
+      "vdd_v": 1.62,
+      "temperature_c": -40,
+      "liberty_file": "sky130_fd_sc_hd__ss_n40C_1v60.lib",
+      "liberty_voltage_v": 1.6,
+      "liberty_temperature_c": -40.0,
+      "liberty_setup_groups": [
+        "setup_rising/rise_constraint",
+        "setup_rising/fall_constraint"
+      ],
+      "liberty_hold_groups": [
+        "hold_rising/rise_constraint",
+        "hold_rising/fall_constraint"
+      ]
+    },
+    "ff": {
+      "pm3_corner": "ff",
+      "vdd_v": 1.8,
+      "temperature_c": 125,
+      "liberty_file": "sky130_fd_sc_hd__ff_100C_1v65.lib",
+      "liberty_voltage_v": 1.65,
+      "liberty_temperature_c": 100.0,
+      "liberty_setup_groups": [
+        "setup_rising/rise_constraint",
+        "setup_rising/fall_constraint"
+      ],
+      "liberty_hold_groups": [
+        "hold_rising/rise_constraint",
+        "hold_rising/fall_constraint"
+      ]
+    }
+  },
+  "stimulus": {
+    "primer_rising_edge_ns": 1.0,
+    "primer_falling_edge_ns": 2.0,
+    "measured_rising_edge_ns": 3.0,
+    "measured_falling_edge_ns": 4.0,
+    "clock_slew_ps": 50.0,
+    "data_slew_ps": 50.0,
+    "data_transition_offsets_ps": [
+      -500,
+      -300,
+      -200,
+      -150,
+      -100,
+      -75,
+      -50,
+      -25,
+      0,
+      10,
+      25,
+      50,
+      100,
+      200
+    ],
+    "data_offset_reference": "requested D 50% crossing relative to rising CLK 50% crossing; negative is before",
+    "q_sample_after_measured_edge_ps": 700.0,
+    "q_load_ff": 3.434554,
+    "transient_step_ps": 2.0,
+    "timing_points_per_profile": 56
+  },
+  "initialization": "No reset exists. A first rising edge at 1 ns captures the initial input value; a single D transition is swept around the measured rising edge at 3 ns.",
+  "measurement_probe": "A simulation-only one-bit wrapper is generated from the freshly netlisted XA0_FF/XA1_FF dfxtp_1 instance pin mapping. Neither the schematic nor its symbols are changed.",
+  "interpretation": "Q is sampled once, 700 ps after the measured edge. For a D crossing before CLK, the measured margin is compared with the matching Liberty setup table; for a crossing after CLK, it is compared with the matching Liberty hold table. Liberty operating points do not exactly match every native PM3 run point. The table values and sampled Q are comparative exploratory evidence, not signoff.",
+  "source_sha256": {
+    "cells/control/row_address_capture.sch": "6e1b09dd3897084bfa31bf6aac03e92e3a73e37894393d60efb3de9efa3fdc8e",
+    "sims/row_decoder/run_row_address_setup_hold.py": "00a80fb2c7c891723b0e263ad96f43a1c25188dcb34f00fb78108b92134914cb"
+  },
+  "pdk_sha256": {
+    "sky130.lib.spice": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e",
+    "sky130_fd_sc_hd.spice": "304da9725492089107bb20840a4020558b028487d300f8df79bbbad5332aaa99",
+    "sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "sky130_fd_sc_hd__ss_n40C_1v60.lib": "23cba893b985a950a7951e3f29ae66ae6a639aaef75c1478e2306fb68d4a7ee5",
+    "sky130_fd_sc_hd__ff_100C_1v65.lib": "913e67fc551be7e4e97fc031f3e72e5ef3251438ceeb44753f73b68df58f5650"
+  },
+  "xschem_command": [
+    "xschem",
+    "-s",
+    "-n",
+    "-q",
+    "-o",
+    "/work/sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/xschem",
+    "/work/cells/control/row_address_capture.sch"
+  ],
+  "generated_source_netlist_sha256": "037414f6362480c37131b45f5cb43bd4921c8baf5b6da14494313c16a7f10964",
+  "generated_testbench_cell_netlist_sha256": "99a2c9345f5b13fdadba001d977135c3b2521d43734cfedabe515824ce70ffd2",
+  "results": {
+    "tt": {
+      "status": "MEASURED",
+      "scenario_count": 56,
+      "waveform_sample_count": 2332,
+      "deck_sha256": "ee68d62bd704438f463992a30df75e42b2d0c2237e507ebc9ab63361e5d6738b"
+    },
+    "ss": {
+      "status": "MEASURED",
+      "scenario_count": 56,
+      "waveform_sample_count": 2332,
+      "deck_sha256": "ed7aa4fec309e452be3f55b5b840305a31e912bc98d776750abf550259f509ec"
+    },
+    "ff": {
+      "status": "MEASURED",
+      "scenario_count": 56,
+      "waveform_sample_count": 2332,
+      "deck_sha256": "9988a1ca9526ab3a8a46598a717c56fa62c44018b9bd0e17128f3df21444d4e2"
+    }
+  },
+  "simulation_errors": [],
+  "warnings_by_corner": {
+    "tt": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "ss": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "ff": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    }
+  },
+  "summary": {
+    "tt": {
+      "status": "MEASURED",
+      "scenario_count": 56,
+      "captured_new_samples": 26,
+      "retained_old_samples": 30,
+      "indeterminate_samples": 0,
+      "liberty_safe_expectation_checks": 40,
+      "liberty_safe_expectation_passes": 40,
+      "liberty_safe_expectation_mismatches": 0,
+      "points_without_liberty_reference": 4,
+      "points_outside_liberty_table_range": 0,
+      "paths": {
+        "A0_rise": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -49.99999999999962,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            53.54760812161592,
+            53.547608121616115
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -30.881721574344045,
+            -30.881721574343956
+          ]
+        },
+        "A0_fall": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -74.99999999999943,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            109.50325835068709,
+            109.50325835068746
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -52.58284693877557,
+            -52.58284693877539
+          ]
+        },
+        "A1_rise": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -49.99999999999962,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            53.54760812161592,
+            53.547608121616115
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -30.881721574344045,
+            -30.881721574343956
+          ]
+        },
+        "A1_fall": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -74.99999999999943,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            109.50325835068709,
+            109.50325835068746
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -52.58284693877557,
+            -52.58284693877539
+          ]
+        }
+      }
+    },
+    "ss": {
+      "status": "MEASURED",
+      "scenario_count": 56,
+      "captured_new_samples": 18,
+      "retained_old_samples": 38,
+      "indeterminate_samples": 0,
+      "liberty_safe_expectation_checks": 30,
+      "liberty_safe_expectation_passes": 30,
+      "liberty_safe_expectation_mismatches": 0,
+      "points_without_liberty_reference": 4,
+      "points_outside_liberty_table_range": 0,
+      "paths": {
+        "A0_rise": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -74.99999999999984,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            118.78084466540851,
+            118.78084466540878
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -57.120291929162455,
+            -57.12029192916232
+          ]
+        },
+        "A0_fall": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -200.00000000000014,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            352.7861340542893,
+            352.78613405428973
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -113.00929204528964,
+            -113.00929204528944
+          ]
+        },
+        "A1_rise": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -74.99999999999984,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            118.78084466540851,
+            118.78084466540878
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -57.120291929162455,
+            -57.12029192916232
+          ]
+        },
+        "A1_fall": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -200.00000000000014,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            352.7861340542893,
+            352.78613405428973
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -113.00929204528964,
+            -113.00929204528944
+          ]
+        }
+      }
+    },
+    "ff": {
+      "status": "MEASURED",
+      "scenario_count": 56,
+      "captured_new_samples": 30,
+      "retained_old_samples": 26,
+      "indeterminate_samples": 0,
+      "liberty_safe_expectation_checks": 44,
+      "liberty_safe_expectation_passes": 44,
+      "liberty_safe_expectation_mismatches": 0,
+      "points_without_liberty_reference": 4,
+      "points_outside_liberty_table_range": 0,
+      "paths": {
+        "A0_rise": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -24.999999999999396,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            44.18975547688457,
+            44.18975547688471
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -25.19054427321951,
+            -25.190544273219444
+          ]
+        },
+        "A0_fall": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -49.99999999999962,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            79.56778567263629,
+            79.56778567263657
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -34.99479017076222,
+            -34.99479017076209
+          ]
+        },
+        "A1_rise": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -24.999999999999396,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            44.18975547688457,
+            44.18975547688471
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -25.19054427321951,
+            -25.190544273219444
+          ]
+        },
+        "A1_fall": {
+          "sampled_points": 14,
+          "observed_new_capture_closest_pre_edge_ps": -49.99999999999962,
+          "observed_old_retention_closest_post_edge_ps": 10.000000000000172,
+          "setup_liberty_constraint_range_ps": [
+            79.56778567263629,
+            79.56778567263657
+          ],
+          "hold_liberty_constraint_range_ps": [
+            -34.99479017076222,
+            -34.99479017076209
+          ]
+        }
+      }
+    }
+  },
+  "summary_files": [
+    "checks.csv",
+    "setup_hold_aperture.png"
+  ],
+  "finished_utc": "2026-10-10T07:05:48.537994+00:00",
+  "row_count": 168
+}

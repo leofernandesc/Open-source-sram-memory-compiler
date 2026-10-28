@@ -1,0 +1,153 @@
+{
+  "campaign": "valid_access_capture_setup_hold_transistor_level_screen",
+  "started_utc": "2026-10-09T23:17:50.043427+00:00",
+  "complete": true,
+  "status": "MEASURED",
+  "scope": "SKY130 FD SC HD valid_access_capture schematic and dfxtp_1 standard-cell SPICE subcircuits. Independent instances share one CLK per corner; the actual VALID_ACCESS_D internal node and VALID_ACCESS_Q are measured for external-control timing offsets.",
+  "profiles": {
+    "tt": {
+      "pm3_corner": "tt",
+      "vdd_v": 1.8,
+      "temperature_c": 27,
+      "liberty_file": "sky130_fd_sc_hd__tt_025C_1v80.lib",
+      "liberty_voltage_v": 1.8,
+      "liberty_temperature_c": 25.0,
+      "liberty_setup_table": "rise_constraint, setup_rising",
+      "liberty_hold_table": "fall_constraint, hold_rising"
+    },
+    "ss": {
+      "pm3_corner": "ss",
+      "vdd_v": 1.62,
+      "temperature_c": -40,
+      "liberty_file": "sky130_fd_sc_hd__ss_n40C_1v60.lib",
+      "liberty_voltage_v": 1.6,
+      "liberty_temperature_c": -40.0,
+      "liberty_setup_table": "rise_constraint, setup_rising",
+      "liberty_hold_table": "fall_constraint, hold_rising"
+    },
+    "ff": {
+      "pm3_corner": "ff",
+      "vdd_v": 1.8,
+      "temperature_c": 125,
+      "liberty_file": "sky130_fd_sc_hd__ff_100C_1v65.lib",
+      "liberty_voltage_v": 1.65,
+      "liberty_temperature_c": 100.0,
+      "liberty_setup_table": "rise_constraint, setup_rising",
+      "liberty_hold_table": "fall_constraint, hold_rising"
+    }
+  },
+  "stimulus": {
+    "primer_rising_edge_ns": 1.0,
+    "primer_falling_edge_ns": 2.0,
+    "measured_rising_edge_ns": 3.0,
+    "measured_falling_edge_ns": 4.0,
+    "clock_slew_ps": 50.0,
+    "external_control_slew_ps": 50.0,
+    "valid_vector_csb_oeb_web": "001",
+    "invalid_vector_csb_oeb_web": "000",
+    "q_sample_after_measured_edge_ps": 700.0,
+    "q_load_ff": 3.434554,
+    "setup_external_leads_ps": [
+      500,
+      300,
+      200,
+      150,
+      100,
+      50,
+      0,
+      -50
+    ],
+    "hold_external_offsets_ps": [
+      -100,
+      -50,
+      -25,
+      0,
+      25,
+      50,
+      100,
+      200
+    ],
+    "transient_step_ps": 2.0
+  },
+  "no_reset": "A priming edge captures disabled vector 111 before each measured capture. Behavior before the first clock edge is not measured.",
+  "measurement_probe": "The existing VALID_ACCESS_D wire is promoted to an extra port in the generated simulation-only subcircuit so ngspice records it. The source Xschem schematic is not changed.",
+  "liberty_interpretation": "Liberty constraints are interpolated at measured 10-90 CLK and D slews. The Liberty operating points do not exactly match all native PM3 run points; these values are comparative references, not accepted design limits.",
+  "source_sha256": {
+    "cells/control/valid_access_capture.sch": "dbcec10f951a18936a920e9a854a1b8512851a0584e867edb38bfca2b4291e43",
+    "sims/row_decoder/run_valid_access_setup_hold.py": "a93838990f6861d43616dfd816905b9ab5fdd2a98b687388fd26120767bcef7d",
+    "sims/row_decoder/run_valid_access_capture_spice.py": "6580d68eff916ebf7cfb40139d54ae4fc440b0cce560ba3c509f9cea67bb2faf"
+  },
+  "pdk_sha256": {
+    "sky130.lib.spice": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e",
+    "sky130_fd_sc_hd.spice": "304da9725492089107bb20840a4020558b028487d300f8df79bbbad5332aaa99",
+    "sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "sky130_fd_sc_hd__ss_n40C_1v60.lib": "23cba893b985a950a7951e3f29ae66ae6a639aaef75c1478e2306fb68d4a7ee5",
+    "sky130_fd_sc_hd__ff_100C_1v65.lib": "913e67fc551be7e4e97fc031f3e72e5ef3251438ceeb44753f73b68df58f5650"
+  },
+  "xschem_command": [
+    "xschem",
+    "-s",
+    "-n",
+    "-q",
+    "-o",
+    "/work/sims/row_decoder/results/valid_access_setup_hold_tt_ss_ff_v2_20261009/xschem",
+    "/work/cells/control/valid_access_capture.sch"
+  ],
+  "generated_cell_netlist_sha256": "cc5e82cefa95cfddd22a2d06d297f625a4bfe3ab0993aca51433b8e6ac1a50b9",
+  "results": {
+    "tt": {
+      "status": "MEASURED",
+      "setup_cases": 8,
+      "setup_q_sample_matches": 3,
+      "hold_cases": 8,
+      "hold_q_sample_matches": 8,
+      "min_setup_liberty_slack_ps": -224.0815628890707,
+      "min_hold_liberty_slack_ps": 104.67008918092907,
+      "sample_count": 2330,
+      "deck_sha256": "ada564e056bff38b9142946788f70a453a11db980915337319ba5a022388570c"
+    },
+    "ss": {
+      "status": "MEASURED",
+      "setup_cases": 8,
+      "setup_q_sample_matches": 1,
+      "hold_cases": 8,
+      "hold_q_sample_matches": 8,
+      "min_setup_liberty_slack_ps": -450.4873301226187,
+      "min_hold_liberty_slack_ps": 385.9708309791271,
+      "sample_count": 2330,
+      "deck_sha256": "e5bebc7cbbd26bc1410941e28e58f07abe2931ff28aca1bdc5a2ed4e05564d19"
+    },
+    "ff": {
+      "status": "MEASURED",
+      "setup_cases": 8,
+      "setup_q_sample_matches": 5,
+      "hold_cases": 8,
+      "hold_q_sample_matches": 8,
+      "min_setup_liberty_slack_ps": -168.37314341039527,
+      "min_hold_liberty_slack_ps": 32.32240811679636,
+      "sample_count": 2330,
+      "deck_sha256": "d80d856a0e5ce9d0f68ebfcc17ee3307dc0c7f79bfbe396e64e7ecb226c23992"
+    }
+  },
+  "simulation_errors": [],
+  "warnings_by_corner": {
+    "tt": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "ss": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "ff": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    }
+  },
+  "finished_utc": "2026-10-09T23:19:13.912933+00:00",
+  "row_count": 48,
+  "summary_files": [
+    "checks.csv",
+    "setup_hold_margin.png"
+  ]
+}

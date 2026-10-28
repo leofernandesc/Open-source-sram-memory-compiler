@@ -1,0 +1,74 @@
+{
+  "stage": "pre-layout DC reference",
+  "netlist_sha256": "c4bf9485fd7ccf5703ccc82fb4e6cdb5c01e2485e1488935e67d5e17dc077e63",
+  "script_sha256": "ad5e356797c356961ef037776cd45cd1314baa5f4f45d78f7d4e49adab412f56",
+  "conditions": {
+    "tt": [
+      "tt",
+      1.8,
+      27
+    ],
+    "slow": [
+      "ss",
+      1.62,
+      -40
+    ],
+    "fast": [
+      "ff",
+      1.8,
+      125
+    ],
+    "ss_cold": [
+      "ss",
+      1.8,
+      -40
+    ],
+    "sf": [
+      "sf",
+      1.8,
+      27
+    ],
+    "fs": [
+      "fs",
+      1.8,
+      27
+    ]
+  },
+  "families": {
+    "decoder_output": [
+      "row_decoder",
+      [
+        "XM9",
+        "XM10"
+      ]
+    ],
+    "address_complement": [
+      "row_decoder",
+      [
+        "XM1",
+        "XM2"
+      ]
+    ],
+    "wl_first": [
+      "wl_driver",
+      [
+        "XMP1",
+        "XMN1"
+      ]
+    ],
+    "wl_second": [
+      "wl_driver",
+      [
+        "XMP2",
+        "XMN2"
+      ]
+    ]
+  },
+  "dc_step_v": 0.001,
+  "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+  "model_hash_scope": "top-level library only",
+  "tools": {
+    "ngspice": "******\n** ngspice-44.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2024, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Jan 21 05:28:45 UTC 2026\n******"
+  },
+  "note": "VOUT=VIN interpolated trip; gain thresholds from 1 mV grid. Neither bitcell SNM nor dynamic noise/mismatch sign-off."
+}

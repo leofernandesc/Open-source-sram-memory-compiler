@@ -1,0 +1,61 @@
+** sch_path: /work/cells/write_driver.sch
+**.subckt write_driver DATA DATA_B WE BL BLB VDD VSS
+*.iopin DATA
+*.iopin DATA_B
+*.iopin WE
+*.iopin BL
+*.iopin BLB
+*.iopin VDD
+*.iopin VSS
+XMPWEB WE_B WE VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNWEB WE_B WE VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPENBL net1 WE_B VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPDBL BL DATA_B net1 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNDBL BL DATA_B net2 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNENBL net2 WE VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPENBLB net3 WE_B VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMPDBLB BLB DATA net3 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNDBLB BLB DATA net4 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+XMNENBLB net4 WE VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.84 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W' sa=0 sb=0 sd=0 mult=1 m=1
+**** begin user architecture code
+
+.lib /opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice tt
+VVSS_WR VSS 0 0
+VDD_WR VDD VSS 1.8
+VWE_WR WE VSS PWL(0 0 0.95n 0 1n 1.8 4n 1.8 4.05n 0 9n 0 9.05n 1.8 14n 1.8 14.05n 0 18n 0)
+VDATA_WR DATA VSS PWL(0 0 6n 0 6.05n 1.8 18n 1.8)
+VDATAB_WR DATA_B VSS PWL(0 1.8 6n 1.8 6.05n 0 18n 0)
+CBL_WR BL VSS 50f
+CBLB_WR BLB VSS 50f
+.ic V(BL)=0 V(BLB)=1.8
+.options ngbehavior=ps method=gear reltol=1e-4 vabstol=1e-9 iabstol=1e-12
+.control
+save all
+tran 10p 18n 0 10p uic
+meas tran bl_write0 FIND v(BL) AT=3n
+meas tran blb_write1 FIND v(BLB) AT=3n
+meas tran bl_hiz_before FIND v(BL) AT=5n
+meas tran bl_hiz_after FIND v(BL) AT=8n
+meas tran blb_hiz_before FIND v(BLB) AT=5n
+meas tran blb_hiz_after FIND v(BLB) AT=8n
+let bl_hiz_drift = abs(bl_hiz_after - bl_hiz_before)
+let blb_hiz_drift = abs(blb_hiz_after - blb_hiz_before)
+print bl_hiz_drift blb_hiz_drift
+meas tran bl_write1 FIND v(BL) AT=12n
+meas tran blb_write0 FIND v(BLB) AT=12n
+write write_driver.raw all
+.endc
+
+**** end user architecture code
+**.ends
+.end

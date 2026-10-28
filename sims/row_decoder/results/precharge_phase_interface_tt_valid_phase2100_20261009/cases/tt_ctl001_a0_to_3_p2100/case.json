@@ -1,0 +1,75 @@
+{
+  "case": "tt_ctl001_a0_to_3_p2100",
+  "profile": "tt",
+  "control_vector_csb_oeb_web": "001",
+  "operation": "read",
+  "old_address": 0,
+  "new_address": 3,
+  "selected_row": 3,
+  "phase_ps": 2100.0,
+  "clk_fall_ps": 20700.0,
+  "wl_cap_ff": 102.873935496,
+  "bitline_external_load_ff": 583.992055,
+  "bitline_target_effective_ceiling_ff": 597.056241,
+  "phase_checks_pass": 64,
+  "phase_checks_fail": 0,
+  "decoder_logic_checks_fail": 0,
+  "decoder_model_upper_result": "PASS",
+  "decoder_terminal_magnitude_result": "PASS",
+  "status": "PASS",
+  "ngspice_returncode": 0,
+  "signal_nodes": {
+    "PCLK": "net2",
+    "DEC0": "DEC0",
+    "DEC1": "DEC1",
+    "DEC2": "DEC2",
+    "DEC3": "DEC3",
+    "WL0": "net5",
+    "WL1": "net6",
+    "WL2": "net7",
+    "WL3": "net8",
+    "PRECH": "PRECH",
+    "BL0": "BL0",
+    "BLB0": "BLB0"
+  },
+  "precharge_timing": {
+    "bitline_external_load_ff": 583.992055,
+    "bitline_target_effective_ceiling_ff": 597.056241,
+    "precharge_releases": [
+      {
+        "cycle": "prime",
+        "precharge_release_s": 5.7624999999999995e-09,
+        "pclk_rise_s": 6e-09,
+        "lead_ps": 237.50000000000048
+      },
+      {
+        "cycle": "access",
+        "precharge_release_s": 1.50125e-08,
+        "pclk_rise_s": 1.71e-08,
+        "lead_ps": 2087.5000000000014
+      }
+    ],
+    "precharge_reassertions": [
+      {
+        "cycle": "prime",
+        "pclk_fall_s": 1e-08,
+        "precharge_assert_s": 1.17875e-08,
+        "turnoff_margin_ps": 1787.5000000000002,
+        "selected_wl_below_10pct_s": 1.1124232710581548e-08
+      },
+      {
+        "cycle": "access",
+        "pclk_fall_s": 2.07e-08,
+        "precharge_assert_s": 2.24875e-08,
+        "turnoff_margin_ps": 1787.4999999999986,
+        "selected_wl_below_10pct_s": 2.1822534164573462e-08
+      }
+    ],
+    "bitline_minimum_at_end_v": 1.7999798085250451
+  },
+  "initial_precharge": {
+    "prime_pclk_rise_ns": 6.0,
+    "precharge_release_center_ns": 5.75,
+    "initial_precharge_until_release_ns": 5.75
+  }
+}

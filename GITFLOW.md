@@ -22,6 +22,11 @@ selected as reproducible verification evidence.
 | `feature/sense-precharge` | André (Person 2) | Sense amplifier and precharge/equalization through schematic, simulation, layout, DRC, and LVS |
 | `feature/peripherals` | Leonardo (Person 3) | 2-to-4 row decoder, wordline driver, and write driver through schematic, simulation, layout, DRC, and LVS |
 
+The dynamic 2-to-4 decoder implementation maintained on `feature/peripherals`
+is Leonardo's Person 3 Phase 1 deliverable through schematic, simulation,
+sizing, layout, DRC, and LVS. A candidate or phase proposal on another branch
+does not replace or reassign this implementation.
+
 Each owner is responsible for carrying the assigned blocks through the complete
 Phase 1 flow. Collaboration is allowed, but architecture or implementation
 changes in another owner's block should be reviewed with that owner first.
