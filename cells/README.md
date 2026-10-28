@@ -1,5 +1,11 @@
 # Leaf cells Xschem
 
+**Canonical Phase 1 selection — 2026-10-28:** use the six schematics and
+symbols listed in the [frozen delivery table](../release/phase1/README.md).
+Each selected schematic has a corresponding electrical netlist, flat mask,
+unchanged PEX and fresh physical-verification evidence. The older file/status
+table below records earlier development and is not the release selection.
+
 Contrato de nomes para a etapa 2:
 
 | Célula / artefato | Pinos externos | Controle | Estado |

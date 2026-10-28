@@ -21,6 +21,29 @@ The compiler must subsequently generate all four supported configurations.
 
 The word width is fixed at 8 bits.
 
+### 1.1 Phase 1 delivery boundary
+
+The Phase 1 delivery contains exactly six leaf cells: `bitcell_6t`,
+`sense_amp`, `precharge`, `wl_driver`, `write_driver`, and `row_decoder`.
+Leonardo's existing 29-MOS dynamic decoder, developed on `feature/peripherals`,
+is the official decoder. The separate `row_decoder_2to4.spice` proposal on
+another development line does not replace it or move it out of Phase 1.
+
+The frozen schematic, symbol, electrical netlist, final flat mask and existing
+PEX for each cell are selected by `release/phase1/manifest.json`. The delivery
+table and evidence are in `docs/phase1_six_cell_delivery.md`.
+
+Phase 1 physical acceptance requires DRC and parameter-aware LVS of these
+selected masks. Physical closure does not by itself approve electrical model
+operation or the final timing contract; remaining electrical acceptance items
+must be reported explicitly.
+
+Complete macro integration, the compiler and generated macro views belong to
+Phase 2. The experimental address/control capture and PCLK/PRECH generator are
+supporting studies; their complete physical implementation and system-level
+timing qualification also belong to Phase 2. The external synchronous SRAM
+interface specified below is preserved.
+
 ---
 
 ## 2. Technology
@@ -147,6 +170,13 @@ Precharge is active during the low phase of `CLK`, including idle and disabled c
 
 The first 4×8 implementation uses a precharged dynamic 2-to-4 NAND row decoder.
 
+The selected Phase 1 source is `cells/row_decoder/row_decoder.sch`, frozen
+without schematic or sizing changes in `release/phase1/cells/row_decoder/`.
+It contains 29 MOSFETs, uses a shared PCLK-controlled evaluation footer and
+keeps the logical `DEC0`–`DEC3` outputs separate from the wordline drivers.
+Its frozen symbol preserves the existing SPICE pin order, including
+`DEC3` before `DEC2`; pin names define the row mapping.
+
 During the low phase of `CLK`, internal `PCLK` enables PMOS precharge devices,
 charging the decoder's internal row nodes to `VDD`. Output inverters keep all
 decoded row outputs inactive. During the high phase, precharge ends and the
@@ -195,9 +225,12 @@ The selected architecture is a differential regenerative latch-based sense ampli
 
 During read operations, the sense amplifier resolves the differential voltage developed on the bitlines into a full logic level.
 
-The exact transistor-level topology is:
-
-**(confirm with advisors)**
+The selected Phase 1 transistor topology is a seven-MOS regenerative latch
+with two PMOS sampling devices. Its frozen physical variant uses latch PMOS
+`W=1.89 µm`, latch/tail NMOS `W=0.975 µm` (the retained mask extracts as
+`0.98 µm`), and sampling PMOS `W=2.0 µm`, with `L=0.15 µm` throughout.
+The leaf pin `SCLK` is the local sense-enable interface. Macro-level
+`sense_en` generation and timing remain an integration task.
 
 ---
 
@@ -387,7 +420,6 @@ The following architectural decisions still require confirmation:
 
 - final optimization priority between robustness, performance, power, and area — **(confirm with advisors)**
 - implementation strategy for larger row decoders — **(confirm with advisors)**
-- exact regenerative sense-amplifier topology — **(confirm with advisors)**
 - nominal characterization temperature — **(confirm with advisors)**
 
 ---

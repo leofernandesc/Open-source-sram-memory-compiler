@@ -1,0 +1,66 @@
+
+Cell precharge (0) disconnected node: VSS
+Cell precharge (1) disconnected node: VSS
+Subcircuit summary:
+Circuit 1: precharge                       |Circuit 2: precharge                       
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__pfet_01v8 (3)                |sky130_fd_pr__pfet_01v8 (2) **Mismatch**   
+(no matching element)                      |sky130_fd_pr__nfet_01v8 (1)                
+Number of devices: 3                       |Number of devices: 3                       
+Number of nets: 4                          |Number of nets: 4                          
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: precharge                       |Circuit 2: precharge                       
+
+---------------------------------------------------------------------------------------
+Net: VDD                                   |Net: VDD                                   
+  sky130_fd_pr__pfet_01v8/bulk = 3         |  sky130_fd_pr__pfet_01v8/bulk = 2         
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+                                           |  sky130_fd_pr__nfet_01v8/bulk = 1         
+                                           |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+Net: PRECH                                 |Net: PRECH                                 
+  sky130_fd_pr__pfet_01v8/gate = 3         |  sky130_fd_pr__pfet_01v8/gate = 2         
+                                           |  sky130_fd_pr__nfet_01v8/gate = 1         
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+Net: BLB                                   |Net: BLB                                   
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+                                           |                                           
+Net: BL                                    |Net: BL                                    
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+                                           |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: precharge                       |Circuit 2: precharge                       
+
+---------------------------------------------------------------------------------------
+Instance: sky130_fd_pr__pfet_01v8:1        |Instance: sky130_fd_pr__pfet_01v8:MPBLB    
+  (drain,source) = (5,2)                   |  (drain,source) = (5,2)                   
+  gate = 3                                 |  gate = 3                                 
+  bulk = 5                                 |  bulk = 5                                 
+                                           |                                           
+Instance: sky130_fd_pr__pfet_01v8:2        |Instance: sky130_fd_pr__nfet_01v8:MPBL     
+  (drain,source) = (5,2)                   |  (drain,source) = (5,2)                   
+  gate = 3                                 |  gate = 3                                 
+  bulk = 5                                 |  bulk = 5                                 
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: precharge                       |Circuit 2: precharge                       
+-------------------------------------------|-------------------------------------------
+VDD                                        |VDD                                        
+PRECH                                      |PRECH                                      
+BL                                         |BLB **Mismatch**                           
+BLB                                        |BL **Mismatch**                            
+VSS                                        |VSS                                        
+---------------------------------------------------------------------------------------
+Cell pin lists for precharge and precharge altered to match.
+Device classes precharge and precharge are equivalent.
+
+Final result: Top level cell failed pin matching.

@@ -27,6 +27,13 @@ is Leonardo's Person 3 Phase 1 deliverable through schematic, simulation,
 sizing, layout, DRC, and LVS. A candidate or phase proposal on another branch
 does not replace or reassign this implementation.
 
+The six-cell Phase 1 scope was explicitly reconfirmed by Leonardo on
+2026-10-28. The official artifact selection is `release/phase1/manifest.json`,
+with the delivery table in `docs/phase1_six_cell_delivery.md`. Complete macro,
+compiler and physical control/PCLK-generator qualification are Phase 2 work.
+Statements in another branch that defer this decoder are superseded by this
+explicit scope decision when the development lines are reconciled.
+
 Each owner is responsible for carrying the assigned blocks through the complete
 Phase 1 flow. Collaboration is allowed, but architecture or implementation
 changes in another owner's block should be reviewed with that owner first.

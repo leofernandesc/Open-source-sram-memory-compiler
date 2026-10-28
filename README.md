@@ -1,5 +1,17 @@
 # Open-Source SRAM Memory Compiler
 
+**Current Phase 1 delivery, 2026-10-28:** six selected leaf cells, including
+Leonardo's existing 29-MOS dynamic decoder. The canonical files, sizing and
+fresh DRC/LVS evidence are fixed in the
+[six-cell delivery record](docs/phase1_six_cell_delivery.md) and
+[frozen release](release/phase1/README.md). The six delivered flat masks pass
+DRC and primitive-MOS LVS with W/L and terminal comparison; electrical timing
+and model-domain limitations are recorded separately. Macro integration and
+the compiler are Phase 2 work.
+
+The development material below is retained as history. Earlier status and
+sizing statements are superseded by the frozen delivery manifest.
+
 Compilador open-source de memória SRAM single-port baseado em uma bitcell 6T
 para o PDK SKY130A. O escopo prevê profundidades de 4, 8, 16 e 32 palavras,
 largura fixa de 8 bits e geração de GDSII, LEF, Verilog e .lib.

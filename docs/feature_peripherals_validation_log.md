@@ -2633,3 +2633,47 @@ was run. See the [detailed report](row_decoder_captured_phase_interface_20261009
 [25 ns/3.8 ns manifest](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle3800_20261014/manifest.json),
 [checks](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/checks.csv),
 and [window comparison plot](../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/ss_selected_wl_window_comparison.png).
+
+## 2026-10-28: six-cell selection and parameter-aware physical closure
+
+Leonardo explicitly reconfirmed six Phase 1 leaves and his existing dynamic
+29-MOS decoder. The specification and Git Flow scope now record that selection;
+the alternate decoder proposal and reassignment on the other development line
+do not replace it. Complete macro/compiler and physical capture/PCLK generator
+qualification are assigned to Phase 2.
+
+The [canonical artifact table](../release/phase1/README.md) fixes each SCH,
+SYM, SPICE, final flat MAG, retained PEX and physical report. Five upstream
+physical variants are imported from `eb9217e` into an isolated release snapshot;
+original owner sources and documents remain untouched. New schematic snapshots
+bind only W to the selected physical widths. Decoder SCH/SYM/mask/PEX are
+preserved from `5f55d06`. That commit consolidated the earlier history without
+changing its final tree.
+
+Fresh Magic DRC(full) reports zero findings on all six delivered flat masks.
+Connectivity extraction and Netgen with the official SKY130A setup compare
+primitive MOS type, D/G/S/B and W/L, with no placeholder-device acceptance.
+All six valid comparisons pass. All 30 negative controls (W, L, gate, bulk,
+type per leaf) are rejected. All six retained PEX files pass a separate
+connectivity/W/L binding check with parasitic resistor networks collapsed for
+LVS only. No R-C extraction or new electrical simulation was run.
+
+Commands executed:
+
+```bash
+python3 tools/prepare_phase1_release.py
+./tools/sram-eda python3 tools/verify_phase1_physical.py
+./tools/sram-eda python3 tools/verify_phase1_g7_support.py
+python3 tools/audit_phase1_release.py
+```
+
+The final audit passes all six cells, the 30 negative controls and 129 archived
+electrical rows (60 read, 60 write, 8 read refinement, 1 write refinement),
+including exact retained-leaf PEX provenance. Logs, comparison netlists,
+result JSON and checksums are retained in the release. A separate fresh G7
+flat-column DRC/LVS also passes for 212 MOS, using frozen schematic leaves
+and the original structural column wiring. Its retained reports replace the
+missing/structural-only historical evidence for that supporting mask. Decoder electrical
+timing-contract/model-domain acceptance remains open. The Xschem project
+configuration now also includes the standard `devices` symbol directory so
+the release decoder opens without missing bare pin/label symbols.

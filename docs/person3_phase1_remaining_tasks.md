@@ -1,5 +1,17 @@
 # Person 3: remaining Phase 1 tasks
 
+**Scope and physical closure update, 2026-10-28:** the user reconfirmed a
+six-leaf Phase 1 delivery including Leonardo's existing 29-MOS decoder.
+The [delivery record](phase1_six_cell_delivery.md) and
+[frozen manifest](../release/phase1/manifest.json) now govern artifact selection.
+Fresh DRC, primitive-MOS W/L/terminal LVS and existing-PEX connectivity binding
+pass for all six delivered flat masks, including the reinforced WL/write
+variants. The older task table below remains a record of the broader
+integration campaign. Full 4×8 read/write/readback, complete capture/phase-source
+layout/PEX and compiler work are assigned to Phase 2 by the current scope
+decision. Local decoder timing-contract and model-domain acceptance remain
+open electrical items; the new physical PASS does not close them.
+
 Owner: Leonardo. Branch: `feature/peripherals`. Updated: 2026-10-14.
 Target: 2026-10-13. This is a dependency-based work plan, not evidence that a
 pending check has passed. The compiler and generated macro views belong to

@@ -1,0 +1,40 @@
+* Structural LVS reference for the 32-row physical column.
+* Leaf subcircuits are prepended by scripts/run_column_32_full_lvs.sh.
+
+.subckt column_32_full_g7_wpre2p52_reference BL BLB VSS VDD WLOFF PRECH SCLK WE DATA_B DATA
+XBC00 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC01 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC02 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC03 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC04 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC05 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC06 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC07 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC08 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC09 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC10 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC11 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC12 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC13 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC14 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC15 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC16 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC17 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC18 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC19 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC20 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC21 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC22 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC23 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC24 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC25 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC26 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC27 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC28 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC29 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC30 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XBC31 VDD BL BLB VSS WLOFF bitcell_6t_flat
+XPRE VDD BL BLB PRECH VSS precharge_w2p52_flat
+XSA VDD VSS BL BLB SCLK SA_OUT SA_OUTB sense_amp_scale1p5_flat
+XWRITE DATA DATA_B WE BL BLB VDD VSS write_driver_w5p04_flat
+.ends column_32_full_g7_wpre2p52_reference
