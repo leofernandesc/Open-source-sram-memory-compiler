@@ -2677,3 +2677,26 @@ missing/structural-only historical evidence for that supporting mask. Decoder el
 timing-contract/model-domain acceptance remains open. The Xschem project
 configuration now also includes the standard `devices` symbol directory so
 the release decoder opens without missing bare pin/label symbols.
+
+## 2026-10-28: audit acceptance checks remain active under optimized Python
+
+Replaced all 25 audit acceptance assertions with explicit runtime checks.
+Failed validation now returns exit code 1, emits a diagnostic, replaces the
+previous audit report with `status=FAIL`, and leaves checksums unchanged.
+This prevents both optimization-based acceptance bypass and a stale audit
+PASS remaining as the latest result after rejection.
+
+The regression suite uses temporary copies of the actual release. Ten cases
+run in normal, `-O` and `-OO` subprocesses (30 audit executions): the valid
+package passes; failed/incomplete physical summaries, changed schematics or
+electrical CSVs, failed cell/G7 results, missing negative controls or LVS logs,
+and stale script hashes are rejected in every mode. All ten tests pass.
+
+```bash
+python3 -m unittest discover -s tools/tests -p 'test_audit_phase1_release.py' -v
+```
+
+The six-cell physical verifier was rerun successfully to refresh its binding
+to the corrected audit-script hash. Its DRC/LVS and 30 negative controls still
+pass. The retained G7 supporting result and all cell/mask/PEX bytes remain
+unchanged; no new parasitic extraction or electrical simulation was performed.

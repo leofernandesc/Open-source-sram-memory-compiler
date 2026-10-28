@@ -126,3 +126,17 @@ it does not confer PASS on a changed selection. To open the canonical decoder:
 
 `checksums.json` covers the released inputs, generated files and retained
 reports. New edits require regenerating the affected evidence and audit.
+
+## Audit failure behavior
+
+The audit uses explicit runtime checks that remain active with Python `-O`
+and `-OO`. Invalid or missing evidence produces exit code 1 and a `FAIL`
+report in `verification/release_audit.json`, replacing any stale `PASS`.
+Checksums are updated only after all acceptance checks succeed.
+
+Regression tests use temporary release copies; the valid package is approved
+and nine invalid-evidence cases are rejected in all three interpreter modes:
+
+```bash
+python3 -m unittest discover -s tools/tests -p 'test_audit_phase1_release.py' -v
+```
