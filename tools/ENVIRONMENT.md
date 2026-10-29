@@ -11,7 +11,9 @@ No checkout conferido em 2026-10-08, o container `sram-xschem` usa
 O `--check` confirma executáveis e arquivos SKY130A instalados; a tag sozinha
 não comprova o conteúdo do PDK.
 
-A imagem fornece Magic 8.3.613 no `PATH`. A extração detalhada do decoder
+A instalação conferida em 2026-10-29 fornecia Magic 8.3.589 em `/opt`.
+A versão 8.3.684 foi instalada com o helper abaixo; o lançador a seleciona
+quando o diretório está disponível. A extração detalhada do decoder
 exige Magic 8.3.684; `tools/install_magic_8_3_684.sh` instala essa versão ao
 lado da versão da imagem, sem reconstruir o PDK. O helper
 `tools/extract_row_decoder.sh` seleciona explicitamente 8.3.684 e valida a
@@ -42,6 +44,20 @@ ele atualiza a montagem `/tmp/xauth` a partir do `XAUTHORITY` da sessão atual.
 Isso evita usar um caminho Mutter/Xwayland temporário que ficou obsoleto quando
 o container foi criado. O lançador só remove uma pasta de origem antiga se ela
 estiver vazia e instala o cookie com permissões restritas ao usuário.
+
+### Headless startup after logout
+
+The 2026-10-29 launcher fix also repairs a stale Xauthority bind **before
+starting a stopped container for Python/ngspice**. Without a graphical session,
+it creates an empty owner-only bind file when necessary; an existing cookie is
+preserved. It never removes a nonempty directory or a dangling symlink. The
+checkout mount is checked before any repair, and a running headless session
+does not touch graphical files. Eight fake-Docker regression cases cover these
+paths in `tools/tests/test_sram_eda_startup.py`.
+
+The keeper revision uses `layout/row_decoder_keeper/build_layout.py` and must
+pass dimension-aware LVS before its R-C extraction. Its new masks/PEX are
+separate from the historical 29-MOS decoder and the original Phase 1 freeze.
 
 ## Rodar scripts e simuladores
 
