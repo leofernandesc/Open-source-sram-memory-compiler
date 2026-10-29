@@ -12,6 +12,12 @@ retain measured noise limits and the independent off-state model-data gap;
 these results are not foundry reliability signoff. Macro integration and the
 compiler remain Phase 2 work.
 
+**Technical handoff:** the [Phase 1 closure record](docs/phase1_closure_20261029.md)
+consolidates the six-cell evidence and records the owner's decision to proceed
+with the documented model-data limitation. The package is ready for team
+review; a model-provider response is not a prerequisite for this handoff.
+Run `python3 tools/verify_phase1_handoff.py` for the read-only final audit.
+
 The development material below is retained as history. Earlier status and
 sizing statements are superseded by the current delivery manifest.
 

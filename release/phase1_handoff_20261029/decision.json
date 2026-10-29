@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "scope": "PHASE1_SIX_LEAF_ENGINEERING_HANDOFF",
+  "owner": "Leonardo",
+  "decision_date": "2026-10-29",
+  "owner_direction": "Proceed with Phase 1 closure using the selected dynamic decoder with feedback keepers; retain the documented model-coverage limitation and the ability to revisit the design.",
+  "selected_manifest": "release/phase1_keeper/manifest.json",
+  "historical_manifest": "release/phase1/manifest.json",
+  "model_coverage_disposition": "DOCUMENTED_NON_BLOCKING_FOR_PHASE1",
+  "model_provider_response_required_for_this_handoff": false,
+  "independent_off_state_model_accuracy": "NOT_ESTABLISHED",
+  "local_reference_status": "MEASURED_LEAF_HANDOFF_REFERENCE_ONLY",
+  "local_reference": {
+    "pclk_low_ns": 3,
+    "pclk_high_ns": 2.5,
+    "external_address_lead_ns": 2.1,
+    "ramps_ps": 50,
+    "wl_load_ff": 102.873935496,
+    "selected_high_dwell_screen_ns": 0.25,
+    "reset_dwell_screen_ns": 0.1,
+    "internal_literal_guard_ps": 250,
+    "low_high_level_screens_vdd_fraction": [0.1, 0.9],
+    "terminal_magnitude_screen_v": 1.95
+  },
+  "claims_not_granted": [
+    "Foundry reliability or fabrication signoff",
+    "Independent model accuracy in unmeasured off-state gate-bias conditions",
+    "Statistical mismatch yield",
+    "Approved nominal characterization temperature or SRAM maximum frequency",
+    "Complete SRAM read/write integration using the 33-MOS decoder",
+    "Advisor approval or team merge"
+  ],
+  "phase2_scope": [
+    "4x8 SRAM read/write/readback integration using the selected six leaves",
+    "Physical capture and PCLK/PRECH control implementation and qualification",
+    "Macro timing, sense timing, electrical margins and power-up integration",
+    "Compiler and required GDSII/LEF/Verilog/Liberty macro views"
+  ]
+}

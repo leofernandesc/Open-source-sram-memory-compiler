@@ -1,5 +1,33 @@
 # Person 3: remaining Phase 1 tasks
 
+## Current closure status — 2026-10-29
+
+The six-leaf technical package is **ready for team review**, using Leonardo's
+33-MOS dynamic decoder with feedback keepers. The
+[closure record](phase1_closure_20261029.md) and
+[current artifact table](../release/phase1_keeper/README.md) supersede the
+older work/acceptance lists below as the current Phase 1 status.
+
+- All six selected masks have stored zero-DRC, dimension/terminal-aware LVS
+  and selected-PEX binding evidence, rechecked by the final handoff audit.
+- The selected decoder/WL PEX passes 105 runs and 3,045 experimental checks.
+- Following Leonardo's explicit instruction to proceed, off-state model-data
+  coverage is documented as non-blocking for this handoff. It remains a limit
+  of the evidence; provider confirmation is not a prerequisite to progress.
+- Team/advisor review and the Git Flow integration remain separate actions.
+- Complete macro data access, physical capture/PCLK control and compiler/views
+  are Phase 2 work. Earlier captured-path results are not transferred to the
+  new keeper revision.
+
+Read-only check: `python3 tools/verify_phase1_handoff.py`.
+The 29-MOS baseline, keeper revision and other owners' sources are preserved.
+
+## Historical work plan and measurements
+
+The following dated entries describe their original artifacts and decisions.
+References to 29 MOS, pending model-provider disposition or broad integration
+tasks must be read in that historical scope, not as the current blocker list.
+
 **Scope and physical closure update, 2026-10-28:** the user reconfirmed a
 six-leaf Phase 1 delivery including Leonardo's existing 29-MOS decoder.
 The [delivery record](phase1_six_cell_delivery.md) and

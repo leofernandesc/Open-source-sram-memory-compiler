@@ -2856,3 +2856,45 @@ handoff with the model-domain caveat explicitly open. The proposed acceptance
 is not assumed. Full intrinsic-domain qualification would instead require a
 model/provider or advisor disposition of off-state/reverse-mode validity.
 The report does not silently promote this engineering screen to a foundry rule.
+
+
+## 2026-10-29: six-leaf technical handoff and model-data disposition
+
+Leonardo instructed us to proceed with Phase 1 closure after discussing the
+off-state gate-bias model-data gap. It is recorded as a documented,
+non-blocking limitation for this six-leaf engineering handoff; a model-provider
+response is not required to continue. Independent off-state model accuracy,
+foundry reliability and advisor approval are not claimed.
+
+The selected artifact set remains `release/phase1_keeper/manifest.json`: the
+33-MOS dynamic decoder with W0.84/L0.15 feedback PMOS keepers and the five
+unchanged selected leaves. The original 29-MOS freeze and all other owners'
+sources remain unchanged. Neither archived package was rewritten.
+
+Added `tools/verify_phase1_handoff.py`. It runs the current 3,020-file audit,
+checks all six stored physical results and symbol/source/mask/PEX bindings,
+and reruns the original package audit in a temporary copy. The latter checks
+upstream Git provenance, stored physical proofs and 129 original electrical
+rows. No writes from that legacy auditor reach `release/phase1/`.
+
+The final stored-evidence audit passed, with six zero-DRC results, six unique
+W/L/terminal LVS matches, six selected-PEX bindings and 30 selected
+negative-control rejections. The keeper decoder/WL evidence remains 105
+passing experimental runs and 3,045 checks, plus five retained 32 fC boundary
+failures. Original G7/captured-control evidence is not promoted to a test of
+the 33-MOS decoder integrated into a complete SRAM.
+
+The [closure record](phase1_closure_20261029.md),
+[owner disposition](../release/phase1_handoff_20261029/decision.json) and
+[audit receipt](../release/phase1_handoff_20261029/audit.json) fix this handoff.
+The old remaining-task plan is marked historical below its new current status.
+Macro data access, physical capture/PCLK control and compiler/views remain
+Phase 2 work. Team/advisor review and Git Flow integration are separate from
+this technical handoff. No new transistor simulation, DRC/LVS execution or
+R-C extraction was needed for the closure step.
+
+Five new handoff regressions passed. They reject treating the model-data gap
+as validated accuracy, reject implicit macro-timing approval, and ensure a
+failed technical audit replaces a prior PASS receipt. Decision guards reject
+invalid claims in normal, `-O` and `-OO` Python. The complete real handoff
+audit also passed under `-O`; no frozen artifact changed.

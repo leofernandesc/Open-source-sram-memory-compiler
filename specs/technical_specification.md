@@ -45,6 +45,13 @@ selected masks. Physical closure does not by itself approve electrical model
 operation or the final timing contract; remaining electrical acceptance items
 must be reported explicitly.
 
+For the six-leaf engineering handoff, the owner instructed on 2026-10-29 that
+the recorded off-state model-data coverage gap be retained as a documented,
+non-blocking limitation. A model-provider response is not required to proceed
+with Phase 1 closure. This disposition does not establish independent model
+accuracy, foundry reliability or an approved macro timing contract. The current
+handoff scope and audit are recorded in `docs/phase1_closure_20261029.md`.
+
 Complete macro integration, the compiler and generated macro views belong to
 Phase 2. The experimental address/control capture and PCLK/PRECH generator are
 supporting studies; their complete physical implementation and system-level
