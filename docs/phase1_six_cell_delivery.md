@@ -1,5 +1,12 @@
 # Phase 1 six-cell delivery decision and physical closure
 
+**Historical 2026-10-28 baseline.** The owner authorized decoder hardening on
+2026-10-29. The [current selection](../release/phase1_keeper/README.md) replaces
+only the decoder with the checked 33-MOS feedback-keeper revision. This record
+and the original 29-MOS freeze remain reproducible; see the
+[new analysis](row_decoder_robustness_20261029.md). The five other leaves are
+unchanged.
+
 Decision date: 2026-10-28. Owner approval: Leonardo explicitly requested the
 six-cell delivery, retention of his decoder, a fixed artifact table, and
 closure of DRC/LVS evidence.

@@ -16,15 +16,21 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 ROOT = Path(__file__).resolve().parents[2]
 LAYOUT = ROOT / "layout" / "row_decoder"
 SCHEMATIC = ROOT / "cells" / "row_decoder" / "row_decoder.sch"
+DEVICE_COUNT = 29
+PFET_COUNT = 12
+NFET_COUNT = 17
+IMPORT_TOP = 'row_decoder_sram6t'
 MAGIC_RC = Path("/opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc")
 EXPECTED_PINS = ("VDD", "PCLK", "A0", "A1", "DEC0", "DEC1", "DEC3", "DEC2", "VSS")
 PORT_INDEX = {name: index for index, name in enumerate(EXPECTED_PINS)}
@@ -71,7 +77,7 @@ def xschem_netlist() -> tuple[Path, list[Device]]:
         '"$XSCHEM_SHAREDIR/xschem_library"',
         '"$XSCHEM_SHAREDIR/xschem_library/devices"',
         f'"{pdk_xschem}"',
-        f'"{ROOT / "cells/row_decoder"}"',
+        f'"{SCHEMATIC.parent}"',
     ]
     tcl = "set XSCHEM_LIBRARY_PATH [join [list " + " ".join(library_paths) + '] ":"]'
     run_checked(
@@ -87,12 +93,12 @@ def xschem_netlist() -> tuple[Path, list[Device]]:
         actual = header.group(1).split() if header else "missing subcircuit header"
         raise RuntimeError(f"Unexpected decoder pin order: {actual}")
     devices = parse_devices(text)
-    if {d.name for d in devices} != {f"XM{i}" for i in range(1, 30)}:
-        raise RuntimeError("Expected exactly 29 decoder MOS devices, XM1..XM29")
-    if sum("pfet" in d.model.lower() for d in devices) != 12:
-        raise RuntimeError("Unexpected PFET count; expected 12 PMOS devices")
-    if sum("nfet" in d.model.lower() for d in devices) != 17:
-        raise RuntimeError("Unexpected NFET count; expected 17 NMOS devices")
+    if {d.name for d in devices} != {f"XM{i}" for i in range(1, DEVICE_COUNT+1)} or len(devices)!=DEVICE_COUNT:
+        raise RuntimeError(f"Expected exactly XM1..XM{DEVICE_COUNT}")
+    if sum("pfet" in d.model.lower() for d in devices) != PFET_COUNT:
+        raise RuntimeError(f"Unexpected PFET count; expected {PFET_COUNT}")
+    if sum("nfet" in d.model.lower() for d in devices) != NFET_COUNT:
+        raise RuntimeError(f"Unexpected NFET count; expected {NFET_COUNT}")
     return path, devices
 
 
@@ -118,9 +124,9 @@ def write_import_alias(source: Path) -> None:
     for line in lines:
         if line.startswith("XM") or line.startswith("+"):
             body.append(line)
-    alias = ("* Generated from cells/row_decoder/row_decoder.sch by Xschem.\n"
-             + ".subckt row_decoder_sram6t " + " ".join(EXPECTED_PINS) + "\n"
-             + "\n".join(body) + "\n.ends row_decoder_sram6t\n")
+    alias = (f"* Generated from {SCHEMATIC.relative_to(ROOT)} by Xschem.\n"
+             + f".subckt {IMPORT_TOP} " + " ".join(EXPECTED_PINS) + "\n"
+             + "\n".join(body) + f"\n.ends {IMPORT_TOP}\n")
     (LAYOUT / "row_decoder_import.spice").write_text(alias, encoding="utf-8")
 
 
@@ -182,8 +188,8 @@ def parse_instances(path: Path) -> dict[str, tuple[str, int, int]]:
         if values != [1, 0, values[2], 0, 1, values[5]]:
             raise RuntimeError(f"Rotated PCell {instance} needs explicit terminal mapping")
         instances[instance] = (child, values[2], values[5])
-    if set(instances) != {f"XM{i}" for i in range(1, 30)}:
-        raise RuntimeError("Imported Magic top does not contain all 29 named devices")
+    if set(instances) != {f"XM{i}" for i in range(1, DEVICE_COUNT+1)}:
+        raise RuntimeError(f"Imported Magic top does not contain all {DEVICE_COUNT} named devices")
     return instances
 
 
@@ -220,7 +226,7 @@ def generate_route_tcl(devices: list[Device]) -> None:
         "}",
         "",
     ]
-    for i in range(1, 30):
+    for i in range(1, DEVICE_COUNT+1):
         name = f"XM{i}"
         _, old_x, old_y = instances[name]
         target_x, target_y = plan.placement[name]
@@ -305,7 +311,7 @@ def generate_route_tcl(devices: list[Device]) -> None:
         x, y = plan.placement[name]
         tracks = track_y
         rows.append(f"# {name}: D={device.drain}, G={device.gate}, S={device.source}, B={device.bulk}")
-        rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x - 300} {tracks[device.drain]}")
+        rows.append(f"terminal_to_m3 {x + geometry.drain_x} {y + geometry.drain_y} {x + plan.drain_offset[name]} {tracks[device.drain]}")
         # The SKY130 Magic MOS PCell exposes gate contacts on both sides. Route
         # both to the same gate net so no small floating metal landing remains.
         # Keep the M1-to-M2 landing beyond the adjacent diffusion contacts.
@@ -357,7 +363,8 @@ def generate_route_tcl(devices: list[Device]) -> None:
     (LAYOUT / "route_row_decoder.tcl").write_text("\n".join(rows), encoding="utf-8")
     (LAYOUT / 'routing_plan.json').write_text(json.dumps(dict(
         strategy='paired devices, branch-local nets, grounded address shields',
-        placement=plan.placement, gate_offset=plan.gate_offset, source_offset=plan.source_offset,
+        placement=plan.placement, drain_offset=plan.drain_offset,
+        gate_offset=plan.gate_offset, source_offset=plan.source_offset,
         tracks=plan.tracks,
         extents=plan.extents, port_x=plan.port_x, shields=plan.shields,
         m3_trunk_length_internal_units=sum(hi-lo for lo, hi in plan.extents.values())
@@ -424,16 +431,27 @@ def extraction_script() -> None:
 
 
 def run_netgen_lvs() -> str:
+    # Foundry wrapper instances can become black boxes in a bare setup.tcl
+    # comparison. Normalize to primitive MOS so W/L and D/G/S/B are checked.
+    sys.path.insert(0,str(ROOT/'tools'))
+    from verify_phase1_physical import primitives,matched
+    reports=LAYOUT/'reports'
+    for filename,top,target in (
+        ('row_decoder_flat_extracted.spice','row_decoder_flat','layout_mos.spice'),
+        ('row_decoder_import.spice',IMPORT_TOP,'schematic_mos.spice')):
+        normalized,count,_=primitives((LAYOUT/filename).read_text(),top)
+        if count!=DEVICE_COUNT:raise RuntimeError('Primitive LVS device count mismatch')
+        (reports/target).write_text(normalized)
     command = [
         "netgen", "-batch", "lvs",
-        "layout/row_decoder/row_decoder_flat_extracted.spice row_decoder_flat",
-        "layout/row_decoder/row_decoder_import.spice row_decoder_sram6t",
-        "/opt/pdks/sky130A/libs.tech/netgen/setup.tcl",
-        "layout/row_decoder/reports/lvs.out",
+        f"{reports.relative_to(ROOT)}/layout_mos.spice row_decoder_flat",
+        f"{reports.relative_to(ROOT)}/schematic_mos.spice {IMPORT_TOP}",
+        "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl",
+        f"{LAYOUT.relative_to(ROOT)}/reports/lvs.out",
     ]
     lvs_log = run_checked(command, cwd=ROOT, log=LAYOUT / "reports" / "lvs.log")
     report = (LAYOUT / "reports" / "lvs.out").read_text(encoding="utf-8")
-    if not re.search(r"(?m)^Final result:\s*Circuits match uniquely\.?\s*$", report):
+    if not matched(report):
         raise RuntimeError("Netgen LVS did not report a unique match; inspect reports/lvs.log and lvs.out")
     # Netgen pads its columns with trailing spaces; retain all report text
     # while making the generated artifact compatible with diff --check.
@@ -462,8 +480,8 @@ def run_lvs_only() -> str:
     spice = extracted_path.read_text(encoding="utf-8").rstrip() + "\n"
     extracted_path.write_text(spice, encoding="utf-8")
     devices = [line for line in spice.splitlines() if re.match(r"^X\S+\s", line)]
-    if len(devices) != 29:
-        raise RuntimeError(f"Magic connectivity extraction found {len(devices)} MOS devices; expected 29")
+    if len(devices) != DEVICE_COUNT:
+        raise RuntimeError(f"Magic connectivity extraction found {len(devices)} MOS devices; expected {DEVICE_COUNT}")
     if re.search(r"(?m)^[RC]\S+\s", spice):
         raise RuntimeError("LVS-only extraction unexpectedly contains parasitic R or C elements")
     header = re.search(r"(?m)^\.subckt\s+row_decoder_flat\s+(.+)$", spice)
@@ -485,8 +503,8 @@ def run_extraction_and_lvs() -> tuple[str, str, list[str]]:
     spice = connectivity_path.read_text(encoding="utf-8").rstrip() + "\n"
     connectivity_path.write_text(spice, encoding="utf-8")
     devices = [line for line in spice.splitlines() if re.match(r"^X\S+\s", line)]
-    if len(devices) != 29:
-        raise RuntimeError(f"Magic extraction found {len(devices)} MOS devices; expected 29")
+    if len(devices) != DEVICE_COUNT:
+        raise RuntimeError(f"Magic extraction found {len(devices)} MOS devices; expected {DEVICE_COUNT}")
     if re.search(r"(?m)^X\S+\s+.*\s+(?:a_|w_)\S*#\s+sky130_fd_pr__", spice):
         raise RuntimeError("Magic extraction left one or more MOS body terminals floating")
     pex = (LAYOUT / "pex" / "row_decoder_pex.spice").read_text(encoding="utf-8")
@@ -582,10 +600,10 @@ def main() -> int:
     write_import_alias(netlist_path)
     if not args.skip_import:
         import_script = "\n".join([
-            'set netlist "/work/layout/row_decoder/row_decoder_import.spice"',
-            "load __row_decoder_import_scratch__",
+            f'set netlist "{LAYOUT}/row_decoder_import.spice"',
+            f"load {IMPORT_TOP}",
             "magic::netlist_to_layout $netlist sky130",
-            "set physical_top row_decoder_sram6t",
+            f"set physical_top {IMPORT_TOP}",
             "set physical_children [cellname list children $physical_top]",
             "puts \"ROWDEC_CHILDREN=$physical_children\"",
             "foreach child $physical_children { load $child; save $child }",
@@ -600,10 +618,18 @@ def main() -> int:
             "",
         ])
         (LAYOUT / "generate_import.tcl").write_text(import_script, encoding="utf-8")
-        magic("generate_import.tcl", "import.log")
+        # A fresh directory and an empty current top prevent both old PCell
+        # instance reuse and the 8.3.684 existing-layout skip path.
+        with TemporaryDirectory(prefix='.import-',dir=LAYOUT) as generated:
+            log=run_checked(['magic','-dnull','-noconsole','-rcfile',str(MAGIC_RC)],
+                cwd=Path(generated),log=LAYOUT/'reports/import.log',input_text=import_script)
+            if 'Skipping generation.' in log:
+                raise RuntimeError('Magic reused an existing import instead of regenerating devices')
+            for cell in Path(generated).glob('*.mag'):
+                shutil.copy2(cell,LAYOUT/cell.name)
     if args.skip_route:
         print(f"Generated Xschem netlist: {netlist_path}")
-        print("Magic device import is saved under layout/row_decoder/")
+        print(f"Magic device import is saved under {LAYOUT}/")
         return 0
     write_state()
     generate_route_tcl(devices)
@@ -612,7 +638,7 @@ def main() -> int:
     flat_log = magic("flatten_for_check.tcl", "drc_flat.log")
     route_errors, flat_errors = drc_count(route_log), drc_count(flat_log)
     write_state(top_drc=route_errors, flat_drc=flat_errors)
-    print(f"Xschem MOS: {len(devices)} (12 PFET, 17 NFET)")
+    print(f"Xschem MOS: {len(devices)} ({PFET_COUNT} PFET, {NFET_COUNT} NFET)")
     print(f"Magic DRC hierarchical/top: {route_errors}")
     print(f"Magic DRC flattened: {flat_errors}")
     print(f"Logs: {LAYOUT / 'reports'}")
@@ -631,13 +657,15 @@ def main() -> int:
         print('RC PEX is stale/pending; no extresist was run.')
         return 0
     if args.extract:
+        # Reject stale imported device dimensions before an expensive R-C run.
+        run_lvs_only()
         version = subprocess.check_output(['magic', '--version'], text=True).strip()
         if version != '8.3.684':
             raise RuntimeError(f'R-C extraction requires Magic 8.3.684; selected {version}')
         lvs_log, pex, negative_caps = run_extraction_and_lvs()
         resistor_count = sum(1 for line in pex.splitlines() if re.match(r"^R\d+\s", line))
         capacitor_count = sum(1 for line in pex.splitlines() if re.match(r"^C\d+\s", line))
-        print(f"Magic extraction: 29 devices; {resistor_count} resistors; {capacitor_count} capacitors")
+        print(f"Magic extraction: {DEVICE_COUNT} devices; {resistor_count} resistors; {capacitor_count} capacitors")
         print("Netgen LVS: Circuits match uniquely")
         print(f"PEX: {LAYOUT / 'pex/row_decoder_pex.spice'}")
         if negative_caps:

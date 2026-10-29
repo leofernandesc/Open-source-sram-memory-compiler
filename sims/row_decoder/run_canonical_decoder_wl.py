@@ -81,7 +81,7 @@ def release_inputs(release=RELEASE):
     return selected
 
 
-def make_deck(inputs,profile,old,new,step_ps,cap_ff):
+def make_deck(inputs,profile,old,new,step_ps,cap_ff,decoder_mos=29):
     corner,vdd,temp=PROFILES[profile]
     require(0<=old<4 and 0<=new<4,'Address must be in 0..3')
     clock=pwl(0,[(c*1e-9-EDGE_PS*0.5e-12,c*1e-9+EDGE_PS*0.5e-12,v)
@@ -97,6 +97,8 @@ def make_deck(inputs,profile,old,new,step_ps,cap_ff):
     for info in inputs.values():
         lines.append(f'.include "{info["path"]}"')
     decoder=inputs['row_decoder'];driver=inputs['wl_driver']
+    require(decoder_mos in (29,33) and len(decoder['devices'])==decoder_mos and len(driver['devices'])==4,
+            'Expected explicit 29/33 decoder MOS count and four-MOS wordline driver')
     decoder_nets={pin:('0' if pin=='VSS' else pin) for pin in decoder['pins']}
     lines.append(instance('XDEC',decoder['subcircuit'],decoder['pins'],decoder_nets))
     terminals={}
@@ -112,7 +114,7 @@ def make_deck(inputs,profile,old,new,step_ps,cap_ff):
         lines.append(instance(f'XWL{row}',driver['subcircuit'],driver['pins'],nets))
         lines.append(f'CWL{row} WL{row} 0 {cap_ff*1e-15:.14g}')
         register(f'xwl{row}',driver,nets)
-    require(len(terminals)==45,'Expected 29 decoder + 16 driver MOS instances')
+    require(len(terminals)==decoder_mos+16,'Incomplete decoder/WL terminal coverage')
     saved={'VDD','PCLK','A0','A1',*[f'DEC{i}' for i in range(4)],*[f'WL{i}' for i in range(4)]}
     saved.update(node for pins in terminals.values() for node in pins.values() if node!='0')
     lines+=['.save '+' '.join(f'v({node})' for node in sorted(saved))+' i(VDD_SRC)',

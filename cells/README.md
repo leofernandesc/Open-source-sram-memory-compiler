@@ -1,10 +1,11 @@
 # Leaf cells Xschem
 
-**Canonical Phase 1 selection — 2026-10-28:** use the six schematics and
-symbols listed in the [frozen delivery table](../release/phase1/README.md).
-Each selected schematic has a corresponding electrical netlist, flat mask,
-unchanged PEX and fresh physical-verification evidence. The older file/status
-table below records earlier development and is not the release selection.
+**Canonical Phase 1 selection — 2026-10-29:** use the six schematics and
+symbols in the [current delivery table](../release/phase1_keeper/README.md).
+The selected decoder is `row_decoder/variants/keeper_0p84/row_decoder.sch`
+(33 MOS, four feedback PMOS keepers), with its own checked mask and new PEX.
+The other five leaves and the original six-cell freeze are unchanged. The
+older file/status table below records earlier development.
 
 Contrato de nomes para a etapa 2:
 

@@ -32,8 +32,8 @@ def schedule(low_ns=7.1,high_ns=5.4,lead_ps=2100):
                 rise_ns=rise,fall_ns=fall,address_ns=rise-lead_ps*1e-3,stop_ns=fall+5)
 
 
-def make_deck(inputs,profile,old,new,step_ps,cap_ff,when):
-    deck,terminals=pair.make_deck(inputs,profile,old,new,step_ps,cap_ff)
+def make_deck(inputs,profile,old,new,step_ps,cap_ff,when,decoder_mos=29):
+    deck,terminals=pair.make_deck(inputs,profile,old,new,step_ps,cap_ff,decoder_mos=decoder_mos)
     # The installed system spinit sets eight frontend threads, overriding OMP.
     # Set the frontend variable after initialization and before executing run.
     deck=deck.replace('.control\n','.control\nset num_threads=1\necho TIMING_LIMITS_NUM_THREADS=$num_threads\n',1)

@@ -53,7 +53,7 @@ def passive_islands(inputs):
     return result
 
 
-def probe_map(inputs):
+def probe_map(inputs,expected_count=45):
     result={}
     for prefix,leaf in [('xdec','row_decoder'),*[(f'xwl{i}','wl_driver') for i in range(4)]]:
         for device in inputs[leaf]['devices']:
@@ -63,7 +63,8 @@ def probe_map(inputs):
             primitive=f'm.{label.lower()}.msky130_fd_pr__{kind}fet_01v8'
             result[label]=dict(kind=kind,primitive=primitive,
                 queries={q:f'@{primitive}[{q}]' for q in ('vgs','vds','vbs','id')})
-    pair.require(len(result)==45,'Expected 45 intrinsic MOS probes')
+    pair.require(expected_count in (45,49) and len(result)==expected_count,
+                 'Expected explicit 45/49 intrinsic MOS probes')
     return result
 
 

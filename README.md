@@ -1,16 +1,19 @@
 # Open-Source SRAM Memory Compiler
 
-**Current Phase 1 delivery, 2026-10-28:** six selected leaf cells, including
-Leonardo's existing 29-MOS dynamic decoder. The canonical files, sizing and
-fresh DRC/LVS evidence are fixed in the
-[six-cell delivery record](docs/phase1_six_cell_delivery.md) and
-[frozen release](release/phase1/README.md). The six delivered flat masks pass
-DRC and primitive-MOS LVS with W/L and terminal comparison; electrical timing
-and model-domain limitations are recorded separately. Macro integration and
-the compiler are Phase 2 work.
+**Current Phase 1 selection, 2026-10-29:** six leaf cells, with Leonardo's
+dynamic decoder hardened by four feedback PMOS keepers (33 MOS total).
+The [current artifact table](release/phase1_keeper/README.md) fixes SCH, SYM,
+SPICE, MAG, PEX and DRC/parameter-aware LVS evidence. The other five selected
+leaves and the [29-MOS baseline](release/phase1/README.md) remain unchanged.
+The new decoder/WL PEX passes 105 runs and 3,045 experimental checks, including
+48 address cases and 30 crossed PVT points. The
+[analysis and real waveform plots](docs/row_decoder_robustness_20261029.md)
+retain measured noise limits and the independent off-state model-data gap;
+these results are not foundry reliability signoff. Macro integration and the
+compiler remain Phase 2 work.
 
 The development material below is retained as history. Earlier status and
-sizing statements are superseded by the frozen delivery manifest.
+sizing statements are superseded by the current delivery manifest.
 
 Compilador open-source de memória SRAM single-port baseado em uma bitcell 6T
 para o PDK SKY130A. O escopo prevê profundidades de 4, 8, 16 e 32 palavras,

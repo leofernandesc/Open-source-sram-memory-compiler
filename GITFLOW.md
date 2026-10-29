@@ -28,8 +28,12 @@ sizing, layout, DRC, and LVS. A candidate or phase proposal on another branch
 does not replace or reassign this implementation.
 
 The six-cell Phase 1 scope was explicitly reconfirmed by Leonardo on
-2026-10-28. The official artifact selection is `release/phase1/manifest.json`,
-with the delivery table in `docs/phase1_six_cell_delivery.md`. Complete macro,
+2026-10-28. On 2026-10-29 he authorized robustness analysis and circuit changes.
+His dynamic decoder remains official, now with four feedback PMOS keepers
+(33 MOS). `release/phase1_current.json` selects the current six-cell manifest
+in `release/phase1_keeper/`; its table is `release/phase1_keeper/README.md`.
+The original `release/phase1/` snapshot and the other five selections remain
+unchanged. Complete macro,
 compiler and physical control/PCLK-generator qualification are Phase 2 work.
 Statements in another branch that defer this decoder are superseded by this
 explicit scope decision when the development lines are reconciled.

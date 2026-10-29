@@ -1,4 +1,4 @@
-"""Placement and finite wire spans for the unchanged 29-MOS dynamic decoder."""
+"""Placement for the 29-MOS baseline or its explicit four-keeper derivative."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,6 +7,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class RoutingPlan:
     placement: dict[str, tuple[int, int]]
+    drain_offset: dict[str, int]
     gate_offset: dict[str, int]
     source_offset: dict[str, int]
     tracks: dict[str, int]
@@ -25,14 +26,27 @@ def compact_plan(devices) -> RoutingPlan:
                (16, 17), (18,), (19, 20),
                (21, 22), (23,), (24, 25))
     by_name = {d.name: d for d in devices}
-    if set(by_name) != {f'XM{i}' for i in range(1, 30)}:
-        raise ValueError('Compact placement requires exactly XM1..XM29')
-    placement, offsets, sources = {}, {}, {}
+    keeper = set(by_name)=={f'XM{i}' for i in range(1,34)}
+    if keeper:
+        # Occupy the unused P row above each lower-stack NFET. The original
+        # 29 device positions, rail extents and column count remain unchanged.
+        columns=tuple(group+({7:30,13:31,18:32,23:33}[group[0]],)
+                      if group[0] in (7,13,18,23) else group for group in columns)
+        for row in range(4):
+            d=by_name[f'XM{30+row}']
+            if (d.drain,d.gate,d.source,d.bulk)!=(f'N{row}',f'DEC{row}','VDD','VDD') or 'pfet' not in d.model:
+                raise ValueError('Unexpected feedback-keeper connectivity')
+    elif set(by_name) != {f'XM{i}' for i in range(1,30)}:
+        raise ValueError('Compact placement requires XM1..XM29 or XM1..XM33')
+    placement, drains, offsets, sources = {}, {}, {}, {}
     for col, group in enumerate(columns):
         for number in group:
             name = f'XM{number}'
             pmos = 'pfet' in by_name[name].model.lower()
             placement[name] = (1500 + 1100*col, 1000 if pmos else -1000)
+            # Keeper drain N and lower-stack drain netX are different nets.
+            # Their M2 escapes must not share the ordinary paired drain column.
+            drains[name] = -675 if number>=30 else -300
             # Distinct gate escape columns prevent PCLK/literal shorts when
             # precharge PFET and upper-stack NFET occupy the same column.
             offsets[name] = 150 if pmos else -150
@@ -49,7 +63,7 @@ def compact_plan(devices) -> RoutingPlan:
     vias = {name: set() for name in tracks}
     for d in devices:
         x, _ = placement[d.name]
-        for net, vx in ((d.drain, x-300), (d.gate, x+offsets[d.name]),
+        for net, vx in ((d.drain, x+drains[d.name]), (d.gate, x+offsets[d.name]),
                         (d.source, x+sources[d.name]), (d.bulk, x+560)):
             vias[net].add(vx)
     port_x = {net: 500 for net in ('VDD', 'VSS', 'PCLK', 'A0', 'A1')}
@@ -73,4 +87,4 @@ def compact_plan(devices) -> RoutingPlan:
         for other, (olo, ohi) in extents.items():
             if net != other and tracks[net] == tracks[other] and not (hi+120 <= olo or ohi+120 <= lo):
                 raise ValueError(f'Overlapping same-layer tracks: {net}, {other}')
-    return RoutingPlan(placement, offsets, sources, tracks, extents, port_x, shields)
+    return RoutingPlan(placement, drains, offsets, sources, tracks, extents, port_x, shields)

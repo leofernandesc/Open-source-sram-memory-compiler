@@ -25,13 +25,20 @@ The word width is fixed at 8 bits.
 
 The Phase 1 delivery contains exactly six leaf cells: `bitcell_6t`,
 `sense_amp`, `precharge`, `wl_driver`, `write_driver`, and `row_decoder`.
-Leonardo's existing 29-MOS dynamic decoder, developed on `feature/peripherals`,
-is the official decoder. The separate `row_decoder_2to4.spice` proposal on
+Leonardo's dynamic PCLK NAND decoder, developed on `feature/peripherals`,
+is the official decoder. On 2026-10-29 the owner authorized circuit hardening:
+the selected revision adds four feedback PMOS keepers and contains 33 MOS.
+The original 29-MOS delivery remains an unchanged historical baseline.
+The separate `row_decoder_2to4.spice` proposal on
 another development line does not replace it or move it out of Phase 1.
 
 The frozen schematic, symbol, electrical netlist, final flat mask and existing
-PEX for each cell are selected by `release/phase1/manifest.json`. The delivery
-table and evidence are in `docs/phase1_six_cell_delivery.md`.
+PEX for each cell are selected by `release/phase1_current.json`, currently
+pointing to `release/phase1_keeper/manifest.json`. Its five non-decoder leaves
+are identical to `release/phase1/manifest.json`. The current delivery table is
+`release/phase1_keeper/README.md`; the 2026-10-28 baseline record remains in
+`docs/phase1_six_cell_delivery.md`. The hardening analysis and explicit
+model-coverage limitation are in `docs/row_decoder_robustness_20261029.md`.
 
 Phase 1 physical acceptance requires DRC and parameter-aware LVS of these
 selected masks. Physical closure does not by itself approve electrical model
@@ -170,9 +177,14 @@ Precharge is active during the low phase of `CLK`, including idle and disabled c
 
 The first 4×8 implementation uses a precharged dynamic 2-to-4 NAND row decoder.
 
-The selected Phase 1 source is `cells/row_decoder/row_decoder.sch`, frozen
-without schematic or sizing changes in `release/phase1/cells/row_decoder/`.
-It contains 29 MOSFETs, uses a shared PCLK-controlled evaluation footer and
+The selected Phase 1 source is
+`cells/row_decoder/variants/keeper_0p84/row_decoder.sch`, frozen in
+`release/phase1_keeper/cells/row_decoder/`. It contains 33 MOSFETs, including
+four W=0.84 µm / L=0.15 µm feedback PMOS keepers, and uses a shared
+PCLK-controlled evaluation footer. Each keeper connects VDD to its row node,
+with its gate driven by the corresponding DEC output. It restores an
+unselected high node and turns off after the selected node discharges.
+The decoder
 keeps the logical `DEC0`–`DEC3` outputs separate from the wordline drivers.
 Its frozen symbol preserves the existing SPICE pin order, including
 `DEC3` before `DEC2`; pin names define the row mapping.

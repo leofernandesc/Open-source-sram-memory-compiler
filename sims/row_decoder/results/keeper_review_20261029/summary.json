@@ -1,0 +1,168 @@
+{
+  "status": "PASS_PROJECT_SCREENS_WITH_MODEL_COVERAGE_LIMITATION",
+  "independent_measured_files": 208,
+  "independent_measured_points": 65564,
+  "physical_proof_sha256": "91f1bb595362f374bbac93f607ac813107656747ef8a9e98e0dca27cc583f37e",
+  "new_pex_sha256": "6292f0c54f8777720b207faf937f936ced0aefb9e829245ff0fae1b208a388b1",
+  "functional_cases": 48,
+  "functional_checks": 1392,
+  "crossed_pvt_points": 30,
+  "mandatory_post_layout_cases": 105,
+  "mandatory_checks": 3045,
+  "boundary_cases": 5,
+  "boundary_failures": 5,
+  "worst_intrinsic_magnitude_v": 1.8639027874299017,
+  "min_selected_high90_dwell_ns": 1.393748914763844,
+  "min_reset_dwell_ns": 1.7948700855214992,
+  "max_wl90_delay_ps": 1069.260267540723,
+  "signed_vds_vbs_outside_after_2ns": 0,
+  "boundary_signed_vds_vbs_outside_after_2ns": 0,
+  "signed_gate_findings_remain": true,
+  "effective_vgs_bounds_v": {
+    "n": {
+      "min": -1.7079222048461813,
+      "max": 1.8632534567563994
+    },
+    "p": {
+      "min": -1.857838466996894,
+      "max": 0.06457189962092835
+    }
+  },
+  "original_no_fault_pass": 18,
+  "original_10ua_fail": 18,
+  "hybrid_042_pass": 60,
+  "comparison": [
+    {
+      "profile": "tt",
+      "old_wl90_ps": 587.1182685697509,
+      "new_wl90_ps": 648.395013931871,
+      "delta_wl90_ps": 61.276745362120096,
+      "delay_increase_pct": 10.436865729181498,
+      "old_core_energy_fj": 1135.6481007056375,
+      "new_core_energy_fj": 1201.8960780060152,
+      "energy_increase_pct": 5.83349518739249
+    },
+    {
+      "profile": "ss",
+      "old_wl90_ps": 985.1621813692083,
+      "new_wl90_ps": 1069.260267540723,
+      "delta_wl90_ps": 84.09808617151464,
+      "delay_increase_pct": 8.536471228994259,
+      "old_core_energy_fj": 910.9354282906892,
+      "new_core_energy_fj": 959.6412773546994,
+      "energy_increase_pct": 5.346794904596419
+    },
+    {
+      "profile": "ff",
+      "old_wl90_ps": 493.7413572049173,
+      "new_wl90_ps": 556.3845332318027,
+      "delta_wl90_ps": 62.64317602688544,
+      "delay_increase_pct": 12.687447610528334,
+      "old_core_energy_fj": 1225.0520774660308,
+      "new_core_energy_fj": 1302.5279407085775,
+      "energy_increase_pct": 6.324291405048044
+    }
+  ],
+  "initialization": [
+    {
+      "profile": "tt",
+      "op_minus_anchored_uic_wl90_ps": 2.7133042689349622,
+      "max_saved_waveform_interpolation_difference_v": 0.3763040213178792,
+      "max_difference_node": "v(xdec.eval_gnd)",
+      "max_difference_time_ns": 2.003621969789273,
+      "note": "Different floating EVAL_GND startup states; priming and second-access checks pass. Saved-grid interpolation is not a full-raw equality test."
+    },
+    {
+      "profile": "ss",
+      "op_minus_anchored_uic_wl90_ps": 3.5429698439952517,
+      "max_saved_waveform_interpolation_difference_v": 0.34182998232703365,
+      "max_difference_node": "v(xdec.eval_gnd)",
+      "max_difference_time_ns": 2.002531115084838,
+      "note": "Different floating EVAL_GND startup states; priming and second-access checks pass. Saved-grid interpolation is not a full-raw equality test."
+    },
+    {
+      "profile": "ff",
+      "op_minus_anchored_uic_wl90_ps": 2.1346216193418286,
+      "max_saved_waveform_interpolation_difference_v": 0.33193615348595107,
+      "max_difference_node": "v(xdec.eval_gnd)",
+      "max_difference_time_ns": 2.0057478183477033,
+      "note": "Different floating EVAL_GND startup states; priming and second-access checks pass. Saved-grid interpolation is not a full-raw equality test."
+    }
+  ],
+  "limitation": "No independent validation of negative-NFET/positive-PFET gate-bias accuracy; no statistical mismatch/yield or foundry reliability signoff.",
+  "reviewer_sha256": "ddbf003c3b1745454011bde302ac21822c223f7f9d7a3927fb995836a0c4dcd6",
+  "campaigns": {
+    "keeper_pex_functional_tt_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_functional_tt_20261029/manifest.json",
+      "sha256": "992bcdf3ccf9448572e718c6b021989be6bb5ad5579fe4d1e64136cc4cfa8623"
+    },
+    "keeper_pex_functional_ss_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_functional_ss_20261029/manifest.json",
+      "sha256": "e4558765a2f04bcfc568157a01ce2195c3b3537e541ce0687dad5de7eae1dfb0"
+    },
+    "keeper_pex_functional_ff_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_functional_ff_20261029/manifest.json",
+      "sha256": "3d4044e5e8523f63fbb7a6a92c6ffd78245fdd689cdb03ce4a90d3d72e4bbc3b"
+    },
+    "keeper_pex_pilot_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_pilot_20261029/manifest.json",
+      "sha256": "77bae737cfc77f4f7e2d033fd0ea9b8c071176e08896498b423f3c03e086c740"
+    },
+    "keeper_pex_leak_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_leak_20261029/manifest.json",
+      "sha256": "e71272f45abe0fc061813c7f4db4eaf3735ed6c2a915d5244e9dc74818d52c1f"
+    },
+    "keeper_pex_pvt_1_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_pvt_1_20261029/manifest.json",
+      "sha256": "7ea34dc94acc235b18d36284b2387ac9854d58cbe592a90fd7773496b9c2cfb6"
+    },
+    "keeper_pex_pvt_2_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_pvt_2_20261029/manifest.json",
+      "sha256": "5f9371737929745e4388d597abfc9f1252d94554ef4c82708ae8ae38f90405cd"
+    },
+    "keeper_pex_pvt_3_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_pvt_3_20261029/manifest.json",
+      "sha256": "5cb2b3a81852c7b98b5f1d127c6d3bd8d4e8a986c1bfbe035b3694f6b1e89b51"
+    },
+    "keeper_pex_charge_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_charge_20261029/manifest.json",
+      "sha256": "6432af10242d5abc71fb6bd9e2664962119c057699253d86370e71a1179dd935"
+    },
+    "keeper_pex_pullup_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_pullup_20261029/manifest.json",
+      "sha256": "5688f987dfa0b00cdb48e196f38660eb83e0597eda2f6cc2547a2b48c3b60856"
+    },
+    "keeper_pex_retention_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_retention_20261029/manifest.json",
+      "sha256": "e10f3291e2a246d170049420b40b7273235b0c50a7917edd7a3f934d4b854919"
+    },
+    "keeper_pex_op_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_op_20261029/manifest.json",
+      "sha256": "ee37abc3bd8eaa4b73948e9606309d196c4c37eb81c5b1eee1ff808fd5cc09ae"
+    },
+    "keeper_pex_anchored_uic_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_anchored_uic_20261029/manifest.json",
+      "sha256": "17451542a2b59cce6a21049a5e76df52bf246cb0cebdda13b737346e7758d0b0"
+    },
+    "keeper_pex_early_charge_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_early_charge_20261029/manifest.json",
+      "sha256": "5a55584a7fd1db5f66bc7db256c02d1c680ce1a9df0f8960f21a3eb160743815"
+    },
+    "keeper_pex_charge_boundary_20261029": {
+      "path": "sims/row_decoder/results/keeper_pex_charge_boundary_20261029/manifest.json",
+      "sha256": "4e3d1bd8d2d1773a7f38fa875cdd87b34ebea0f85569c177fd751f6bd8df7b06"
+    }
+  },
+  "artifact_sha256": {
+    "post_layout_cases.csv": "2326d62699163071ef683454336acb7395c6bc3c8bed3d6770325055f84402bc",
+    "leakage_restoration.png": "1083912946a7122c0f52aee47a2b0bfbe56ed1f0f3953cbc29db789e287dca89",
+    "matched_comparison.csv": "e8cc0ca1cdd671c7c6afb9e589b933028d92d5e146bb9db31644b07753d16b71",
+    "signed_bias.csv": "aa2d8c21418fd9ee723aa63e1870f645228a43a83479a6065ccb77f221971927",
+    "initialization_comparison.csv": "93e35616f3cb650c6f563ecc402bea244182acdb6468e3ad94315557abe82640",
+    "physical_cost_comparison.png": "7da093d4799022ff91dd23a06305b37447f93f2d4328f49ab9b4fa0e766b9748",
+    "measured_gate_coverage.png": "81fd7d3c8d707c14b40217bfc49ae25cecc60fa6a141832638c585e25136d4cf",
+    "keeper_discharge_tradeoff.png": "9b4d97a57199c35e554e28e7842fc247e5a103d29a698c957d191ae7293e6493",
+    "crossed_pvt.csv": "ab3a8b7d6c4cfd28e21cc22dc886962c966515ecf1c949eec214cbd94ad8b49d",
+    "charge_boundary.png": "6885a469d2e877f73638e1cef6aa13b2560abc33cafcbc340c374280cdc525af"
+  }
+}
