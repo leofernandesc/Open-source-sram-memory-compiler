@@ -14,6 +14,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from pex_access_nodes import bitcell_storage_nodes
+from qualification_contract import campaign_contract, reusable
 
 
 MODEL_LIB = "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice"
@@ -620,6 +621,7 @@ CBLB_EXTRA blb 0 {loads['blb_extra']:.9f}f
 .meas tran t_bl_recovery when v(bl)={vdd-0.1:.12g} rise=1 td={pre_reenable_ns:.12g}n
 .meas tran t_blb_recovery when v(blb)={vdd-0.1:.12g} rise=1 td={pre_reenable_ns:.12g}n
 .control
+set num_threads=1
 run
 quit
 .endc
@@ -855,12 +857,15 @@ def main() -> int:
         leafs["precharge"] = override_precharge_width(
             leafs["precharge"], args.precharge_width_um
         )
+    contract = campaign_contract(args, leafs, __file__, MODEL_LIB)
     cases = list(itertools.product(args.corners, args.vdd_values, args.temps_c, args.states))
     rows: list[dict[str, object]] = []
     pending = []
     for case in cases:
         cached = read_part(part_path(args, case)) if args.resume else None
-        if cached is not None and cached.get("status") == "PASS":
+        corner,vdd,temp_c,state=case
+        expected=dict(corner=corner,vdd_v=vdd,temp_c=temp_c,stored_q_before=state)
+        if reusable(cached, contract, expected):
             rows.append(dict(cached))
         else:
             pending.append(case)
@@ -882,6 +887,7 @@ def main() -> int:
         ]
         for done, future in enumerate(as_completed(futures), start=1):
             row = future.result()
+            row['cache_contract_sha256'] = contract
             rows.append(row)
             write_part(part_path(args, row), row)
             print(f"completed pending cases: {done}/{len(futures)}", flush=True)

@@ -1,0 +1,43 @@
+# Content-addressed evidence must survive Windows checkouts byte for byte.
+release/phase1/** -text
+release/phase1_keeper/** -text
+layout/row_decoder_keeper/** -text
+cells/row_decoder/variants/** -text
+sims/row_decoder/inputs/sky130_measured_20261029/** -text
+sims/row_decoder/results/*20261029*/** -text
+
+# Preserve original instrument/tool padding and CSV CRLF in raw evidence.
+# Source Python/shell files outside these evidence directories use normal checks.
+# Vendored instrument blobs retain upstream hashes, padding and RST heading
+# underlines. Review their coverage CSVs and blob hashes rather than text diffs.
+sims/row_decoder/inputs/sky130_measured_20261029/upstream/** -diff whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+sims/row_decoder/inputs/sky130_measured_20261029/*.csv whitespace=cr-at-eol
+sims/row_decoder/results/*20261029*/**/*.csv whitespace=cr-at-eol
+sims/row_decoder/results/*20261029*/**/*.txt whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+sims/row_decoder/results/*20261029*/**/*.spice whitespace=-blank-at-eof,cr-at-eol
+layout/row_decoder_keeper/**/*.txt whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+layout/row_decoder_keeper/**/*.spice whitespace=-blank-at-eof,cr-at-eol
+layout/row_decoder_keeper/**/*.log whitespace=-blank-at-eol,cr-at-eol
+layout/row_decoder_keeper/**/*.out whitespace=-blank-at-eol,cr-at-eol
+# These derivatives retain the historical schematic's harmless property padding.
+cells/row_decoder/variants/**/row_decoder.sch whitespace=-blank-at-eol
+release/phase1_keeper/**/row_decoder.sch whitespace=-blank-at-eol
+release/phase1_keeper/**/*.txt whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+release/phase1_keeper/**/*.spice whitespace=-blank-at-eof,cr-at-eol
+release/phase1_keeper/**/*.log whitespace=-blank-at-eol,cr-at-eol
+release/phase1_keeper/**/*.out whitespace=-blank-at-eol,cr-at-eol
+
+# Numerical evidence uses csv.writer's CRLF. Preserve the original bytes on
+# Windows and accept that line ending without relaxing Python/source checks.
+*.csv -text whitespace=cr-at-eol
+*.sch whitespace=-blank-at-eol
+release/phase1/**/*.txt whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+release/phase1/**/*.spice whitespace=-blank-at-eof,cr-at-eol
+sims/row_decoder/results/**/*.txt whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+sims/row_decoder/results/**/*.log whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+sims/row_decoder/results/**/*.spice whitespace=-blank-at-eof,cr-at-eol
+layout/row_decoder/**/*.log whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+layout/row_decoder/**/*.spice whitespace=-blank-at-eof,cr-at-eol
+sims/integration/results/** -text
+sims/integration/results/**/*.txt whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+sims/integration/results/**/*.spice whitespace=-blank-at-eof,cr-at-eol

@@ -1,0 +1,14 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt write_driver DATA DATA_B WE BL BLB VDD VSS
+M0 VSS WE a_1415_n5504.t0 VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+M1 VDD WE a_227_n1084.n0 VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+M2 VDD a_227_n1084.n0 a_1027_n1504.t0 VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+M3 a_3015_n5504.t0 DATA BLB VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+M4 a_1027_n1504.t0 DATA_B BL VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+M5 VSS WE a_3015_n5504.t0 VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+M6 VDD a_227_n1084.n0 a_2627_n1504.t0 VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+M7 a_2627_n1504.t0 DATA BLB VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+M8 VSS WE a_227_n1084.n0 VSS sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+M9 a_1415_n5504.t0 DATA_B BL VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+.ends write_driver

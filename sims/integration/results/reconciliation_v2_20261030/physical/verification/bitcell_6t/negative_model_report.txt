@@ -1,0 +1,64 @@
+
+Subcircuit summary:
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__pfet_01v8 (2)                |sky130_fd_pr__pfet_01v8 (1) **Mismatch**   
+sky130_fd_pr__nfet_01v8 (4)                |sky130_fd_pr__nfet_01v8 (5) **Mismatch**   
+Number of devices: 6                       |Number of devices: 6                       
+Number of nets: 7                          |Number of nets: 7                          
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+
+---------------------------------------------------------------------------------------
+Net: VDD                                   |Net: VDD                                   
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/bulk = 2         |  sky130_fd_pr__pfet_01v8/bulk = 1         
+                                           |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+                                           |  sky130_fd_pr__nfet_01v8/bulk = 1         
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+Net: a_215_n2026#                          |Net: QB                                    
+  sky130_fd_pr__pfet_01v8/gate = 1         |  sky130_fd_pr__nfet_01v8/gate = 2         
+  sky130_fd_pr__nfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__nfet_01v8/gate = 1         |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/(drain|source) = |                                           
+                                           |                                           
+Net: a_167_n2114#                          |Net: Q                                     
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+  sky130_fd_pr__nfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/gate = 1         
+  sky130_fd_pr__pfet_01v8/gate = 1         |  sky130_fd_pr__nfet_01v8/gate = 1         
+  sky130_fd_pr__nfet_01v8/gate = 1         |                                           
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+
+---------------------------------------------------------------------------------------
+Instance: sky130_fd_pr__pfet_01v8:0        |Instance: sky130_fd_pr__pfet_01v8:MPR      
+  (drain,source) = (5,4)                   |  (drain,source) = (5,4)                   
+  gate = 5                                 |  gate = 5                                 
+  bulk = 4                                 |  bulk = 4                                 
+                                           |                                           
+Instance: sky130_fd_pr__pfet_01v8:3        |Instance: sky130_fd_pr__nfet_01v8:MPL      
+  (drain,source) = (5,4)                   |  (drain,source) = (5,4)                   
+  gate = 5                                 |  gate = 5                                 
+  bulk = 4                                 |  bulk = 4                                 
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+-------------------------------------------|-------------------------------------------
+VSS                                        |VSS                                        
+BL                                         |BL                                         
+BLB                                        |BLB                                        
+WL                                         |WL                                         
+VDD                                        |VDD                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes bitcell_6t and bitcell_6t are equivalent.
+
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

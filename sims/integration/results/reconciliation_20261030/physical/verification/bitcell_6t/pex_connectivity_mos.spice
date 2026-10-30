@@ -1,0 +1,10 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt bitcell_6t VDD BL BLB VSS WL
+M0 a_167_n2114.n0 a_215_n2026.n0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+M1 a_215_n2026.n0 WL BL VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+M2 a_167_n2114.n0 a_215_n2026.n0 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+M3 a_215_n2026.n0 a_167_n2114.n0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+M4 a_167_n2114.n0 WL BLB VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+M5 a_215_n2026.n0 a_167_n2114.n0 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+.ends bitcell_6t

@@ -1,0 +1,33 @@
+Frozen decoder/WL local interface: ff_1.62_-40 1->2
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" ff
+.temp -40
+.options method=gear reltol=1e-4 minbreak=1f chgtol=1e-18
+VDD_SRC VDD 0 1.62
+VPCLK PCLK 0 PWL(0 0 4.975e-09 0 5.025e-09 1.62 9.975e-09 1.62 1.0025e-08 0 1.2975e-08 0 1.3025e-08 1.62 1.5475e-08 1.62 1.5525e-08 0 2.05e-08 0)
+VA0 A0 0 PWL(0 1.62 1.0875e-08 1.62 1.0925e-08 0 2.05e-08 0)
+VA1 A1 0 PWL(0 0 1.0875e-08 0 1.0925e-08 1.62 2.05e-08 1.62)
+.include "/work/sims/row_decoder/results/robustness_keeper_pvt_20261029/hybrid_candidate.spice"
+.include "/work/release/phase1/cells/wl_driver/wl_driver_pex.spice"
+XDEC VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 0 row_decoder_flat
+XWL0 VDD 0 DEC0 WL0 wl_driver_s1p68_s2p5p04_flat
+CWL0 WL0 0 1.02873935496e-13
+XWL1 VDD 0 DEC1 WL1 wl_driver_s1p68_s2p5p04_flat
+CWL1 WL1 0 1.02873935496e-13
+XWL2 VDD 0 DEC2 WL2 wl_driver_s1p68_s2p5p04_flat
+CWL2 WL2 0 1.02873935496e-13
+XWL3 VDD 0 DEC3 WL3 wl_driver_s1p68_s2p5p04_flat
+CWL3 WL3 0 1.02873935496e-13
+ISTRESS0 xdec.N0 0 PWL(0 0 2.05e-08 0)
+ISTRESS1 xdec.N1 0 PWL(0 0 2.05e-08 0)
+ISTRESS3 xdec.N3 0 PWL(0 0 2.05e-08 0)
+.save v(A0) v(A1) v(DEC0) v(DEC1) v(DEC2) v(DEC3) v(PCLK) v(VDD) v(WL0) v(WL1) v(WL2) v(WL3) v(xdec.A0.t0) v(xdec.A0.t1) v(xdec.A0B.t0) v(xdec.A0B.t1) v(xdec.A0B.t2) v(xdec.A0B.t3) v(xdec.A0B.t4) v(xdec.A0B.t5) v(xdec.A0T.t0) v(xdec.A0T.t1) v(xdec.A0T.t2) v(xdec.A0T.t3) v(xdec.A1.t0) v(xdec.A1.t1) v(xdec.A1B.t0) v(xdec.A1B.t1) v(xdec.A1B.t2) v(xdec.A1B.t3) v(xdec.A1B.t4) v(xdec.A1B.t5) v(xdec.A1T.t0) v(xdec.A1T.t1) v(xdec.A1T.t2) v(xdec.A1T.t3) v(xdec.DEC0.t0) v(xdec.DEC0.t1) v(xdec.DEC1.t0) v(xdec.DEC1.t1) v(xdec.DEC2.t0) v(xdec.DEC2.t1) v(xdec.DEC3.t0) v(xdec.DEC3.t1) v(xdec.EVAL_GND.t0) v(xdec.EVAL_GND.t1) v(xdec.EVAL_GND.t2) v(xdec.EVAL_GND.t3) v(xdec.EVAL_GND.t4) v(xdec.N0.t0) v(xdec.N0.t1) v(xdec.N0.t2) v(xdec.N0.t3) v(xdec.N1.t0) v(xdec.N1.t1) v(xdec.N1.t2) v(xdec.N1.t3) v(xdec.N2.t0) v(xdec.N2.t1) v(xdec.N2.t2) v(xdec.N2.t3) v(xdec.N3.t0) v(xdec.N3.t1) v(xdec.N3.t2) v(xdec.N3.t3) v(xdec.PCLK.t0) v(xdec.PCLK.t1) v(xdec.PCLK.t2) v(xdec.PCLK.t3) v(xdec.PCLK.t4) v(xdec.VDD.t0) v(xdec.VDD.t1) v(xdec.VDD.t10) v(xdec.VDD.t11) v(xdec.VDD.t12) v(xdec.VDD.t13) v(xdec.VDD.t14) v(xdec.VDD.t15) v(xdec.VDD.t16) v(xdec.VDD.t17) v(xdec.VDD.t18) v(xdec.VDD.t19) v(xdec.VDD.t2) v(xdec.VDD.t20) v(xdec.VDD.t21) v(xdec.VDD.t22) v(xdec.VDD.t23) v(xdec.VDD.t3) v(xdec.VDD.t4) v(xdec.VDD.t5) v(xdec.VDD.t6) v(xdec.VDD.t7) v(xdec.VDD.t8) v(xdec.VDD.t9) v(xdec.VSS.t0) v(xdec.VSS.t1) v(xdec.VSS.t10) v(xdec.VSS.t11) v(xdec.VSS.t12) v(xdec.VSS.t13) v(xdec.VSS.t14) v(xdec.VSS.t15) v(xdec.VSS.t16) v(xdec.VSS.t17) v(xdec.VSS.t18) v(xdec.VSS.t19) v(xdec.VSS.t2) v(xdec.VSS.t20) v(xdec.VSS.t21) v(xdec.VSS.t22) v(xdec.VSS.t23) v(xdec.VSS.t24) v(xdec.VSS.t25) v(xdec.VSS.t3) v(xdec.VSS.t4) v(xdec.VSS.t5) v(xdec.VSS.t6) v(xdec.VSS.t7) v(xdec.VSS.t8) v(xdec.VSS.t9) v(xdec.net1.t0) v(xdec.net1.t1) v(xdec.net2.t0) v(xdec.net2.t1) v(xdec.net3.t0) v(xdec.net3.t1) v(xdec.net4.t0) v(xdec.net4.t1) v(xwl0.VDD.t0) v(xwl0.VDD.t1) v(xwl0.VDD.t2) v(xwl0.VDD.t3) v(xwl0.VSS.t0) v(xwl0.VSS.t1) v(xwl0.VSS.t2) v(xwl0.VSS.t3) v(xwl0.WL.t0) v(xwl0.WL.t1) v(xwl0.WL_IN.t0) v(xwl0.WL_IN.t1) v(xwl0.a_227_n1168.t0) v(xwl0.a_227_n1168.t1) v(xwl0.a_227_n1168.t2) v(xwl0.a_227_n1168.t3) v(xwl1.VDD.t0) v(xwl1.VDD.t1) v(xwl1.VDD.t2) v(xwl1.VDD.t3) v(xwl1.VSS.t0) v(xwl1.VSS.t1) v(xwl1.VSS.t2) v(xwl1.VSS.t3) v(xwl1.WL.t0) v(xwl1.WL.t1) v(xwl1.WL_IN.t0) v(xwl1.WL_IN.t1) v(xwl1.a_227_n1168.t0) v(xwl1.a_227_n1168.t1) v(xwl1.a_227_n1168.t2) v(xwl1.a_227_n1168.t3) v(xwl2.VDD.t0) v(xwl2.VDD.t1) v(xwl2.VDD.t2) v(xwl2.VDD.t3) v(xwl2.VSS.t0) v(xwl2.VSS.t1) v(xwl2.VSS.t2) v(xwl2.VSS.t3) v(xwl2.WL.t0) v(xwl2.WL.t1) v(xwl2.WL_IN.t0) v(xwl2.WL_IN.t1) v(xwl2.a_227_n1168.t0) v(xwl2.a_227_n1168.t1) v(xwl2.a_227_n1168.t2) v(xwl2.a_227_n1168.t3) v(xwl3.VDD.t0) v(xwl3.VDD.t1) v(xwl3.VDD.t2) v(xwl3.VDD.t3) v(xwl3.VSS.t0) v(xwl3.VSS.t1) v(xwl3.VSS.t2) v(xwl3.VSS.t3) v(xwl3.WL.t0) v(xwl3.WL.t1) v(xwl3.WL_IN.t0) v(xwl3.WL_IN.t1) v(xwl3.a_227_n1168.t0) v(xwl3.a_227_n1168.t1) v(xwl3.a_227_n1168.t2) v(xwl3.a_227_n1168.t3) i(VDD_SRC) v(xdec.N0) v(xdec.N1) v(xdec.N2) v(xdec.N3) v(xdec.EVAL_GND)
+.tran 5p 20.5n 0 5p uic
+.control
+set num_threads=1
+echo TIMING_LIMITS_NUM_THREADS=$num_threads
+set filetype=binary
+run
+write waveform.raw
+quit
+.endc
+.end

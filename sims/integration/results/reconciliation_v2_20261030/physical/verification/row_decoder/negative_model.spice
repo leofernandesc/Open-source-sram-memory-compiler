@@ -1,0 +1,37 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt row_decoder VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS
+MM1 A0B A0 VDD VDD sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+MM2 A0B A0 VSS VSS sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+MM3 A1B A1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM4 A1B A1 VSS VSS sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+MM5 N0 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM6 N0 A1B net1 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM7 net1 A0B EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM8 EVAL_GND PCLK VSS VSS sky130_fd_pr__nfet_01v8 w=1.5u l=0.15u
+MM9 DEC0 N0 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM10 DEC0 N0 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM11 N1 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM12 N1 A1B net2 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM13 net2 A0T EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM14 DEC1 N1 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM15 DEC1 N1 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM16 N2 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM17 N2 A1T net3 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM18 net3 A0B EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM19 DEC2 N2 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM20 DEC2 N2 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM21 N3 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM22 N3 A1T net4 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM23 net4 A0T EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM24 DEC3 N3 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM25 DEC3 N3 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM26 A0T A0B VDD VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+MM27 A0T A0B VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM28 A1T A1B VDD VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+MM29 A1T A1B VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM30 N0 DEC0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM31 N1 DEC1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM32 N2 DEC2 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM33 N3 DEC3 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+.ends row_decoder

@@ -1,0 +1,11 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt sense_amp VDD VSS BL BLB SCLK SA_OUT SA_OUTB
+M0 a_615_n3098# SA_OUT SA_OUTB VSS sky130_fd_pr__nfet_01v8 w=0.98u l=0.15u
+M1 a_615_n3098# SA_OUTB SA_OUT VSS sky130_fd_pr__nfet_01v8 w=0.98u l=0.15u
+M2 BLB SCLK SA_OUTB VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+M3 VSS SCLK a_615_n3098# VSS sky130_fd_pr__nfet_01v8 w=0.98u l=0.15u
+M4 VDD SA_OUTB SA_OUT VDD sky130_fd_pr__pfet_01v8 w=1.89u l=0.15u
+M5 VDD SA_OUT SA_OUTB VDD sky130_fd_pr__pfet_01v8 w=1.89u l=0.15u
+M6 SA_OUT SCLK BL VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+.ends sense_amp

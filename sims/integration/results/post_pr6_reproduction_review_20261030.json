@@ -1,0 +1,147 @@
+{
+  "status": "PASS",
+  "scope": "PHASE1_REPOSITORY_RECONCILIATION_NOT_FULL_MACRO",
+  "frozen_audit": {
+    "status": "PASS",
+    "indexed_files": 3020,
+    "cells": 6,
+    "row_decoder_mos": 33,
+    "electrical_status": "PASS_PROJECT_SCREENS_WITH_MODEL_COVERAGE_LIMITATION",
+    "historical_freeze_preserved": true
+  },
+  "fresh_physical_cells": 6,
+  "physical_negative_controls_rejected": 30,
+  "g7": {
+    "read": {
+      "cases": 60,
+      "metrics": {
+        "delta_at_sclk_v": {
+          "old_min": 0.33435000000000015,
+          "old_max": 0.7799969999999998,
+          "new_min": 0.3419960000000002,
+          "new_max": 0.8291613,
+          "historical_missing": 0,
+          "compared_pairs": 60,
+          "max_abs_pair_difference": 0.04916430000000016
+        },
+        "t_res_from_sclk50_ns": {
+          "old_min": 0.0806699999999999,
+          "old_max": 0.2463500000000001,
+          "new_min": 0.08031999999999999,
+          "new_max": 0.24510000000000032,
+          "historical_missing": 0,
+          "compared_pairs": 60,
+          "max_abs_pair_difference": 0.002309999999999368
+        },
+        "read_disturb_peak_v": {
+          "old_min": 0.1184058,
+          "old_max": 0.1964912,
+          "new_min": 0.1184058,
+          "new_max": 0.1964912,
+          "historical_missing": 0,
+          "compared_pairs": 60,
+          "max_abs_pair_difference": 0.0007164999999999949
+        },
+        "precharge_recovery_ns": {
+          "old_min": 1.1965299999999999,
+          "old_max": 1.8023699999999998,
+          "new_min": 1.33849,
+          "new_max": 2.4949499999999993,
+          "historical_missing": 30,
+          "compared_pairs": 30,
+          "max_abs_pair_difference": 0.509739999999999
+        }
+      },
+      "comparison_scope": "New explicit 3 ns WL input; historical CSV lacks the complete pulse contract. Not a matched timing claim."
+    },
+    "write": {
+      "cases": 60,
+      "metrics": {
+        "full_flip_from_wl50_ns": {
+          "old_min": 0.34998000000000007,
+          "old_max": 0.7202799999999999,
+          "new_min": 0.34998000000000007,
+          "new_max": 0.7202799999999999,
+          "historical_missing": 0,
+          "compared_pairs": 60,
+          "max_abs_pair_difference": 0.0
+        },
+        "wl_margin_30pct_ns": {
+          "old_min": 0.07969599999999999,
+          "old_max": 0.5775549999999998,
+          "new_min": 0.07969599999999999,
+          "new_max": 0.5775549999999998,
+          "historical_missing": 0,
+          "compared_pairs": 60,
+          "max_abs_pair_difference": 0.0
+        },
+        "precharge_recovery_ns": {
+          "old_min": 2.5535799999999984,
+          "old_max": 3.97884,
+          "new_min": 2.5535799999999984,
+          "new_max": 3.97884,
+          "historical_missing": 0,
+          "compared_pairs": 60,
+          "max_abs_pair_difference": 0.0
+        }
+      },
+      "comparison_scope": "Recorded historical load, WE=2.2 ns, WL_IN=3.4 ns/1 ns; numerical comparison tolerance 2 ps."
+    }
+  },
+  "source_path_smoke_cases": 12,
+  "decoder": {
+    "cases": 48,
+    "checks": 1392,
+    "max_abs_wl90_difference_ps": 0.0,
+    "identical_decks_and_models": true
+  },
+  "boundary_cli": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "sims/row_decoder/run_keeper_pex.py",
+        "--profiles",
+        "ff",
+        "--transitions",
+        "1:2",
+        "--kind",
+        "charge_down",
+        "--value",
+        "32",
+        "--output-dir",
+        "/work/sims/integration/results/boundary_cli_20261030/mandatory"
+      ],
+      "returncode": 2,
+      "expected_returncode": 2,
+      "status": "FAIL_EXPERIMENTAL_SCREEN",
+      "complete": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "sims/row_decoder/run_keeper_pex.py",
+        "--profiles",
+        "ff",
+        "--transitions",
+        "1:2",
+        "--kind",
+        "charge_down",
+        "--value",
+        "32",
+        "--output-dir",
+        "/work/sims/integration/results/boundary_cli_20261030/allowed",
+        "--allow-boundary"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "status": "MEASURED_BOUNDARY",
+      "complete": true
+    }
+  ],
+  "new_rc_extraction": false,
+  "recorded_cli_compatibility_failure_preserved": true,
+  "source_smoke_sha256": "dd2182441d16ead8a87678fb3dc023991b6a54d28f15be439c032902fbd4ba33",
+  "suite_manifest_sha256": "f1139fe99d2bc8598ef5f7fea74a15458f14d197334a14ce7a50079f0705dca7",
+  "decoder_manifest_sha256": "d10ce0addf8ee248babf7c026e70400a9fa1ff5eb386bff1e548b4df57de148d",
+  "reviewer_sha256": "6f4f84c5b482c81819340ee2a7d8d54a135cd7cb0d1363a8d737c9a649d1aa56"
+}

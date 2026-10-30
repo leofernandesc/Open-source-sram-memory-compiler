@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "cells": [
+    {
+      "cell": "bitcell_6t",
+      "status": "PASS",
+      "checks": "source provenance, exact mask/PEX hashes, symbol pin order, physical result and negative controls"
+    },
+    {
+      "cell": "sense_amp",
+      "status": "PASS",
+      "checks": "source provenance, exact mask/PEX hashes, symbol pin order, physical result and negative controls"
+    },
+    {
+      "cell": "precharge",
+      "status": "PASS",
+      "checks": "source provenance, exact mask/PEX hashes, symbol pin order, physical result and negative controls"
+    },
+    {
+      "cell": "wl_driver",
+      "status": "PASS",
+      "checks": "source provenance, exact mask/PEX hashes, symbol pin order, physical result and negative controls"
+    },
+    {
+      "cell": "write_driver",
+      "status": "PASS",
+      "checks": "source provenance, exact mask/PEX hashes, symbol pin order, physical result and negative controls"
+    },
+    {
+      "cell": "row_decoder",
+      "status": "PASS",
+      "checks": "source provenance, exact mask/PEX hashes, symbol pin order, physical result and negative controls"
+    }
+  ],
+  "electrical": [
+    {
+      "file": "g7_read_requal_latch_t0_20261008.csv",
+      "cases": 60,
+      "status": "PASS",
+      "pex_hash_checks": 240
+    },
+    {
+      "file": "g7_write_requal_casewise_wlsetup1p2ns_20261008.csv",
+      "cases": 60,
+      "status": "PASS",
+      "pex_hash_checks": 240
+    },
+    {
+      "file": "g7_read_critical_refined_1ps_20261008.csv",
+      "cases": 8,
+      "status": "PASS",
+      "pex_hash_checks": 32
+    },
+    {
+      "file": "g7_write_critical_refined_1ps_20261008.csv",
+      "cases": 1,
+      "status": "PASS",
+      "pex_hash_checks": 4
+    }
+  ],
+  "supporting_g7_column": "PASS_DRC_AND_PARAMETER_AWARE_LVS_212_MOS",
+  "validation_policy": "Explicit runtime checks, including under Python -O and -OO",
+  "limits": "Audit of existing electrical CSVs and physical reruns; no new electrical simulation or R-C extraction."
+}

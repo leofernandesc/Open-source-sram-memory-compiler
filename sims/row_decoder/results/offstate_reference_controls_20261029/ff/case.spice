@@ -1,0 +1,37 @@
+Off-state context control, not measured silicon
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" ff
+.temp 125
+VDD VDD 0 1.8
+.include "/work/sims/row_decoder/results/offstate_reference_controls_20261029/pdk_nand2_excerpt.spice"
+.include "/work/release/phase1/cells/bitcell_6t/bitcell_6t.spice"
+VA00 a00 0 0.0
+VB00 b00 0 0.0
+xnand00 a00 b00 0 0 VDD VDD y00 sky130_fd_sc_hd__nand2_1
+VA01 a01 0 0.0
+VB01 b01 0 1.8
+xnand01 a01 b01 0 0 VDD VDD y01 sky130_fd_sc_hd__nand2_1
+VA10 a10 0 1.8
+VB10 b10 0 0.0
+xnand10 a10 b10 0 0 VDD VDD y10 sky130_fd_sc_hd__nand2_1
+VA11 a11 0 1.8
+VB11 b11 0 1.8
+xnand11 a11 b11 0 0 VDD VDD y11 sky130_fd_sc_hd__nand2_1
+VBL0 bl0 0 1.8
+VBLB0 blb0 0 1.8
+VWL0 wl0 0 0
+xbit0 VDD bl0 blb0 0 wl0 bitcell_6t
+.nodeset V(xbit0.Q)=0.0 V(xbit0.QB)=1.8
+VBL1 bl1 0 1.8
+VBLB1 blb1 0 1.8
+VWL1 wl1 0 0
+xbit1 VDD bl1 blb1 0 wl1 bitcell_6t
+.nodeset V(xbit1.Q)=1.8 V(xbit1.QB)=0.0
+.save @m.xbit0.xmal.msky130_fd_pr__nfet_01v8[vbs] @m.xbit0.xmal.msky130_fd_pr__nfet_01v8[vds] @m.xbit0.xmal.msky130_fd_pr__nfet_01v8[vgs] @m.xbit0.xmar.msky130_fd_pr__nfet_01v8[vbs] @m.xbit0.xmar.msky130_fd_pr__nfet_01v8[vds] @m.xbit0.xmar.msky130_fd_pr__nfet_01v8[vgs] @m.xbit0.xmnl.msky130_fd_pr__nfet_01v8[vbs] @m.xbit0.xmnl.msky130_fd_pr__nfet_01v8[vds] @m.xbit0.xmnl.msky130_fd_pr__nfet_01v8[vgs] @m.xbit0.xmnr.msky130_fd_pr__nfet_01v8[vbs] @m.xbit0.xmnr.msky130_fd_pr__nfet_01v8[vds] @m.xbit0.xmnr.msky130_fd_pr__nfet_01v8[vgs] @m.xbit0.xmpl.msky130_fd_pr__pfet_01v8[vbs] @m.xbit0.xmpl.msky130_fd_pr__pfet_01v8[vds] @m.xbit0.xmpl.msky130_fd_pr__pfet_01v8[vgs] @m.xbit0.xmpr.msky130_fd_pr__pfet_01v8[vbs] @m.xbit0.xmpr.msky130_fd_pr__pfet_01v8[vds] @m.xbit0.xmpr.msky130_fd_pr__pfet_01v8[vgs] @m.xbit1.xmal.msky130_fd_pr__nfet_01v8[vbs] @m.xbit1.xmal.msky130_fd_pr__nfet_01v8[vds] @m.xbit1.xmal.msky130_fd_pr__nfet_01v8[vgs] @m.xbit1.xmar.msky130_fd_pr__nfet_01v8[vbs] @m.xbit1.xmar.msky130_fd_pr__nfet_01v8[vds] @m.xbit1.xmar.msky130_fd_pr__nfet_01v8[vgs] @m.xbit1.xmnl.msky130_fd_pr__nfet_01v8[vbs] @m.xbit1.xmnl.msky130_fd_pr__nfet_01v8[vds] @m.xbit1.xmnl.msky130_fd_pr__nfet_01v8[vgs] @m.xbit1.xmnr.msky130_fd_pr__nfet_01v8[vbs] @m.xbit1.xmnr.msky130_fd_pr__nfet_01v8[vds] @m.xbit1.xmnr.msky130_fd_pr__nfet_01v8[vgs] @m.xbit1.xmpl.msky130_fd_pr__pfet_01v8[vbs] @m.xbit1.xmpl.msky130_fd_pr__pfet_01v8[vds] @m.xbit1.xmpl.msky130_fd_pr__pfet_01v8[vgs] @m.xbit1.xmpr.msky130_fd_pr__pfet_01v8[vbs] @m.xbit1.xmpr.msky130_fd_pr__pfet_01v8[vds] @m.xbit1.xmpr.msky130_fd_pr__pfet_01v8[vgs] @m.xnand00.x0.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand00.x0.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand00.x0.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand00.x1.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand00.x1.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand00.x1.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand00.x2.msky130_fd_pr__nfet_01v8[vbs] @m.xnand00.x2.msky130_fd_pr__nfet_01v8[vds] @m.xnand00.x2.msky130_fd_pr__nfet_01v8[vgs] @m.xnand00.x3.msky130_fd_pr__nfet_01v8[vbs] @m.xnand00.x3.msky130_fd_pr__nfet_01v8[vds] @m.xnand00.x3.msky130_fd_pr__nfet_01v8[vgs] @m.xnand01.x0.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand01.x0.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand01.x0.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand01.x1.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand01.x1.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand01.x1.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand01.x2.msky130_fd_pr__nfet_01v8[vbs] @m.xnand01.x2.msky130_fd_pr__nfet_01v8[vds] @m.xnand01.x2.msky130_fd_pr__nfet_01v8[vgs] @m.xnand01.x3.msky130_fd_pr__nfet_01v8[vbs] @m.xnand01.x3.msky130_fd_pr__nfet_01v8[vds] @m.xnand01.x3.msky130_fd_pr__nfet_01v8[vgs] @m.xnand10.x0.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand10.x0.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand10.x0.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand10.x1.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand10.x1.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand10.x1.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand10.x2.msky130_fd_pr__nfet_01v8[vbs] @m.xnand10.x2.msky130_fd_pr__nfet_01v8[vds] @m.xnand10.x2.msky130_fd_pr__nfet_01v8[vgs] @m.xnand10.x3.msky130_fd_pr__nfet_01v8[vbs] @m.xnand10.x3.msky130_fd_pr__nfet_01v8[vds] @m.xnand10.x3.msky130_fd_pr__nfet_01v8[vgs] @m.xnand11.x0.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand11.x0.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand11.x0.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand11.x1.msky130_fd_pr__pfet_01v8_hvt[vbs] @m.xnand11.x1.msky130_fd_pr__pfet_01v8_hvt[vds] @m.xnand11.x1.msky130_fd_pr__pfet_01v8_hvt[vgs] @m.xnand11.x2.msky130_fd_pr__nfet_01v8[vbs] @m.xnand11.x2.msky130_fd_pr__nfet_01v8[vds] @m.xnand11.x2.msky130_fd_pr__nfet_01v8[vgs] @m.xnand11.x3.msky130_fd_pr__nfet_01v8[vbs] @m.xnand11.x3.msky130_fd_pr__nfet_01v8[vds] @m.xnand11.x3.msky130_fd_pr__nfet_01v8[vgs] v(VDD) v(a00) v(a01) v(a10) v(a11) v(b00) v(b01) v(b10) v(b11) v(bl0) v(bl1) v(blb0) v(blb1) v(wl0) v(wl1) v(xbit0.Q) v(xbit0.QB) v(xbit1.Q) v(xbit1.QB) v(xnand00.a_113_47#) v(xnand01.a_113_47#) v(xnand10.a_113_47#) v(xnand11.a_113_47#) v(y00) v(y01) v(y10) v(y11)
+.control
+set num_threads=1
+set filetype=binary
+op
+write operating_point.raw
+quit
+.endc
+.end

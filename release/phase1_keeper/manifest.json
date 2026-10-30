@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "scope": "Six Phase 1 leaves, hardened Leonardo decoder revision 2026-10-29",
+  "decision": "Dynamic PCLK NAND decoder retained; four W0.84/L0.15 PMOS feedback keepers added. Other five leaf selections unchanged.",
+  "phase2": [
+    "complete SRAM macros",
+    "compiler and final generated views",
+    "physical qualification of complete capture and PCLK/PRECH control source"
+  ],
+  "cells": {
+    "bitcell_6t": {
+      "owner": "Danilo",
+      "widths": {
+        "MPL": "0.42",
+        "MPR": "0.42",
+        "MNL": "1.26",
+        "MNR": "1.26",
+        "MAL": "0.60",
+        "MAR": "0.60"
+      },
+      "expected_mos": 6,
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "inputs": {
+        "schematic": {
+          "path": "cells/bitcell_6t.sch",
+          "sha256": "4fbb648b830cb87718439f26d7258b81c6acfd0a342807688d634c4ac329c7f5"
+        },
+        "layout": {
+          "path": "layout/bitcell_6t/bitcell_6t_flat.mag",
+          "sha256": "d40e2635173f705dbf1878821db6b1bd12e621f8042fcba7c20ea044ec34cf23"
+        },
+        "pex": {
+          "path": "layout/bitcell_6t/pex/bitcell_6t_pex.spice",
+          "sha256": "41fb8502601508f50e82cdae3ef77b10ec8048dca26b769f981e88f0d9cabb03"
+        }
+      },
+      "files": {
+        "schematic": {
+          "path": "release/phase1/cells/bitcell_6t/bitcell_6t.sch",
+          "sha256": "6ace3425515cf41d6039811e7399cdaa89ca7cbd68433449cf7ffc47a21cf841"
+        },
+        "layout": {
+          "path": "release/phase1/cells/bitcell_6t/bitcell_6t.mag",
+          "sha256": "d40e2635173f705dbf1878821db6b1bd12e621f8042fcba7c20ea044ec34cf23"
+        },
+        "pex": {
+          "path": "release/phase1/cells/bitcell_6t/bitcell_6t_pex.spice",
+          "sha256": "41fb8502601508f50e82cdae3ef77b10ec8048dca26b769f981e88f0d9cabb03"
+        },
+        "spice": {
+          "path": "release/phase1/cells/bitcell_6t/bitcell_6t.spice",
+          "sha256": "15195d40573b4ce13ae69a83841ea5863d98e6faaf5dd8ea4a0289682de4bf8c"
+        },
+        "symbol": {
+          "path": "release/phase1/cells/bitcell_6t/bitcell_6t.sym",
+          "sha256": "864cc3eaa0b2d2a93448d6b6c0ca2557cf18150382ed3f7515d1e05f932d05fd"
+        }
+      },
+      "physical_result": "release/phase1/verification/bitcell_6t/result.json",
+      "pin_order": [
+        "VDD",
+        "BL",
+        "BLB",
+        "VSS",
+        "WL"
+      ]
+    },
+    "sense_amp": {
+      "owner": "Andr\u00e9",
+      "widths": {
+        "MP1": "1.89",
+        "MP2": "1.89",
+        "MN1": "0.975",
+        "MN2": "0.975",
+        "MTAIL": "0.975",
+        "MSAMPBL": "2.0",
+        "MSAMPBLB": "2.0"
+      },
+      "expected_mos": 7,
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "inputs": {
+        "schematic": {
+          "path": "cells/sense_amp.sch",
+          "sha256": "ad8f819a9c95b5aa9405ded08fd7860a0eafc557b15fd5d1b5c8f30446dc8483"
+        },
+        "layout": {
+          "path": "layout/sense_amp/experimental/sense_amp_scale1p5_flat.mag",
+          "sha256": "01a609ea340942032a34e983e9c03aa19668320212cc6b9a54bd33c3b536ede2"
+        },
+        "pex": {
+          "path": "layout/sense_amp/experimental/pex/sense_amp_scale1p5_pex.spice",
+          "sha256": "ab60dc3ccfdcd7430ed169db89b6285757f3c035ffe94ec0d5774ecb3f56b653"
+        }
+      },
+      "files": {
+        "schematic": {
+          "path": "release/phase1/cells/sense_amp/sense_amp.sch",
+          "sha256": "3ac166bcdc614f493da8388f15a658c2c5b38c1351fa78242637b5eb015e931e"
+        },
+        "layout": {
+          "path": "release/phase1/cells/sense_amp/sense_amp.mag",
+          "sha256": "01a609ea340942032a34e983e9c03aa19668320212cc6b9a54bd33c3b536ede2"
+        },
+        "pex": {
+          "path": "release/phase1/cells/sense_amp/sense_amp_pex.spice",
+          "sha256": "ab60dc3ccfdcd7430ed169db89b6285757f3c035ffe94ec0d5774ecb3f56b653"
+        },
+        "spice": {
+          "path": "release/phase1/cells/sense_amp/sense_amp.spice",
+          "sha256": "52f80d154ddddef14438fdb6196fac8adb78ad67cc3173a461c66710616e5147"
+        },
+        "symbol": {
+          "path": "release/phase1/cells/sense_amp/sense_amp.sym",
+          "sha256": "6f0f15c39338d4e41ab19e4ec0018faf927a454048ad54c2157bdcb6fcd1bfe6"
+        }
+      },
+      "physical_result": "release/phase1/verification/sense_amp/result.json",
+      "pin_order": [
+        "VDD",
+        "VSS",
+        "BL",
+        "BLB",
+        "SCLK",
+        "SA_OUT",
+        "SA_OUTB"
+      ]
+    },
+    "precharge": {
+      "owner": "Andr\u00e9",
+      "widths": {
+        "MPBL": "2.52",
+        "MPBLB": "2.52",
+        "MEQ": "2.52"
+      },
+      "expected_mos": 3,
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "inputs": {
+        "schematic": {
+          "path": "cells/precharge.sch",
+          "sha256": "4cdacd051056cd58db0987a8cc25869c2343d886502dc3daa64bfa64df001002"
+        },
+        "layout": {
+          "path": "layout/precharge/experimental_w2p52/precharge_w2p52_flat.mag",
+          "sha256": "26696b17893ac6c2d13315c39341510c94ac3249b258621d55ddae2fb043bd5f"
+        },
+        "pex": {
+          "path": "layout/precharge/experimental_w2p52/pex/precharge_w2p52_pex.spice",
+          "sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423"
+        }
+      },
+      "files": {
+        "schematic": {
+          "path": "release/phase1/cells/precharge/precharge.sch",
+          "sha256": "6fb6d93cb32f5c1c962254d9e83ca56d3cb1d2d63e597ca1658079d72cf3f68c"
+        },
+        "layout": {
+          "path": "release/phase1/cells/precharge/precharge.mag",
+          "sha256": "26696b17893ac6c2d13315c39341510c94ac3249b258621d55ddae2fb043bd5f"
+        },
+        "pex": {
+          "path": "release/phase1/cells/precharge/precharge_pex.spice",
+          "sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423"
+        },
+        "spice": {
+          "path": "release/phase1/cells/precharge/precharge.spice",
+          "sha256": "6dc5e168d89339577c8a3801ef333cead6691e754f75137fb63ab048d5a10a50"
+        },
+        "symbol": {
+          "path": "release/phase1/cells/precharge/precharge.sym",
+          "sha256": "77010c80a7bd258f0b7ddeff5a1dac129941a2f2b79f3429973e0a6756a79649"
+        }
+      },
+      "physical_result": "release/phase1/verification/precharge/result.json",
+      "pin_order": [
+        "VDD",
+        "BL",
+        "BLB",
+        "PRECH",
+        "VSS"
+      ]
+    },
+    "wl_driver": {
+      "owner": "Leonardo",
+      "widths": {
+        "MP1": "1.68",
+        "MN1": "1.68",
+        "MP2": "5.04",
+        "MN2": "5.04"
+      },
+      "expected_mos": 4,
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "inputs": {
+        "schematic": {
+          "path": "cells/wl_driver.sch",
+          "sha256": "fcbd66081215bbbc32ff3ddb2655bf74f5ad55c6ac952b31159b64d3fb0b86d4"
+        },
+        "layout": {
+          "path": "layout/wl_driver/experimental_s1p68_s2p5p04/wl_driver_s1p68_s2p5p04_flat.mag",
+          "sha256": "5c9769700fedfd612a20b89a1ec31ea97d5201dbf58189b5ab420339d2a628fb"
+        },
+        "pex": {
+          "path": "layout/wl_driver/experimental_s1p68_s2p5p04/pex/wl_driver_s1p68_s2p5p04_pex.spice",
+          "sha256": "c6d099c1c7db764b88eb357bcde0bba9b1a53de91466b912442e8c1a767935f6"
+        }
+      },
+      "files": {
+        "schematic": {
+          "path": "release/phase1/cells/wl_driver/wl_driver.sch",
+          "sha256": "4e1772f6c22825b77589035d949ed8fdd20c0aed6dad4a7aee2358a52508de67"
+        },
+        "layout": {
+          "path": "release/phase1/cells/wl_driver/wl_driver.mag",
+          "sha256": "5c9769700fedfd612a20b89a1ec31ea97d5201dbf58189b5ab420339d2a628fb"
+        },
+        "pex": {
+          "path": "release/phase1/cells/wl_driver/wl_driver_pex.spice",
+          "sha256": "c6d099c1c7db764b88eb357bcde0bba9b1a53de91466b912442e8c1a767935f6"
+        },
+        "spice": {
+          "path": "release/phase1/cells/wl_driver/wl_driver.spice",
+          "sha256": "843808b94414be032d114590c2c6d9a787ed5b13ed1c26dd4eba4b9173d68bdd"
+        },
+        "symbol": {
+          "path": "release/phase1/cells/wl_driver/wl_driver.sym",
+          "sha256": "ec3ed3a43d1417d443b3cf42fe80a1261f0772662a128f1a4181aab5612bd6fe"
+        }
+      },
+      "physical_result": "release/phase1/verification/wl_driver/result.json",
+      "pin_order": [
+        "VDD",
+        "VSS",
+        "WL_IN",
+        "WL"
+      ]
+    },
+    "write_driver": {
+      "owner": "Leonardo",
+      "widths": {
+        "MPWEB": "0.84",
+        "MNWEB": "0.84",
+        "MPENBL": "5.04",
+        "MPDBL": "5.04",
+        "MNDBL": "5.04",
+        "MNENBL": "5.04",
+        "MPENBLB": "5.04",
+        "MPDBLB": "5.04",
+        "MNDBLB": "5.04",
+        "MNENBLB": "5.04"
+      },
+      "expected_mos": 10,
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "inputs": {
+        "schematic": {
+          "path": "cells/write_driver.sch",
+          "sha256": "5733488718b5cdffab4f5e15e34eb771879a16cefc8ccf0ebbaef6754e5d3d96"
+        },
+        "layout": {
+          "path": "layout/write_driver/experimental_w5p04/write_driver_w5p04_flat.mag",
+          "sha256": "010173d790022859264c3fdff8377a5771bbe48f7c5f6799d0283864328ea343"
+        },
+        "pex": {
+          "path": "layout/write_driver/experimental_w5p04/pex/write_driver_w5p04_pex.spice",
+          "sha256": "3995ce67794dfdecf582b55355b62d093b73d1c942cc4080691b5b0d740693d1"
+        }
+      },
+      "files": {
+        "schematic": {
+          "path": "release/phase1/cells/write_driver/write_driver.sch",
+          "sha256": "170331a99173adca3920556e1d3f289d28fac869ed17576f0e216cf1353ecf80"
+        },
+        "layout": {
+          "path": "release/phase1/cells/write_driver/write_driver.mag",
+          "sha256": "010173d790022859264c3fdff8377a5771bbe48f7c5f6799d0283864328ea343"
+        },
+        "pex": {
+          "path": "release/phase1/cells/write_driver/write_driver_pex.spice",
+          "sha256": "3995ce67794dfdecf582b55355b62d093b73d1c942cc4080691b5b0d740693d1"
+        },
+        "spice": {
+          "path": "release/phase1/cells/write_driver/write_driver.spice",
+          "sha256": "c9437718dc48850fa987e49ef5ce3e4d43cefbc1752424336b0b3f9a9e194fc2"
+        },
+        "symbol": {
+          "path": "release/phase1/cells/write_driver/write_driver.sym",
+          "sha256": "ee8e79c8fd84b3a3abd6db7cf68313b2011676f1912009f4b3c96a8aef14227b"
+        }
+      },
+      "physical_result": "release/phase1/verification/write_driver/result.json",
+      "pin_order": [
+        "DATA",
+        "DATA_B",
+        "WE",
+        "BL",
+        "BLB",
+        "VDD",
+        "VSS"
+      ]
+    },
+    "row_decoder": {
+      "owner": "Leonardo",
+      "expected_mos": 33,
+      "widths": {
+        "M1": "0.84",
+        "M2": "0.84",
+        "M3": "0.84",
+        "M4": "0.84",
+        "M5": "1.25",
+        "M6": "2",
+        "M7": "2",
+        "M8": "1.5",
+        "M9": "3",
+        "M10": "2",
+        "M11": "1.25",
+        "M12": "2",
+        "M13": "2",
+        "M14": "3",
+        "M15": "2",
+        "M16": "1.25",
+        "M17": "2",
+        "M18": "2",
+        "M19": "3",
+        "M20": "2",
+        "M21": "1.25",
+        "M22": "2",
+        "M23": "2",
+        "M24": "3",
+        "M25": "2",
+        "M26": "2",
+        "M27": "2",
+        "M28": "2",
+        "M29": "2",
+        "M30": "0.84",
+        "M31": "0.84",
+        "M32": "0.84",
+        "M33": "0.84"
+      },
+      "source_revision": "Content-addressed 2026-10-29 keeper revision; exact worktree inputs below.",
+      "pin_order": [
+        "VDD",
+        "PCLK",
+        "A0",
+        "A1",
+        "DEC0",
+        "DEC1",
+        "DEC3",
+        "DEC2",
+        "VSS"
+      ],
+      "inputs": {
+        "schematic": {
+          "path": "cells/row_decoder/variants/keeper_0p84/row_decoder.sch",
+          "sha256": "ddf78a8c509b13b577b549ac637db14f90ec1ab3b779a7e88fb045689e75f706"
+        },
+        "symbol": {
+          "path": "cells/row_decoder/variants/keeper_0p84/row_decoder.sym",
+          "sha256": "f714c580e352c592b04b4a7d865ba5b293ee3b5cf76833e61990946779d2b44c"
+        },
+        "spice": {
+          "path": "cells/row_decoder/variants/keeper_0p84/row_decoder.spice",
+          "sha256": "f6dbaf76aadc7910bc23c5e73c6f2fdc686b7ddb7b6557ecbda1603f42770cd4"
+        },
+        "layout": {
+          "path": "layout/row_decoder_keeper/row_decoder_flat.mag",
+          "sha256": "7073e936176c2e0f887bee8b41dce13621860a23b3da937d9dcf61d0f858eb38"
+        },
+        "pex": {
+          "path": "layout/row_decoder_keeper/pex/row_decoder_pex.spice",
+          "sha256": "6292f0c54f8777720b207faf937f936ced0aefb9e829245ff0fae1b208a388b1"
+        }
+      },
+      "files": {
+        "schematic": {
+          "path": "release/phase1_keeper/cells/row_decoder/row_decoder.sch",
+          "sha256": "ddf78a8c509b13b577b549ac637db14f90ec1ab3b779a7e88fb045689e75f706"
+        },
+        "symbol": {
+          "path": "release/phase1_keeper/cells/row_decoder/row_decoder.sym",
+          "sha256": "f714c580e352c592b04b4a7d865ba5b293ee3b5cf76833e61990946779d2b44c"
+        },
+        "spice": {
+          "path": "release/phase1_keeper/cells/row_decoder/row_decoder.spice",
+          "sha256": "f6dbaf76aadc7910bc23c5e73c6f2fdc686b7ddb7b6557ecbda1603f42770cd4"
+        },
+        "layout": {
+          "path": "release/phase1_keeper/cells/row_decoder/row_decoder.mag",
+          "sha256": "7073e936176c2e0f887bee8b41dce13621860a23b3da937d9dcf61d0f858eb38"
+        },
+        "pex": {
+          "path": "release/phase1_keeper/cells/row_decoder/row_decoder_pex.spice",
+          "sha256": "6292f0c54f8777720b207faf937f936ced0aefb9e829245ff0fae1b208a388b1"
+        }
+      },
+      "physical_result": "release/phase1_keeper/verification/row_decoder/result.json"
+    }
+  },
+  "electrical_evidence": {
+    "g7_read_requal_latch_t0_20261008.csv": {
+      "path": "release/phase1/electrical/g7_read_requal_latch_t0_20261008.csv",
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "source_path": "sims/g7_read_requal_latch_t0_20261008.csv",
+      "sha256": "707ff5bf1d5b46a69e6d98543139564331d76c423e53693044c40ae0e7ee09ae"
+    },
+    "g7_write_requal_casewise_wlsetup1p2ns_20261008.csv": {
+      "path": "release/phase1/electrical/g7_write_requal_casewise_wlsetup1p2ns_20261008.csv",
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "source_path": "sims/g7_write_requal_casewise_wlsetup1p2ns_20261008.csv",
+      "sha256": "d095a85eab8696416381ccae82a7d80c806063a5b307ef2bcdf741bb4a9c327d"
+    },
+    "g7_read_critical_refined_1ps_20261008.csv": {
+      "path": "release/phase1/electrical/g7_read_critical_refined_1ps_20261008.csv",
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "source_path": "sims/g7_read_critical_refined_1ps_20261008.csv",
+      "sha256": "010584ae28997e782787166b570d93404617714108b01ecf35922efb910834f5"
+    },
+    "g7_write_critical_refined_1ps_20261008.csv": {
+      "path": "release/phase1/electrical/g7_write_critical_refined_1ps_20261008.csv",
+      "source_revision": "eb9217ee80c585cf952e14f6a13f6fc7230ba639",
+      "source_path": "sims/g7_write_critical_refined_1ps_20261008.csv",
+      "sha256": "fa263d5e67f0606f8a14e9b20b9e09653596040179c87b2530e778971e317394"
+    }
+  },
+  "physical_scope": "Six selected flat masks: DRC(full), primitive-MOS W/L/terminal LVS, negative controls and existing-PEX connectivity binding.",
+  "base_checksums": {
+    "path": "release/phase1/checksums.json",
+    "sha256": "0045d66581d1d5e2a6c80d10b774e732931e01eceef16679722420e9414fc681"
+  },
+  "electrical_review": "sims/row_decoder/results/keeper_review_20261029/summary.json",
+  "limitation": "No independent validation of negative-NFET/positive-PFET gate-bias accuracy; no statistical mismatch/yield or foundry reliability signoff."
+}

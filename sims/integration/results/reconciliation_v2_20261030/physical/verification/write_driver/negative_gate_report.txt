@@ -1,0 +1,39 @@
+
+Subcircuit summary:
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__nfet_01v8 (5)                |sky130_fd_pr__nfet_01v8 (5)                
+sky130_fd_pr__pfet_01v8 (5)                |sky130_fd_pr__pfet_01v8 (5)                
+Number of devices: 10                      |Number of devices: 10                      
+Number of nets: 12 **Mismatch**            |Number of nets: 13 **Mismatch**            
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+
+---------------------------------------------------------------------------------------
+Net: WE                                    |Net: WE                                    
+  sky130_fd_pr__nfet_01v8/gate = 3         |  sky130_fd_pr__nfet_01v8/gate = 3         
+  sky130_fd_pr__pfet_01v8/gate = 1         |                                           
+                                           |                                           
+(no matching net)                          |Net: PHASE1_FAULT_GATE                     
+                                           |  sky130_fd_pr__pfet_01v8/gate = 1         
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+-------------------------------------------|-------------------------------------------
+WE                                         |(no pin, node is PHASE1_FAULT_GATE)        
+BLB                                        |BL **Mismatch**                            
+BL                                         |BLB **Mismatch**                           
+DATA                                       |DATA_B **Mismatch**                        
+DATA_B                                     |DATA **Mismatch**                          
+VDD                                        |VDD                                        
+VSS                                        |VSS                                        
+(no pin, node is WE)                       |WE                                         
+---------------------------------------------------------------------------------------
+Cell pin lists for write_driver and write_driver altered to match.
+Device classes write_driver and write_driver are equivalent.
+
+Final result: Top level cell failed pin matching.

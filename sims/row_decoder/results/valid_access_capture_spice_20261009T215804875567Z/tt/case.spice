@@ -1,0 +1,22 @@
+* valid_access_capture transistor-level check: tt
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+.include "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice"
+.include "/work/sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/valid_access_capture_cell.spice"
+.temp 27
+.options method=gear reltol=1e-4 vabstol=1e-9 iabstol=1e-12
+VSS_SRC VSS 0 0
+VDD_SRC VDD VSS 1.8
+VCLK CLK VSS PULSE(0 1.8 1n 50p 50p 1n 2n)
+VCSB CSb VSS PWL(0 1.8 4.5e-10 1.8 5e-10 0 1.8e-09 0 1.85e-09 1.8 2.45e-09 1.8 2.5e-09 0 3.8e-09 0 3.85e-09 1.8 4.45e-09 1.8 4.5e-09 0 5.8e-09 0 5.85e-09 1.8 6.45e-09 1.8 6.5e-09 0 7.8e-09 0 7.85e-09 1.8 8.45e-09 1.8 8.5e-09 1.8 9.8e-09 1.8 9.85e-09 0 1.045e-08 0 1.05e-08 1.8 1.18e-08 1.8 1.185e-08 0 1.245e-08 0 1.25e-08 1.8 1.38e-08 1.8 1.385e-08 0 1.445e-08 0 1.45e-08 1.8 1.58e-08 1.8 1.585e-08 0)
+VOEB OEb VSS PWL(0 1.8 4.5e-10 1.8 5e-10 0 1.8e-09 0 1.85e-09 1.8 2.45e-09 1.8 2.5e-09 0 3.8e-09 0 3.85e-09 1.8 4.45e-09 1.8 4.5e-09 1.8 5.8e-09 1.8 5.85e-09 0 6.45e-09 0 6.5e-09 1.8 7.8e-09 1.8 7.85e-09 0 8.45e-09 0 8.5e-09 0 9.8e-09 0 9.85e-09 1.8 1.045e-08 1.8 1.05e-08 0 1.18e-08 0 1.185e-08 1.8 1.245e-08 1.8 1.25e-08 1.8 1.38e-08 1.8 1.385e-08 0 1.445e-08 0 1.45e-08 1.8 1.58e-08 1.8 1.585e-08 0)
+VWEB WEb VSS PWL(0 1.8 4.5e-10 1.8 5e-10 0 1.8e-09 0 1.85e-09 1.8 2.45e-09 1.8 2.5e-09 1.8 3.8e-09 1.8 3.85e-09 0 4.45e-09 0 4.5e-09 0 5.8e-09 0 5.85e-09 1.8 6.45e-09 1.8 6.5e-09 1.8 7.8e-09 1.8 7.85e-09 0 8.45e-09 0 8.5e-09 0 9.8e-09 0 9.85e-09 1.8 1.045e-08 1.8 1.05e-08 1.8 1.18e-08 1.8 1.185e-08 0 1.245e-08 0 1.25e-08 0 1.38e-08 0 1.385e-08 1.8 1.445e-08 1.8 1.45e-08 1.8 1.58e-08 1.8 1.585e-08 0)
+XACCESS CLK CSb OEb WEb VDD VSS VALID_ACCESS_Q valid_access_capture
+CLOAD VALID_ACCESS_Q VSS 3.434554f
+.control
+set ngbehavior=hsa
+set ng_nomodcheck
+set noaskquit
+tran 5p 17n 0 5p
+wrdata /work/sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/tt/valid_access_q.dat v(VALID_ACCESS_Q)
+.endc
+.end

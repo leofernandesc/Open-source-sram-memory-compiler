@@ -1,0 +1,43 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "sims/row_decoder/run_keeper_pex.py",
+      "--profiles",
+      "ff",
+      "--transitions",
+      "1:2",
+      "--kind",
+      "charge_down",
+      "--value",
+      "32",
+      "--output-dir",
+      "/work/sims/integration/results/boundary_cli_20261030/mandatory"
+    ],
+    "returncode": 2,
+    "expected_returncode": 2,
+    "status": "FAIL_EXPERIMENTAL_SCREEN",
+    "complete": true
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "sims/row_decoder/run_keeper_pex.py",
+      "--profiles",
+      "ff",
+      "--transitions",
+      "1:2",
+      "--kind",
+      "charge_down",
+      "--value",
+      "32",
+      "--output-dir",
+      "/work/sims/integration/results/boundary_cli_20261030/allowed",
+      "--allow-boundary"
+    ],
+    "returncode": 0,
+    "expected_returncode": 0,
+    "status": "MEASURED_BOUNDARY",
+    "complete": true
+  }
+]

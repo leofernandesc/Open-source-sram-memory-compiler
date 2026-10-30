@@ -1,0 +1,7 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt precharge VDD BL BLB PRECH VSS
+MMPBL BL PRECH VDD PHASE1_FAULT_BULK sky130_fd_pr__pfet_01v8 w=2.52u l=0.15u
+MMPBLB BLB PRECH VDD VDD sky130_fd_pr__pfet_01v8 w=2.52u l=0.15u
+MMEQ BL PRECH BLB VDD sky130_fd_pr__pfet_01v8 w=2.52u l=0.15u
+.ends precharge

@@ -1,0 +1,53 @@
+Schematic selected-branch DC contention screen
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" fs
+.temp 125
+VDD VDD 0 1.62
+VSCAN scan 0 0
+EFORCE0 force0 0 scan 0 1
+VSENSE0 n0 force0 0
+XUP0 n0 VDD m1_0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XLOW0 m1_0 VDD m2_0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XFOOT0 m2_0 VDD 0 0 sky130_fd_pr__nfet_01v8 w=1.5 l=.15 ad=0.435 as=0.435 pd=3.58 ps=3.58 nrd=0.193333 nrs=0.193333
+XPOUT0 dec0 n0 VDD VDD sky130_fd_pr__pfet_01v8 w=3 l=.15 ad=0.87 as=0.87 pd=6.58 ps=6.58 nrd=0.0966667 nrs=0.0966667
+XNOUT0 dec0 n0 0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+EFORCE1 force1 0 scan 0 1
+VSENSE1 n1 force1 0
+XUP1 n1 VDD m1_1 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XLOW1 m1_1 VDD m2_1 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XFOOT1 m2_1 VDD 0 0 sky130_fd_pr__nfet_01v8 w=1.5 l=.15 ad=0.435 as=0.435 pd=3.58 ps=3.58 nrd=0.193333 nrs=0.193333
+XPOUT1 dec1 n1 VDD VDD sky130_fd_pr__pfet_01v8 w=3 l=.15 ad=0.87 as=0.87 pd=6.58 ps=6.58 nrd=0.0966667 nrs=0.0966667
+XNOUT1 dec1 n1 0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XKEEP1 n1 dec1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42 l=.15 ad=0.1218 as=0.1218 pd=1.42 ps=1.42 nrd=0.690476 nrs=0.690476
+EFORCE2 force2 0 scan 0 1
+VSENSE2 n2 force2 0
+XUP2 n2 VDD m1_2 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XLOW2 m1_2 VDD m2_2 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XFOOT2 m2_2 VDD 0 0 sky130_fd_pr__nfet_01v8 w=1.5 l=.15 ad=0.435 as=0.435 pd=3.58 ps=3.58 nrd=0.193333 nrs=0.193333
+XPOUT2 dec2 n2 VDD VDD sky130_fd_pr__pfet_01v8 w=3 l=.15 ad=0.87 as=0.87 pd=6.58 ps=6.58 nrd=0.0966667 nrs=0.0966667
+XNOUT2 dec2 n2 0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XKEEP2 n2 dec2 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84 l=.15 ad=0.2436 as=0.2436 pd=2.26 ps=2.26 nrd=0.345238 nrs=0.345238
+EFORCE3 force3 0 scan 0 1
+VSENSE3 n3 force3 0
+XUP3 n3 VDD m1_3 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XLOW3 m1_3 VDD m2_3 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XFOOT3 m2_3 VDD 0 0 sky130_fd_pr__nfet_01v8 w=1.5 l=.15 ad=0.435 as=0.435 pd=3.58 ps=3.58 nrd=0.193333 nrs=0.193333
+XPOUT3 dec3 n3 VDD VDD sky130_fd_pr__pfet_01v8 w=3 l=.15 ad=0.87 as=0.87 pd=6.58 ps=6.58 nrd=0.0966667 nrs=0.0966667
+XNOUT3 dec3 n3 0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XKEEP3 n3 dec3 VDD VDD sky130_fd_pr__pfet_01v8 w=1.25 l=.15 ad=0.3625 as=0.3625 pd=3.08 ps=3.08 nrd=0.232 nrs=0.232
+EFORCE4 force4 0 scan 0 1
+VSENSE4 n4 force4 0
+XUP4 n4 VDD m1_4 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XLOW4 m1_4 VDD m2_4 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XFOOT4 m2_4 VDD 0 0 sky130_fd_pr__nfet_01v8 w=1.5 l=.15 ad=0.435 as=0.435 pd=3.58 ps=3.58 nrd=0.193333 nrs=0.193333
+XPOUT4 dec4 n4 VDD VDD sky130_fd_pr__pfet_01v8 w=3 l=.15 ad=0.87 as=0.87 pd=6.58 ps=6.58 nrd=0.0966667 nrs=0.0966667
+XNOUT4 dec4 n4 0 0 sky130_fd_pr__nfet_01v8 w=2 l=.15 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145
+XKEEP4 n4 dec4 VDD VDD sky130_fd_pr__pfet_01v8 w=3 l=.15 ad=0.87 as=0.87 pd=6.58 ps=6.58 nrd=0.0966667 nrs=0.0966667
+.save v(scan) i(VSENSE0) v(dec0) i(VSENSE1) v(dec1) i(VSENSE2) v(dec2) i(VSENSE3) v(dec3) i(VSENSE4) v(dec4)
+.control
+set num_threads=1
+set filetype=binary
+dc VSCAN 0 1.62 0.010125
+write curves.raw
+quit
+.endc
+.end

@@ -1,0 +1,26 @@
+{
+  "artifact": "precharge_w2p52_pex_5dc00fe.spice",
+  "source_repository": "leofernandesc/Open-source-sram-memory-compiler",
+  "source_branch": "feat/sram-6t-cell",
+  "source_commit": "5dc00fe02e43492267516c3e448e935456406a1d",
+  "source_path": "layout/precharge/experimental_w2p52/pex/precharge_w2p52_pex.spice",
+  "source_sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+  "subcircuit": "precharge_w2p52_flat",
+  "pin_order": ["VDD", "BL", "BLB", "PRECH", "VSS"],
+  "device_candidate": {
+    "topology": "three-PMOS precharge and equalization",
+    "nominal_width_um": 0.42,
+    "physical_width_um": 2.52,
+    "channel_length_um": 0.15,
+    "precharge_polarity": "active low"
+  },
+  "owner_reported_evidence": {
+    "report_path": "docs/phase1_leaf_cell_closure.md",
+    "reported_pex_ceff_pvt_ff": [11.469724, 13.064186],
+    "reported_pex_ceff_cases": "60/60 PASS",
+    "reported_magic_drc_errors": 0,
+    "reported_netgen_lvs": "unique structural match",
+    "independently_rerun_in_this_branch": false
+  },
+  "use_in_feature_peripherals": "Read-only PEX dependency for decoder/precharge phase-interface simulation; this copy does not replace the shared precharge source or establish a new owner-approved integration revision."
+}

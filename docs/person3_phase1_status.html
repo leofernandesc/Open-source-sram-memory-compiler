@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Fase 1 — SRAM SKY130A</title>
+  <style>
+    :root { color-scheme: dark; --ink:#f2f5f9; --muted:#b7c3d2; --line:#334258; --panel:#172337; --accent:#62e0c1; --gold:#ffcf70; --red:#ff8e8e; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#0b1220; color:var(--ink); font:18px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { min-height:100vh; display:grid; place-items:center; padding:32px 24px 88px; }
+    .slide { display:none; width:min(1120px,100%); min-height:min(680px,calc(100vh - 130px)); padding:clamp(28px,5vw,64px); border:1px solid var(--line); border-radius:24px; background:radial-gradient(ellipse at 100% 0%,#1c3446 0,transparent 42%),linear-gradient(145deg,#142033,#101827 70%); box-shadow:0 28px 90px #0008; }
+    .slide.active { display:flex; flex-direction:column; justify-content:center; animation:show .22s ease-out; }
+    @keyframes show { from { opacity:.5; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; font-weight:750; }
+    h1,h2 { line-height:1.06; margin:.35em 0 .45em; letter-spacing:-.035em; }
+    h1 { font-size:clamp(2.7rem,7vw,5.6rem); max-width:900px; }
+    h2 { font-size:clamp(2rem,4.5vw,3.5rem); }
+    h3 { margin:.2em 0 .5em; font-size:1.15rem; }
+    p { color:var(--muted); max-width:920px; margin:.55em 0; }
+    strong { color:var(--ink); }
+    .lead { font-size:clamp(1.1rem,2vw,1.45rem); max-width:850px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:22px 0; }
+    .grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .card { padding:20px 22px; border:1px solid var(--line); border-radius:16px; background:#101a2a; }
+    .metric { color:var(--accent); font-size:clamp(1.6rem,3vw,2.5rem); font-weight:800; line-height:1.1; }
+    .label { color:var(--muted); font-size:.92rem; margin-top:8px; }
+    ul { color:var(--muted); padding-left:1.2em; }
+    li { margin:.48em 0; }
+    table { width:100%; border-collapse:collapse; margin:18px 0; font-size:.94rem; }
+    th,td { padding:11px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
+    th { color:var(--accent); font-weight:700; }
+    .tag { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:4px 10px; color:var(--muted); font-size:.82rem; margin:4px 5px 4px 0; }
+    .ok { color:var(--accent); } .warn { color:var(--gold); } .bad { color:var(--red); }
+    a { color:var(--accent); text-underline-offset:3px; }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:24px 0; }
+    .flow span { padding:10px 13px; border:1px solid var(--line); border-radius:10px; background:#101a2a; }
+    .flow b { color:var(--gold); }
+    .evidence-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; margin:14px 0; }
+    figure.evidence { margin:8px 0; padding:10px; border:1px solid var(--line); border-radius:14px; background:#0d1625; text-align:center; }
+    figure.evidence > a { cursor:zoom-in; }
+    figure.evidence img { display:block; width:100%; max-height:190px; object-fit:contain; margin:0 auto 7px; background:#080d15; border-radius:8px; }
+    figure.evidence figcaption { color:var(--muted); font-size:.78rem; line-height:1.35; }
+    figure.evidence figcaption a { white-space:nowrap; }
+    dialog.image-viewer { position:fixed; inset:0; width:min(96vw,1500px); max-width:none; max-height:94vh; margin:auto; padding:42px 18px 16px; border:1px solid #52647d; border-radius:16px; background:#0b1220; color:var(--ink); box-shadow:0 24px 80px #000b; }
+    dialog.image-viewer[open] { display:flex; flex-direction:column; align-items:center; gap:8px; }
+    dialog.image-viewer::backdrop { background:#02060cdd; backdrop-filter:blur(3px); }
+    .viewer-title { align-self:flex-start; margin:0; font-size:1rem; letter-spacing:0; }
+    .viewer-image { display:block; width:auto; max-width:100%; max-height:calc(94vh - 120px); object-fit:contain; }
+    .viewer-caption { margin:0; text-align:center; font-size:.84rem; }
+    .viewer-close { position:absolute; top:10px; right:10px; }
+    nav { position:fixed; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:14px; padding:14px; background:#0b1220ed; border-top:1px solid var(--line); }
+    button { font:inherit; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 15px; cursor:pointer; }
+    button:hover { border-color:var(--accent); }
+    #count { min-width:68px; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .source { margin-top:auto; padding-top:18px; font-size:.82rem; color:var(--muted); }
+    @media (max-width:700px) { body{font-size:16px}.grid,.grid.three,.evidence-grid{grid-template-columns:1fr}.slide{min-height:calc(100vh - 110px);padding:27px 22px;border-radius:16px}main{padding:16px 12px 78px}table{font-size:.82rem}th,td{padding:8px 6px}figure.evidence img{max-height:210px}dialog.image-viewer{width:98vw;max-height:96vh;padding:42px 10px 12px;border-radius:10px}.viewer-image{max-height:calc(96vh - 120px)}.viewer-caption{font-size:.75rem} }
+    @media print { body{background:white;color:#172033;font-size:14px} main{display:block;padding:0} .slide,.slide.active{display:flex!important;min-height:0;page-break-after:always;border:1px solid #9ca9b8;border-radius:0;background:white;color:#172033;box-shadow:none;overflow:visible} p,ul,.label,.source,figure.evidence figcaption{color:#37465a}.card,.flow span,figure.evidence{background:#f4f7fa;border-color:#b8c2cf;color:#172033} figure.evidence img{max-height:220px;background:white} .metric,.eyebrow,th,a{color:#087c68} nav{display:none} }
+  </style>
+</head>
+<body>
+<main aria-label="Apresentação de andamento da Fase 1">
+  <section class="slide active">
+    <div class="eyebrow">Open-Source SRAM Memory Compiler · SKY130A</div>
+    <h1>Andamento<br>da Fase 1</h1>
+    <p class="lead">Decoder dinâmico de linha, wordline driver e write driver. Este resumo reúne esquemas, resultados medidos e próximos passos da branch <strong>feature/peripherals</strong>.</p>
+    <div><span class="tag">Atualizado em 13 out 2026</span><span class="tag">Meta da fase: 13 out 2026</span><span class="tag">Leonardo</span></div>
+    <p class="source">Os resultados e as pendências têm links para os esquemas, relatórios e dados de origem no repositório.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">01 · Escopo</div>
+    <h2>Escopo</h2>
+    <p>Na SRAM inicial 4×8, os endereços capturados selecionam uma das quatro linhas. Este trabalho cobre o decoder dinâmico, o buffer de wordline e o write driver diferencial.</p>
+    <div class="flow"><span>CLK + endereço capturado</span><b>→</b><span>Decoder 2→4 dinâmico</span><b>→</b><span>WL driver</span><b>→</b><span>linha de bitcells</span></div>
+    <div class="grid three">
+      <div class="card"><h3>Row decoder</h3><p>Lógica dinâmica de pré-carga e avaliação, com uma saída DEC selecionada por endereço.</p></div>
+      <div class="card"><h3>Wordline driver</h3><p>Buffer CMOS não inversor entre DEC e a capacitância da linha.</p></div>
+      <div class="card"><h3>Write driver</h3><p>Acionamento complementar de BL e BLB conforme DATA e WE.</p></div>
+    </div>
+    <p class="source">A especificação determina o decoder dinâmico; a estratégia para decoders maiores continua como decisão futura da equipe.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">02 · Wordline driver</div>
+    <h2>Wordline driver — simulação e layout</h2>
+    <p>Buffer CMOS não inversor de dois estágios, com larguras de 0,42 µm e 0,84 µm e L=0,15 µm. Uma auditoria corrigiu a ordem dos pinos do testbench; schematic e PEX foram simulados novamente. Também foi aplicado o Ceff máximo da linha como carga concentrada.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">36/36</div><div class="label">cantos e cargas de referência, schematic corrigido</div></div>
+      <div class="card"><div class="metric">36/36</div><div class="label">mesma matriz com o PEX existente</div></div>
+      <div class="card"><div class="metric">0</div><div class="label">violações DRC na folha</div></div>
+    </div>
+    <table><thead><tr><th>Carga</th><th>t50 schematic / PEX</th><th>t90 schematic / PEX</th><th>Condição</th></tr></thead><tbody>
+      <tr><td>17,4 fF</td><td>0,291 / 0,386 ns</td><td>0,563 / 0,721 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+      <tr><td>50 fF</td><td>0,665 / 0,760 ns</td><td>1,409 / 1,566 ns</td><td>SS, 1,62 V, −40 °C</td></tr>
+      <tr><td>102,874 fF</td><td>1,271 / 1,364 ns</td><td>2,781 / 2,937 ns</td><td>Stress cruzado: Ceff máximo FF + driver SS</td></tr>
+    </tbody></table>
+    <figure class="evidence"><a href="assets/wl_driver_schematic.svg"><img src="assets/wl_driver_schematic.svg" alt="Esquemático Xschem do buffer CMOS de dois estágios do wordline driver"></a><figcaption>Esquemático exportado do Xschem com a configuração SKY130A. <a href="../cells/wordline_driver/wl_driver.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
+    <p><strong class="ok">LVS:</strong> match único, com 4 MOS e 5 redes. O PEX atual representa a folha e não inclui a linha física completa.</p>
+    <p>A carga de 102,874 fF é concentrada e não reproduz a linha física distribuída. O testbench antigo usava a ordem de pinos do PEX no schematic; a matriz antiga de schematic foi substituída por esta repetição corrigida.</p>
+    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#wordline-driver">registro</a> · <a href="wl_driver_pin_order_and_full_row_requalification_20261009.md">auditoria e método</a> · <a href="../sims/wl_driver_smoke_3corner_pvt_pinorderfix_20261009.csv">CSV schematic</a> · <a href="../sims/wl_driver_pex_smoke_3corner_pvt_pinorderfix_20261009.csv">CSV PEX</a> · <a href="../sims/wl_driver_smoke_full_row_ss_20261009.csv">Ceff schematic</a> · <a href="../sims/wl_driver_pex_smoke_full_row_ss_20261009.csv">Ceff PEX</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">03 · Write driver</div>
+    <h2>Write driver — operação complementar</h2>
+    <div class="grid">
+      <div class="card"><h3>Write 0 · 3 ns</h3><div class="metric">BL ≈ 0 V</div><p>BLB: 1,800297 V.</p></div>
+      <div class="card"><h3>Write 1 · 12 ns</h3><div class="metric">BL ≈ 1,78 V</div><p>BLB: aproximadamente 0 V.</p></div>
+    </div>
+    <p>Durante o intervalo desabilitado, o drift medido foi de 3,39 mV em BL e 1,46 mV em BLB. O deck não define um limite de aceitação para esse valor.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">72/72</div><div class="label">medições AC da folha</div></div>
+      <div class="card"><div class="metric">72/72</div><div class="label">medições AC usando PEX existente</div></div>
+      <div class="card"><div class="metric">0</div><div class="label">violações DRC na folha</div></div>
+    </div>
+    <figure class="evidence"><a href="assets/write_driver_schematic.svg"><img src="assets/write_driver_schematic.svg" alt="Esquemático Xschem do write driver diferencial com sinais DATA, DATA_B, WE, BL e BLB"></a><figcaption>Esquemático usado nas medições nominais. <a href="../cells/write_driver/write_driver.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
+    <p><strong class="ok">LVS:</strong> match único, com 10 MOS e 12 redes. A especificação ainda não define um limite máximo para a capacitância efetiva.</p>
+    <p>Ceff no estado desligado: 1,02–4,03 fF na folha e 14,11–26,72 fF no PEX existente. A verificação integrada com bitcell e precharge ainda está pendente.</p>
+    <p class="source">Fonte: <a href="feature_peripherals_validation_log.md#write-driver">registro de validação</a> · <a href="../sims/write_driver_capacitance_local_3corner_pvt.csv">CSV PVT</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">04 · Decoder dinâmico</div>
+    <h2>Decoder B7 - evidencia historica</h2>
+    <p class="warn">O dimensionamento atual mudou durante o fechamento de layout. Os 264 casos e as imagens B7 abaixo pertencem ao fonte anterior; requerem requalificacao para o fonte atual.</p>
+    <p>O endereço é pré-decodificado por inversores; os nós dinâmicos são pré-carregados e depois avaliados. O B7 acrescenta buffers estáticos para regenerar os literais e reduzir as excursões elétricas observadas nos candidatos anteriores.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">264/264</div><div class="label">casos B7 aprovados nos critérios elétricos executados</div></div>
+      <div class="card"><div class="metric">204</div><div class="label">casos de contrato, incluindo 36 controles negativos detectados</div></div>
+      <div class="card"><div class="metric">1,925 V</div><div class="label">maior magnitude na comparação numérica fina</div></div>
+    </div>
+    <ul>
+      <li>Arquitetura dinâmica 2→4 e interface de nove pinos.</li>
+      <li>29 MOS no decoder B7; quatro buffers WL acrescentam 16 MOS.</li>
+      <li>Os testes consideram o clock-to-Q do registrador pelas tabelas Liberty SKY130, sem assumir chegada instantânea do endereço.</li>
+    </ul>
+    <p>Dimensões B7: regeneradores M26–M29 com W=2 µm; pré-carga 0,5 µm; footer 1,5 µm; inversores de saída 2 µm; stacks 1 µm; inversores de endereço 0,42 µm; L=0,15 µm.</p>
+    <div class="evidence-grid">
+      <figure class="evidence"><a href="assets/row_decoder_b7.svg"><img src="assets/row_decoder_b7.svg" alt="Esquemático Xschem do decoder dinâmico B7 com buffers de endereço e quatro saídas"></a><figcaption>Esquemático B7 usado nas simulações. <a href="../cells/row_decoder/row_decoder.sch">Abrir fonte atual (dimensionamento alterado)</a>.</figcaption></figure>
+      <figure class="evidence"><a href="assets/row_decoder_b7_waveforms.png"><img src="assets/row_decoder_b7_waveforms.png" alt="Formas de onda do decoder B7 durante pré-carga e avaliação"></a><figcaption>Formas de onda da caracterização B7 pré-layout; mostram o contrato dinâmico e a WL, não o teste captura→PCLK. <a href="row_decoder_contract_characterization.md#completed-b7-broad-qualification-and-source-rerun">Abrir dados</a>.</figcaption></figure>
+      <figure class="evidence"><a href="assets/row_decoder_feedthrough_fix.png"><img src="assets/row_decoder_feedthrough_fix.png" alt="Comparação de formas de onda durante a investigação de feedthrough do decoder"></a><figcaption>Investigação B6 que localizou o feedthrough e motivou mudanças de sizing; não representa o B7 final. <a href="row_decoder_feedthrough_fix.md">Abrir relatório</a>.</figcaption></figure>
+    </div>
+    <p class="source">Fonte: <a href="row_decoder_contract_characterization.md#buffered-address-candidate-b7">caracterização B7</a> · <a href="row_decoder_feedthrough_fix.md">correção de feedthrough</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">Decoder - evidência histórica 7ad0348, 07/10/2026 UTC</div>
+    <h2>Revisão anterior: DRC/LVS e matriz crítica aprovados</h2>
+    <p class="warn">Este slide registra a geometria e a extração de 7ad0348. O layout compacto foi extraído e simulado depois; a matriz atual está resumida no slide seguinte e no <a href="row_decoder_layout_compaction_20261008.md">handoff da compactação</a>.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">0 / 0</div><div class="label">DRC roteado / achatado; LVS unico</div></div>
+      <div class="card"><div class="metric">744 R / 392 C</div><div class="label">29 MOS, resistencia nas 22 redes</div></div>
+      <div class="card"><div class="metric">13 / 13</div><div class="label">baseline e PEX passam a 5 ps e 1 ps</div></div>
+    </div>
+    <p>Roteamento agrupado, canal central e trilhas limitadas aos pontos de conexao. Inversores de endereco: 0,84 um; precharge: 1,25 um; stacks: 2 um; PFETs de saida: 3 um.</p>
+    <p>SS / 1,62 V / -40 C: pior WL a 90% em 943,617 ps e precharge a 10% em 899,474 ps. O limite de 1 ns permanece; zero alertas nos dois criterios experimentais de 1,95 V.</p>
+    <p class="warn">Escopo: nove casos TT e quatro SS, WL buffers esquematicos e carga estimada de 17,4 fF. Carga fisica, qualificacao ampla, captura/PCLK e confiabilidade permanecem pendentes. Energia de fontes ideais tem avaliacao numerica separada.</p>
+    <p class="source"><a href="../layout/row_decoder/README.md">Fluxo e reproducao</a> &middot; <a href="../sims/row_decoder/results/row_decoder_pex_verified_1ps/comparison.csv">Comparacao historica a 1 ps</a> &middot; <a href="feature_peripherals_validation_log.md#2026-10-07-utc-decoder-all-network-rc-and-selected-electrical-closure">Registro historico</a></p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">05 · Decoder compacto · matriz elétrica</div>
+    <h2>Matrizes completas em TT, SS e FF</h2>
+    <p>Os 16 pares ordenados de endereço passaram no baseline e no PEX compacto em TT, SS e FF, nos passos de 5 ps e 1 ps. O PEX R-C atual foi mantido com o mesmo hash; não foi necessária nova extração para estas simulações.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">48 / 48</div><div class="label">pares aprovados por circuito em três cantos e dois passos temporais</div></div>
+      <div class="card"><div class="metric">0,89% / 0,51%</div><div class="label">maior delta de energia entre 1 ps e 0,5 ps nos casos refinados: baseline / PEX</div></div>
+      <div class="card"><div class="metric">493 ps</div><div class="label">atraso máximo PEX da WL até 90% no canto FF, a 1 ps</div></div>
+    </div>
+    <table><thead><tr><th>Matriz UIC · métrica máxima, passo 1 ps</th><th>Esquemático</th><th>PEX compacto</th></tr></thead><tbody>
+      <tr><td>WL até 90%</td><td>394,006 ps</td><td>492,795 ps</td></tr>
+      <tr><td>Pré-carga da WL até 10%</td><td>306,280 ps</td><td>461,940 ps</td></tr>
+      <tr><td>Magnitude terminal observada</td><td>1,949037 V</td><td>1,878690 V</td></tr>
+    </tbody></table>
+    <p class="warn">Na matriz UIC, os modelos FF emitiram avisos BSIM4 sem erro fatal; a aceitação dos parâmetros ainda requer revisão do responsável pelo modelo/PDK. O pico de magnitude VGD de 1,949037 V citado aqui pertence à matriz UIC e não corresponde ao ensaio posterior com ponto de operação.</p>
+    <p class="warn">A matriz com ponto de operação foi concluída nos três cantos: 96 simulações, sem falhas nos checks funcionais. TT e SS passaram a tela de magnitude. Em FF, 10/16 casos baseline ultrapassam a tela de 1,95 V, com pico de 1,954645 V em VGD; todos os casos PEX passam. O refinamento a 0,5 ps mantém o pico baseline em 1,954674 V (variação máxima de 0,037 mV) e confirma que o excesso é estável em relação ao passo temporal. Essa tela não é, por si só, critério de confiabilidade.</p>
+    <p class="warn">A auditoria dos terminais externos encontrou excursões assinadas de VGS e VBS. A revisão adicional mostrou que esses valores diferem dos estados internos BSIM4 após as resistências do modelo: um probe FF em dois dispositivos passou 104 checks e preservou as formas de onda externas, mas mantém achados de bias. A2&gt;1 altera o modelo (A2=1, A1=0); Eta0/Pdibl negativos geram avisos nesses checks. A margem e a aceitação final continuam abertas. <a href="row_decoder_analysis_review_20261008.md">Revisão, fontes corrigidas e evidências</a>.</p>
+    <figure class="evidence"><a href="assets/row_decoder_ff_opinit_screen_refinement.svg"><img src="assets/row_decoder_ff_opinit_screen_refinement.svg" alt="Comparação dos máximos de magnitude nos dez pares FF que excedem a tela no baseline; o excesso persiste a 0,5 ps e o PEX permanece abaixo"></a><figcaption>Refinamento FF em ponto de operação: o pequeno excesso do baseline persiste a 0,5 ps; todos os pares PEX passam. A linha vermelha é a tela numérica de 1,95 V. <a href="../sims/row_decoder/plot_ff_opinit_screen_refinement.py">Script do gráfico</a> · <a href="row_decoder_opinit_matrix_20261008.md">Relatório completo</a>.</figcaption></figure>
+    <p class="source">Os ensaios deste slide usam o PEX do decoder sem carga de bitcells. A carga física corrigida já foi usada como capacitor equivalente nos ensaios atuais de captura/PCLK; a linha distribuída ainda não está integrada. <a href="row_decoder_fast_hot_qualification_20261008.md">Relatório FF</a> · <a href="row_decoder_signed_bias_domain_audit_20261008.md">Auditoria de bias assinado</a> · <a href="row_decoder_capture_load_requalification_20261008.md">Carga e captura/PCLK</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">06 · Captura → PCLK · pré-layout · 08/10</div>
+    <p class="warn">Caracterização do esquemático atual com Ceff da linha em carga concentrada. A revisão de modelo e a integração física continuam pendentes.</p>
+    <h2>Captura → PCLK com a carga medida</h2>
+    <p>As rampas PWL do endereço vêm das tabelas Liberty do <code>dfxtp_1</code>. O ensaio usa três perfis de modelo MOS e coloca o maior Ceff extraído da linha em cada saída WL.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">102,874 fF</div><div class="label">maior Ceff da linha 8-bit na tabela .t0</div></div>
+      <div class="card"><div class="metric">72/72</div><div class="label">checks lógicos e guard de 250 ps a 1,50 ns</div></div>
+      <div class="card"><div class="metric">28/72</div><div class="label">casos passam a tela elétrica experimental de 1,95 V</div></div>
+    </div>
+    <figure class="evidence"><a href="assets/row_decoder_wl_load_capture_delay_20261008.svg"><img src="assets/row_decoder_wl_load_capture_delay_20261008.svg" alt="Gráfico do atraso máximo WL90 para 17,4 fF e 102,874 fF no mesmo decoder"></a><figcaption>Mesmo netlist atual, fase captura→PCLK de 1,25 ns e janela de estabilização de 3 ns. <a href="row_decoder_capture_load_requalification_20261008.md">Relatório e dados</a> · <a href="../sims/row_decoder/inputs/row_8_wl_pex_capacitance_latch_t0_requal_20261008.csv">Tabela Ceff</a>.</figcaption></figure>
+    <p>A 1,50 ns, o pior WL90 é 2,883 ns e a fase de avaliação é 3,50 ns: restam 617 ps antes da queda ideal de PCLK. O lead interno mínimo é 536,5 ps, ou 286,5 ps acima do guard experimental. A 1,25 ns, esse lead cai para 286,5 ps, apenas 36,5 ps acima do guard.</p>
+    <p class="source">A carga é concentrada em capacitor; decoder e WL buffers estão no esquemático. Q usa tabelas Liberty e PCLK é ideal. Os 3 ns de estabilização e o limite de 1,95 V são telas experimentais. Setup/hold externo, metastabilidade, PCLK real, carga Q extraída, linha distribuída, confiabilidade e Fmax seguem abertos. <a href="../sims/row_decoder/results/capture_to_pclk_wlpexmax_p1250_s3ns_20261008/summary.csv">CSV · 1,25 ns</a> · <a href="../sims/row_decoder/results/capture_to_pclk_wlpexmax_p1500_s3ns_20261008/summary.csv">CSV · 1,50 ns</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">07 · Captura → PCLK · PEX combinado · 09/10</div>
+    <p class="warn">Ensaio com PEX do decoder e dos quatro WL drivers, mais Ceff da linha em carga concentrada. Na matriz original de 1,50 ns, queda em 20,00 ns e settling de 3 ns, SS falha os critérios experimentais; a especificação não define esses limites como requisito.</p>
+    <h2>Captura → PCLK com os dois PEX</h2>
+    <p>A matriz repete as 12 transições nos perfis TT, SS e FF e nos dois pontos de carga da saída Q. O decoder tem 29 MOS, 762 R e 389 C; cada WL-driver PEX tem 4 MOS, 99 R e 43 C.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">72/72</div><div class="label">simulações concluídas sem erro do ngspice</div></div>
+      <div class="card"><div class="metric">48/72</div><div class="label">passam os critérios funcionais e de margem</div></div>
+      <div class="card"><div class="metric">3,263 ns</div><div class="label">maior WL90: SS, carga de Q stress</div></div>
+    </div>
+    <table><thead><tr><th>Perfil</th><th>Funcional (3 ns, matriz original)</th><th>Tela 1,95 V</th><th>WL90 máximo</th></tr></thead><tbody>
+      <tr><td>TT</td><td>24/24</td><td>24/24</td><td>2,148 ns</td></tr>
+      <tr><td>SS</td><td>0/24</td><td>24/24</td><td>3,263 ns</td></tr>
+      <tr><td>FF</td><td>24/24</td><td>24/24</td><td>1,837 ns</td></tr>
+    </tbody></table>
+    <p>Na matriz original, em SS só 2/24 transições mantêm 250 ps entre o último literal e PCLK; o pior lead é −279,7 ps. Depois, quatro matrizes SS completas foram executadas com queda PCLK em 20,70 ns e settling de 3,3 ns. Todas passaram os checks de forma de onda; a margem de 250 ps passou em 2/24, 13/24, 24/24 e 24/24 casos para fases de 1,50, 1,80, 1,95 e 2,10 ns. Entre esses pontos, 1,95 ns é o primeiro que passa nos 24 casos; continua sendo um resultado experimental, sem definir clock aprovado ou Fmax. Como a queda ficou fixa, a margem calculada de WL90 à queda diminui de 937 ps para 370 ps, mostrando a troca entre tempo de estabilização do endereço e tempo de avaliação da wordline.</p>
+    <figure class="evidence"><a href="assets/row_decoder_combined_pex_phase_sweep_20261009.svg"><img src="assets/row_decoder_combined_pex_phase_sweep_20261009.svg" alt="Resultados da varredura SS de fase captura para PCLK: casos que passam o guard de 250 ps e maior atraso WL90"></a><figcaption>O clock cai em 20,70 ns em todas as matrizes; a fase alta do PCLK varia de 4,20 a 3,60 ns. <a href="row_decoder_capture_combined_pex_20261009.md#full-ss-phase-sweep-at-a-fixed-falling-edge">Método e limitações</a> · <a href="../sims/row_decoder/plot_combined_pex_phase_sweep.py">Script de geração</a>.</figcaption></figure>
+    <p class="source"><a href="row_decoder_capture_combined_pex_20261009.md">Relatório, hashes e comandos</a> · <a href="../sims/row_decoder/results/capture_combined_pex_wlcap102p874_p1500_s3ns_20261009/summary.csv">CSV da matriz 72-casos</a> · <a href="../sims/row_decoder/results/capture_combined_pex_slow_phase1500_clk20700_s3p3ns_20261009/summary.csv">CSV fase 1,50 ns</a> · <a href="../sims/row_decoder/results/capture_combined_pex_slow_phase1800_clk20700_s3p3ns_20261009/summary.csv">1,80 ns</a> · <a href="../sims/row_decoder/results/capture_combined_pex_slow_phase1950_clk20700_s3p3ns_20261009/summary.csv">1,95 ns</a> · <a href="../sims/row_decoder/results/capture_combined_pex_slow_phase2100_clk20700_s3p3ns_20261009/summary.csv">2,10 ns</a>. Ceff é lumped; PCLK é ideal. A tela de tensão não é signoff de confiabilidade. Nenhuma nova extração, DRC ou LVS foi executada.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">08 · Decoder → WL · linha física distribuída · 09/10</div>
+    <h2>Quatro linhas extraídas no caminho da wordline</h2>
+    <p>A matriz conecta o PEX do decoder e dos quatro WL drivers ao PEX das quatro linhas físicas de oito bits. Foram cobertos os 16 pares ordenados de endereço em TT, SS e FF. Uma segunda matriz aplica os oito vetores de <code>CSb/OEb/WEb</code> com a linha física conectada.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">48/48</div><div class="label">transições físicas; 19.968 checks passaram</div></div>
+      <div class="card"><div class="metric">24/24</div><div class="label">vetores/cantos de acesso; 3.882 checks passaram</div></div>
+      <div class="card"><div class="metric">3,2288 ns</div><div class="label">pior WL90 em SS, transição 1→2</div></div>
+    </div>
+    <table><thead><tr><th>Perfil</th><th>WL90 nos 16 taps</th><th>Maior tap não selecionado</th><th>Recuperação</th></tr></thead><tbody>
+      <tr><td>TT · 1,80 V · 27 °C</td><td>2,142469–2,150495 ns</td><td>16,2 µV</td><td>0,330 µV</td></tr>
+      <tr><td>SS · 1,62 V · −40 °C</td><td>3,220558–3,228800 ns</td><td>12,8 µV</td><td>0,577 µV</td></tr>
+      <tr><td>FF · 1,80 V · 125 °C</td><td>1,833842–1,841717 ns</td><td>170,4 µV</td><td>151,3 µV</td></tr>
+    </tbody></table>
+    <figure class="evidence"><a href="assets/row_decoder_distributed_row_full_transition_pex_20261009.svg"><img src="assets/row_decoder_distributed_row_full_transition_pex_20261009.svg" alt="Faixa de atraso WL90 em todos os pares de endereço, corners e taps das linhas físicas"></a><figcaption>A linha pontilhada marca 3,3 ns, uma tela experimental. <a href="row_decoder_distributed_row_pex_20261009.md">Relatório completo e limitações</a> · <a href="../sims/row_decoder/results/distributed_row_pex_full_transition_matrix_20261009/summary.csv">matriz 48 casos</a> · <a href="../sims/row_decoder/results/distributed_row_pex_access_control_matrix_20261009/summary.csv">matriz de controle 24 casos</a>.</figcaption></figure>
+    <p class="warn">Na matriz de controle, leitura e escrita habilitam a linha 2; idle, inválido e desabilitado mantêm as linhas baixas sob PCLK ideal qualificado pelo testbench. Essa matriz usou vetores estáticos e BL/BLB presos a VDD ideal, portanto não valida leitura, escrita ou readback. Em um ensaio separado, o Q capturado real já foi conectado ao phase source e ao PEX de decoder/WL/precharge para um caso TT válido e um inválido; a cobertura ampliada e a linha física de bitcells ainda faltam. A interpretação do Ceff foi alinhada à evidência mais recente do responsável pela bitcell; veja o log de validação.</p>
+    <p class="source">A linha PEX veio byte a byte do commit `95c23c0` da branch de Danilo; sua procedência e hash estão no <a href="../sims/row_decoder/inputs/row_8_wl_pex_95c23c0.provenance.json">sidecar de origem</a>. Registro: <a href="feature_peripherals_validation_log.md#2026-10-09-utc-decoder-wl-driver-and-distributed-physical-row-pex-screen">log de validação</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">09 · Decoder + WL + precharge · PEX · 09/10</div>
+    <h2>Sequência de PCLK e pré-carga com o PEX do Danilo</h2>
+    <p>O ensaio usa o precharge W2.52 de Danilo como dependência de simulação somente leitura, junto ao PEX do decoder e dos quatro wordline drivers. PCLK controla a avaliação do decoder; PRECH, ativo baixo, controla a pré-carga das bitlines.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">26/26</div><div class="label">casos; 3.540 checks passaram com a cadeia de fase transistor-level</div></div>
+      <div class="card"><div class="metric">334,11 ps</div><div class="label">menor lead de PRECH antes de PCLK no sizing selecionado, FF</div></div>
+      <div class="card"><div class="metric">1,203 ns</div><div class="label">menor intervalo WL desligada → PRECH conduzindo, FF</div></div>
+    </div>
+    <p>O sizing de trabalho das 80 células inversoras é <code>Wp=1,26 µm</code>, <code>Wn=0,42 µm</code>, <code>L=0,15 µm</code>, <code>nf=1</code>. Entre seis pares avaliados, esse candidato teve os maiores mínimos medidos de margem de liberação e desligamento da WL. O sizing é provisório, em nível esquemático.</p>
+    <figure class="evidence"><a href="assets/row_decoder_precharge_phase_chain_20261009.png"><img src="assets/row_decoder_precharge_phase_chain_20261009.png" alt="Formas de onda do candidato transistor-level de PCLK e PRECH, wordline e bitlines"></a><figcaption>Forma de onda representativa da sequência PCLK/PRECH; a matriz com o sizing escolhido está no relatório de dimensionamento. <a href="row_decoder_tapped_phase_generator_screen_20261009.md">Método e limites da cadeia</a> · <a href="phase_delay_inverter_sizing_screen_20261009.md">Comparação de sizing</a>.</figcaption></figure>
+    <p class="warn">Nesta matriz anterior, CLK e VALID_ACCESS_Q ainda são fontes ideais. Um ensaio separado já usa o Q real do qualificador com o gerador de fase e os PEX carregados, em um caso válido e um inválido TT; ele não cobre setup/hold nem todos os cantos. Também faltam layout, DRC/LVS e PEX do gerador. Não há acesso 6T, amplificador de sentido nem readback. Os atrasos medidos não fixam frequência máxima.</p>
+    <p class="source">O precharge W2.52 é uma entrada de simulação somente leitura. <a href="../sims/row_decoder/inputs/precharge_w2p52_pex_5dc00fe.provenance.json">Procedência do PEX</a> · <a href="feature_peripherals_validation_log.md#2026-10-09-utc-transistor-level-pclkprech-phase-chain-candidate">registro de validação</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">10 · Chegada de VALID_ACCESS_Q · 09/10</div>
+    <h2>O atraso do qualificador reduz a margem de pré-carga</h2>
+    <p>Com o phase source transistor-level e os PEX atuais, atrasei a chegada idealizada de <code>VALID_ACCESS_Q</code> em relação à borda de captura. A margem é medida da subida de PRECH em 75% de VDD até a subida de PCLK em 50% de VDD.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">0 e 900 ps</div><div class="label">os dois pontos passam em TT, SS e FF; o mínimo é 322 ps em FF</div></div>
+      <div class="card"><div class="metric">1,0 ns</div><div class="label">FF mede 230,5 ps e falha o guard experimental de 250 ps</div></div>
+      <div class="card"><div class="metric">1,25 ns</div><div class="label">TT e FF falham a margem; SS passa nos casos amostrados</div></div>
+    </div>
+    <figure class="evidence"><a href="assets/row_decoder_valid_access_arrival_skew_20261009.png"><img src="assets/row_decoder_valid_access_arrival_skew_20261009.png" alt="Margem de liberação de PRECH versus atraso de chegada de VALID_ACCESS_Q nos corners TT, SS e FF"></a><figcaption>O guard de 250 ps é um critério experimental já usado no phase source. O gráfico mostra um único endereço 0→3 e uma fonte ideal para VALID_ACCESS_Q. <a href="row_decoder_valid_access_arrival_skew_20261009.md">Dados, método, limites e comandos</a>.</figcaption></figure>
+    <p>Na tela seguinte, a subida de <code>VALID_ACCESS_Q</code> passou a usar o clock-to-Q e o slew de subida da Liberty <code>dfxtp_1</code>, mantendo a cadeia de fase transistor-level. Os vetores de leitura e escrita passaram nos três perfis: 6/6 casos e 1.008/1.008 checks. O menor lead medido foi 334,158 ps em FF.</p>
+    <p>Um ensaio separado do vetor inválido <code>000</code> em TT passou 30/30 checks, mantendo PCLK, DEC e WL inativos e os nós internos/bitlines pré-carregados. Os outros vetores inválidos e corners ainda precisam ser percorridos nesse modo.</p>
+    <p class="warn">As margens desta tela ainda usam uma fonte PWL baseada em Liberty. Separadamente, a saída transistor-level real já foi aplicada à cadeia PCLK/PRECH em um par de casos TT carregados; a diferença de captura-Q até PCLK foi 1,120 ps no read 001, endereço 0→3. Esse ponto único não cobre os outros endereços/cantos nem setup/hold, metastabilidade, partida ou frequência. O guard de 250 ps e o alvo anterior de 900 ps são experimentais, não requisitos nem limite de frequência.</p>
+    <p class="source"><a href="row_decoder_valid_access_q_liberty_screen_20261009.md">Relatório, valores por corner, causa da falha SPICE e reprodução</a> · <a href="../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_20261009/summary.csv">CSV</a> · <a href="../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_20261009/checks.csv">1.008 checks</a> · <a href="../sims/row_decoder/results/phase_source_valid_access_q_liberty_dfxtp1_invalid_tt_20261009/checks.csv">checks do vetor inválido 000</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">11 · Qualificador de acesso · 09/10</div>
+    <h2>O controle válido agora é capturado na borda</h2>
+    <p>O bloco combina <code>!CSb</code> com <code>OEb XOR WEb</code>. Assim, só um acesso de leitura ou escrita habilitado produz <code>VALID_ACCESS_D=1</code>; o DFF <code>dfxtp_1</code> registra esse resultado na subida de CLK.</p>
+    <div class="grid three">
+      <div class="card"><div class="metric">24/24</div><div class="label">capturas nos três perfis SPICE selecionados</div></div>
+      <div class="card"><div class="metric">48/48</div><div class="label">retenções enquanto CLK está alto e após a descida</div></div>
+      <div class="card"><div class="metric">159–480 ps</div><div class="label">tCQ de subida até 90% VDD, conforme o perfil</div></div>
+    </div>
+    <table><thead><tr><th>CSb</th><th>OEb</th><th>WEb</th><th>Condição</th><th>Q capturado</th></tr></thead><tbody>
+      <tr><td>0</td><td>0</td><td>1</td><td>Leitura</td><td>1</td></tr>
+      <tr><td>0</td><td>1</td><td>0</td><td>Escrita</td><td>1</td></tr>
+      <tr><td>0</td><td>1</td><td>1</td><td>Idle</td><td>0</td></tr>
+      <tr><td>0</td><td>0</td><td>0</td><td>Leitura e escrita simultâneas</td><td>0</td></tr>
+      <tr><td>1</td><td>×</td><td>×</td><td>Chip desabilitado</td><td>0</td></tr>
+    </tbody></table>
+    <div class="evidence-grid">
+      <figure class="evidence"><a href="assets/valid_access_capture_20261009.png"><img src="assets/valid_access_capture_20261009.png" alt="Esquemático Xschem do qualificador de acesso válido com inversor, XOR, AND e DFF de borda positiva"></a><figcaption>Esquemático gerado em Xschem com células SKY130 FD SC HD. <a href="row_decoder_valid_access_capture_20261009.md">Relatório, método e limites</a> · <a href="../sims/row_decoder/results/valid_access_capture_integrated_20261009T213300994820Z/simulation.log">log funcional</a>.</figcaption></figure>
+      <figure class="evidence"><a href="../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/capture_q_pvt.png"><img src="../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/capture_q_pvt.png" alt="Tensão de VALID_ACCESS_Q em TT, SS e FF na simulação transistor-level, com atrasos de cruzamento"></a><figcaption>Simulação transistor-level isolada: tCQ de subida/descida 223/181 ps (TT), 480/333 ps (SS) e 159/142 ps (FF). Clique para ampliar. <a href="../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/manifest.json">Manifesto</a> · <a href="../sims/row_decoder/results/valid_access_capture_spice_20261009T215804875567Z/checks.csv">CSV de medições</a> · <a href="row_decoder_valid_access_capture_20261009.md">limites e avisos</a>.</figcaption></figure>
+    </div>
+    <figure class="evidence"><a href="../sims/row_decoder/results/captured_row_address_interface_tt_20261009/captured_phase_vs_liberty_tt_read_a0_to_3.png"><img src="../sims/row_decoder/results/captured_row_address_interface_tt_20261009/captured_phase_vs_liberty_tt_read_a0_to_3.png" alt="PCLK e PRECH no caminho com A0/A1 capturados e decoder, wordline e precharge PEX, comparado à referência Liberty"></a><figcaption>O caminho mostrado seleciona a linha 3 em leitura TT. A0_Q/A1_Q agora selecionam as linhas 0–3 sob controle 001 em quatro casos TT, com 350/350 checks por par e 1.400/1.400 no total. A seleção de escrita 010 para 3→0 também passa 350/350; o caso inválido anterior 000 passa 66/66. Clique para ampliar. <a href="row_decoder_captured_phase_interface_20261009.md">Relatório, dados e limites</a> · <a href="../sims/row_decoder/results/captured_row_address_interface_tt_20261009/manifest.json">leitura da linha 3</a> · <a href="../sims/row_decoder/results/captured_address_read_row0_tt_20261010/manifest.json">leitura da linha 0</a> · <a href="../sims/row_decoder/results/captured_address_read_rows1_2_tt_20261010/manifest.json">leitura das linhas 1/2</a> · <a href="../sims/row_decoder/results/captured_phase_interface_invalid000_tt_20261009/manifest.json">caso inválido</a>.</figcaption></figure>
+    <figure class="evidence"><a href="../sims/row_decoder/results/valid_access_setup_hold_tt_ss_ff_v2_20261009/setup_hold_margin.png"><img src="../sims/row_decoder/results/valid_access_setup_hold_tt_ss_ff_v2_20261009/setup_hold_margin.png" alt="Margem medida de setup e hold do nó VALID_ACCESS_D em TT, SS e FF, comparada às tabelas Liberty"></a><figcaption>Tela exploratória com 48 pontos: 8 offsets de setup e 8 de hold por perfil. As referências Liberty não coincidem exatamente com todos os pontos PM3; <a href="row_decoder_valid_access_setup_hold_20261009.md">método, dados e limitações</a> · <a href="../sims/row_decoder/results/valid_access_setup_hold_tt_ss_ff_v2_20261009/checks.csv">CSV</a>.</figcaption></figure>
+    <p><code>row_address_capture.sch</code> registra A0/A1. A tela funcional passa 4/4 endereços e 8/8 retenções. Na integração transistor-level TT, a leitura `001` seleciona as linhas 0, 1, 2 e 3 a partir do endereço antigo 0; cada par real/referência passa 350/350 checks, 1.400/1.400 no total. A escrita `010`, endereço 3→0, passa 350/350 checks. Em todos, A0_Q/A1_Q alimentam o decoder PEX e mantêm o endereço capturado após a mudança dos pinos de entrada. A caracterização isolada de setup/hold cobre 168 pontos em TT/SS/FF, incluindo subida e descida nos dois bits; 114/114 amostras com margem não negativa frente à referência Liberty produziram o Q esperado. O caso `010` seleciona a sequência de escrita, mas ainda não escreve dados numa bitcell física. <a href="row_decoder_address_capture_20261009.md">Relatório da captura e integração</a> · <a href="row_decoder_address_setup_hold_20261010.md">método e limites de setup/hold</a> · <a href="../sims/row_decoder/results/captured_row_address_interface_tt_20261009/manifest.json">manifesto da leitura</a> · <a href="../sims/row_decoder/results/captured_address_write_tt_20261010/manifest.json">manifesto do caminho de escrita</a>.</p>
+    <figure class="evidence"><a href="../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/setup_hold_aperture.png"><img src="../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/setup_hold_aperture.png" alt="Estado amostrado de Q para A0 e A1 nas transições de subida e descida ao redor da borda de captura, nos perfis TT, SS e FF"></a><figcaption>Screen isolado do `dfxtp_1`: 168 pontos, sem erros fatais; áreas sombreadas mostram as janelas das referências Liberty de setup/hold. Os valores são observações amostradas e não limites garantidos. Clique para ampliar. <a href="../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/checks.csv">CSV</a> · <a href="../sims/row_decoder/results/row_address_setup_hold_tt_ss_ff_20261010/manifest.json">manifesto e hashes</a>.</figcaption></figure>
+    <p class="warn">Em SS, Q do qualificador mediu −102 mV abaixo de VSS e +139 mV acima de VDD; não há limite aceito para essas excursões. O screen isolado anterior registrou bibliotecas OSDI ausentes; os ensaios carregados e setup/hold não registraram OSDI ausente, mas imprimiram “No compatibility mode selected!”. O screen de endereço é isolado e exploratório: setup/hold do caminho PEX integrado, metastabilidade, partida sem reset, captura de write data, outras transições ordenadas de endereço, demais controles/corners e aceite dos modelos seguem pendentes.</p>
+    <p class="source">Reprodução: <code>./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture.py</code> e <code>./tools/sram-eda python3 sims/row_decoder/run_valid_access_capture_spice.py</code> · <a href="feature_peripherals_validation_log.md#2026-10-09-utc-captured-valid-access-qualifier-transistor-level-screen">registro de validação</a> · <a href="../cells/control/valid_access_capture.sch">fonte Xschem</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">12 · Matriz de interface capturada</div>
+    <h2>Todos os pares válidos passaram em TT, SS e FF</h2>
+    <p>A matriz completa cruza leitura <code>001</code> e escrita <code>010</code>, os 16 pares ordenados de endereço, e três perfis SKY130. Com amostra de Q em +900 ps, desafio às entradas em +1.100 ps, queda externa de CLK em 22,50 ns e janela de assentamento de 3,8 ns, os 96 casos lógicos concluíram nos modos transistor-level e referência Liberty. Essa janela é experimental; não define clock ou frequência aprovados.</p>
+    <div class="grid">
+      <div class="card"><h3 class="ok">33.600 / 33.600</h3><p>checks aprovados; 192/192 simulações atual/reference nas duas campanhas de endereço válido.</p></div>
+      <div class="card"><h3 class="warn">4,972 mV</h3><p>margem mínima medida da WL assentada em SS sobre a tela de 0,9·VDD; margem estreita.</p></div>
+      <div class="card"><h3 class="warn">Q fora dos rails</h3><p>VALID_ACCESS_Q ainda tem excursões sem critério de aceitação definido.</p></div>
+    </div>
+    <figure class="evidence"><a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/full_valid_matrix_selected_wl_margin.png"><img src="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/full_valid_matrix_selected_wl_margin.png" alt="Margem da tensão mínima assentada da wordline selecionada nos 16 pares de endereço, para leitura e escrita em TT, SS e FF"></a><figcaption>96 pontos de dados: mínimo assentado da WL selecionada menos a tela experimental de 0,9·VDD. Em SS, o menor ponto é +4,972 mV para 1→2 em leitura. Isso passa a tela usada, mas a margem não foi aprovada como requisito. <a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/full_valid_matrix_selected_wl_margin.png">Abrir o gráfico</a> · <a href="row_decoder_captured_phase_interface_20261009.md#2026-10-14-utc-complete-ordered-valid-address-matrix">método e limites</a>.</figcaption></figure>
+    <figure class="evidence"><a href="../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/ss_selected_wl_window_comparison.png"><img src="../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/ss_selected_wl_window_comparison.png" alt="Comparação exploratória da tensão mínima de WL2 em SS nas janelas de assentamento de 3,8 e 5,5 ns"></a><figcaption>Transição crítica 1→2 em SS: com settling de 3,8 ns, quedas em 22,5/24/25 ns medem +4,972 mV. Com settling de 5,5 ns, quedas em 24/25 ns medem +144,516 mV. O valor maior vem da janela posterior de medição; não comprova tempo de acesso da bitcell. <a href="../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/manifest.json">Manifesto e evidências</a> · <a href="../sims/row_decoder/results/captured_phase_interface_ss_margin_fall25000_settle5500_20261014/ss_selected_wl_window_comparison.png">Abrir o gráfico</a>.</figcaption></figure>
+    <figure class="evidence"><a href="../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_pclk_wl3_timing.png"><img src="../sims/row_decoder/results/captured_phase_interface_ss_waveform_diag_20261010/ss_row3_pclk_wl3_timing.png" alt="Diagnóstico inicial em SS: PCLK, nó dinâmico N3, DEC3 e WL3, antes de ampliar a janela de assentamento"></a><figcaption>Diagnóstico da execução inicial em SS: WL3 cruza 90% cerca de 99 ps depois do início da descida de PCLK, mostrando por que a janela curta reprovou. Este gráfico antecede a matriz completa. <a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/manifest.json">Manifesto dos 12 pares restantes</a> · <a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/summary.csv">Resumo</a> · <a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/matched_comparison.csv">Comparação atual/reference</a> · <a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/checks.csv">25.200 checks</a>.</figcaption></figure>
+    <p class="warn">As seis combinações inválidas também passam para 0→3 nos três perfis (36 simulações, 1.332/1.332 checks), mas essa matriz inválida não cobre todos os pares de endereço. A qualificação continua aberta: a tela de 3,8 ns em SS fica +4,972 mV acima do piso; janelas de 5,5 ns medem +144,516 mV tanto com queda em 24 como em 25 ns, por começarem mais tarde. Isso não demonstra o tempo de acesso necessário. A janela e o clock ainda não foram aceitos como requisitos; VALID_ACCESS_Q atingiu −0,112786 V e 1,811754 V em SS sem limite definido. Ainda faltam startup, setup/hold integrado e a linha física de bitcells com escrita de dados, leitura e readback.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">13 · Estado físico e integração</div>
+    <h2>O que está concluído e o que falta</h2>
+    <p><strong>Escopo confirmado da Fase 1:</strong> o decoder dinâmico 2→4 atual em <code>feature/peripherals</code> é o bloco da Pessoa 3 e segue até caracterização, layout, DRC e LVS. O candidato SPICE mantido na branch do Danilo não substitui essa implementação.</p>
+    <div class="grid">
+      <div class="card"><h3 class="ok">Concluído nas folhas WL e write</h3><ul><li>Simulações esquemáticas e com PEX existente.</li><li>DRC sem violações e LVS com match único nas duas folhas.</li><li>Ambiente SKY130A reproduzível via <code>tools/sram-eda</code>.</li></ul></div>
+      <div class="card"><h3 class="warn">Pendente na qualificação e integração</h3><ul><li>Expandir a varredura SS para outras transições e relacionar a chegada e a queda de WL ao tempo de acesso exigido pela bitcell. No par 1→2, 3,8 ns dá +4,972 mV para quedas de 22,5–25 ns; 5,5 ns dá +144,516 mV para 24/25 ns.</li><li>Acordar com os orientadores o tempo de acesso e a margem exigida; os limites de 0,9·VDD usados são telas experimentais.</li><li>Avaliar startup e setup/hold integrado; os pontos de captura atuais são exploratórios.</li><li>Conectar a linha física de bitcells e demonstrar escrita de 0/1, leitura armazenada e readback.</li><li>Fazer layout/PEX da origem de PCLK/PRECH e revisar as excursões dos sinais capturados.</li><li>Fechar critérios de bias/modelo, potência, excursão de Q e janela de clock.</li></ul></div>
+    </div>
+    <p>O decoder atual também passou por 414 ensaios schematic de retenção finita, injeção de carga e duração das fases em TT/SS/FF: 36/36 holds passaram; o menor ponto amostrado que passou em todas as linhas foi 0,6 ns na fase baixa SS e 0,75 ns na fase alta SS. A carga de 8 fC provocou resposta perturbada em 4/6 combinações de perfil e nó.</p>
+    <p>Esses resultados são telas exploratórias para a forma de onda e grade ensaiadas. Não definem orçamento de ruído, tolerância a clock parado, limite de fase ou frequência máxima. A revisão com o PCLK real e a aceitação dos critérios seguem pendentes.</p>
+    <p class="bad"><strong>Limite atual:</strong> a matriz válida cobre os 16 pares ordenados, leitura `001` e escrita `010`, em TT/SS/FF: 192/192 simulações atual/reference e 33.600/33.600 checks. Na matriz original, WL em SS fica 4,972 mV acima da tela de 0,9·VDD. No ensaio focado, 3,8 ns dá o mesmo resultado para quedas 22,5–25 ns; a janela de 5,5 ns dá +144,516 mV para 24/25 ns porque começa mais tarde. Timing/frequência continuam sem aprovação. A tela isolada de setup/hold passou 168 pontos, mas não substitui qualificação integrada. Ainda faltam linha física de bitcells, escrita real, leitura armazenada e readback, startup, critério para excursões de Q e layout/PEX do phase source.</p>
+    <p class="source">Evidências: <a href="row_decoder_current_sizing_contract_20261009.md">414 ensaios do decoder</a> · <a href="row_decoder_distributed_row_pex_20261009.md">caminho distribuído</a> · <a href="row_decoder_tapped_phase_generator_screen_20261009.md">candidato de geração de fase</a> · <a href="feature_peripherals_validation_log.md#layout-checks">DRC/LVS</a> · <a href="row_decoder_captured_phase_interface_20261009.md#2026-10-14-utc-complete-ordered-valid-address-matrix">análise da matriz válida completa</a> · <a href="../sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013/manifest.json">manifesto e resultados</a> · <a href="../sims/row_decoder/results/captured_phase_interface_invalid_3profile_fall22500_settle3800_q900_20261013/manifest.json">manifesto dos controles inválidos</a>.</p>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">14 · Próximas tarefas · atualização 14/10</div>
+    <h2>Plano de fechamento</h2>
+    <table><thead><tr><th>Ordem</th><th>Tarefa</th><th>Evidência/critério de saída</th></tr></thead><tbody>
+      <tr><td>Concluído · 14/10</td><td>Cobrir leitura/escrita para os 16 pares de endereço, em TT/SS/FF</td><td>192/192 simulações atual/reference e 33.600/33.600 checks; manifesto e CSVs reproduzíveis</td></tr>
+      <tr><td>Próximo</td><td>Expandir o estudo SS para outras transições e relacionar WL ao tempo de acesso da bitcell</td><td>O par 1→2 mede +4,972 mV na janela de 3,8 ns e +144,516 mV na de 5,5 ns, quase sem efeito da queda de clock nos pontos testados; ampliar transições e acordar critério de acesso com os orientadores</td></tr>
+      <tr><td>Depois</td><td>Definir limites para excursões de Q e revisar bias/domínio dos modelos e potência</td><td>Critérios registrados com os orientadores e medições confrontadas com eles</td></tr>
+      <tr><td>Integração</td><td>Validar startup e setup/hold no caminho completo; conectar bitcells e demonstrar escrita, leitura e readback</td><td>Estado armazenado observado na linha física, com controles e fases explícitos</td></tr>
+      <tr><td>Físico</td><td>Fazer layout/PEX da origem PCLK/PRECH e repetir os pontos críticos; fechar revisão elétrica dos donos dos blocos</td><td>DRC/LVS, PEX e resultados reproduzíveis para a interface atualizada</td></tr>
+      <tr><td>Entrega</td><td>Consolidar o pacote da Fase 1 para os três blocos de Person 3</td><td>Schematics, simulações, layouts, DRC/LVS, relatórios, evidências e limitações abertas</td></tr>
+    </tbody></table>
+    <p class="warn"><strong>Dependências:</strong> revisão compartilhada da precharge com André, interface elétrica da bitcell com Danilo, e aceitação dos critérios de timing, margem e excursão de Q pelos orientadores.</p>
+    <p class="source">Plano detalhado: <a href="person3_phase1_remaining_tasks.md">tarefas restantes</a>. Use ←/→ ou os botões para navegar; a impressão gera uma página por slide.</p>
+  </section>
+</main>
+<nav aria-label="Controles da apresentação">
+  <button id="prev" type="button" aria-label="Slide anterior">← Anterior</button>
+  <span id="count" aria-live="polite">1 / 15</span>
+  <button id="next" type="button" aria-label="Próximo slide">Próximo →</button>
+</nav>
+<dialog class="image-viewer" id="image-viewer" aria-labelledby="viewer-title" aria-describedby="viewer-caption">
+  <button class="viewer-close" id="viewer-close" type="button" aria-label="Fechar imagem ampliada">Fechar ✕</button>
+  <h2 class="viewer-title" id="viewer-title">Imagem ampliada</h2>
+  <img class="viewer-image" id="viewer-image" alt="">
+  <p class="viewer-caption" id="viewer-caption"></p>
+</dialog>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const imageViewer = document.querySelector('#image-viewer');
+  const viewerImage = document.querySelector('#viewer-image');
+  const viewerTitle = document.querySelector('#viewer-title');
+  const viewerCaption = document.querySelector('#viewer-caption');
+  let current = 0;
+  function show(index) {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+    document.querySelector('#count').textContent = `${current + 1} / ${slides.length}`;
+  }
+  document.querySelector('#prev').addEventListener('click', () => show(current - 1));
+  document.querySelector('#next').addEventListener('click', () => show(current + 1));
+  document.querySelectorAll('figure.evidence > a').forEach(link => {
+    const image = link.querySelector('img');
+    if (!image) return;
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      viewerImage.src = link.href;
+      viewerImage.alt = image.alt;
+      viewerTitle.textContent = image.alt || 'Imagem ampliada';
+      viewerCaption.textContent = link.closest('figure').querySelector('figcaption')?.textContent.replace(/\s+/g, ' ').trim() || '';
+      imageViewer.showModal();
+    });
+  });
+  document.querySelector('#viewer-close').addEventListener('click', () => imageViewer.close());
+  imageViewer.addEventListener('click', event => {
+    const bounds = imageViewer.getBoundingClientRect();
+    const outside = event.clientX < bounds.left || event.clientX > bounds.right ||
+      event.clientY < bounds.top || event.clientY > bounds.bottom;
+    if (outside) imageViewer.close();
+  });
+  document.addEventListener('keydown', event => {
+    if (imageViewer.open) return;
+    if (event.key === 'ArrowRight' || event.key === 'PageDown') show(current + 1);
+    if (event.key === 'ArrowLeft' || event.key === 'PageUp') show(current - 1);
+  });
+  show(0);
+</script>
+</body>
+</html>
