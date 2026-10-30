@@ -1,0 +1,62 @@
+* SKY130A footed dynamic 2-to-4 SRAM row decoder candidate.
+* DEC0..DEC3 are active-high outputs for the existing wordline drivers.
+* PCH_N=0 precharges the dynamic nodes; EVAL=1 evaluates the address.
+* Sizing is an initial candidate only and is not electrically qualified.
+.subckt row_decoder_2to4 VDD VSS A1 A0 PCH_N EVAL DEC0 DEC1 DEC2 DEC3
+
+* Static support inverters for address literals and precharge-node clamps.
+XIA1 A1 A1_B VDD VSS row_decoder_inv
+XIA0 A0 A0_B VDD VSS row_decoder_inv
+XIPCH PCH_N PCH VDD VSS row_decoder_inv
+
+* Row 0: A1:A0 = 00.
+XMPCH0 DYN0 PCH_N VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.84 nf=1
+XMK0 DYN0 DEC0 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMPU0 DEC0 DYN0 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMND0 DEC0 DYN0 VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMNA0 DYN0 A1_B N0A VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNB0 N0A A0_B N0B VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNE0 N0B EVAL VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMC0A N0A PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMC0B N0B PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+
+* Row 1: A1:A0 = 01.
+XMPCH1 DYN1 PCH_N VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.84 nf=1
+XMK1 DYN1 DEC1 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMPU1 DEC1 DYN1 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMND1 DEC1 DYN1 VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMNA1 DYN1 A1_B N1A VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNB1 N1A A0 N1B VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNE1 N1B EVAL VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMC1A N1A PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMC1B N1B PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+
+* Row 2: A1:A0 = 10.
+XMPCH2 DYN2 PCH_N VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.84 nf=1
+XMK2 DYN2 DEC2 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMPU2 DEC2 DYN2 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMND2 DEC2 DYN2 VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMNA2 DYN2 A1 N2A VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNB2 N2A A0_B N2B VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNE2 N2B EVAL VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMC2A N2A PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMC2B N2B PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+
+* Row 3: A1:A0 = 11.
+XMPCH3 DYN3 PCH_N VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.84 nf=1
+XMK3 DYN3 DEC3 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMPU3 DEC3 DYN3 VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMND3 DEC3 DYN3 VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMNA3 DYN3 A1 N3A VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNB3 N3A A0 N3B VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMNE3 N3B EVAL VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=1.26 nf=1
+XMC3A N3A PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+XMC3B N3B PCH VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+
+.ends row_decoder_2to4
+
+* Small static inverter used only for address polarity and precharge clamps.
+.subckt row_decoder_inv A Y VDD VSS
+XMP Y A VDD VDD sky130_fd_pr__pfet_01v8 l=0.15 w=0.42 nf=1
+XMN Y A VSS VSS sky130_fd_pr__nfet_01v8 l=0.15 w=0.42 nf=1
+.ends row_decoder_inv
