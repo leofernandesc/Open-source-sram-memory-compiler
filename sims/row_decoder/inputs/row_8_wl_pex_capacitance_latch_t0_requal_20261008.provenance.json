@@ -1,0 +1,64 @@
+{
+  "source_repository": "leofernandesc/Open-source-sram-memory-compiler",
+  "source_branch": "feat/sram-6t-cell",
+  "source_commit": "95c23c03ddc29f0d4bf40adf5fe7adb1b4af0a6a",
+  "source_path": "sims/row_8_wl_pex_capacitance_latch_t0_requal_20261008.csv",
+  "source_file_sha256": "b1f7da873879c30228c183d99eae5aa5c6f19214d09cc03153ce817eb07e36ca",
+  "local_copy_path": "sims/row_decoder/inputs/row_8_wl_pex_capacitance_latch_t0_requal_20261008.csv",
+  "rows": 60,
+  "status_counts": {
+    "PASS": 60
+  },
+  "pvt": {
+    "corners": [
+      "ff",
+      "fs",
+      "sf",
+      "ss",
+      "tt"
+    ],
+    "vdd_v": [
+      1.62,
+      1.8
+    ],
+    "temp_c": [
+      -40.0,
+      27.0,
+      125.0
+    ],
+    "states": [
+      0,
+      1
+    ]
+  },
+  "cwl_pex_ff_range": [
+    102.328670661,
+    102.873935496
+  ],
+  "maximum_case": {
+    "corner": "ff",
+    "vdd_v": "1.62",
+    "temp_c": "-40.0",
+    "state": "0",
+    "cwl_pex_ff": "102.873935496"
+  },
+  "associated_cell_cap_csv": "sims/bitcell_pex_wordline_capacitance_latch_t0_requal_20261008.csv",
+  "associated_cell_cap_csv_sha256": "2caf92eec66f763811e6cb3cc4c154c12c285c7bac88fb83db0c8cbe49320e82",
+  "interpretation": "CWL total for the extracted 8-bit row. Use this value at each WL output in a bench with no explicit bitcell row. If the selected bitcell capacitance is already included, the additional row load is derived from paired row-minus-cell data in the source report; the max paired extra is 93.351918068 fF.",
+  "scope": "Input evidence from Danilo remote branch; copied byte-for-byte without modifying his source or branch.",
+  "row_pex_sha256": [
+    "160b65544e12481aa99b287329ef2798e80c184c8f91566a23177ed8f0fb2dd6"
+  ],
+  "cell_pex_sha256": [
+    "41fb8502601508f50e82cdae3ef77b10ec8048dca26b769f981e88f0d9cabb03"
+  ],
+  "paired_extra_cwl_ff_max": 93.351918068,
+  "paired_extra_cwl_maximum_case": {
+    "corner": "ff",
+    "vdd_v": "1.62",
+    "temp_c": "-40.0",
+    "state": "0",
+    "cwl_pex_ff": "102.873935496"
+  },
+  "paired_extra_cell_cwl_ff": 9.522017428
+}

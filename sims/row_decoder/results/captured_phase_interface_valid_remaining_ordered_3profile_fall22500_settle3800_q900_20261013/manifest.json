@@ -1,0 +1,5095 @@
+{
+  "campaign": "captured_q_to_transistor_phase_source_matched_interface",
+  "started_utc": "2026-10-14T03:10:00.871907+00:00",
+  "complete": true,
+  "scope": "Current dynamic decoder and four WL-driver R-C PEX instances plus eight pinned Danilo precharge PEX instances and lumped BL residuals. Actual mode netlists the captured row-address registers, valid-access qualifier and transistor phase source as one wrapper. Reference mode drives address-Q and valid-access-Q with dfxtp_1 Liberty-timed PWL waveforms. The source outputs drive the same downstream PEX in both modes.",
+  "model_family": "SKY130 native ngspice PM3 model library for decoder, WL, precharge, phase logic and standard cells",
+  "native_model_corner_by_profile": {
+    "tt": "tt",
+    "slow": "ss",
+    "fast": "ff"
+  },
+  "q_reference": {
+    "type": "dfxtp_1 Liberty output arc as PWL",
+    "load_pf": 0.003434554,
+    "arcs": {
+      "tt": {
+        "clock_to_q_rise_ns": 0.3070411263955726,
+        "clock_to_q_fall_ns": 0.2971512162868439,
+        "q_rise_transition_ns": 0.047479135220609765,
+        "q_fall_transition_ns": 0.030448816287418697,
+        "library": "sky130_fd_sc_hd__tt_025C_1v80.lib",
+        "voltage_v": 1.8,
+        "temperature_c": 25.0,
+        "input_slew_ns": 0.0531329,
+        "output_load_pf": 0.003434554
+      },
+      "slow": {
+        "clock_to_q_rise_ns": 0.6770871149968367,
+        "clock_to_q_fall_ns": 0.5847625284006137,
+        "q_rise_transition_ns": 0.09467862146661993,
+        "q_fall_transition_ns": 0.04686632547159953,
+        "library": "sky130_fd_sc_hd__ss_n40C_1v60.lib",
+        "voltage_v": 1.6,
+        "temperature_c": -40.0,
+        "input_slew_ns": 0.0531329,
+        "output_load_pf": 0.003434554
+      },
+      "fast": {
+        "clock_to_q_rise_ns": 0.24873279882080843,
+        "clock_to_q_fall_ns": 0.25230437807474637,
+        "q_rise_transition_ns": 0.04178940287105987,
+        "q_fall_transition_ns": 0.029309587671228075,
+        "library": "sky130_fd_sc_hd__ff_100C_1v65.lib",
+        "voltage_v": 1.65,
+        "temperature_c": 100.0,
+        "input_slew_ns": 0.0531329,
+        "output_load_pf": 0.003434554
+      }
+    }
+  },
+  "control_equation": "VALID_ACCESS_D = !CSb AND (OEb XOR WEb)",
+  "initial_conditioning": "Controls start at 111; the first 5 ns clock pulse captures invalid/disabled Q=0 and the old address. The target control vector is applied at 5.8 ns; the target row address is applied with 500 ps nominal setup. Both are captured on the 15 ns rising edge.",
+  "post_capture_hold_challenge": "At 16.1 ns, live controls change to the opposite validity class; live address inputs change to the complement of the target address. The captured control and A0_Q/A1_Q must hold through the high phase.",
+  "address_capture": {
+    "schematic": "cells/control/row_address_capture.sch",
+    "external_setup_lead_ps": 500.0,
+    "live_address_change_ns": 16.1,
+    "reference": "dfxtp_1 Liberty clock-to-Q PWL from the same address transition",
+    "actual_input_energy_probes": [
+      "v(A0_IN)*i(VA0_IN)",
+      "v(A1_IN)*i(VA1_IN)"
+    ]
+  },
+  "sampling": {
+    "capture_after_edge_ps": 900.0,
+    "live_input_change_after_edge_ps": 1100.0,
+    "high_phase_after_edge_ps": 1500.0,
+    "post_fall_delay_ns": 1.0
+  },
+  "pclk_phase_source": {
+    "schematic": "cells/control/pclk_phase_source.sch",
+    "equations": {
+      "PCLK": "VALID_ACCESS_Q AND CLK AND DLY60",
+      "PRECH": "VALID_ACCESS_Q AND ((CLK AND DLY24) OR DLY80)"
+    },
+    "delay_taps": [
+      24,
+      60,
+      80
+    ],
+    "phase_device_sizing_um": {
+      "pfet_w": 1.26,
+      "nfet_w": 0.42,
+      "l": 0.15
+    }
+  },
+  "precharge_candidate": {
+    "subcircuit": "precharge_w2p52_flat",
+    "pins": [
+      "VDD",
+      "BL",
+      "BLB",
+      "PRECH",
+      "VSS"
+    ],
+    "mos_devices": 3,
+    "resistors": 20,
+    "capacitors": 30,
+    "negative_capacitors": 0,
+    "sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+    "source_provenance": {
+      "artifact": "precharge_w2p52_pex_5dc00fe.spice",
+      "source_repository": "leofernandesc/Open-source-sram-memory-compiler",
+      "source_branch": "feat/sram-6t-cell",
+      "source_commit": "5dc00fe02e43492267516c3e448e935456406a1d",
+      "source_path": "layout/precharge/experimental_w2p52/pex/precharge_w2p52_pex.spice",
+      "source_sha256": "cf0fa457b4ab84a1d19e6202541b6a43149b575e492a108e36d0de62489cc423",
+      "subcircuit": "precharge_w2p52_flat",
+      "pin_order": [
+        "VDD",
+        "BL",
+        "BLB",
+        "PRECH",
+        "VSS"
+      ],
+      "device_candidate": {
+        "topology": "three-PMOS precharge and equalization",
+        "nominal_width_um": 0.42,
+        "physical_width_um": 2.52,
+        "channel_length_um": 0.15,
+        "precharge_polarity": "active low"
+      },
+      "owner_reported_evidence": {
+        "report_path": "docs/phase1_leaf_cell_closure.md",
+        "reported_pex_ceff_pvt_ff": [
+          11.469724,
+          13.064186
+        ],
+        "reported_pex_ceff_cases": "60/60 PASS",
+        "reported_magic_drc_errors": 0,
+        "reported_netgen_lvs": "unique structural match",
+        "independently_rerun_in_this_branch": false
+      },
+      "use_in_feature_peripherals": "Read-only PEX dependency for decoder/precharge phase-interface simulation; this copy does not replace the shared precharge source or establish a new owner-approved integration revision."
+    },
+    "instances": [
+      "XPRECH0 net1 BL0 BLB0 PRECH GND precharge_w2p52_flat",
+      "XPRECH1 net1 BL1 BLB1 PRECH GND precharge_w2p52_flat",
+      "XPRECH2 net1 BL2 BLB2 PRECH GND precharge_w2p52_flat",
+      "XPRECH3 net1 BL3 BLB3 PRECH GND precharge_w2p52_flat",
+      "XPRECH4 net1 BL4 BLB4 PRECH GND precharge_w2p52_flat",
+      "XPRECH5 net1 BL5 BLB5 PRECH GND precharge_w2p52_flat",
+      "XPRECH6 net1 BL6 BLB6 PRECH GND precharge_w2p52_flat",
+      "XPRECH7 net1 BL7 BLB7 PRECH GND precharge_w2p52_flat"
+    ]
+  },
+  "decoder_wl_pex_evidence": {
+    "row_decoder": {
+      "pex_sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+      "counts": {
+        "mos": 29,
+        "resistors": 762,
+        "capacitors": 389
+      },
+      "dynamic_gate_nodes": {
+        "0": "N0.t3",
+        "1": "N1.t3",
+        "2": "N2.t3",
+        "3": "N3.t3"
+      },
+      "dynamic_segment_nodes": {
+        "0": [
+          "N0",
+          "N0.n0",
+          "N0.n1",
+          "N0.t0",
+          "N0.t1",
+          "N0.t2",
+          "N0.t3"
+        ],
+        "1": [
+          "N1",
+          "N1.n0",
+          "N1.n1",
+          "N1.t0",
+          "N1.t1",
+          "N1.t2",
+          "N1.t3"
+        ],
+        "2": [
+          "N2",
+          "N2.n0",
+          "N2.n1",
+          "N2.t0",
+          "N2.t1",
+          "N2.t2",
+          "N2.t3"
+        ],
+        "3": [
+          "N3",
+          "N3.n0",
+          "N3.n1",
+          "N3.t0",
+          "N3.t1",
+          "N3.t2",
+          "N3.t3"
+        ]
+      },
+      "capture_literal_nodes": {
+        "A0B": "x1.a0b.t0",
+        "A1B": "x1.a1b.t0",
+        "A0T": "x1.a0t.t0",
+        "A1T": "x1.a1t.t1"
+      }
+    },
+    "wl_driver": {
+      "subcircuit_pins_in_testbench_order": [
+        "VDD",
+        "WL_IN",
+        "WL",
+        "VSS"
+      ],
+      "source_pins_in_xschem_order": [
+        "VDD",
+        "WL_IN",
+        "WL",
+        "VSS"
+      ],
+      "pex_pins_in_magic_order": [
+        "VDD",
+        "VSS",
+        "WL_IN",
+        "WL"
+      ],
+      "pex_pin_order_adapted_without_changing_top_instances": true,
+      "mos_devices": 4,
+      "resistors": 99,
+      "capacitors": 43,
+      "mos_signature_match_current_xschem_and_flat_extraction": true,
+      "negative_capacitors": 0,
+      "sha256": {
+        "cells/wordline_driver/wl_driver.sch": "fcbd66081215bbbc32ff3ddb2655bf74f5ad55c6ac952b31159b64d3fb0b86d4",
+        "layout/wl_driver/wl_driver_flat.mag": "785d5fb367572e85514471ff3c6b1634b7b613bf1a1e106ce4c0a403a14e365a",
+        "layout/wl_driver/wl_driver_flat.ext": "2e3acdbe46cb741907271b337c6881092326b9e139e51f817fd26b5f13672956",
+        "layout/wl_driver/wl_driver_flat_extracted.spice": "ef7faf1175cf9a4c3e19a30cd7c60319f5050234a4c9f1eeec3ee5b3c1d53e9e",
+        "layout/wl_driver/pex/wl_driver_pex.spice": "68a3d7234d6d002d38655c10eace999729222b4a9078568feb71c0867eecfdc0"
+      }
+    },
+    "topology_scope": "Current decoder R-C PEX and four hierarchical WL-driver R-C PEX instances; the explicitly configured lumped WL load is recorded in wordline_load."
+  },
+  "wordline_load_ff": 102.873935496,
+  "bitline_load": {
+    "target_effective_ceiling_ff": 597.056241,
+    "precharge_leaf_max_ceff_ff": 13.064186,
+    "external_residual_ff_per_side": 583.992055,
+    "interpretation": "lumped residual using pinned precharge leaf evidence; not a distributed bitline"
+  },
+  "experimental_checks": {
+    "minimum_release_lead_ps": 250.0,
+    "minimum_wl_turnoff_guard_ps": 1800.0,
+    "not_specification_limits": true
+  },
+  "maximum_step_ps": 5.0,
+  "source_hashes": {
+    "sims/row_decoder/run_captured_phase_interface.py": "b67ffeb4c0a22a1cef8092386dff0ae942d20125c4beeaddee6d51b79e9d5f52",
+    "cells/control/captured_row_decoder_control.sch": "ba3528dc6e7a34ca1ff649c8813bb7f4f46b4ddb9df02e8afac0744a97432a9a",
+    "cells/control/captured_row_decoder_control.sym": "d2eff0dada824cfca0cf62ec4ab8d8c15f318f361859b684d097aaa6b80cced8",
+    "cells/control/row_address_capture.sch": "6e1b09dd3897084bfa31bf6aac03e92e3a73e37894393d60efb3de9efa3fdc8e",
+    "cells/control/row_address_capture.sym": "c456f60fb2cabf2af00ea3d8043aa521086f018b1c4a8737e2dedf6be5bf00f0",
+    "cells/control/captured_pclk_phase_source.sch": "806c01c2ff0d477a8a0c66d88da3cec04d3f8e6bd293f0023867d23b7a6daf1d",
+    "cells/control/captured_pclk_phase_source.sym": "b3ff6d9ec0461e0aba5c48c1ea99255b44d84551b30f08475672c269b77063be",
+    "cells/control/valid_access_capture.sch": "dbcec10f951a18936a920e9a854a1b8512851a0584e867edb38bfca2b4291e43",
+    "cells/control/valid_access_capture.sym": "f77b9cecc2f80e0ff8dbe78d50c820b4c0243d9e7e6e853439f323add2d16791",
+    "cells/control/pclk_phase_source.sch": "c78996b99abadbc7a9c0c6e1db5ad50fb7b720df5921349021b7cb7b17ae4b09",
+    "cells/control/pclk_phase_source.sym": "44bc6e7e4e62c3aa54a7a8bbc20c92293c48ebb0633aa03a51b8189c69d50e1f",
+    "cells/control/phase_delay_inv.sch": "695c054e2c13be72563d53bea8bac5de262a52183f8813115600f037b0327c6f",
+    "cells/control/phase_delay_inv.sym": "4eebbf2041bd0ee6de407ba1e968ab89d8cfdb3b8eac12f8a2f4421f73eeac9b",
+    "cells/control/phase_and3.sch": "a0f2ee388996e1a8c43d295cf3dcf0d07e3fc1dde05b43cc28d7c3e6e9e11564",
+    "cells/control/phase_and3.sym": "fee5fd0e3974ba4bb11f7de0546e4636ec5e416548f99164b77695e14e2859e3",
+    "cells/control/phase_or2.sch": "cd0f7bd06dc59eba1456ce542ba3383b2c446c6640dcc5ba12824936bba12102",
+    "cells/control/phase_or2.sym": "c0a1db8b4df24e444fccae0a0e499d2eb1568253b337003ab0ab61b706640670",
+    "tools/generate_pclk_phase_source.py": "cc79627ddc913c5863cf24d55294c198a8fc506bcda163513fe7eb9c818e47a6"
+  },
+  "xschem_wrapper_netlist_sha256": "18deae4ce4b1574be47b366dac35afa314a2ee5765127f06fe18c60862ed5ce0",
+  "active_wrapper_subcircuit_sha256": "251d6ce00498f882c85af959be53d86a78d73722462cebdaf6c51a28dc9fa5b2",
+  "simulation_input_netlist_sha256": "e2b2696bf862ee35c2a5b10ec1ded5c0a12370593ca39b2ff98f929ae6ab6e80",
+  "pdk_sha256": {
+    "sky130.lib.spice": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e",
+    "sky130_fd_sc_hd.spice": "304da9725492089107bb20840a4020558b028487d300f8df79bbbad5332aaa99",
+    "sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "sky130_fd_sc_hd__ss_n40C_1v60.lib": "23cba893b985a950a7951e3f29ae66ae6a639aaef75c1478e2306fb68d4a7ee5",
+    "sky130_fd_sc_hd__ff_100C_1v65.lib": "913e67fc551be7e4e97fc031f3e72e5ef3251438ceeb44753f73b68df58f5650"
+  },
+  "tools": {
+    "xschem": "XSCHEM V3.4.6\nCopyright (C) 1998-2024 Stefan Schippers\n\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n\nUsing run time directory XSCHEM_SHAREDIR = /opt/xschem/313acc8/share/xschem\nSourcing /opt/xschem/313acc8/share/xschem/xschemrc init file\nSourcing /work/xschemrc init file",
+    "ngspice": "******\n** ngspice-44.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2024, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Wed Jan 21 05:28:45 UTC 2026\n******"
+  },
+  "case_count": 72,
+  "cases": [
+    {
+      "label": "tt_ctl001_a1_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 1,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a1_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 1,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a1_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 1,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a1_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 1,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a2_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 2,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a2_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 2,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a2_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 2,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a2_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 2,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a3_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 3,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a3_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 3,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a3_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 3,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl001_a3_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "001",
+      "old": 3,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a1_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 1,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a1_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 1,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a1_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 1,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a1_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 1,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a2_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 2,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a2_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 2,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a2_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 2,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a2_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 2,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a3_to_0_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 3,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a3_to_1_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 3,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a3_to_2_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 3,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "tt_ctl010_a3_to_3_p2100",
+      "profile": "tt",
+      "control_vector": "010",
+      "old": 3,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a1_to_0_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 1,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a1_to_1_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 1,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a1_to_2_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 1,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a1_to_3_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 1,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a2_to_0_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 2,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a2_to_1_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 2,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a2_to_2_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 2,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a2_to_3_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 2,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a3_to_0_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 3,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a3_to_1_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 3,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a3_to_2_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 3,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl001_a3_to_3_p2100",
+      "profile": "slow",
+      "control_vector": "001",
+      "old": 3,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a1_to_0_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 1,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a1_to_1_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 1,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a1_to_2_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 1,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a1_to_3_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 1,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a2_to_0_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 2,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a2_to_1_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 2,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a2_to_2_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 2,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a2_to_3_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 2,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a3_to_0_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 3,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a3_to_1_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 3,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a3_to_2_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 3,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "slow_ctl010_a3_to_3_p2100",
+      "profile": "slow",
+      "control_vector": "010",
+      "old": 3,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a1_to_0_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 1,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a1_to_1_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 1,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a1_to_2_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 1,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a1_to_3_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 1,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a2_to_0_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 2,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a2_to_1_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 2,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a2_to_2_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 2,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a2_to_3_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 2,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a3_to_0_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 3,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a3_to_1_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 3,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a3_to_2_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 3,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl001_a3_to_3_p2100",
+      "profile": "fast",
+      "control_vector": "001",
+      "old": 3,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a1_to_0_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 1,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a1_to_1_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 1,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a1_to_2_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 1,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a1_to_3_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 1,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a2_to_0_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 2,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a2_to_1_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 2,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a2_to_2_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 2,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a2_to_3_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 2,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a3_to_0_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 3,
+      "new": 0,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a3_to_1_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 3,
+      "new": 1,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a3_to_2_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 3,
+      "new": 2,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    },
+    {
+      "label": "fast_ctl010_a3_to_3_p2100",
+      "profile": "fast",
+      "control_vector": "010",
+      "old": 3,
+      "new": 3,
+      "phase_ps": 2100.0,
+      "clk_fall_ps": 22500.0,
+      "settling_allowance_ns": 3.8,
+      "slew_lower_pct": 20.0,
+      "slew_upper_pct": 80.0
+    }
+  ],
+  "results": [
+    {
+      "case": "tt_ctl001_a1_to_0_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00911542055056,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007898969021905776,
+        "a1_q_post_capture_v": 0.00010373382669107225,
+        "a0_q_after_live_address_change_v": 2.055309442258848e-05,
+        "a1_q_after_live_address_change_v": 2.1433149324390436e-07,
+        "capture_to_pclk_rise_ps": 1828.6738674647727,
+        "prech_release_lead_before_pclk_ps": 391.90579230649325,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9910728934274,
+        "q_min_v": -0.07219655767847971,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.0411263954977,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5403160055698,
+        "prech_release_lead_before_pclk_ps": 391.94927147057695,
+        "pclk_fall_to_precharge_conduction_ps": 2253.986500434596,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00927942594842,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999999733487329,
+        "a1_q_post_capture_v": 1.2818446100767103e-08,
+        "a0_q_after_live_address_change_v": 1.7999999879244326,
+        "a1_q_after_live_address_change_v": -1.2527099319776091e-09,
+        "capture_to_pclk_rise_ps": 1828.6763196780548,
+        "prech_release_lead_before_pclk_ps": 391.90339419272567,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9666649448227,
+        "q_min_v": -0.07219642370994073,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5651632147672,
+        "prech_release_lead_before_pclk_ps": 391.96373415855356,
+        "pclk_fall_to_precharge_conduction_ps": 2253.966473722959,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00873332708835,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007951386926979747,
+        "a1_q_post_capture_v": 1.800371712396276,
+        "a0_q_after_live_address_change_v": 2.0651072547293625e-05,
+        "a1_q_after_live_address_change_v": 1.8000100185129775,
+        "capture_to_pclk_rise_ps": 1828.6722571225628,
+        "prech_release_lead_before_pclk_ps": 391.90850982486097,
+        "pclk_fall_to_precharge_conduction_ps": 2253.998549245906,
+        "q_min_v": -0.0722019022026459,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.553604125396,
+        "prech_release_lead_before_pclk_ps": 391.95891947408114,
+        "pclk_fall_to_precharge_conduction_ps": 2253.998311194939,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_3_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.0093044474274,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999973762041788,
+        "a1_q_post_capture_v": 1.7999752277812366,
+        "a0_q_after_live_address_change_v": 1.800000035830647,
+        "a1_q_after_live_address_change_v": 1.7999999141177812,
+        "capture_to_pclk_rise_ps": 1828.6732540636722,
+        "prech_release_lead_before_pclk_ps": 391.9067918058144,
+        "pclk_fall_to_precharge_conduction_ps": 2253.982670750104,
+        "q_min_v": -0.07220161168617192,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl001_a1_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.569650450146,
+        "prech_release_lead_before_pclk_ps": 391.9674049215731,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9931649324812,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_0_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.01018300353297,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 4.542833551208414e-06,
+        "a1_q_post_capture_v": 0.0007131909329846558,
+        "a0_q_after_live_address_change_v": -1.4929428031644185e-06,
+        "a1_q_after_live_address_change_v": 1.1887356111452675e-05,
+        "capture_to_pclk_rise_ps": 1828.670173140301,
+        "prech_release_lead_before_pclk_ps": 391.90532816137954,
+        "pclk_fall_to_precharge_conduction_ps": 2253.993386870605,
+        "q_min_v": -0.07219257920902819,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.552679091332,
+        "prech_release_lead_before_pclk_ps": 391.9584707569877,
+        "pclk_fall_to_precharge_conduction_ps": 2253.995133296605,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00942358612198,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999646789991328,
+        "a1_q_post_capture_v": 0.0007285942015841393,
+        "a0_q_after_live_address_change_v": 1.7999980388690615,
+        "a1_q_after_live_address_change_v": 1.2539403969673405e-05,
+        "capture_to_pclk_rise_ps": 1828.6723313275888,
+        "prech_release_lead_before_pclk_ps": 391.9096890024291,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9933242871257,
+        "q_min_v": -0.07216554062132771,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.0411263954977,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.554324621395,
+        "prech_release_lead_before_pclk_ps": 391.95671670300226,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9903954378856,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00927942737778,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 5.850371146331748e-09,
+        "a1_q_post_capture_v": 1.7999999586216058,
+        "a0_q_after_live_address_change_v": -7.91460208161615e-09,
+        "a1_q_after_live_address_change_v": 1.799999984782758,
+        "capture_to_pclk_rise_ps": 1828.67528281838,
+        "prech_release_lead_before_pclk_ps": 391.90243138330175,
+        "pclk_fall_to_precharge_conduction_ps": 2253.972987867414,
+        "q_min_v": -0.07219642288603809,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5639896704083,
+        "prech_release_lead_before_pclk_ps": 391.9625606221422,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9741398323613,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_3_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.0091975748353,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999750759915878,
+        "a1_q_post_capture_v": 1.8000027292134926,
+        "a0_q_after_live_address_change_v": 1.7999997447892258,
+        "a1_q_after_live_address_change_v": 1.7999999154338917,
+        "capture_to_pclk_rise_ps": 1828.6764892353003,
+        "prech_release_lead_before_pclk_ps": 391.91185994839896,
+        "pclk_fall_to_precharge_conduction_ps": 2253.999519557223,
+        "q_min_v": -0.07220145832673386,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl001_a2_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5566590880615,
+        "prech_release_lead_before_pclk_ps": 391.96169760217265,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9879314860204,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_0_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.01034136017066,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007780225074680206,
+        "a1_q_post_capture_v": 0.0008018371501191782,
+        "a0_q_after_live_address_change_v": 1.6272409975105035e-05,
+        "a1_q_after_live_address_change_v": 1.0357024192328404e-05,
+        "capture_to_pclk_rise_ps": 1828.6691792919632,
+        "prech_release_lead_before_pclk_ps": 391.90370758343823,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9972770851373,
+        "q_min_v": -0.07219463518323668,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.548618969369,
+        "prech_release_lead_before_pclk_ps": 391.9547825483651,
+        "pclk_fall_to_precharge_conduction_ps": 2254.002611929459,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.0103502524251,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999566482541134,
+        "a1_q_post_capture_v": 0.0006953668869491867,
+        "a0_q_after_live_address_change_v": 1.7999981625332384,
+        "a1_q_after_live_address_change_v": 1.079723948024884e-05,
+        "capture_to_pclk_rise_ps": 1828.6733461991187,
+        "prech_release_lead_before_pclk_ps": 391.9082676599744,
+        "pclk_fall_to_precharge_conduction_ps": 2253.987384015156,
+        "q_min_v": -0.07219251410862472,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5563420987394,
+        "prech_release_lead_before_pclk_ps": 391.9621315286448,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9906565598594,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00924889130732,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007816573493734693,
+        "a1_q_post_capture_v": 1.8003819018688503,
+        "a0_q_after_live_address_change_v": 2.1329565539326766e-05,
+        "a1_q_after_live_address_change_v": 1.8000098994795892,
+        "capture_to_pclk_rise_ps": 1828.6732086215259,
+        "prech_release_lead_before_pclk_ps": 391.9055994091556,
+        "pclk_fall_to_precharge_conduction_ps": 2253.989625844158,
+        "q_min_v": -0.07219658630737269,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5495726168908,
+        "prech_release_lead_before_pclk_ps": 391.9529020070853,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9936699498135,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_3_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00932811460328,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999999738332193,
+        "a1_q_post_capture_v": 1.7999999632171078,
+        "a0_q_after_live_address_change_v": 1.7999999894069845,
+        "a1_q_after_live_address_change_v": 1.799999989585481,
+        "capture_to_pclk_rise_ps": 1828.6794283049887,
+        "prech_release_lead_before_pclk_ps": 391.90662337771676,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9791890319407,
+        "q_min_v": -0.07219643455227849,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl001_a3_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "001",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.0411263954977,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5674234061369,
+        "prech_release_lead_before_pclk_ps": 391.96599435752995,
+        "pclk_fall_to_precharge_conduction_ps": 2253.975093095122,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_0_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00918247054378,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007898968319205589,
+        "a1_q_post_capture_v": 0.00010373381447851357,
+        "a0_q_after_live_address_change_v": 2.0553037060176242e-05,
+        "a1_q_after_live_address_change_v": 2.1432468447153363e-07,
+        "capture_to_pclk_rise_ps": 1828.6710714657518,
+        "prech_release_lead_before_pclk_ps": 391.90310181803216,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9916503168993,
+        "q_min_v": -0.07219657120167902,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.0411263954977,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5403160055698,
+        "prech_release_lead_before_pclk_ps": 391.94927147057695,
+        "pclk_fall_to_precharge_conduction_ps": 2253.986500434596,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00934468023178,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799999973348508,
+        "a1_q_post_capture_v": 1.2818155301349665e-08,
+        "a0_q_after_live_address_change_v": 1.7999999879226563,
+        "a1_q_after_live_address_change_v": -1.2544600471777648e-09,
+        "capture_to_pclk_rise_ps": 1828.678277622499,
+        "prech_release_lead_before_pclk_ps": 391.9054962431532,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9668180242234,
+        "q_min_v": -0.07219643687706695,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5651632147672,
+        "prech_release_lead_before_pclk_ps": 391.96373415855356,
+        "pclk_fall_to_precharge_conduction_ps": 2253.966473722959,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00880039600082,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007951386212371582,
+        "a1_q_post_capture_v": 1.8003717123323495,
+        "a0_q_after_live_address_change_v": 2.0651097692275313e-05,
+        "a1_q_after_live_address_change_v": 1.8000100185254777,
+        "capture_to_pclk_rise_ps": 1828.671517513884,
+        "prech_release_lead_before_pclk_ps": 391.9080096993229,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9987065161476,
+        "q_min_v": -0.07220191364817535,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.553604125396,
+        "prech_release_lead_before_pclk_ps": 391.95891947408114,
+        "pclk_fall_to_precharge_conduction_ps": 2253.998311194939,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_3_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00936965997124,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999973762020065,
+        "a1_q_post_capture_v": 1.7999752277578014,
+        "a0_q_after_live_address_change_v": 1.8000000358294597,
+        "a1_q_after_live_address_change_v": 1.7999999141157872,
+        "capture_to_pclk_rise_ps": 1828.6748844796698,
+        "prech_release_lead_before_pclk_ps": 391.9086013997932,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9827098974883,
+        "q_min_v": -0.0722016230872189,
+        "q_max_v": 1.9471253716316603
+      }
+    },
+    {
+      "case": "tt_ctl010_a1_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.569650450146,
+        "prech_release_lead_before_pclk_ps": 391.9674049215731,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9931649324812,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_0_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.01024988224685,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 4.542831399517237e-06,
+        "a1_q_post_capture_v": 0.0007131908644129517,
+        "a0_q_after_live_address_change_v": -1.4929437143745742e-06,
+        "a1_q_after_live_address_change_v": 1.1887384593038748e-05,
+        "capture_to_pclk_rise_ps": 1828.6660328792204,
+        "prech_release_lead_before_pclk_ps": 391.9013070026872,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9934423532877,
+        "q_min_v": -0.0721925604138714,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.552679091332,
+        "prech_release_lead_before_pclk_ps": 391.9584707569877,
+        "pclk_fall_to_precharge_conduction_ps": 2253.995133296605,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00949041073494,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999646789715584,
+        "a1_q_post_capture_v": 0.0007285941259951668,
+        "a0_q_after_live_address_change_v": 1.799998038869102,
+        "a1_q_after_live_address_change_v": 1.2539389713402933e-05,
+        "capture_to_pclk_rise_ps": 1828.6717792502577,
+        "prech_release_lead_before_pclk_ps": 391.90915789327283,
+        "pclk_fall_to_precharge_conduction_ps": 2253.993458273186,
+        "q_min_v": -0.07216550158425446,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.0411263954977,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.554324621395,
+        "prech_release_lead_before_pclk_ps": 391.95671670300226,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9903954378856,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00934455180703,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 5.850172099892149e-09,
+        "a1_q_post_capture_v": 1.7999999586212667,
+        "a0_q_after_live_address_change_v": -7.915844368862397e-09,
+        "a1_q_after_live_address_change_v": 1.7999999847802919,
+        "capture_to_pclk_rise_ps": 1828.6772809244515,
+        "prech_release_lead_before_pclk_ps": 391.90457353634537,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9731007657288,
+        "q_min_v": -0.07219643665896947,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5639896704083,
+        "prech_release_lead_before_pclk_ps": 391.9625606221422,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9741398323613,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_3_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00926266797396,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799975075966064,
+        "a1_q_post_capture_v": 1.80000272921682,
+        "a0_q_after_live_address_change_v": 1.7999997447886489,
+        "a1_q_after_live_address_change_v": 1.7999999154313762,
+        "capture_to_pclk_rise_ps": 1828.674757005936,
+        "prech_release_lead_before_pclk_ps": 391.91034645229666,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9995629939062,
+        "q_min_v": -0.07220147098762693,
+        "q_max_v": 1.9471037530014943
+      }
+    },
+    {
+      "case": "tt_ctl010_a2_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5566590880615,
+        "prech_release_lead_before_pclk_ps": 391.96169760217265,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9879314860204,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_0_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.01040754293118,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007780224384992832,
+        "a1_q_post_capture_v": 0.0008018370744686902,
+        "a0_q_after_live_address_change_v": 1.6272392676902705e-05,
+        "a1_q_after_live_address_change_v": 1.0357009791724017e-05,
+        "capture_to_pclk_rise_ps": 1828.6701350496758,
+        "prech_release_lead_before_pclk_ps": 391.9046291456796,
+        "pclk_fall_to_precharge_conduction_ps": 2253.99751684767,
+        "q_min_v": -0.07219462409774818,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.548618969369,
+        "prech_release_lead_before_pclk_ps": 391.9547825483651,
+        "pclk_fall_to_precharge_conduction_ps": 2254.002611929459,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_1_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.01041644882747,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999566482563736,
+        "a1_q_post_capture_v": 0.0006953668206835949,
+        "a0_q_after_live_address_change_v": 1.7999981625328394,
+        "a1_q_after_live_address_change_v": 1.0797217398146213e-05,
+        "capture_to_pclk_rise_ps": 1828.671706731737,
+        "prech_release_lead_before_pclk_ps": 391.90677048179305,
+        "pclk_fall_to_precharge_conduction_ps": 2253.987727111661,
+        "q_min_v": -0.07219249399085512,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1827.5563420987394,
+        "prech_release_lead_before_pclk_ps": 391.9621315286448,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9906565598594,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_2_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00931512907536,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0007816572806115736,
+        "a1_q_post_capture_v": 1.8003819018334606,
+        "a0_q_after_live_address_change_v": 2.132953721406754e-05,
+        "a1_q_after_live_address_change_v": 1.800009899463991,
+        "capture_to_pclk_rise_ps": 1828.6707018344337,
+        "prech_release_lead_before_pclk_ps": 391.9032345040195,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9899294137817,
+        "q_min_v": -0.07219659898393396,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.041126395501,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5495726168908,
+        "prech_release_lead_before_pclk_ps": 391.9529020070853,
+        "pclk_fall_to_precharge_conduction_ps": 2253.9936699498135,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_3_p2100",
+      "mode": "actual",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 184.00939256788135,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799999973832983,
+        "a1_q_post_capture_v": 1.79999996321682,
+        "a0_q_after_live_address_change_v": 1.7999999894057923,
+        "a1_q_after_live_address_change_v": 1.7999999895838543,
+        "capture_to_pclk_rise_ps": 1828.6831405625708,
+        "prech_release_lead_before_pclk_ps": 391.9106820408575,
+        "pclk_fall_to_precharge_conduction_ps": 2253.979225048728,
+        "q_min_v": -0.07219644688195498,
+        "q_max_v": 1.9471434308964821
+      }
+    },
+    {
+      "case": "tt_ctl010_a3_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "tt",
+      "control_vector": "010",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 307.0411263954977,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1827.5674234061369,
+        "prech_release_lead_before_pclk_ps": 391.96599435752995,
+        "pclk_fall_to_precharge_conduction_ps": 2253.975093095122,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_0_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5696488282277,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0013990936015683142,
+        "a1_q_post_capture_v": 0.00022030487746155721,
+        "a0_q_after_live_address_change_v": 0.001007402196016526,
+        "a1_q_after_live_address_change_v": 0.00017421600915005155,
+        "capture_to_pclk_rise_ps": 3517.446446349859,
+        "prech_release_lead_before_pclk_ps": 799.3462983734079,
+        "pclk_fall_to_precharge_conduction_ps": 4352.391449899896,
+        "q_min_v": -0.11275133168860545,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.851237002013,
+        "prech_release_lead_before_pclk_ps": 799.4895768733734,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394244219708,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_1_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5702097494232,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6199999918646932,
+        "a1_q_post_capture_v": -5.466510381622312e-09,
+        "a0_q_after_live_address_change_v": 1.6199999636944156,
+        "a1_q_after_live_address_change_v": -4.461439479501215e-09,
+        "capture_to_pclk_rise_ps": 3517.4628102357674,
+        "prech_release_lead_before_pclk_ps": 799.3598363562538,
+        "pclk_fall_to_precharge_conduction_ps": 4352.384627455218,
+        "q_min_v": -0.11275052093039116,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8741702317866,
+        "prech_release_lead_before_pclk_ps": 799.5109508579279,
+        "pclk_fall_to_precharge_conduction_ps": 4352.389121359876,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_2_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.57035359906985,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0015857766115945405,
+        "a1_q_post_capture_v": 1.6089072376599745,
+        "a0_q_after_live_address_change_v": 0.0010143970464141935,
+        "a1_q_after_live_address_change_v": 1.6206465928762661,
+        "capture_to_pclk_rise_ps": 3517.455145606132,
+        "prech_release_lead_before_pclk_ps": 799.3546850533046,
+        "pclk_fall_to_precharge_conduction_ps": 4352.399450089118,
+        "q_min_v": -0.11274718505196696,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.864812198805,
+        "prech_release_lead_before_pclk_ps": 799.5030297223904,
+        "pclk_fall_to_precharge_conduction_ps": 4352.404114778836,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_3_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.570218171892,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6206385731573258,
+        "a1_q_post_capture_v": 1.608618286110425,
+        "a0_q_after_live_address_change_v": 1.6199860200452743,
+        "a1_q_after_live_address_change_v": 1.6199756160362193,
+        "capture_to_pclk_rise_ps": 3517.47282391215,
+        "prech_release_lead_before_pclk_ps": 799.3694224747071,
+        "pclk_fall_to_precharge_conduction_ps": 4352.391666787745,
+        "q_min_v": -0.11278541089786227,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl001_a1_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.883165998365,
+        "prech_release_lead_before_pclk_ps": 799.5193303834237,
+        "pclk_fall_to_precharge_conduction_ps": 4352.399113998908,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_0_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5695577084235,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -2.7843458751154063e-05,
+        "a1_q_post_capture_v": 0.0015269577883276469,
+        "a0_q_after_live_address_change_v": 2.5021601322192364e-05,
+        "a1_q_after_live_address_change_v": 0.0009467571718232798,
+        "capture_to_pclk_rise_ps": 3517.453282718243,
+        "prech_release_lead_before_pclk_ps": 799.352960088793,
+        "pclk_fall_to_precharge_conduction_ps": 4352.393135458291,
+        "q_min_v": -0.11277065477934313,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8626815198713,
+        "prech_release_lead_before_pclk_ps": 799.5014199922246,
+        "pclk_fall_to_precharge_conduction_ps": 4352.399479187886,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_1_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.56931150921827,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6138446900821737,
+        "a1_q_post_capture_v": 0.002038798489867989,
+        "a0_q_after_live_address_change_v": 1.6199779588522873,
+        "a1_q_after_live_address_change_v": 0.0009734096106273242,
+        "capture_to_pclk_rise_ps": 3517.4586987019516,
+        "prech_release_lead_before_pclk_ps": 799.3574554017657,
+        "pclk_fall_to_precharge_conduction_ps": 4352.391663370374,
+        "q_min_v": -0.11278628428973925,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.859051555577,
+        "prech_release_lead_before_pclk_ps": 799.4968266474668,
+        "pclk_fall_to_precharge_conduction_ps": 4352.395215145576,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_2_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5702108762781,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -2.5815106035515166e-08,
+        "a1_q_post_capture_v": 1.6199999856392113,
+        "a0_q_after_live_address_change_v": -2.1656030588535074e-08,
+        "a1_q_after_live_address_change_v": 1.6199999548728037,
+        "capture_to_pclk_rise_ps": 3517.4624942584246,
+        "prech_release_lead_before_pclk_ps": 799.3595239560536,
+        "pclk_fall_to_precharge_conduction_ps": 4352.393332217057,
+        "q_min_v": -0.11275052089071032,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8738839231423,
+        "prech_release_lead_before_pclk_ps": 799.5107060942383,
+        "pclk_fall_to_precharge_conduction_ps": 4352.398033221224,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_3_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5702517075245,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6146880610342988,
+        "a1_q_post_capture_v": 1.6210753556353954,
+        "a0_q_after_live_address_change_v": 1.6199732395580129,
+        "a1_q_after_live_address_change_v": 1.6200451748868132,
+        "capture_to_pclk_rise_ps": 3517.4711462462924,
+        "prech_release_lead_before_pclk_ps": 799.3679251403904,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394334624853,
+        "q_min_v": -0.11278544858377836,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl001_a2_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8776924071053,
+        "prech_release_lead_before_pclk_ps": 799.5139015250923,
+        "pclk_fall_to_precharge_conduction_ps": 4352.397783108974,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_0_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.56907283125196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0013644401987518366,
+        "a1_q_post_capture_v": 0.0017037826907604014,
+        "a0_q_after_live_address_change_v": 0.001032369221584675,
+        "a1_q_after_live_address_change_v": 0.0011082294619854565,
+        "capture_to_pclk_rise_ps": 3517.445817251289,
+        "prech_release_lead_before_pclk_ps": 799.3455095622959,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394160040554,
+        "q_min_v": -0.1127368837414984,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8542845192455,
+        "prech_release_lead_before_pclk_ps": 799.4925862615335,
+        "pclk_fall_to_precharge_conduction_ps": 4352.400625999326,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_1_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5695439784793,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6199479907744105,
+        "a1_q_post_capture_v": 0.0015133929915424954,
+        "a0_q_after_live_address_change_v": 1.619979274349012,
+        "a1_q_after_live_address_change_v": 0.000956878538587099,
+        "capture_to_pclk_rise_ps": 3517.4630443958417,
+        "prech_release_lead_before_pclk_ps": 799.3626472709856,
+        "pclk_fall_to_precharge_conduction_ps": 4352.389135306601,
+        "q_min_v": -0.11277033345387812,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8715713607976,
+        "prech_release_lead_before_pclk_ps": 799.5108853647713,
+        "pclk_fall_to_precharge_conduction_ps": 4352.395110239814,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_2_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5696284406211,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0013925684207202922,
+        "a1_q_post_capture_v": 1.6211915838243511,
+        "a0_q_after_live_address_change_v": 0.0010194997764079886,
+        "a1_q_after_live_address_change_v": 1.6206631577191535,
+        "capture_to_pclk_rise_ps": 3517.453227406611,
+        "prech_release_lead_before_pclk_ps": 799.3532876931419,
+        "pclk_fall_to_precharge_conduction_ps": 4352.396289015158,
+        "q_min_v": -0.11275132097144137,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8600216848345,
+        "prech_release_lead_before_pclk_ps": 799.49836158418,
+        "pclk_fall_to_precharge_conduction_ps": 4352.401876323913,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_3_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.57019036432314,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6199999950270314,
+        "a1_q_post_capture_v": 1.6200000029988437,
+        "a0_q_after_live_address_change_v": 1.6199999668562861,
+        "a1_q_after_live_address_change_v": 1.6199999685944129,
+        "capture_to_pclk_rise_ps": 3517.4722821658083,
+        "prech_release_lead_before_pclk_ps": 799.3686751128348,
+        "pclk_fall_to_precharge_conduction_ps": 4352.389904724034,
+        "q_min_v": -0.11275052478291521,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl001_a3_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "001",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8825248258768,
+        "prech_release_lead_before_pclk_ps": 799.5193054613553,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394554250938,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_0_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.569621856409,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.001399093557092682,
+        "a1_q_post_capture_v": 0.00022030484479057676,
+        "a0_q_after_live_address_change_v": 0.0010074019432997374,
+        "a1_q_after_live_address_change_v": 0.00017421604667609538,
+        "capture_to_pclk_rise_ps": 3517.446530290156,
+        "prech_release_lead_before_pclk_ps": 799.3465545941841,
+        "pclk_fall_to_precharge_conduction_ps": 4352.391445921485,
+        "q_min_v": -0.11275133693821061,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.851237002013,
+        "prech_release_lead_before_pclk_ps": 799.4895768733734,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394244219708,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_1_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.57018167330517,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6199999918647545,
+        "a1_q_post_capture_v": -5.466515630777658e-09,
+        "a0_q_after_live_address_change_v": 1.6199999636271718,
+        "a1_q_after_live_address_change_v": -4.549818196523597e-09,
+        "capture_to_pclk_rise_ps": 3517.4629011653465,
+        "prech_release_lead_before_pclk_ps": 799.3602294090188,
+        "pclk_fall_to_precharge_conduction_ps": 4352.384634085018,
+        "q_min_v": -0.11275052636603217,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8741702317866,
+        "prech_release_lead_before_pclk_ps": 799.5109508579279,
+        "pclk_fall_to_precharge_conduction_ps": 4352.389121359876,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_2_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5703497913491,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0015857766158867807,
+        "a1_q_post_capture_v": 1.6089072383603842,
+        "a0_q_after_live_address_change_v": 0.0010143968279921168,
+        "a1_q_after_live_address_change_v": 1.620646592572026,
+        "capture_to_pclk_rise_ps": 3517.4551176408363,
+        "prech_release_lead_before_pclk_ps": 799.3550690618421,
+        "pclk_fall_to_precharge_conduction_ps": 4352.39944012269,
+        "q_min_v": -0.11274718611354557,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.864812198805,
+        "prech_release_lead_before_pclk_ps": 799.5030297223904,
+        "pclk_fall_to_precharge_conduction_ps": 4352.404114778836,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_3_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.570214389248,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.620638573141477,
+        "a1_q_post_capture_v": 1.6086182867972658,
+        "a0_q_after_live_address_change_v": 1.619986019982787,
+        "a1_q_after_live_address_change_v": 1.619975615928601,
+        "capture_to_pclk_rise_ps": 3517.472238225931,
+        "prech_release_lead_before_pclk_ps": 799.3687226234885,
+        "pclk_fall_to_precharge_conduction_ps": 4352.391673312495,
+        "q_min_v": -0.11278541097731697,
+        "q_max_v": 1.8117534716059747
+      }
+    },
+    {
+      "case": "slow_ctl010_a1_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.883165998365,
+        "prech_release_lead_before_pclk_ps": 799.5193303834237,
+        "pclk_fall_to_precharge_conduction_ps": 4352.399113998908,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_0_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.56953152517923,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -2.7843467624912108e-05,
+        "a1_q_post_capture_v": 0.001526957722101659,
+        "a0_q_after_live_address_change_v": 2.502157795379021e-05,
+        "a1_q_after_live_address_change_v": 0.0009467571256648311,
+        "capture_to_pclk_rise_ps": 3517.452934918564,
+        "prech_release_lead_before_pclk_ps": 799.3530138587422,
+        "pclk_fall_to_precharge_conduction_ps": 4352.393131053802,
+        "q_min_v": -0.11277064743090448,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8626815198713,
+        "prech_release_lead_before_pclk_ps": 799.5014199922246,
+        "pclk_fall_to_precharge_conduction_ps": 4352.399479187886,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_1_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5693081190714,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6138446905197148,
+        "a1_q_post_capture_v": 0.002038798501583771,
+        "a0_q_after_live_address_change_v": 1.619977958756542,
+        "a1_q_after_live_address_change_v": 0.0009734095270880928,
+        "capture_to_pclk_rise_ps": 3517.45836456463,
+        "prech_release_lead_before_pclk_ps": 799.3573423375547,
+        "pclk_fall_to_precharge_conduction_ps": 4352.391746207426,
+        "q_min_v": -0.11278628435241914,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.859051555577,
+        "prech_release_lead_before_pclk_ps": 799.4968266474668,
+        "pclk_fall_to_precharge_conduction_ps": 4352.395215145576,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_2_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5701831940999,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -2.5815097403706104e-08,
+        "a1_q_post_capture_v": 1.619999985639219,
+        "a0_q_after_live_address_change_v": -2.1716111738264606e-08,
+        "a1_q_after_live_address_change_v": 1.6199999547718937,
+        "capture_to_pclk_rise_ps": 3517.4625839009605,
+        "prech_release_lead_before_pclk_ps": 799.3600038086456,
+        "pclk_fall_to_precharge_conduction_ps": 4352.39333911922,
+        "q_min_v": -0.11275052631084115,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8738839231423,
+        "prech_release_lead_before_pclk_ps": 799.5107060942383,
+        "pclk_fall_to_precharge_conduction_ps": 4352.398033221224,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_3_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.570248317745,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.614688061449413,
+        "a1_q_post_capture_v": 1.621075355691969,
+        "a0_q_after_live_address_change_v": 1.6199732394795685,
+        "a1_q_after_live_address_change_v": 1.6200451747483975,
+        "capture_to_pclk_rise_ps": 3517.4705764944674,
+        "prech_release_lead_before_pclk_ps": 799.3670276713262,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394340988043,
+        "q_min_v": -0.11278544864696471,
+        "q_max_v": 1.81175354240423
+      }
+    },
+    {
+      "case": "slow_ctl010_a2_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8776924071053,
+        "prech_release_lead_before_pclk_ps": 799.5139015250923,
+        "pclk_fall_to_precharge_conduction_ps": 4352.397783108974,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_0_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5690456154415,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0013644401416295325,
+        "a1_q_post_capture_v": 0.0017037825888940408,
+        "a0_q_after_live_address_change_v": 0.0010323692026659834,
+        "a1_q_after_live_address_change_v": 0.0011082292793498669,
+        "capture_to_pclk_rise_ps": 3517.44608637421,
+        "prech_release_lead_before_pclk_ps": 799.3458194272107,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394167221167,
+        "q_min_v": -0.11273689350606853,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8542845192455,
+        "prech_release_lead_before_pclk_ps": 799.4925862615335,
+        "pclk_fall_to_precharge_conduction_ps": 4352.400625999326,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_1_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.56951727595094,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.619947990765092,
+        "a1_q_post_capture_v": 0.0015133929397182554,
+        "a0_q_after_live_address_change_v": 1.6199792745956798,
+        "a1_q_after_live_address_change_v": 0.0009568785087022554,
+        "capture_to_pclk_rise_ps": 3517.462896853711,
+        "prech_release_lead_before_pclk_ps": 799.3629357778719,
+        "pclk_fall_to_precharge_conduction_ps": 4352.389141956773,
+        "q_min_v": -0.11277032594116088,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 3514.8715713607976,
+        "prech_release_lead_before_pclk_ps": 799.5108853647713,
+        "pclk_fall_to_precharge_conduction_ps": 4352.395110239814,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_2_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5696013316129,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0013925683748408297,
+        "a1_q_post_capture_v": 1.6211915837366397,
+        "a0_q_after_live_address_change_v": 0.0010194995846318194,
+        "a1_q_after_live_address_change_v": 1.6206631574829469,
+        "capture_to_pclk_rise_ps": 3517.453414239967,
+        "prech_release_lead_before_pclk_ps": 799.3537459837459,
+        "pclk_fall_to_precharge_conduction_ps": 4352.396295815099,
+        "q_min_v": -0.11275132622597105,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8600216848345,
+        "prech_release_lead_before_pclk_ps": 799.49836158418,
+        "pclk_fall_to_precharge_conduction_ps": 4352.401876323913,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_3_p2100",
+      "mode": "actual",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 401.5701621499038,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.6199999950268695,
+        "a1_q_post_capture_v": 1.6200000029988306,
+        "a0_q_after_live_address_change_v": 1.6199999667885538,
+        "a1_q_after_live_address_change_v": 1.6199999684925102,
+        "capture_to_pclk_rise_ps": 3517.4717655225554,
+        "prech_release_lead_before_pclk_ps": 799.3689638281177,
+        "pclk_fall_to_precharge_conduction_ps": 4352.3899112549225,
+        "q_min_v": -0.11275053022368982,
+        "q_max_v": 1.811753718334911
+      }
+    },
+    {
+      "case": "slow_ctl010_a3_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "slow",
+      "control_vector": "010",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 677.0871149969993,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.62,
+        "a1_q_post_capture_v": 1.62,
+        "a0_q_after_live_address_change_v": 1.62,
+        "a1_q_after_live_address_change_v": 1.62,
+        "capture_to_pclk_rise_ps": 3514.8825248258768,
+        "prech_release_lead_before_pclk_ps": 799.5193054613553,
+        "pclk_fall_to_precharge_conduction_ps": 4352.394554250938,
+        "q_min_v": 0.0,
+        "q_max_v": 1.62
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_0_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49674439383128,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.00019395491244474195,
+        "a1_q_post_capture_v": 1.7667178407227622e-05,
+        "a0_q_after_live_address_change_v": -0.0003387695997638276,
+        "a1_q_after_live_address_change_v": -0.0007490415527733623,
+        "capture_to_pclk_rise_ps": 1390.1703345994208,
+        "prech_release_lead_before_pclk_ps": 279.18127053416754,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2061692233124,
+        "q_min_v": -0.036885739372607605,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4207522512656,
+        "prech_release_lead_before_pclk_ps": 279.20641064148504,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2070222883683,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_1_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49639038424604,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799999133350237,
+        "a1_q_post_capture_v": 2.135495399727404e-06,
+        "a0_q_after_live_address_change_v": 1.8000608248492913,
+        "a1_q_after_live_address_change_v": -0.00066175716609626,
+        "capture_to_pclk_rise_ps": 1390.173323417313,
+        "prech_release_lead_before_pclk_ps": 279.1807405280864,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1808027215977,
+        "q_min_v": -0.03686647597010093,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4393876365295,
+        "prech_release_lead_before_pclk_ps": 279.222804128194,
+        "pclk_fall_to_precharge_conduction_ps": 1713.186860888239,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_2_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4960724897336,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.00019505942090195075,
+        "a1_q_post_capture_v": 1.8000729704785643,
+        "a0_q_after_live_address_change_v": -0.0003279144432865949,
+        "a1_q_after_live_address_change_v": 1.7993418904125063,
+        "capture_to_pclk_rise_ps": 1390.1729181162398,
+        "prech_release_lead_before_pclk_ps": 279.1824265353492,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2053433842314,
+        "q_min_v": -0.03691817263541192,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4310448706524,
+        "prech_release_lead_before_pclk_ps": 279.2184899200537,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2091708045716,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_3_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4965667919069,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799999186778898,
+        "a1_q_post_capture_v": 1.7999974668722096,
+        "a0_q_after_live_address_change_v": 1.8000914962262746,
+        "a1_q_after_live_address_change_v": 1.799623459742184,
+        "capture_to_pclk_rise_ps": 1390.1787926905874,
+        "prech_release_lead_before_pclk_ps": 279.1873915301823,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1927337254774,
+        "q_min_v": -0.03692017317012395,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl001_a1_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.435555127867,
+        "prech_release_lead_before_pclk_ps": 279.22260934928516,
+        "pclk_fall_to_precharge_conduction_ps": 1713.215959158516,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_0_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49633323574042,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -3.3365101177906298e-06,
+        "a1_q_post_capture_v": 0.00015491071352580508,
+        "a0_q_after_live_address_change_v": -0.00023302116621487902,
+        "a1_q_after_live_address_change_v": -0.0007323303359351931,
+        "capture_to_pclk_rise_ps": 1390.165959816381,
+        "prech_release_lead_before_pclk_ps": 279.1798793500761,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1955861605534,
+        "q_min_v": -0.03691386829739332,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4340157352347,
+        "prech_release_lead_before_pclk_ps": 279.2208683217301,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2113781031674,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_1_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4964496313155,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999863468217725,
+        "a1_q_post_capture_v": 0.00016016621189379377,
+        "a0_q_after_live_address_change_v": 1.7999882547200665,
+        "a1_q_after_live_address_change_v": -0.0006714159158783023,
+        "capture_to_pclk_rise_ps": 1390.1690669130605,
+        "prech_release_lead_before_pclk_ps": 279.18059218852324,
+        "pclk_fall_to_precharge_conduction_ps": 1713.203101492992,
+        "q_min_v": -0.036918433165630926,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4268706637306,
+        "prech_release_lead_before_pclk_ps": 279.215560865117,
+        "pclk_fall_to_precharge_conduction_ps": 1713.205565491616,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_2_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4963904646844,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 2.1291496501747022e-06,
+        "a1_q_post_capture_v": 1.7999991313719719,
+        "a0_q_after_live_address_change_v": -0.0002286722916879157,
+        "a1_q_after_live_address_change_v": 1.7994145106268447,
+        "capture_to_pclk_rise_ps": 1390.1721431734627,
+        "prech_release_lead_before_pclk_ps": 279.17953550044257,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1842833564554,
+        "q_min_v": -0.03686648797406754,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4382580084202,
+        "prech_release_lead_before_pclk_ps": 279.221659838295,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1810528507647,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_3_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49672196687376,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999964503593784,
+        "a1_q_post_capture_v": 1.7999989126947158,
+        "a0_q_after_live_address_change_v": 1.8000874317609468,
+        "a1_q_after_live_address_change_v": 1.7996124671698233,
+        "capture_to_pclk_rise_ps": 1390.1757079481727,
+        "prech_release_lead_before_pclk_ps": 279.18400916953317,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2117501139928,
+        "q_min_v": -0.03692362877681637,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl001_a2_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4312319392584,
+        "prech_release_lead_before_pclk_ps": 279.21558125295525,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2139453841219,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_0_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49556243573525,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.00017387685466442685,
+        "a1_q_post_capture_v": 0.00016308212191003133,
+        "a0_q_after_live_address_change_v": -0.0003296826162383058,
+        "a1_q_after_live_address_change_v": -0.0007674639901522543,
+        "capture_to_pclk_rise_ps": 1390.1679688208249,
+        "prech_release_lead_before_pclk_ps": 279.17913192719755,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2060115858221,
+        "q_min_v": -0.036918180275459754,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4298493142596,
+        "prech_release_lead_before_pclk_ps": 279.21676543590905,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2154159158608,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_1_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49652510508446,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999844367973323,
+        "a1_q_post_capture_v": 0.00014378460287905299,
+        "a0_q_after_live_address_change_v": 1.8000682700427348,
+        "a1_q_after_live_address_change_v": -0.0006509887751576951,
+        "capture_to_pclk_rise_ps": 1390.1747108726893,
+        "prech_release_lead_before_pclk_ps": 279.1864137279443,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1994888720576,
+        "q_min_v": -0.03691648981133822,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4359835003277,
+        "prech_release_lead_before_pclk_ps": 279.22164954415473,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2051343584267,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_2_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49601988511637,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.00018814814507475068,
+        "a1_q_post_capture_v": 1.8000689745108898,
+        "a0_q_after_live_address_change_v": -0.0001678392822306809,
+        "a1_q_after_live_address_change_v": 1.7994572843430903,
+        "capture_to_pclk_rise_ps": 1390.1625510229073,
+        "prech_release_lead_before_pclk_ps": 279.17228963283526,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2016587996093,
+        "q_min_v": -0.03691631857579495,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.420606892901,
+        "prech_release_lead_before_pclk_ps": 279.2076885865193,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2072609706292,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_3_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49666479807246,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999991347955848,
+        "a1_q_post_capture_v": 1.7999991350454059,
+        "a0_q_after_live_address_change_v": 1.8000836448538151,
+        "a1_q_after_live_address_change_v": 1.7996197742739195,
+        "capture_to_pclk_rise_ps": 1390.176825348455,
+        "prech_release_lead_before_pclk_ps": 279.184820958356,
+        "pclk_fall_to_precharge_conduction_ps": 1713.195182142229,
+        "q_min_v": -0.03688427509464748,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl001_a3_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "001",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4394556799666,
+        "prech_release_lead_before_pclk_ps": 279.2228740680883,
+        "pclk_fall_to_precharge_conduction_ps": 1713.196822616104,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_0_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4965079910981,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0001939544243366734,
+        "a1_q_post_capture_v": 1.7667126753833482e-05,
+        "a0_q_after_live_address_change_v": -0.0003385035831413022,
+        "a1_q_after_live_address_change_v": -0.000748985404202059,
+        "capture_to_pclk_rise_ps": 1390.1631806480734,
+        "prech_release_lead_before_pclk_ps": 279.17740320883775,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2041121249067,
+        "q_min_v": -0.03691311585395882,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4207522512656,
+        "prech_release_lead_before_pclk_ps": 279.20641064148504,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2070222883683,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_1_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4964730169125,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999991333502368,
+        "a1_q_post_capture_v": 2.1354953407099154e-06,
+        "a0_q_after_live_address_change_v": 1.8000608581107114,
+        "a1_q_after_live_address_change_v": -0.0006617412673974506,
+        "capture_to_pclk_rise_ps": 1390.170892938797,
+        "prech_release_lead_before_pclk_ps": 279.1786682316532,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1839452377774,
+        "q_min_v": -0.036865501353161315,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4393876365295,
+        "prech_release_lead_before_pclk_ps": 279.222804128194,
+        "pclk_fall_to_precharge_conduction_ps": 1713.186860888239,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_2_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49617895011184,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0001950594154474118,
+        "a1_q_post_capture_v": 1.800072970472863,
+        "a0_q_after_live_address_change_v": -0.00032789237325328314,
+        "a1_q_after_live_address_change_v": 1.7993419217578375,
+        "capture_to_pclk_rise_ps": 1390.17115599277,
+        "prech_release_lead_before_pclk_ps": 279.18115191568023,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2059726313096,
+        "q_min_v": -0.03691807004868798,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4310448706524,
+        "prech_release_lead_before_pclk_ps": 279.2184899200537,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2091708045716,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_3_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4968451231813,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999991867764666,
+        "a1_q_post_capture_v": 1.7999974668387606,
+        "a0_q_after_live_address_change_v": 1.8000915508050404,
+        "a1_q_after_live_address_change_v": 1.7996235217221122,
+        "capture_to_pclk_rise_ps": 1390.1749885853815,
+        "prech_release_lead_before_pclk_ps": 279.1819458817486,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1968444067347,
+        "q_min_v": -0.036916599622098104,
+        "q_max_v": 1.9041239165500892
+      }
+    },
+    {
+      "case": "fast_ctl010_a1_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "1:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.435555127867,
+        "prech_release_lead_before_pclk_ps": 279.22260934928516,
+        "pclk_fall_to_precharge_conduction_ps": 1713.215959158516,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_0_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4965943913307,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": -3.3365060886261096e-06,
+        "a1_q_post_capture_v": 0.00015491077872816197,
+        "a0_q_after_live_address_change_v": -0.0002330136210107502,
+        "a1_q_after_live_address_change_v": -0.0007323345382578689,
+        "capture_to_pclk_rise_ps": 1390.1663858707075,
+        "prech_release_lead_before_pclk_ps": 279.18139071179763,
+        "pclk_fall_to_precharge_conduction_ps": 1713.20517085795,
+        "q_min_v": -0.03691361329777764,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4340157352347,
+        "prech_release_lead_before_pclk_ps": 279.2208683217301,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2113781031674,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_1_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49656010686812,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999863467868902,
+        "a1_q_post_capture_v": 0.00016016662703335023,
+        "a0_q_after_live_address_change_v": 1.799988203204688,
+        "a1_q_after_live_address_change_v": -0.0006714099437216558,
+        "capture_to_pclk_rise_ps": 1390.1697942676308,
+        "prech_release_lead_before_pclk_ps": 279.182071090771,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2002924805604,
+        "q_min_v": -0.03691832978399603,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4268706637306,
+        "prech_release_lead_before_pclk_ps": 279.215560865117,
+        "pclk_fall_to_precharge_conduction_ps": 1713.205565491616,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_2_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4964731099769,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 2.1291496508540214e-06,
+        "a1_q_post_capture_v": 1.7999991313719919,
+        "a0_q_after_live_address_change_v": -0.00022853983504337818,
+        "a1_q_after_live_address_change_v": 1.799414602770112,
+        "capture_to_pclk_rise_ps": 1390.1682844228626,
+        "prech_release_lead_before_pclk_ps": 279.17634471818167,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1862927032728,
+        "q_min_v": -0.036865513440073626,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4382580084202,
+        "prech_release_lead_before_pclk_ps": 279.221659838295,
+        "pclk_fall_to_precharge_conduction_ps": 1713.1810528507647,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_3_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.4968155820933,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.7999964503511174,
+        "a1_q_post_capture_v": 1.799998912694528,
+        "a0_q_after_live_address_change_v": 1.8000874830541054,
+        "a1_q_after_live_address_change_v": 1.7996125137275691,
+        "capture_to_pclk_rise_ps": 1390.1736187024117,
+        "prech_release_lead_before_pclk_ps": 279.181828246607,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2110170314152,
+        "q_min_v": -0.0369216130482409,
+        "q_max_v": 1.903975943875223
+      }
+    },
+    {
+      "case": "fast_ctl010_a2_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "2:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4312319392584,
+        "prech_release_lead_before_pclk_ps": 279.21558125295525,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2139453841219,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_0_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49582826144828,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.00017387718859982807,
+        "a1_q_post_capture_v": 0.00016308248743456916,
+        "a0_q_after_live_address_change_v": -0.00032962895392873624,
+        "a1_q_after_live_address_change_v": -0.0007674479283705155,
+        "capture_to_pclk_rise_ps": 1390.1657737699054,
+        "prech_release_lead_before_pclk_ps": 279.1789408065479,
+        "pclk_fall_to_precharge_conduction_ps": 1713.210426129485,
+        "q_min_v": -0.03691809255870078,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_0_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:0",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882049866,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4298493142596,
+        "prech_release_lead_before_pclk_ps": 279.21676543590905,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2154159158608,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_1_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49662166275417,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799984436794191,
+        "a1_q_post_capture_v": 0.00014378464677896214,
+        "a0_q_after_live_address_change_v": 1.8000682652866222,
+        "a1_q_after_live_address_change_v": -0.0006509855727355152,
+        "capture_to_pclk_rise_ps": 1390.174427881602,
+        "prech_release_lead_before_pclk_ps": 279.1855367512673,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2008059035595,
+        "q_min_v": -0.03691635722292815,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_1_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:1",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 0.0,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 0.0,
+        "capture_to_pclk_rise_ps": 1389.4359835003277,
+        "prech_release_lead_before_pclk_ps": 279.22164954415473,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2051343584267,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_2_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49611265253202,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.00018814821286091275,
+        "a1_q_post_capture_v": 1.80006897453635,
+        "a0_q_after_live_address_change_v": -0.00016780881397126103,
+        "a1_q_after_live_address_change_v": 1.7994573069095483,
+        "capture_to_pclk_rise_ps": 1390.161445706665,
+        "prech_release_lead_before_pclk_ps": 279.17169825417795,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2018081178728,
+        "q_min_v": -0.03691618579490049,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_2_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:2",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 0.0,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 0.0,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.420606892901,
+        "prech_release_lead_before_pclk_ps": 279.2076885865193,
+        "pclk_fall_to_precharge_conduction_ps": 1713.2072609706292,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_3_p2100",
+      "mode": "actual",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 128.49746509192366,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.799999134795456,
+        "a1_q_post_capture_v": 1.7999991350451887,
+        "a0_q_after_live_address_change_v": 1.800083622213397,
+        "a1_q_after_live_address_change_v": 1.7996197668560603,
+        "capture_to_pclk_rise_ps": 1390.1761656239664,
+        "prech_release_lead_before_pclk_ps": 279.182535135412,
+        "pclk_fall_to_precharge_conduction_ps": 1713.189574741151,
+        "q_min_v": -0.03688610587709956,
+        "q_max_v": 1.9041678073540056
+      }
+    },
+    {
+      "case": "fast_ctl010_a3_to_3_p2100",
+      "mode": "liberty_reference",
+      "profile": "fast",
+      "control_vector": "010",
+      "address_transition": "3:3",
+      "status": "PASS",
+      "check_failures": 0,
+      "decoder_logic_check_failures": 0,
+      "metrics": {
+        "capture_to_q_rise_ps": 248.73279882050196,
+        "capture_to_q_fall_ps": null,
+        "a0_q_post_capture_v": 1.8,
+        "a1_q_post_capture_v": 1.8,
+        "a0_q_after_live_address_change_v": 1.8,
+        "a1_q_after_live_address_change_v": 1.8,
+        "capture_to_pclk_rise_ps": 1389.4394556799666,
+        "prech_release_lead_before_pclk_ps": 279.2228740680883,
+        "pclk_fall_to_precharge_conduction_ps": 1713.196822616104,
+        "q_min_v": 0.0,
+        "q_max_v": 1.8
+      }
+    }
+  ],
+  "warnings": {
+    "native_pm3_osdi": "Each ngspice log must be reviewed for unavailable OSDI startup libraries.",
+    "rail_excursions": "No Q/PCLK/PRECH rail-excursion acceptance limit is defined by this bench."
+  },
+  "execution_history": [
+    {
+      "runner_sha256": "b67ffeb4c0a22a1cef8092386dff0ae942d20125c4beeaddee6d51b79e9d5f52",
+      "ngspice_timeout_s": 180.0,
+      "started_utc": "2026-10-14T03:10:00.871907+00:00"
+    },
+    {
+      "runner_sha256": "6d13a40584e806f505b85301d6cfb61a753904c1c7e854e38c4528eb32dec9c7",
+      "ngspice_timeout_s": 600.0,
+      "resumed_utc": "2026-10-14T04:07:25.715463+00:00"
+    }
+  ],
+  "ngspice_timeout_s": 600.0,
+  "finished_utc": "2026-10-14T07:06:42.052135+00:00",
+  "status": "PASS",
+  "simulation_errors": [],
+  "screen_rejections": 0,
+  "warnings_by_run": {
+    "cases/fast_ctl010_a2_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a3_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a1_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a2_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a3_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a3_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a3_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a2_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl010_a1_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_1_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a1_to_1_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a2_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a1_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl001_a2_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/fast_ctl010_a3_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/slow_ctl001_a2_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl001_a1_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_2_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a1_to_2_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_3_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a3_to_3_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_0_p2100/liberty_reference/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    },
+    "cases/tt_ctl010_a2_to_0_p2100/actual/ngspice.log": {
+      "missing_osdi_libraries": [],
+      "no_compatibility_mode_notice": true
+    }
+  },
+  "summary_files": [
+    "summary.csv",
+    "matched_comparison.csv",
+    "checks.csv",
+    "full_valid_matrix_selected_wl_margin.png"
+  ],
+  "cases_completed": 144,
+  "result_manifest_repair": {
+    "repaired_utc": "2026-10-14T07:08:35.052444+00:00",
+    "reason": "Resume had retained an empty top-level results array; reconstructed from the 144 completed per-mode case.json records.",
+    "source_pattern": "cases/<case-label>/<mode>/case.json"
+  },
+  "derived_evidence": [
+    {
+      "artifact": "full_valid_matrix_selected_wl_margin.png",
+      "generator": "sims/row_decoder/plot_captured_valid_matrix_margin.py",
+      "source_matrices": [
+        "sims/row_decoder/results/captured_phase_interface_valid_3profile_fall22500_settle3800_q900_20261011",
+        "sims/row_decoder/results/captured_phase_interface_valid_remaining_ordered_3profile_fall22500_settle3800_q900_20261013"
+      ],
+      "plotted_points": 96,
+      "metric": "selected WL test-phase settled minimum minus 0.9*VDD, in mV",
+      "scope": "all 16 ordered addresses, valid read/write, TT/SS/FF; actual transistor-level checks",
+      "not_signoff": true,
+      "generated_utc": "2026-10-14T07:13:07.537641+00:00"
+    }
+  ]
+}

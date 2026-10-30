@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "stage": "READY_FOR_TEAM_REVIEW",
+  "scope": "PHASE1_SIX_LEAF_ENGINEERING_HANDOFF",
+  "audit_kind": "READ_ONLY_STORED_EVIDENCE_CHECK",
+  "checked_utc": "2026-10-30T14:52:31.965980+00:00",
+  "disposition": "DOCUMENTED_NON_BLOCKING_FOR_PHASE1",
+  "decision_sha256": "a19fbf9d8cf03ac3ec8da29e238d553470126fa131042b4f0733ac338191d6fb",
+  "verifier_sha256": "b6bbd516766fdbcd54c01b5defc87fa52616e170be99b8507e77ba5eab2876f7",
+  "helper_sha256": {
+    "freeze_keeper_revision.py": "4a27181a42156f75732680c579f263d303f3e888faf952ad89ba5d85d18dabb4",
+    "audit_phase1_release.py": "9890fe44b7bf0a0bc726a63921459024540f0e459519c64edf2ca27eab7e1be9",
+    "prepare_phase1_release.py": "4cc8c27c25e0e3bbf5eb131752eb2e3b0162b25751de19c43380bb4c70330a88"
+  },
+  "active_manifest": {
+    "path": "release/phase1_keeper/manifest.json",
+    "sha256": "d1e70cefa6a90e4e820e75544a1665d5a4de5764ae0d3eaccf268c498f80116b"
+  },
+  "active_index_sha256": "9e25028ffac1d8bced2ccaa188e8da296230f77c90b7165723563c08609b83dd",
+  "historical_index_sha256": "0045d66581d1d5e2a6c80d10b774e732931e01eceef16679722420e9414fc681",
+  "indexed_artifacts": 3020,
+  "cells": [
+    {
+      "cell": "bitcell_6t",
+      "mos": 6,
+      "drc_groups": 0,
+      "lvs": "UNIQUE_MATCH_WITH_W_L_AND_TERMINALS",
+      "negative_controls_rejected": 5,
+      "pex_binding": "PASS_PARASITIC_RESISTORS_COLLAPSED",
+      "evidence": "release/phase1/verification/bitcell_6t/result.json",
+      "evidence_sha256": "0475062f3fe50ba7e57af768388d2be97127ebfa7503f74c4bb6e462482de280"
+    },
+    {
+      "cell": "sense_amp",
+      "mos": 7,
+      "drc_groups": 0,
+      "lvs": "UNIQUE_MATCH_WITH_W_L_AND_TERMINALS",
+      "negative_controls_rejected": 5,
+      "pex_binding": "PASS_PARASITIC_RESISTORS_COLLAPSED",
+      "evidence": "release/phase1/verification/sense_amp/result.json",
+      "evidence_sha256": "7eae5242c03a5c04ca646086921dade7b053ff495552c516fafa366f2d6fcc54"
+    },
+    {
+      "cell": "precharge",
+      "mos": 3,
+      "drc_groups": 0,
+      "lvs": "UNIQUE_MATCH_WITH_W_L_AND_TERMINALS",
+      "negative_controls_rejected": 5,
+      "pex_binding": "PASS_PARASITIC_RESISTORS_COLLAPSED",
+      "evidence": "release/phase1/verification/precharge/result.json",
+      "evidence_sha256": "7102d9c0809d2af6e1ebb1478dad42f39c4f8a4bd3842a3f7b7a4d35e042c49c"
+    },
+    {
+      "cell": "wl_driver",
+      "mos": 4,
+      "drc_groups": 0,
+      "lvs": "UNIQUE_MATCH_WITH_W_L_AND_TERMINALS",
+      "negative_controls_rejected": 5,
+      "pex_binding": "PASS_PARASITIC_RESISTORS_COLLAPSED",
+      "evidence": "release/phase1/verification/wl_driver/result.json",
+      "evidence_sha256": "52c83bed2c6ca5aefde122278f00911c946436b00152bfd54c2ce07a581419df"
+    },
+    {
+      "cell": "write_driver",
+      "mos": 10,
+      "drc_groups": 0,
+      "lvs": "UNIQUE_MATCH_WITH_W_L_AND_TERMINALS",
+      "negative_controls_rejected": 5,
+      "pex_binding": "PASS_PARASITIC_RESISTORS_COLLAPSED",
+      "evidence": "release/phase1/verification/write_driver/result.json",
+      "evidence_sha256": "7e680a23c8239fbeecf75e5f721f45f5bf3e1c7807c7a0af9bb4160d71bafe16"
+    },
+    {
+      "cell": "row_decoder",
+      "mos": 33,
+      "drc_groups": 0,
+      "lvs": "UNIQUE_MATCH_WITH_W_L_AND_TERMINALS",
+      "negative_controls_rejected": 5,
+      "pex_binding": "PASS_PARASITIC_RESISTORS_COLLAPSED",
+      "evidence": "release/phase1_keeper/verification/row_decoder/result.json",
+      "evidence_sha256": "91f1bb595362f374bbac93f607ac813107656747ef8a9e98e0dca27cc583f37e"
+    }
+  ],
+  "decoder": {
+    "mandatory_runs": 105,
+    "passing_checks": 3045,
+    "address_cases": 48,
+    "crossed_pvt_points": 30,
+    "deliberate_charge_boundary_failures": 5,
+    "signed_gate_findings_retained": true
+  },
+  "archived_legacy_electrical_rows": 129,
+  "archived_electrical_scope": "Original G7 campaign; supports its five unchanged leaf inputs. Not a 33-MOS decoder macro test.",
+  "limits": [
+    "Foundry reliability or fabrication signoff",
+    "Independent model accuracy in unmeasured off-state gate-bias conditions",
+    "Statistical mismatch yield",
+    "Approved nominal characterization temperature or SRAM maximum frequency",
+    "Complete SRAM read/write integration using the 33-MOS decoder",
+    "Advisor approval or team merge"
+  ],
+  "new_simulation": false,
+  "new_physical_checks": false,
+  "new_rc_extraction": false
+}

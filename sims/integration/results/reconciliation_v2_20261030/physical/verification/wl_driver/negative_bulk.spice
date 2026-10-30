@@ -1,0 +1,8 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt wl_driver VDD VSS WL_IN WL
+MMP1 WL_N WL_IN VDD PHASE1_FAULT_BULK sky130_fd_pr__pfet_01v8 w=1.68u l=0.15u
+MMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 w=1.68u l=0.15u
+MMP2 WL WL_N VDD VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMN2 WL WL_N VSS VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+.ends wl_driver

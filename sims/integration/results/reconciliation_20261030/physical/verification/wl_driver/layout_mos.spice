@@ -1,0 +1,8 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.subckt wl_driver VDD VSS WL_IN WL
+M0 VSS a_227_n1168# WL VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+M1 VSS WL_IN a_227_n1168# VSS sky130_fd_pr__nfet_01v8 w=1.68u l=0.15u
+M2 VDD a_227_n1168# WL VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+M3 VDD WL_IN a_227_n1168# VDD sky130_fd_pr__pfet_01v8 w=1.68u l=0.15u
+.ends wl_driver

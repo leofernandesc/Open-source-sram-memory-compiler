@@ -1,0 +1,488 @@
+{
+  "title": "FF hot selected decoder campaign on compact post-layout R-C PEX",
+  "condition": {
+    "model_corner": "ff",
+    "supply_v": 1.8,
+    "ambient_temperature_c": 125,
+    "addresses": "nine transitions matching the TT selected matrix",
+    "wl_buffer": "schematic",
+    "estimated_wl_load_ff": 17.4
+  },
+  "pex": {
+    "sha256": "8ee6b99aabf94bde9a1de2a13f0c040cda41dd55bb9568672e38a7f6bb54a6dc",
+    "components": {
+      "mos": 29,
+      "resistors": 762,
+      "capacitors": 389
+    }
+  },
+  "campaigns": {
+    "fast_5ps": {
+      "baseline": {
+        "cases": 9,
+        "checks": 936,
+        "all_pass": true,
+        "max_wl_delay90_ps": 394.3011107188596,
+        "max_wl_precharge10_ps": 306.5079682194274,
+        "max_wl_rise_slew10_90_ps": 249.95891469216107,
+        "max_terminal_magnitude_v": 1.948349276447175,
+        "peak_terminal": {
+          "case": "fast_01_to_10",
+          "device": "x1.m6",
+          "voltage": "VGD",
+          "min_v": "-1.948349276447175",
+          "max_v": "0.0815044759043484",
+          "min_time_ns": "20.032500000000002",
+          "max_time_ns": "10.097500000000009"
+        },
+        "max_vdd_source_energy_fj": 292.8328043205618
+      },
+      "pex": {
+        "cases": 9,
+        "checks": 1440,
+        "all_pass": true,
+        "max_wl_delay90_ps": 492.9025036148192,
+        "max_wl_precharge10_ps": 462.0605724075648,
+        "max_wl_rise_slew10_90_ps": 250.09944626757417,
+        "max_terminal_magnitude_v": 1.8790302560974694,
+        "peak_terminal": {
+          "case": "fast_10_to_01",
+          "device": "x1.13",
+          "voltage": "VGS",
+          "min_v": "-1.8790302560974694",
+          "max_v": "1.799767399211164",
+          "min_time_ns": "20.0575",
+          "max_time_ns": "9.982500000000002"
+        },
+        "max_vdd_source_energy_fj": 603.4979925606231
+      }
+    },
+    "fast_1ps": {
+      "baseline": {
+        "cases": 9,
+        "checks": 936,
+        "all_pass": true,
+        "max_wl_delay90_ps": 394.0060449188243,
+        "max_wl_precharge10_ps": 306.27981462107516,
+        "max_wl_rise_slew10_90_ps": 249.99929969213696,
+        "max_terminal_magnitude_v": 1.949036821755575,
+        "peak_terminal": {
+          "case": "fast_01_to_10",
+          "device": "x1.m6",
+          "voltage": "VGD",
+          "min_v": "-1.949036821755575",
+          "max_v": "0.08163493259126198",
+          "min_time_ns": "20.030500000000004",
+          "max_time_ns": "10.095499999999962"
+        },
+        "max_vdd_source_energy_fj": 292.7441664724353
+      },
+      "pex": {
+        "cases": 9,
+        "checks": 1440,
+        "all_pass": true,
+        "max_wl_delay90_ps": 492.79457834921635,
+        "max_wl_precharge10_ps": 461.9395647502243,
+        "max_wl_rise_slew10_90_ps": 250.1189528789124,
+        "max_terminal_magnitude_v": 1.878689737943879,
+        "peak_terminal": {
+          "case": "fast_10_to_01",
+          "device": "x1.13",
+          "voltage": "VGS",
+          "min_v": "-1.878689737943879",
+          "max_v": "1.7999584451661197",
+          "min_time_ns": "20.05950000000004",
+          "max_time_ns": "9.986499999999996"
+        },
+        "max_vdd_source_energy_fj": 603.5929353102349
+      }
+    },
+    "fast_peak_0p5ps": {
+      "baseline": {
+        "cases": 1,
+        "checks": 104,
+        "all_pass": true,
+        "max_wl_delay90_ps": 393.3837500887942,
+        "max_wl_precharge10_ps": 306.2701606562639,
+        "max_wl_rise_slew10_90_ps": 250.00079762000536,
+        "max_terminal_magnitude_v": 1.9490306700351363,
+        "peak_terminal": {
+          "case": "fast_01_to_10",
+          "device": "x1.m12",
+          "voltage": "VGD",
+          "min_v": "-1.9490306700351363",
+          "max_v": "1.8108540868601173",
+          "min_time_ns": "20.030250000000006",
+          "max_time_ns": "9.989750000000017"
+        },
+        "max_vdd_source_energy_fj": 283.672406457208
+      },
+      "pex": {
+        "cases": 1,
+        "checks": 160,
+        "all_pass": true,
+        "max_wl_delay90_ps": 492.7895219488113,
+        "max_wl_precharge10_ps": 461.9336894785404,
+        "max_wl_rise_slew10_90_ps": 250.12004151040878,
+        "max_terminal_magnitude_v": 1.878005048251137,
+        "peak_terminal": {
+          "case": "fast_01_to_10",
+          "device": "x1.13",
+          "voltage": "VGS",
+          "min_v": "-1.878005048251137",
+          "max_v": "1.7999844589632696",
+          "min_time_ns": "5.059249999999983",
+          "max_time_ns": "24.986750000000015"
+        },
+        "max_vdd_source_energy_fj": 592.4346671798019
+      }
+    }
+  },
+  "max_abs_5ps_vs_1ps_delta": {
+    "baseline": {
+      "wl_delay90_ps": 0.30876266900725113,
+      "wl_precharge10_ps": 0.2717717069561445,
+      "wl_selected_rise_slew10_90_ps": 0.07323510590271098,
+      "terminal_magnitude_max_v": 0.0009095576543658446,
+      "vdd_src_cycle_energy_fj": 0.08863784812649556
+    },
+    "pex": {
+      "wl_delay90_ps": 0.1287214804177097,
+      "wl_precharge10_ps": 0.19084665718662563,
+      "wl_selected_rise_slew10_90_ps": 0.05774961568963022,
+      "terminal_magnitude_max_v": 0.0003733829221994611,
+      "vdd_src_cycle_energy_fj": 0.09494274961184601
+    }
+  },
+  "max_pex_minus_schematic": {
+    "5ps": {
+      "wl_delay90_ps": 99.20876543331019,
+      "wl_precharge10_ps": 157.3857794701646,
+      "wl_selected_rise_slew10_90_ps": 0.1645025648599301
+    },
+    "1ps": {
+      "wl_delay90_ps": 99.3970368030163,
+      "wl_precharge10_ps": 157.47380491253284,
+      "wl_selected_rise_slew10_90_ps": 0.12017364487948612
+    }
+  },
+  "campaign_manifests": {
+    "fast_5ps": {
+      "baseline": {
+        "complete": true,
+        "completed_cases": 9,
+        "errors": [],
+        "log_files": 9,
+        "ngspice_warning_lines": {
+          "Warning: Eta0 = -0.00908636 is negative.": 54,
+          "Warning: A2 = 1.0885 is larger than 1. A2 is set to 1 and A1 is set to 0.": 54,
+          "Warning: Pdibl1 = -0.00669442 is negative.": 54,
+          "Warning: Eta0 = -0.0261666 is negative.": 36,
+          "Warning: A2 = 1.14755 is larger than 1. A2 is set to 1 and A1 is set to 0.": 18,
+          "Warning: Pdibl1 = -0.0511426 is negative.": 18,
+          "Warning: Pdibl2 = -0.00103143 is negative.": 18,
+          "Warning: A2 = 1.14917 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0542605 is negative.": 36,
+          "Warning: Pdibl2 = -0.00121833 is negative.": 36,
+          "Warning: A2 = 1.14466 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0456081 is negative.": 36,
+          "Warning: Pdibl2 = -0.000699683 is negative.": 36
+        },
+        "ngspice_error_lines": [],
+        "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+        "model_dependencies_sha256": {
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+        },
+        "netlist_sha256": "2c8e802f8a5392eb2680e67cd6381627f9a680f8972325296ead1c387955202d",
+        "script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a"
+      },
+      "pex": {
+        "complete": true,
+        "completed_cases": 9,
+        "errors": [],
+        "log_files": 9,
+        "ngspice_warning_lines": {
+          "Warning: Eta0 = -0.00908636 is negative.": 54,
+          "Warning: A2 = 1.0885 is larger than 1. A2 is set to 1 and A1 is set to 0.": 54,
+          "Warning: Pdibl1 = -0.00669442 is negative.": 54,
+          "Warning: Eta0 = -0.0261666 is negative.": 36,
+          "Warning: A2 = 1.14917 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0542605 is negative.": 36,
+          "Warning: Pdibl2 = -0.00121833 is negative.": 36,
+          "Warning: A2 = 1.14466 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0456081 is negative.": 36,
+          "Warning: Pdibl2 = -0.000699683 is negative.": 36,
+          "Warning: A2 = 1.14755 is larger than 1. A2 is set to 1 and A1 is set to 0.": 18,
+          "Warning: Pdibl1 = -0.0511426 is negative.": 18,
+          "Warning: Pdibl2 = -0.00103143 is negative.": 18
+        },
+        "ngspice_error_lines": [],
+        "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+        "model_dependencies_sha256": {
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+        },
+        "netlist_sha256": "82f839938b95fdf070ecaa4ac27fe218220fe04c22166739fbe6ebb9674a1d56",
+        "script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a"
+      }
+    },
+    "fast_1ps": {
+      "baseline": {
+        "complete": true,
+        "completed_cases": 9,
+        "errors": [],
+        "log_files": 9,
+        "ngspice_warning_lines": {
+          "Warning: Eta0 = -0.00908636 is negative.": 54,
+          "Warning: A2 = 1.0885 is larger than 1. A2 is set to 1 and A1 is set to 0.": 54,
+          "Warning: Pdibl1 = -0.00669442 is negative.": 54,
+          "Warning: Eta0 = -0.0261666 is negative.": 36,
+          "Warning: A2 = 1.14755 is larger than 1. A2 is set to 1 and A1 is set to 0.": 18,
+          "Warning: Pdibl1 = -0.0511426 is negative.": 18,
+          "Warning: Pdibl2 = -0.00103143 is negative.": 18,
+          "Warning: A2 = 1.14917 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0542605 is negative.": 36,
+          "Warning: Pdibl2 = -0.00121833 is negative.": 36,
+          "Warning: A2 = 1.14466 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0456081 is negative.": 36,
+          "Warning: Pdibl2 = -0.000699683 is negative.": 36
+        },
+        "ngspice_error_lines": [],
+        "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+        "model_dependencies_sha256": {
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+        },
+        "netlist_sha256": "2c8e802f8a5392eb2680e67cd6381627f9a680f8972325296ead1c387955202d",
+        "script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a"
+      },
+      "pex": {
+        "complete": true,
+        "completed_cases": 9,
+        "errors": [],
+        "log_files": 9,
+        "ngspice_warning_lines": {
+          "Warning: Eta0 = -0.00908636 is negative.": 54,
+          "Warning: A2 = 1.0885 is larger than 1. A2 is set to 1 and A1 is set to 0.": 54,
+          "Warning: Pdibl1 = -0.00669442 is negative.": 54,
+          "Warning: Eta0 = -0.0261666 is negative.": 36,
+          "Warning: A2 = 1.14917 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0542605 is negative.": 36,
+          "Warning: Pdibl2 = -0.00121833 is negative.": 36,
+          "Warning: A2 = 1.14466 is larger than 1. A2 is set to 1 and A1 is set to 0.": 36,
+          "Warning: Pdibl1 = -0.0456081 is negative.": 36,
+          "Warning: Pdibl2 = -0.000699683 is negative.": 36,
+          "Warning: A2 = 1.14755 is larger than 1. A2 is set to 1 and A1 is set to 0.": 18,
+          "Warning: Pdibl1 = -0.0511426 is negative.": 18,
+          "Warning: Pdibl2 = -0.00103143 is negative.": 18
+        },
+        "ngspice_error_lines": [],
+        "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+        "model_dependencies_sha256": {
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+        },
+        "netlist_sha256": "82f839938b95fdf070ecaa4ac27fe218220fe04c22166739fbe6ebb9674a1d56",
+        "script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a"
+      }
+    },
+    "fast_peak_0p5ps": {
+      "baseline": {
+        "complete": true,
+        "completed_cases": 1,
+        "errors": [],
+        "log_files": 1,
+        "ngspice_warning_lines": {
+          "Warning: Eta0 = -0.00908636 is negative.": 6,
+          "Warning: A2 = 1.0885 is larger than 1. A2 is set to 1 and A1 is set to 0.": 6,
+          "Warning: Pdibl1 = -0.00669442 is negative.": 6,
+          "Warning: Eta0 = -0.0261666 is negative.": 4,
+          "Warning: A2 = 1.14755 is larger than 1. A2 is set to 1 and A1 is set to 0.": 2,
+          "Warning: Pdibl1 = -0.0511426 is negative.": 2,
+          "Warning: Pdibl2 = -0.00103143 is negative.": 2,
+          "Warning: A2 = 1.14917 is larger than 1. A2 is set to 1 and A1 is set to 0.": 4,
+          "Warning: Pdibl1 = -0.0542605 is negative.": 4,
+          "Warning: Pdibl2 = -0.00121833 is negative.": 4,
+          "Warning: A2 = 1.14466 is larger than 1. A2 is set to 1 and A1 is set to 0.": 4,
+          "Warning: Pdibl1 = -0.0456081 is negative.": 4,
+          "Warning: Pdibl2 = -0.000699683 is negative.": 4
+        },
+        "ngspice_error_lines": [],
+        "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+        "model_dependencies_sha256": {
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+        },
+        "netlist_sha256": "2c8e802f8a5392eb2680e67cd6381627f9a680f8972325296ead1c387955202d",
+        "script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a"
+      },
+      "pex": {
+        "complete": true,
+        "completed_cases": 1,
+        "errors": [],
+        "log_files": 1,
+        "ngspice_warning_lines": {
+          "Warning: Eta0 = -0.00908636 is negative.": 6,
+          "Warning: A2 = 1.0885 is larger than 1. A2 is set to 1 and A1 is set to 0.": 6,
+          "Warning: Pdibl1 = -0.00669442 is negative.": 6,
+          "Warning: Eta0 = -0.0261666 is negative.": 4,
+          "Warning: A2 = 1.14917 is larger than 1. A2 is set to 1 and A1 is set to 0.": 4,
+          "Warning: Pdibl1 = -0.0542605 is negative.": 4,
+          "Warning: Pdibl2 = -0.00121833 is negative.": 4,
+          "Warning: A2 = 1.14466 is larger than 1. A2 is set to 1 and A1 is set to 0.": 4,
+          "Warning: Pdibl1 = -0.0456081 is negative.": 4,
+          "Warning: Pdibl2 = -0.000699683 is negative.": 4,
+          "Warning: A2 = 1.14755 is larger than 1. A2 is set to 1 and A1 is set to 0.": 2,
+          "Warning: Pdibl1 = -0.0511426 is negative.": 2,
+          "Warning: Pdibl2 = -0.00103143 is negative.": 2
+        },
+        "ngspice_error_lines": [],
+        "model_sha256": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581",
+        "model_dependencies_sha256": {
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_bjt.spice": "dddf98199f127049c8f4386ee3e2e173a9098d0a4916be93055eb394d2a4555d",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_capacitors.spice": "c31dc25abbb8948f2cbc0173e2dcd6eeaabb621d8d3aa7f017c15a89486293df",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_diodes.spice": "afdcf7595bee58671b42d06647dc525da132e03d0891589d86af296f93bdaebf",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_fet.spice": "18be82d04a5a300410475eda3bb4f569b2fe092d9accdc4215ec7179b1894f18",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_global.spice": "ac9df6f40a23e46d0aa65268e3006915e6da4e398017b562afbd17ce1d9e171f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/models_resistors.spice": "d406fec360a7a35e473b7ce260c5b5f0ad75c95faa26d1d24fb2aa32d2f1ae6f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_high.spice": "9aae3a661e7d9ba2ce151e5cca728a2ddc14ee8d73cd19717ed331016918d376",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_low.spice": "96ebe0bbb20519295bc7a23e29a388586bd249edd03e73c495dc032652f7fa76",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_cap_nom.spice": "74a1f0933e3220061816ba11b15a2192760a1c95e250e67ffd1bde6b8a5e5ae9",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ff.spice": "b02aa2816444bc5f2c053c7ed35f178c344d03db914082df7c8556a4380aaf3e",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_fs.spice": "1f77a3d84a81d6c1fda2e3baf9c703d7a5b9e770937b4f5fb5122026db8a6a4c",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_sf.spice": "20be6d9570a0a3cde62f94e3c5771e907cff5862d2167dd3bbe404e17bc35a7b",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_ss.spice": "1ddb06ebec4e73ea630b9e6ae759db3410ee04da3678ace417cb3aa28e4f7880",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_fet_tt.spice": "1079c5af023f59628e61e4749be70e94d165c9dde71b93b8da63cbf7a857f35f",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_high.spice": "a776f09e5a7177c9450b7d05daa324261e2f133e78ece987f85be430787dc8be",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_low.spice": "b75c5714f065f65be8b052338f9aa7418d69f005d64803e77e7735064715c238",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/parameters_res_nom.spice": "bc2401ac75547b56a48cf11c1ab5dedb37c72d518a8ef3d5abf5d2cdea083be6",
+          "/opt/pdks/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.tech/combined/continuous/sky130.lib.spice": "c7e9fe87ffc2685bc56da02f92cd48b1403a5e9da85cc7978027fb0ca347d581"
+        },
+        "netlist_sha256": "82f839938b95fdf070ecaa4ac27fe218220fe04c22166739fbe6ebb9674a1d56",
+        "script_sha256": "a90c986a9f47b5b0856f86a2d1063b6ad8f322c52f874c55bdfd1cff699d2d8a"
+      }
+    }
+  },
+  "experiment_limit": "1.95 V is the existing experimental terminal magnitude screen, not a project specification threshold or reliability rating.",
+  "logs_sha256": {
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_00_to_00/ngspice.log": "8803c2e588c6f0a87c1b719990cf05260457fbea327d091ff3377cd357daa3f0",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_00_to_01/ngspice.log": "d4bc5394f757591c588e8da924fd701eed0caa8227f2bf3b03d720b6259e4d65",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_00_to_10/ngspice.log": "6ed9a4bf0db4ea7c1d99f759f1ae793bd0318f1f849bd9597ec44df5f64baff4",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_00_to_11/ngspice.log": "7b7e63fac6d83f4ec345a2e5b43888397e05308efc839316ab8321339700a7f7",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_01_to_00/ngspice.log": "badffe8f6bfe6d06eb89463948610c10605dbc45dba04947314b0f3cc750582b",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_01_to_10/ngspice.log": "46704bdb85d91260be5941c8ac354e8beb5ea0986ec32888e9a0cb4fb2a3f416",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_10_to_00/ngspice.log": "061cd0dfaf01c20a98f204afd567aa46ee1af82838e0fc9c0c93d0a471a040f1",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_10_to_01/ngspice.log": "40410833d37e4e43a9130f943cef64e3b12b246208a276670a12cf912ebb2a9e",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/baseline/fast_11_to_00/ngspice.log": "22baee20cec4529fb44f7a1152a4fc49c315e651a66ba2d57e5a2dd3918a3d19",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_00_to_00/ngspice.log": "aa97dc10f850b62a680167a0079242b7308c0b3045aca0bfe36370bcb822c5ab",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_00_to_01/ngspice.log": "5c425f6b3b1d1cf383a4b4fb60f530fc11e9d829947fbb68221c39ac32c71999",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_00_to_10/ngspice.log": "a42508557a2e3c709914cf2cd5d9add8665a45e919b8caae2b1de159fb7a85fa",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_00_to_11/ngspice.log": "e103599f8513cbf6454dd5b4174c028e16bc445c75f7dd54354a9c9e5d658e5f",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_01_to_00/ngspice.log": "f90021f2f67685cfad4359bc9319a7c91804934e57e94b36068fca2d7bce57d5",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_01_to_10/ngspice.log": "62658aa7f76c4fc6683d17b3456dcdfdc981a0c8881b44b4d80f573d8e2ed1c1",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_10_to_00/ngspice.log": "ed8f224ec7d8c2cfd6a909018adbe8f999852b4894fcb0cc20a8ccaba2f505bd",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_10_to_01/ngspice.log": "7219bc3919c07c4c33fe5e5bc76d4b94f374dafda75ac9906a41efd0a50380da",
+    "sims/row_decoder/results/compact_decoder_fast_5ps/artifacts/pex/fast_11_to_00/ngspice.log": "4c1d4019788d73321c08ab97d889e8a9b6a8295043ed0948ad5436d9dd8a9145",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_00_to_00/ngspice.log": "0f8531d6b7eee2a9b4508c64b11fcd9367dc027ef520eb7feb75f7f51176e6c6",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_00_to_01/ngspice.log": "4c87b6aed96b822f47ea392d3d61d52def82451189fbb1273fb9bcb007710dd7",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_00_to_10/ngspice.log": "d3cbc67406960b73de34d063477bb2ac4a7a877b6ab5eec5334d82249b44b413",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_00_to_11/ngspice.log": "f400f41b123b1e54157d12f6af9b17d518558044b568ec7e6647f5408aee65aa",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_01_to_00/ngspice.log": "1e13bac360cf00fd2c5338c4268675beef6305a0792a3058535360ef82a4735c",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_01_to_10/ngspice.log": "f74c565d89fc2b427d2f6bff3daeb3ea38ce9eb9186ad443afe39a890c95d9ad",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_10_to_00/ngspice.log": "86fc40437b6c8f911e8e32b19ac8d33f5ccaeb3dba0bc84afa4915ea15ad9f4e",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_10_to_01/ngspice.log": "d2b149f963d4b363783cee5bb6e975e8de90668148769cd14600e744f8d88965",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/baseline/fast_11_to_00/ngspice.log": "80e1a22ce97d610b0acf9fdafd7bd87b3ba4e08567a210d757e6dec29fa6f4e5",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_00_to_00/ngspice.log": "0e414ac935f275034e1b60617da998fc67d3bc43db363324bf6aa8bf46f11fcd",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_00_to_01/ngspice.log": "614f361216a1eced449de3f089a2d09952e130c87c948e8afb848898f57c2077",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_00_to_10/ngspice.log": "e4c230d493b26ad790bcf50c51b178663d4f629db22a507e20764969cd9866ba",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_00_to_11/ngspice.log": "f6ae79c93bd3a04b505f1be13db749b8fbdf0ad8d00f3bb1123df444c6e3d208",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_01_to_00/ngspice.log": "2b0a84c705be3550954d0e8801928e3b95e3212a23803a984d1db8b7c07f9ab1",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_01_to_10/ngspice.log": "3b193e7e9be35c00d4ed83a560057025c5be17f1367a64b90441bf0c749fd3ff",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_10_to_00/ngspice.log": "1b6351f0a24c2904a13571b5506b8a3ef250c1ea1ee21a25c530506f4059249f",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_10_to_01/ngspice.log": "a6a084a0f3b1b39aaaa9c1c49c9eda2b12483c0c57fdc3f1d78281484434a01f",
+    "sims/row_decoder/results/compact_decoder_fast_1ps/artifacts/pex/fast_11_to_00/ngspice.log": "6f24438774197c6c87338adaaaa05765f5164ee415bb579ad420a1ae8f861121",
+    "sims/row_decoder/results/compact_decoder_fast_peak_0p5ps/artifacts/baseline/fast_01_to_10/ngspice.log": "769d726269613d3ba518bfda1827dca97bcf319b181f2fef1c1a4a10b92d6e3c",
+    "sims/row_decoder/results/compact_decoder_fast_peak_0p5ps/artifacts/pex/fast_01_to_10/ngspice.log": "b9f011e3d97286c8f3bee5a48a78652a173e795b8b5d7e6536921116c1147f58"
+  }
+}

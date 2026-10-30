@@ -1,0 +1,37 @@
+
+Cell precharge (0) disconnected node: VSS
+Cell precharge (1) disconnected node: VSS
+Subcircuit summary:
+Circuit 1: precharge                       |Circuit 2: precharge                       
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__pfet_01v8 (3)                |sky130_fd_pr__pfet_01v8 (3)                
+Number of devices: 3                       |Number of devices: 3                       
+Number of nets: 4 **Mismatch**             |Number of nets: 5 **Mismatch**             
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: precharge                       |Circuit 2: precharge                       
+
+---------------------------------------------------------------------------------------
+Net: VDD                                   |Net: VDD                                   
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/bulk = 3         |  sky130_fd_pr__pfet_01v8/bulk = 2         
+                                           |                                           
+(no matching net)                          |Net: PHASE1_FAULT_BULK                     
+                                           |  sky130_fd_pr__pfet_01v8/bulk = 1         
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: precharge                       |Circuit 2: precharge                       
+-------------------------------------------|-------------------------------------------
+VDD                                        |VDD                                        
+PRECH                                      |PRECH                                      
+BLB                                        |BL **Mismatch**                            
+BL                                         |BLB **Mismatch**                           
+VSS                                        |VSS                                        
+---------------------------------------------------------------------------------------
+Cell pin lists for precharge and precharge altered to match.
+Device classes precharge and precharge are equivalent.
+
+Final result: Top level cell failed pin matching.

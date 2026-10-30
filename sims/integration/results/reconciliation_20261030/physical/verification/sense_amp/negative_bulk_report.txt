@@ -1,0 +1,38 @@
+
+Subcircuit summary:
+Circuit 1: sense_amp                       |Circuit 2: sense_amp                       
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__nfet_01v8 (3)                |sky130_fd_pr__nfet_01v8 (3)                
+sky130_fd_pr__pfet_01v8 (4)                |sky130_fd_pr__pfet_01v8 (4)                
+Number of devices: 7                       |Number of devices: 7                       
+Number of nets: 8 **Mismatch**             |Number of nets: 9 **Mismatch**             
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: sense_amp                       |Circuit 2: sense_amp                       
+
+---------------------------------------------------------------------------------------
+Net: VDD                                   |Net: VDD                                   
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/bulk = 4         |  sky130_fd_pr__pfet_01v8/bulk = 3         
+                                           |                                           
+(no matching net)                          |Net: PHASE1_FAULT_BULK                     
+                                           |  sky130_fd_pr__pfet_01v8/bulk = 1         
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: sense_amp                       |Circuit 2: sense_amp                       
+-------------------------------------------|-------------------------------------------
+VDD                                        |VDD                                        
+BL                                         |BLB **Mismatch**                           
+BLB                                        |BL **Mismatch**                            
+SA_OUTB                                    |SA_OUTB                                    
+SA_OUT                                     |SA_OUT                                     
+VSS                                        |VSS                                        
+SCLK                                       |SCLK                                       
+---------------------------------------------------------------------------------------
+Cell pin lists for sense_amp and sense_amp altered to match.
+Device classes sense_amp and sense_amp are equivalent.
+
+Final result: Top level cell failed pin matching.

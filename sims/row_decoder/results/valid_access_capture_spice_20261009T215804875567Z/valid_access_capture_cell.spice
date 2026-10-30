@@ -1,0 +1,14 @@
+** sch_path: /work/cells/control/valid_access_capture.sch
+.subckt valid_access_capture CLK CSb OEb WEb VDD VSS VALID_ACCESS_Q
+*.iopin VDD
+*.iopin VSS
+*.ipin CSb
+*.ipin OEb
+*.ipin WEb
+*.ipin CLK
+*.opin VALID_ACCESS_Q
+XCSB_INV CSb VSS VSS VDD VDD net1 sky130_fd_sc_hd__inv_1
+XOE_WE_XOR OEb WEb VSS VSS VDD VDD net2 sky130_fd_sc_hd__xor2_1
+XVALID_AND net1 net2 VSS VSS VDD VDD net3 sky130_fd_sc_hd__and2_1
+XVALID_FF CLK net3 VSS VSS VDD VDD VALID_ACCESS_Q sky130_fd_sc_hd__dfxtp_1
+.ends

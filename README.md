@@ -1,5 +1,32 @@
 # Open-Source SRAM Memory Compiler
 
+**Current Phase 1 selection, 2026-10-29:** six leaf cells, with Leonardo's
+dynamic decoder hardened by four feedback PMOS keepers (33 MOS total).
+The [current artifact table](release/phase1_keeper/README.md) fixes SCH, SYM,
+SPICE, MAG, PEX and DRC/parameter-aware LVS evidence. The other five selected
+leaves and the [29-MOS baseline](release/phase1/README.md) remain unchanged.
+The new decoder/WL PEX passes 105 runs and 3,045 experimental checks, including
+48 address cases and 30 crossed PVT points. The
+[analysis and real waveform plots](docs/row_decoder_robustness_20261029.md)
+retain measured noise limits and the independent off-state model-data gap;
+these results are not foundry reliability signoff. Macro integration and the
+compiler remain Phase 2 work.
+
+**Technical handoff:** the [Phase 1 closure record](docs/phase1_closure_20261029.md)
+consolidates the six-cell evidence and records the owner's decision to proceed
+with the documented model-data limitation. The package is ready for team
+review; a model-provider response is not a prerequisite for this handoff.
+Run `python3 tools/verify_phase1_handoff.py` for the read-only final audit.
+
+**Repository integration, 2026-10-30:** the
+[reconciliation review](docs/phase1_integration_20261030.md) preserves the newer
+upstream sources and the selected six leaves, records fresh physical/electrical
+checks, and documents the remaining distinction from full macro integration.
+
+The development material below is retained as history. Earlier status and
+sizing statements are superseded by the current delivery manifest.
+
+
 Compilador open-source de memória SRAM single-port baseado em uma bitcell 6T
 para o PDK SKY130A. O escopo prevê profundidades de 4, 8, 16 e 32 palavras,
 largura fixa de 8 bits e geração de GDSII, LEF, Verilog e .lib.

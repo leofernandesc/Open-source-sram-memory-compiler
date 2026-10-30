@@ -1,5 +1,18 @@
 # Leaf cells Xschem
 
+**Canonical Phase 1 selection — 2026-10-29:** use the six schematics and
+symbols in the [current delivery table](../release/phase1_keeper/README.md).
+The selected decoder is `row_decoder/variants/keeper_0p84/row_decoder.sch`
+(33 MOS, four feedback PMOS keepers), with its own checked mask and new PEX.
+The other five leaves and the original six-cell freeze are unchanged. The
+older file/status table below records earlier development.
+
+The [integration review](../docs/phase1_integration_20261030.md) explains the
+preserved upstream root-level paths and structured compatibility copies.
+The selected-delivery manifest governs the six-cell handoff; the candidate
+decoder and phase assignments in the older report below remain historical.
+
+
 **Estado em 08/10/2026:** a Fase 1 está `CLOSED_ENGINEERING_QUALIFICATION`
 para a bitcell e os leafs físicos. A coluna de 32 linhas, a linha WL de 8 bits
 e a coluna G7 têm DRC/LVS/PEX requalificados; as PVTs com nós `.t0` e as

@@ -1,0 +1,58 @@
+
+Subcircuit summary:
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__nfet_01v8 (5)                |sky130_fd_pr__nfet_01v8 (6) **Mismatch**   
+sky130_fd_pr__pfet_01v8 (5)                |sky130_fd_pr__pfet_01v8 (4) **Mismatch**   
+Number of devices: 10                      |Number of devices: 10                      
+Number of nets: 12                         |Number of nets: 12                         
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+
+---------------------------------------------------------------------------------------
+Net: WE                                    |Net: WE                                    
+  sky130_fd_pr__nfet_01v8/gate = 3         |  sky130_fd_pr__nfet_01v8/gate = 4         
+  sky130_fd_pr__pfet_01v8/gate = 1         |                                           
+                                           |                                           
+Net: a_227_n1084#                          |Net: WE_B                                  
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/gate = 2         |  sky130_fd_pr__pfet_01v8/gate = 2         
+  sky130_fd_pr__nfet_01v8/(drain|source) = |                                           
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+Net: VDD                                   |Net: VDD                                   
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/bulk = 5         |  sky130_fd_pr__pfet_01v8/bulk = 4         
+                                           |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+                                           |  sky130_fd_pr__nfet_01v8/bulk = 1         
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+
+---------------------------------------------------------------------------------------
+Instance: sky130_fd_pr__pfet_01v8:1        |Instance: sky130_fd_pr__nfet_01v8:MPWEB    
+  (drain,source) = (8,4)                   |  (drain,source) = (8,4)                   
+  gate = 4                                 |  gate = 4                                 
+  bulk = 8                                 |  bulk = 8                                 
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: write_driver                    |Circuit 2: write_driver                    
+-------------------------------------------|-------------------------------------------
+BL                                         |BLB **Mismatch**                           
+BLB                                        |BL **Mismatch**                            
+DATA_B                                     |DATA **Mismatch**                          
+DATA                                       |DATA_B **Mismatch**                        
+WE                                         |(no pin, node is WE_B)                     
+VDD                                        |VDD                                        
+VSS                                        |VSS                                        
+(no pin, node is WE)                       |WE                                         
+---------------------------------------------------------------------------------------
+Cell pin lists for write_driver and write_driver altered to match.
+Device classes write_driver and write_driver are equivalent.
+
+Final result: Top level cell failed pin matching.

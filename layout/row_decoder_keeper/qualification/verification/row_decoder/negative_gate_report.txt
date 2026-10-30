@@ -1,0 +1,41 @@
+
+Subcircuit summary:
+Circuit 1: row_decoder                     |Circuit 2: row_decoder                     
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__nfet_01v8 (17)               |sky130_fd_pr__nfet_01v8 (17)               
+sky130_fd_pr__pfet_01v8 (16)               |sky130_fd_pr__pfet_01v8 (16)               
+Number of devices: 33                      |Number of devices: 33                      
+Number of nets: 22 **Mismatch**            |Number of nets: 23 **Mismatch**            
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: row_decoder                     |Circuit 2: row_decoder                     
+
+---------------------------------------------------------------------------------------
+Net: A0                                    |Net: A0                                    
+  sky130_fd_pr__nfet_01v8/gate = 1         |  sky130_fd_pr__nfet_01v8/gate = 1         
+  sky130_fd_pr__pfet_01v8/gate = 1         |                                           
+                                           |                                           
+(no matching net)                          |Net: PHASE1_FAULT_GATE                     
+                                           |  sky130_fd_pr__pfet_01v8/gate = 1         
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: row_decoder                     |Circuit 2: row_decoder                     
+-------------------------------------------|-------------------------------------------
+A0                                         |(no pin, node is PHASE1_FAULT_GATE)        
+A1                                         |A1                                         
+DEC0                                       |DEC0                                       
+DEC1                                       |DEC1                                       
+DEC2                                       |DEC2                                       
+DEC3                                       |DEC3                                       
+VDD                                        |VDD                                        
+PCLK                                       |PCLK                                       
+VSS                                        |VSS                                        
+(no pin, node is A0)                       |A0                                         
+---------------------------------------------------------------------------------------
+Cell pin lists for row_decoder and row_decoder altered to match.
+Device classes row_decoder and row_decoder are equivalent.
+
+Final result: Top level cell failed pin matching.

@@ -1,0 +1,37 @@
+
+Subcircuit summary:
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__pfet_01v8 (2)                |sky130_fd_pr__pfet_01v8 (2)                
+sky130_fd_pr__nfet_01v8 (4)                |sky130_fd_pr__nfet_01v8 (4)                
+Number of devices: 6                       |Number of devices: 6                       
+Number of nets: 7 **Mismatch**             |Number of nets: 8 **Mismatch**             
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+
+---------------------------------------------------------------------------------------
+Net: VDD                                   |Net: VDD                                   
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/bulk = 2         |  sky130_fd_pr__pfet_01v8/bulk = 1         
+                                           |                                           
+(no matching net)                          |Net: PHASE1_FAULT_BULK                     
+                                           |  sky130_fd_pr__pfet_01v8/bulk = 1         
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: bitcell_6t                      |Circuit 2: bitcell_6t                      
+-------------------------------------------|-------------------------------------------
+VDD                                        |(no pin, node is PHASE1_FAULT_BULK)        
+BLB                                        |BLB                                        
+BL                                         |BL                                         
+VSS                                        |VSS                                        
+WL                                         |WL                                         
+(no pin, node is VDD)                      |VDD                                        
+---------------------------------------------------------------------------------------
+Cell pin lists for bitcell_6t and bitcell_6t altered to match.
+Device classes bitcell_6t and bitcell_6t are equivalent.
+
+Final result: Top level cell failed pin matching.
