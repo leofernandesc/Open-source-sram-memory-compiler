@@ -95,10 +95,28 @@ class ReconciliationTests(unittest.TestCase):
             self.assertNotEqual(digest(),baseline)
 
     def test_old_pass_rows_are_not_reused_for_a_changed_or_unknown_contract(self):
-        self.assertFalse(contract.reusable({'status':'PASS'},'new'))
-        self.assertFalse(contract.reusable({'status':'PASS','cache_contract_sha256':'old'},'new'))
-        self.assertFalse(contract.reusable({'status':'FAIL','cache_contract_sha256':'new'},'new'))
-        self.assertTrue(contract.reusable({'status':'PASS','cache_contract_sha256':'new'},'new'))
+        expected=dict(corner='tt',vdd_v=1.8,temp_c=27,stored_q=0)
+        row=dict(status='PASS',returncode='0',cache_contract_sha256='new',**expected)
+        self.assertFalse(contract.reusable({'status':'PASS'},'new',expected))
+        self.assertFalse(contract.reusable(dict(row,cache_contract_sha256='old'),'new',expected))
+        self.assertFalse(contract.reusable(dict(row,status='FAIL'),'new',expected))
+        self.assertTrue(contract.reusable(row,'new',expected))
+
+    def test_another_corner_or_state_cannot_fill_a_cached_case(self):
+        expected=dict(corner='tt',vdd_v=1.8,temp_c=27,stored_q=0)
+        row=dict(status='PASS',returncode='0',cache_contract_sha256='same',**expected)
+        for change in [dict(corner='ss'),dict(vdd_v='1.62'),dict(temp_c='125'),dict(stored_q='1'),
+                       dict(stored_q='0.5'),dict(returncode='1'),dict(temp_c='nan')]:
+            with self.subTest(change=change):
+                self.assertFalse(contract.reusable(dict(row,**change),'same',expected))
+        row.pop('stored_q')
+        self.assertFalse(contract.reusable(row,'same',expected))
+
+    def test_numeric_csv_formatting_preserves_the_correct_write_identity(self):
+        expected=dict(corner='tt',vdd_v=1.8,temp_c=27,stored_q_before=1)
+        row=dict(status='PASS',returncode='0',cache_contract_sha256='same',corner='TT',
+                 vdd_v='1.800',temp_c='27.0',stored_q_before='1')
+        self.assertTrue(contract.reusable(row,'same',expected))
 
 
 if __name__=='__main__':unittest.main()

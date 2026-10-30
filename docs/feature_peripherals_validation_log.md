@@ -2932,3 +2932,33 @@ The read disturb/resolution and write recovery margins remain tight experimental
 G7 screens; no full SRAM data-access, reliability or macro-frequency claim was
 added. Details, fixed commands, source hashes and results:
 [Phase 1 integration review](phase1_integration_20261030.md).
+
+
+## 2026-10-30 — review PR #7 after PR #6 merged
+
+Confirmed PR #6 merged into main as `edeeb0b`, with a tree identical to the
+`eb9217e` develop baseline already included by the integration branch. No
+new circuit/layout changes came from that merge. PR #7 remains targeted at
+develop; publishing the reconciled package to main later requires a new PR.
+
+Corrected contradictory active GitFlow text that still deferred the decoder
+to Phase 2. Replaced the root README and cell index with the current six-cell
+selection and formal pin orders, retaining useful scientific reports and
+source files as dated records. The unqualified PCH_N/EVAL candidate is not
+selected. No bitcell/peripheral schematic, mask, PEX or model was changed.
+
+Reproduced and fixed a checkpoint identity gap: a campaign hash alone did not
+bind the row to its requested corner, VDD, temperature and stored state. The
+read/write resume gates now require all four and simulator success. Four
+fresh SPICE runs, two correct cache hits and two injected wrong-case controls
+pass with identical correct result rows after resimulation. The complete
+regression set passes 129 tests (29 tools, 90 decoder, 10 reconciliation).
+The 337 installed model dependencies match their recorded hashes.
+
+The original 3,020-file release and 1,134-file reconciliation integrity audits
+pass, as does an independent review of the retained 48-case decoder/WL and
+60/60 G7 matrices and native physical proofs. These are stored-evidence
+checks; no fresh full matrix, DRC/LVS or distributed R-C extraction is claimed
+for this follow-up. The existing narrow G7 margins and model-data limitations
+remain explicit. See the [post-PR6 review](phase1_post_pr6_review_20261030.md)
+and its linked receipt and source snapshots.

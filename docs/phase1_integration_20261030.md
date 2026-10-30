@@ -1,5 +1,11 @@
 # Phase 1 repository integration — 2026-10-30
 
+This is the original reconciliation record for commit `083a080`. The
+[post-PR6 review](phase1_post_pr6_review_20261030.md) records the subsequent
+active-documentation cleanup and checkpoint-identity fix, with 129 current tests.
+Statements below about retaining the previous README body describe the original
+reconciliation, not the later current-status indexes.
+
 Branch: `integration/phase1-six-cells`.
 Base: `develop` at `eb9217ee80c585cf952e14f6a13f6fc7230ba639`.
 Feature delivery: `feature/peripherals` at

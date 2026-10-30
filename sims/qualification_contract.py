@@ -46,5 +46,23 @@ def campaign_contract(args, leafs, runner, library):
     return hashlib.sha256(json.dumps(payload,sort_keys=True,allow_nan=False).encode()).hexdigest()
 
 
-def reusable(row, contract):
-    return row is not None and row.get('status')=='PASS' and row.get('cache_contract_sha256')==contract
+def reusable(row, contract, expected):
+    """Bind a checkpoint to its case as well as the enclosing campaign.
+
+    A contract covers a matrix, so two different rows can legitimately have
+    the same contract. A copied/misnamed part must never fill another case.
+    """
+    if row is None or row.get('status')!='PASS' or row.get('cache_contract_sha256')!=contract:
+        return False
+    if str(row.get('returncode'))!='0':
+        return False
+    try:
+        for key,value in expected.items():
+            actual=row[key]
+            if isinstance(value,str):
+                if str(actual).lower()!=value.lower():return False
+            elif float(actual)!=value:
+                return False
+    except (KeyError,TypeError,ValueError):
+        return False
+    return True

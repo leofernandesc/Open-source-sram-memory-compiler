@@ -863,7 +863,9 @@ def main() -> int:
     pending = []
     for case in cases:
         cached = read_part(part_path(args, case)) if args.resume else None
-        if reusable(cached, contract):
+        corner,vdd,temp_c,state=case
+        expected=dict(corner=corner,vdd_v=vdd,temp_c=temp_c,stored_q_before=state)
+        if reusable(cached, contract, expected):
             rows.append(dict(cached))
         else:
             pending.append(case)

@@ -1,6 +1,7 @@
 # Git workflow
 
-Phase 1 uses a small Git Flow with `main`, `develop`, and `feature/*` branches.
+Phase 1 uses `main`, `develop` and `feature/*`, with temporary `integration/*`
+branches when feature deliveries need reconciliation.
 
 | Branch | Purpose | Integration |
 |---|---|---|
@@ -29,7 +30,7 @@ merging the PR.
 |---|---|---|
 | `feature/bitcell` | Danilo (Person 1) | 6T bitcell through schematic, simulation, layout, DRC, and LVS |
 | `feature/sense-precharge` | André (Person 2) | Sense amplifier and precharge/equalization through schematic, simulation, layout, DRC, and LVS |
-| `feature/peripherals` | Leonardo (Person 3) | Wordline driver and write driver through schematic, simulation, layout, DRC, and LVS; dynamic 2-to-4 decoder candidate and qualification are planned for Phase 2 macro integration, pending formal validation by the team/advisors |
+| `feature/peripherals` | Leonardo (Person 3) | Dynamic 2-to-4 row decoder, wordline driver and write driver through schematic, simulation, layout, DRC and LVS |
 
 The dynamic 2-to-4 decoder implementation maintained on `feature/peripherals`
 is Leonardo's Person 3 Phase 1 deliverable through schematic, simulation,
@@ -47,13 +48,10 @@ compiler and physical control/PCLK-generator qualification are Phase 2 work.
 Statements in another branch that defer this decoder are superseded by this
 explicit scope decision when the development lines are reconciled.
 
-Each owner is responsible for carrying the assigned blocks through the complete
-Phase 1 flow. The dynamic 2-to-4 decoder candidate and its electrical/physical
-qualification, together with the complete 4×8 macro, are currently planned as
-Phase 2 macro-integration deliverables. This reassignment changes the original
-planning for the decoder deliverable and remains subject to formal validation
-by the team/advisors.
-Collaboration is allowed, but architecture or implementation changes in
+Each owner is responsible for carrying the assigned leaf blocks through the
+complete Phase 1 flow. The dynamic decoder is included in that delivery;
+complete decoder-driven macro access and physical capture/PCLK/PRECH control
+remain Phase 2 integration tasks. Collaboration is allowed, but changes in
 another owner's block should be reviewed with that owner first.
 
 The previous `feat/sram-6t-cell-schematic` work has already been integrated into
@@ -72,3 +70,8 @@ After the Phase 1 leaf cells have passed their required checks and the team has
 reviewed the integrated work, merge `develop` into `main` through a pull request.
 Create a milestone tag on `main` only after that merge. Release and hotfix
 branches are outside the current workflow.
+
+PR #6 merged the earlier `develop` revision into `main` on 2026-10-30.
+PR #7 still targets `develop` and proposes the reconciled six-cell delivery.
+After PR #7 is reviewed and merged, use a new `develop` -> `main` PR for that
+delivery; the already closed PR #6 cannot publish subsequent changes.
