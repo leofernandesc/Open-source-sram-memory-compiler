@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "verified_utc": "2026-10-30T23:49:15.963473+00:00",
+  "scope": "Verification-flow guards and stored-evidence preservation; no new physical qualification",
+  "python_tests": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "passed": 61,
+      "skipped": 0,
+      "log": "verification_tests.txt",
+      "sha256": "9a22c394bd4d420910c4b2940c70a3d3f051f2b605668960a378a1b1ecdaa52d"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "sims/integration",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "passed": 10,
+      "skipped": 0,
+      "log": "reconciliation_tests.txt",
+      "sha256": "5b88d755d5de3bcc41266c908bb334150016e6fdcc395b03f744873f31175315"
+    }
+  ],
+  "python_tests_passed": 71,
+  "digital_guard_tests_included": 32,
+  "core_checks": 154303,
+  "source_inputs_verified": 20,
+  "core_receipt_sha256": "a1a405fecb8fd97e0d556d2cec02f0a4383d2b5155ef6e1649744794613d8927",
+  "preservation_command": [
+    "/usr/bin/python3",
+    "tools/verify_phase1_handoff.py"
+  ],
+  "preservation_receipt_sha256": "328ee3990bd4c5983145663258e4d36ebf8df942ce3ef7e9edd1225b848b26ce",
+  "frozen_indexed_artifacts": 3020
+}

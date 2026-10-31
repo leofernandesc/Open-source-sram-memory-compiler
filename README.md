@@ -7,8 +7,8 @@ explicit VDD/VSS. The first macro target is 4×8; supported compiler depths
 are 4, 8, 16 and 32 words.
 
 The [technical specification](specs/technical_specification.md) defines the
-architecture and open advisor decisions. The compiler, complete macros and
-GDSII/LEF/behavioral Verilog/Liberty macro views remain planned work.
+architecture and open advisor decisions. The compiler, complete physical macros
+and compiler-generated GDSII/LEF/Verilog/Liberty views remain planned work.
 
 ## Phase 1 delivery
 
@@ -76,6 +76,16 @@ control the present delivery. The selected physical proofs supersede an older
 wrapper-only LVS claim for the masks actually checked.
 
 ## Next phase and review workflow
+
+The first two Phase 2 digital fronts now have a public Verilog functional
+model, a separately structured 4x8 controller/wrapper and an independent
+self-checking regression. See the [digital contract](specs/sram_4x8_digital.md),
+[interfaces and commands](docs/sram_4x8_interfaces.md) and
+[selected regression evidence](reports/digital/phase2_log_reconciliation/summary.md).
+Run `./scripts/run_rtl.sh` to reproduce the digital checks. These models do
+not replace the selected dynamic decoder or establish physical macro access.
+After a core PASS, use the same output with `--verify-evidence` to run the
+Python suites and preservation audit and publish the consolidated receipt.
 
 Phase 2 integrates the selected leaves into a 4×8 SRAM with data write/readback,
 physically implements capture/PCLK/PRECH control, derives macro timing and

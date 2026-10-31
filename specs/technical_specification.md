@@ -116,6 +116,13 @@ During write, idle, disabled, and invalid conditions, the SRAM output remains in
 
 The invalid control combination does not perform a memory access.
 
+The external output driver is enabled only when both the captured operation
+and the current external controls select a read. External controls may disable
+the output without a clock edge; this does not cancel or change the captured
+internal operation. A bus master must release read mode and allow the SRAM
+output to turn off before driving write data, while also meeting input setup
+and hold requirements. Physical output-disable timing requires characterization.
+
 ---
 
 ## 5. Power-Up Behavior
@@ -137,6 +144,13 @@ Address and control inputs are captured on the rising edge of `CLK`.
 Write data is also captured on the rising edge during a write operation.
 
 Read data is captured by an 8-bit output register on the falling edge of `CLK`.
+
+The output register retains the previous read result until another read is
+captured. During consecutive reads, the previous result may remain on `DATA`
+during the high phase; the new result is available only after the falling edge
+and the physical output delay. The register is undefined before its first read.
+No external data-valid or reset port is added. The executable digital contract
+and its verification boundary are defined in `specs/sram_4x8_digital.md`.
 
 Bitline precharge and equalization occur during the low phase of the clock. Memory access occurs during the high phase.
 
@@ -457,5 +471,5 @@ The following architectural decisions still require confirmation:
 
 1. *Memory Compiler Open-Source — Adapted Project Specification*.
 2. M. R. Guthaus et al., *OpenRAM: An Open-Source Memory Compiler*, ICCAD, 2016.
-3. J. T. Butera, *OpenRAM: An Open-Source Memory Compiler*, M.S. Thesis, University of Virginia, 2013.
+3. J. T. Butera, *OpenRAM: An Open-Source Memory Compiler*, M.S. Thesis, University of California, Santa Cruz, 2013.
 4. H. Wann et al., *SRAM Cell Design for Stability Methodology*.

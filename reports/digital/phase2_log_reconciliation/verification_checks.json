@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "verified_utc": "2026-10-31T00:00:12.731357+00:00",
+  "scope": "Verification-flow guards and stored-evidence preservation; no new physical qualification",
+  "python_tests": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "passed": 72,
+      "skipped": 0,
+      "log": "verification_tests.txt",
+      "sha256": "3fcb72cba3fb8b0f090447f9f581f21b79a91c2fcd33246a6a1bc3c7da87636d"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "sims/integration",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "passed": 10,
+      "skipped": 0,
+      "log": "reconciliation_tests.txt",
+      "sha256": "444236c456bd247bc9db36a000f5befe0e1fbe3ff61e94e1309dafd6d08c9215"
+    }
+  ],
+  "python_tests_passed": 82,
+  "digital_guard_tests_included": 43,
+  "core_checks": 154303,
+  "log_reconciliation": {
+    "core_checks": 154303,
+    "memory_cases": 5,
+    "controller_checks": 96,
+    "negative_cases": 12,
+    "result_log_sha256": {
+      "logs/model_4x8.txt": "d6f1e05b649a325e30f90863a5e2b3ba0a4f20f37747263455bb54919d1fb134",
+      "logs/model_8x8.txt": "54e5ed41afacc88e863996010785a401d5a17d25e43e62f47d69db33aa4c94e7",
+      "logs/model_16x8.txt": "ef2bf09fdc2f7cb332ec26d6efbf9408d832c70327379355d106cf30fd632f94",
+      "logs/model_32x8.txt": "644fa19712dd258f6c866f7fcd633dbae2edbc37f338cbef3af301fa87d64736",
+      "logs/wrapper_4x8.txt": "0a107a04984107801fd92e2bcb4537cee286b820f1412618aff93ab12f20c53a",
+      "logs/control.txt": "23021947f6b93e4146014ebac52304fce74a0553b8da9f4b47358a823ddec62c",
+      "logs/reject_depth_0.txt": "d922d41d5cba6849c43c1bc1c3dfae6af80c57bec9726c99f36e4b18e700fd30",
+      "logs/reject_depth_1.txt": "6f5b531bd8c11d59f2e78b68191855820e0e1ea0193cd56f73c7f4a3aadb7e34",
+      "logs/reject_depth_2.txt": "74c35515b85621a0fc0604cba3bba1a60f85f51f61c30e87d37cd913d046dbba",
+      "logs/reject_depth_3.txt": "34b75b77e2363c2a1302022c850e3a0eb5a7c0e322e6f23c758aba6b3dbc3883",
+      "logs/reject_depth_5.txt": "b8252764b707245a0157c673802fea4a352f914782bd002d7a23b43974b91f42",
+      "logs/reject_depth_64.txt": "bfce35db921e9c45591ed3cde79259b95b376325a59b15ddd4158e5ec4875066",
+      "logs/mutant_wrong_capture_edge.txt": "957d24ec01692d4d2a0878915b8c87ed31202f406a567ea7cbfc82196afaa6de",
+      "logs/mutant_address_alias.txt": "9c749fc99969648c8d671604100740f35044c9b02ae944a1f8ca797ff5c03686",
+      "logs/mutant_missing_bus_mask.txt": "6275e16584594b8375d5899363d76a152143db6023040f16420121386659e447",
+      "logs/mutant_corrupt_write_data.txt": "5552be9937a63001977b8af57a68c5134fc45b49c95a12f0edea3fb5ff17baaa",
+      "logs/mutant_invalid_control_write.txt": "d3cae53f0bb92738a3b204b97c014f4523837046d77bb3477dee52e24e67662c",
+      "logs/mutant_live_address.txt": "24ef1fdd33269d7c5f2fe62f80ee832313580672b67e377f253f0d9c2bd85be6"
+    }
+  },
+  "source_inputs_verified": 20,
+  "core_receipt_sha256": "f590ad5e200af98a5c3b1436ba6b39fc81cace4d8b37d530f051d8e2b2008a26",
+  "preservation_command": [
+    "/usr/bin/python3",
+    "tools/verify_phase1_handoff.py"
+  ],
+  "preservation_receipt_sha256": "3fdcb48050d0bfe76a6a8cfcfbdf76054cf520f4b96c24971f4ac81537376ff4",
+  "frozen_indexed_artifacts": 3020
+}

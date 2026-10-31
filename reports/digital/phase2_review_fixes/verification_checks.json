@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "verified_utc": "2026-10-30T23:33:37.200283+00:00",
+  "scope": "Verification-flow corrections; no new physical qualification",
+  "python_tests": [
+    {
+      "command": "./tools/sram-eda python3 -m unittest discover -s tools/tests -v",
+      "passed": 50,
+      "skipped": 0,
+      "log": "verification_tests.txt",
+      "sha256": "aec11958934ab7203a1f2a4fe0ad70361d6a891ab58140a93a1ad2fddbf2fe19"
+    },
+    {
+      "command": "python3 -m unittest discover -s sims/integration -p 'test*.py' -v",
+      "passed": 10,
+      "skipped": 0,
+      "log": "reconciliation_tests.txt",
+      "sha256": "61be8f2b3ba7cc93918af923bb4d040c39a55805c1362f160eae7afb4748f618"
+    }
+  ],
+  "python_tests_passed": 60,
+  "digital_guard_tests_included": 21,
+  "core_checks": 154303,
+  "source_inputs_verified": 20,
+  "core_receipt_sha256": "df03120cad301e0a213822ebdb46fae6805b51a60e510e5d2e49cfe421f80def",
+  "preservation_receipt_sha256": "8a1f384b8741bae58c3943e66b4688218497f87b8a718c440e02ac5a12fbba0d",
+  "frozen_indexed_artifacts": 3020
+}

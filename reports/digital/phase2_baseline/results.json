@@ -1,0 +1,738 @@
+{
+  "status": "PASS",
+  "scope": "functional digital verification; no physical timing signoff",
+  "created_utc": "2026-10-30T23:12:25.004355+00:00",
+  "base_commit": "a27dd1e5373d70c546bdfae44decefde64393794",
+  "source_identity": "SHA-256 of tested working-tree inputs; changes may be uncommitted",
+  "seed": 23063,
+  "tool_versions": {
+    "iverilog": "Icarus Verilog version 13.0 (devel) (s20221226-554-g25a84d5cf-dirty)",
+    "vvp": "Icarus Verilog runtime version 13.0 (devel) (s20221226-554-g25a84d5cf-dirty)"
+  },
+  "python": "3.10.12",
+  "cases": [
+    {
+      "view": "model",
+      "status": "PASS",
+      "depth": 4,
+      "seed": 23063,
+      "random_ops": 2048,
+      "transactions": 2504,
+      "checks": 15619,
+      "control_transitions": 64,
+      "controls": [
+        286,
+        473,
+        374,
+        257,
+        266,
+        281,
+        273,
+        294
+      ],
+      "read_addresses": [
+        111,
+        136,
+        115,
+        111
+      ],
+      "write_addresses": [
+        91,
+        100,
+        91,
+        92
+      ]
+    },
+    {
+      "view": "model",
+      "status": "PASS",
+      "depth": 8,
+      "seed": 23063,
+      "random_ops": 2048,
+      "transactions": 3088,
+      "checks": 19187,
+      "control_transitions": 64,
+      "controls": [
+        290,
+        949,
+        458,
+        261,
+        270,
+        285,
+        277,
+        298
+      ],
+      "read_addresses": [
+        116,
+        129,
+        113,
+        109,
+        114,
+        126,
+        121,
+        121
+      ],
+      "write_addresses": [
+        59,
+        66,
+        63,
+        49,
+        53,
+        55,
+        49,
+        64
+      ]
+    },
+    {
+      "view": "model",
+      "status": "PASS",
+      "depth": 16,
+      "seed": 23063,
+      "random_ops": 2048,
+      "transactions": 5024,
+      "checks": 30931,
+      "control_transitions": 64,
+      "controls": [
+        298,
+        2669,
+        626,
+        269,
+        278,
+        293,
+        285,
+        306
+      ],
+      "read_addresses": [
+        167,
+        180,
+        167,
+        165,
+        168,
+        175,
+        172,
+        169,
+        164,
+        164,
+        161,
+        159,
+        161,
+        166,
+        164,
+        167
+      ],
+      "write_addresses": [
+        39,
+        46,
+        50,
+        35,
+        39,
+        34,
+        33,
+        40,
+        41,
+        41,
+        34,
+        35,
+        35,
+        42,
+        37,
+        45
+      ]
+    },
+    {
+      "view": "model",
+      "status": "PASS",
+      "depth": 32,
+      "seed": 23063,
+      "random_ops": 2048,
+      "transactions": 11968,
+      "checks": 72851,
+      "control_transitions": 64,
+      "controls": [
+        314,
+        9181,
+        962,
+        285,
+        294,
+        309,
+        301,
+        322
+      ],
+      "read_addresses": [
+        283,
+        302,
+        286,
+        287,
+        286,
+        286,
+        286,
+        283,
+        284,
+        286,
+        285,
+        285,
+        285,
+        288,
+        283,
+        288,
+        291,
+        285,
+        288,
+        285,
+        289,
+        296,
+        293,
+        293,
+        287,
+        285,
+        283,
+        281,
+        283,
+        285,
+        288,
+        286
+      ],
+      "write_addresses": [
+        28,
+        33,
+        42,
+        31,
+        28,
+        28,
+        26,
+        29,
+        30,
+        31,
+        28,
+        29,
+        30,
+        36,
+        29,
+        35,
+        32,
+        34,
+        29,
+        25,
+        32,
+        27,
+        28,
+        32,
+        32,
+        31,
+        27,
+        27,
+        26,
+        27,
+        29,
+        31
+      ]
+    },
+    {
+      "view": "wrapper",
+      "status": "PASS",
+      "depth": 4,
+      "seed": 23063,
+      "random_ops": 2048,
+      "transactions": 2504,
+      "checks": 15619,
+      "control_transitions": 64,
+      "controls": [
+        286,
+        473,
+        374,
+        257,
+        266,
+        281,
+        273,
+        294
+      ],
+      "read_addresses": [
+        111,
+        136,
+        115,
+        111
+      ],
+      "write_addresses": [
+        91,
+        100,
+        91,
+        92
+      ]
+    }
+  ],
+  "controller": {
+    "checks": 96,
+    "controls": 8,
+    "addresses": 4
+  },
+  "rejected_depths": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    64
+  ],
+  "detected_mutants": [
+    "wrong_capture_edge",
+    "address_alias",
+    "missing_bus_mask",
+    "corrupt_write_data",
+    "invalid_control_write",
+    "live_address"
+  ],
+  "clocked_process_audit": [
+    {
+      "file": "rtl/sram_controller.v",
+      "events": [
+        "posedge CLK"
+      ]
+    },
+    {
+      "file": "rtl/sram_4x8_wrapper.v",
+      "events": [
+        "negedge CLK"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "docs/sram_4x8_interfaces.md": "60708c05699e51cd316d1300b5ba823676142c78705a7ac1ff33cd85800665b0",
+    "rtl/model.f": "7dd5702ba882f26a0591e77e2d3a306a363b854f8e26ecfad593b43b04b3bcd7",
+    "rtl/row_decoder_2to4.v": "803e247d68a9283e3b7e42459f651e84488bada45557ba48a11cb577b2d98269",
+    "rtl/sram_4x8_macro_bb.v": "428a8194602a823e529ad8015387f09d9ddd6cf5e5119cd0401a80cbd6f86f35",
+    "rtl/sram_4x8_macro_model.v": "b4d060500fc6910d56e449ce755eecd67db612e69ed945fe0f176adc6a904a09",
+    "rtl/sram_4x8_wrapper.v": "b424ef2f767417b288cd0e5a2742af34100ddffe7cadb32a5a803bbf12d1f6cc",
+    "rtl/sram_controller.v": "ab1da9237859d1ae343e5dfa5212a74b5774ffb844908f26b80a7c110ba26b2c",
+    "rtl/sram_model.v": "3c60b89cf12285e9c9ae955bd3c023343c99a7e391fbd1f6e6339a202cab80de",
+    "rtl/wrapper_sim.f": "341419bbfb52ebd608fd94d79c7d3f12e843fbd610a10aa7ec7afbc927d8bbd4",
+    "rtl/wrapper_synth.f": "13913c68b8a44baffe77aa46c795f1f6a7ac9739d816d2dddcdea8f3d9f672df",
+    "scripts/run_rtl.sh": "c85392c7528cdef20db8483d2cc00e43cfb33c35a506cd61180e443742b63d5e",
+    "specs/sram_4x8_digital.md": "a59f7f88076de60413e93c239e214ef443c6fcfb3cb8ce15a2106a7c72efe601",
+    "specs/technical_specification.md": "46866226ad7633966355f6c84b5b28dbe1758d6e36c345f25e1243f92f037334",
+    "tb/sram_ref_model.sv": "4ed6874211d334ed2d890fafb05e5fe1b03e471368318ef4c69ba0d492b37b91",
+    "tb/tb_sram_4x8.sv": "fd49505bad574bbf1da01de3b66c08087057f2fe216840b111c760264f3d1cea",
+    "tb/tb_sram_control.sv": "98ffa09a97269aff6e77230ccaeb7b82d9ab604fb1f20df0fdb365202227ba10",
+    "tb/tb_sram_depth_guard.v": "f04bb2d4e48426df3b215014bbc29f9daf34e79437a2cc20c0e6d58e45045935",
+    "tools/run_digital_regression.py": "cef4c12fec7cc4074831e9b5c66adeadf20d28387ed16f523dad445771f70a4a",
+    "tools/tests/test_digital_regression.py": "a35b80f1a94240754b40aebab3867f4d22003a571349bb36795c2b302d824837"
+  },
+  "commands": [
+    [
+      "iverilog",
+      "-g2005",
+      "-Wall",
+      "-s",
+      "sram_model",
+      "-o",
+      "/work/build/digital/verilog2005.vvp",
+      "rtl/sram_model.v"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "sram_4x8_wrapper",
+      "-o",
+      "/work/build/digital/blackbox_elaboration.vvp",
+      "rtl/sram_controller.v",
+      "rtl/sram_4x8_macro_bb.v",
+      "rtl/sram_4x8_wrapper.v"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_control",
+      "-o",
+      "/work/build/digital/control.vvp",
+      "rtl/sram_controller.v",
+      "rtl/row_decoder_2to4.v",
+      "tb/tb_sram_control.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/control.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/model_4x8.vvp",
+      "-Ptb_sram_4x8.DEPTH=4",
+      "rtl/sram_model.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/model_4x8.vvp",
+      "+seed=23063",
+      "+random_ops=2048",
+      "+vcd=/work/build/digital/model_4x8.vcd"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/model_8x8.vvp",
+      "-Ptb_sram_4x8.DEPTH=8",
+      "rtl/sram_model.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/model_8x8.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/model_16x8.vvp",
+      "-Ptb_sram_4x8.DEPTH=16",
+      "rtl/sram_model.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/model_16x8.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/model_32x8.vvp",
+      "-Ptb_sram_4x8.DEPTH=32",
+      "rtl/sram_model.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/model_32x8.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/wrapper_4x8.vvp",
+      "-Ptb_sram_4x8.DEPTH=4",
+      "-DTEST_WRAPPER",
+      "rtl/sram_controller.v",
+      "rtl/sram_4x8_macro_model.v",
+      "rtl/sram_4x8_wrapper.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/wrapper_4x8.vvp",
+      "+seed=23063",
+      "+random_ops=2048",
+      "+vcd=/work/build/digital/wrapper_4x8.vcd"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_depth_guard",
+      "-o",
+      "/work/build/digital/reject_depth_0.vvp",
+      "-Ptb_sram_depth_guard.DEPTH=0",
+      "rtl/sram_model.v",
+      "tb/tb_sram_depth_guard.v"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/reject_depth_0.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_depth_guard",
+      "-o",
+      "/work/build/digital/reject_depth_1.vvp",
+      "-Ptb_sram_depth_guard.DEPTH=1",
+      "rtl/sram_model.v",
+      "tb/tb_sram_depth_guard.v"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/reject_depth_1.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_depth_guard",
+      "-o",
+      "/work/build/digital/reject_depth_2.vvp",
+      "-Ptb_sram_depth_guard.DEPTH=2",
+      "rtl/sram_model.v",
+      "tb/tb_sram_depth_guard.v"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/reject_depth_2.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_depth_guard",
+      "-o",
+      "/work/build/digital/reject_depth_3.vvp",
+      "-Ptb_sram_depth_guard.DEPTH=3",
+      "rtl/sram_model.v",
+      "tb/tb_sram_depth_guard.v"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/reject_depth_3.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_depth_guard",
+      "-o",
+      "/work/build/digital/reject_depth_5.vvp",
+      "-Ptb_sram_depth_guard.DEPTH=5",
+      "rtl/sram_model.v",
+      "tb/tb_sram_depth_guard.v"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/reject_depth_5.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_depth_guard",
+      "-o",
+      "/work/build/digital/reject_depth_64.vvp",
+      "-Ptb_sram_depth_guard.DEPTH=64",
+      "rtl/sram_model.v",
+      "tb/tb_sram_depth_guard.v"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/reject_depth_64.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/mutant_wrong_capture_edge.vvp",
+      "/work/build/digital/mutant_wrong_capture_edge.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/mutant_wrong_capture_edge.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/mutant_address_alias.vvp",
+      "/work/build/digital/mutant_address_alias.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/mutant_address_alias.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/mutant_missing_bus_mask.vvp",
+      "/work/build/digital/mutant_missing_bus_mask.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/mutant_missing_bus_mask.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/mutant_corrupt_write_data.vvp",
+      "/work/build/digital/mutant_corrupt_write_data.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/mutant_corrupt_write_data.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/mutant_invalid_control_write.vvp",
+      "/work/build/digital/mutant_invalid_control_write.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/mutant_invalid_control_write.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ],
+    [
+      "iverilog",
+      "-g2012",
+      "-Wall",
+      "-s",
+      "tb_sram_4x8",
+      "-o",
+      "/work/build/digital/mutant_live_address.vvp",
+      "/work/build/digital/mutant_live_address.v",
+      "tb/sram_ref_model.sv",
+      "tb/tb_sram_4x8.sv"
+    ],
+    [
+      "vvp",
+      "/work/build/digital/mutant_live_address.vvp",
+      "+seed=23063",
+      "+random_ops=2048"
+    ]
+  ],
+  "waveforms": [
+    {
+      "file": "waveforms/model_4x8.vcd",
+      "stop_ns": 180,
+      "sha256": "1b8b1413d7cb03b1d8b2ee1f0da18227ff2f38d15ae572492d255a4040aad5d1"
+    },
+    {
+      "file": "waveforms/wrapper_4x8.vcd",
+      "stop_ns": 180,
+      "sha256": "d12cb4b25d8ded3cdf8ea2e01854e46afd6fe28a7134abfc7b80f8ea9ed3ed2c"
+    }
+  ],
+  "log_sha256": {
+    "logs/blackbox_elaboration_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/control.txt": "23021947f6b93e4146014ebac52304fce74a0553b8da9f4b47358a823ddec62c",
+    "logs/control_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/model_16x8.txt": "ef2bf09fdc2f7cb332ec26d6efbf9408d832c70327379355d106cf30fd632f94",
+    "logs/model_16x8_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/model_32x8.txt": "644fa19712dd258f6c866f7fcd633dbae2edbc37f338cbef3af301fa87d64736",
+    "logs/model_32x8_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/model_4x8.txt": "6fd76ad5d722b7350975f8b4bab2f6f97866974cbc126f320025e5362b3f48b6",
+    "logs/model_4x8_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/model_8x8.txt": "54e5ed41afacc88e863996010785a401d5a17d25e43e62f47d69db33aa4c94e7",
+    "logs/model_8x8_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/mutant_address_alias.txt": "9c749fc99969648c8d671604100740f35044c9b02ae944a1f8ca797ff5c03686",
+    "logs/mutant_address_alias_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/mutant_corrupt_write_data.txt": "5552be9937a63001977b8af57a68c5134fc45b49c95a12f0edea3fb5ff17baaa",
+    "logs/mutant_corrupt_write_data_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/mutant_invalid_control_write.txt": "d3cae53f0bb92738a3b204b97c014f4523837046d77bb3477dee52e24e67662c",
+    "logs/mutant_invalid_control_write_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/mutant_live_address.txt": "24ef1fdd33269d7c5f2fe62f80ee832313580672b67e377f253f0d9c2bd85be6",
+    "logs/mutant_live_address_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/mutant_missing_bus_mask.txt": "6275e16584594b8375d5899363d76a152143db6023040f16420121386659e447",
+    "logs/mutant_missing_bus_mask_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/mutant_wrong_capture_edge.txt": "957d24ec01692d4d2a0878915b8c87ed31202f406a567ea7cbfc82196afaa6de",
+    "logs/mutant_wrong_capture_edge_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/reject_depth_0.txt": "d922d41d5cba6849c43c1bc1c3dfae6af80c57bec9726c99f36e4b18e700fd30",
+    "logs/reject_depth_0_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/reject_depth_1.txt": "6f5b531bd8c11d59f2e78b68191855820e0e1ea0193cd56f73c7f4a3aadb7e34",
+    "logs/reject_depth_1_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/reject_depth_2.txt": "74c35515b85621a0fc0604cba3bba1a60f85f51f61c30e87d37cd913d046dbba",
+    "logs/reject_depth_2_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/reject_depth_3.txt": "34b75b77e2363c2a1302022c850e3a0eb5a7c0e322e6f23c758aba6b3dbc3883",
+    "logs/reject_depth_3_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/reject_depth_5.txt": "b8252764b707245a0157c673802fea4a352f914782bd002d7a23b43974b91f42",
+    "logs/reject_depth_5_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/reject_depth_64.txt": "bfce35db921e9c45591ed3cde79259b95b376325a59b15ddd4158e5ec4875066",
+    "logs/reject_depth_64_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/verilog2005_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/wrapper_4x8.txt": "ed8b4af2144de82bfca6d2463ca658d9cee52e7c407c5721d63bf958deb0b267",
+    "logs/wrapper_4x8_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "not_evaluated": [
+    "Yosys synthesis/latch statistics",
+    "GLS",
+    "SDC/SDF timing",
+    "analog power-up",
+    "PCLK/PRECH electrical sequencing",
+    "integrated physical SRAM read/write",
+    "frequency and electrical margins"
+  ]
+}
