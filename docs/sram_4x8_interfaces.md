@@ -2,10 +2,18 @@
 
 The [digital contract](../specs/sram_4x8_digital.md) and
 [technical specification](../specs/technical_specification.md) define behavior.
-This implementation is functional verification, not an integrated transistor
-macro or a compiler-generated physical view.
+The file lists described here are the functional RTL view. The separate
+[physical 4x8 prototype](phase2_execution.md) now has a mapped binding,
+GDSII/LEF and nominal transistor-level checks; RTL simulation alone does not
+establish those physical results.
 The [dated implementation review](phase2_digital_implementation_20261030.md)
 records the reproduced checks and preservation audit.
+
+The [public timing contract](../specs/sram_4x8_timing_contract.md) consolidates
+edge semantics, bus ownership, the measured nominal capture windows and the
+still-uncharacterized external timing parameters. The
+[final Phase 2 polish](phase2_final_polish.md) records the additional no-reset
+startup campaign; its nominal scenarios are not a universal startup guarantee.
 
 ## Implementation hierarchy
 
@@ -25,7 +33,7 @@ flowchart LR
 | `sram_controller` | Registered 4x8 request; no FSM or reset | Yes |
 | `sram_4x8_wrapper` | Shared bus, controller, macro and read register | Yes |
 | `sram_4x8_macro` simulation definition | Functional substitute for custom storage/peripherals | No |
-| `sram_4x8_macro` black-box definition | Future physical binding boundary | Yes |
+| `sram_4x8_macro` black-box definition | Synthesis boundary; physical binding is in `physical/phase2/macro_binding.v` | Yes |
 | `row_decoder_2to4` | Logical selection reference for unit verification | No |
 
 ## Internal macro boundary
@@ -56,9 +64,11 @@ Use **one** of these file lists, never both macro definitions together:
 - `rtl/wrapper_synth.f`: wrapper with macro black box; no FF-based array.
 
 These lists contain repository-root-relative paths. They are parsed from the
-repository root by the regression runner. Actual SKY130HD synthesis, timing
-constraints and GLS are the next front; compilation of the black box does not
-establish a physical binding or a synthesis result.
+repository root by the regression runner. Actual SKY130HD synthesis and GLS
+are available through `scripts/run_synth.sh`; the experimental clock-only
+constraints are in `physical/phase2/experimental.sdc`. Compilation of a black
+box alone does not establish synthesis or physical timing. The macro still
+has no characterized Liberty timing model.
 
 ## Run and inspect
 

@@ -1,0 +1,416 @@
+[
+  {
+    "title": "Open-Source SRAM\nMemory Compiler",
+    "kicker": "PHASE 2 · TECHNICAL REVIEW",
+    "kind": "cover",
+    "bullets": [
+      "Digital Control, Physical Integration and Experimental Validation of a 4×8 SRAM in SKY130",
+      "Equipe: Danilo · André · Leonardo"
+    ],
+    "takeaway": "Implementação e auditoria concluídas no escopo experimental; revisão formal pendente.",
+    "source": [
+      "README.md",
+      "GITFLOW.md"
+    ],
+    "speech": "Bom dia. Vamos apresentar a integração da Fase 2: partimos das células customizadas da fase anterior e chegamos a uma SRAM 4 por 8 fisicamente conectada. O foco é mostrar como RTL, controle elétrico, layout e verificação se relacionam. A entrega tem fontes, artefatos e evidências rastreáveis. Vou separar o que foi implementado, o que os ensaios comprovam e o que continua sem caracterização.",
+    "caveat": "Não há afiliação institucional ou nomes de orientadores confirmados nas fontes usadas; esses campos foram omitidos.",
+    "transition": "Começo pela motivação e pelo tamanho do primeiro protótipo."
+  },
+  {
+    "title": "Uma ponte entre lógica e silício",
+    "kicker": "CONTEXTO",
+    "kind": "cards",
+    "bullets": [
+      "SRAM customizada: armazenamento e periféricos projetados no nível de transistor.",
+      "Compilador: composição repetível das células e geração de vistas físicas.",
+      "4×8: primeiro alvo físico; RTL já exercita 4, 8, 16 e 32 palavras."
+    ],
+    "takeaway": "O protótipo pequeno permite inspecionar a integração completa.",
+    "source": [
+      "specs/technical_specification.md",
+      "docs/phase2_execution.md"
+    ],
+    "speech": "Uma SRAM customizada depende tanto da bitcell quanto de seleção de linha, bitlines e leitura diferencial. O compilador organiza essas peças de maneira repetível. Começamos com quatro palavras de oito bits, sem multiplexação de colunas, para conseguir analisar cada interface. Isso não significa que já exista geração física para as quatro profundidades previstas. Hoje a vista física entregue é 4 por 8; as maiores têm evidência RTL.",
+    "caveat": "Não atribuir densidade ou eficiência comercial ao floorplan experimental.",
+    "transition": "A Fase 2 teve dois aceites complementares."
+  },
+  {
+    "title": "Dois marcos, duas evidências",
+    "kicker": "OBJETIVO DA FASE 2",
+    "kind": "gates",
+    "bullets": [
+      "F2-DIG: mapear controle e registradores em SKY130HD e verificar a netlist por GLS.",
+      "F2-FIS: conectar células reais, gerar o GDS e demonstrar acesso elétrico com DRC/LVS."
+    ],
+    "takeaway": "Uma SRAM funcional em Verilog não comprova uma SRAM física.",
+    "source": [
+      "docs/phase2_review_20261104_acceptance.md"
+    ],
+    "speech": "Separamos os aceites para não confundir níveis de abstração. A frente digital precisa preservar a arquitetura durante a síntese. A frente física precisa conectar as bitcells e os periféricos, verificar a geometria e recuperar dados por circuitos reais. Um núcleo customizado pronto também não basta: o top precisa incluir registradores, controle e barramento. O parecer atual aceita esses resultados dentro do experimento nominal, aguardando revisão da equipe.",
+    "caveat": "Aprovação experimental é diferente de aprovação formal dos orientadores.",
+    "transition": "Essa integração reutiliza uma seleção congelada da Fase 1."
+  },
+  {
+    "title": "Seis famílias, 401 MOS customizados",
+    "kicker": "HERANÇA DA FASE 1",
+    "kind": "leaves",
+    "bullets": [
+      "32 bitcells 6T · 1 decoder dinâmico de 33 MOS · 4 WL drivers",
+      "8 precharge · 8 write drivers · 8 sense amplifiers",
+      "Seleção congelada: release/phase1_current.json"
+    ],
+    "takeaway": "As folhas foram preservadas; adaptações de integração ficam fora delas.",
+    "source": [
+      "release/phase1_current.json",
+      "release/phase1_keeper/manifest.json",
+      "docs/phase2_review_20261104.md"
+    ],
+    "speech": "A bitcell armazena o bit; o decoder e o wordline driver selecionam a linha; o precharge prepara o par de bitlines; o write driver aplica dados complementares; e o sense amplifier resolve a leitura. A composição soma 401 MOS. O decoder selecionado já é a revisão de 33 MOS com quatro keepers, não a versão histórica de 29. Preservar o manifesto evita misturar células de campanhas diferentes.",
+    "caveat": "A autoria de cada família segue o histórico; integração não substitui o trabalho anterior.",
+    "transition": "Agora mostro como essas células se conectam à lógica digital."
+  },
+  {
+    "title": "Arquitetura integrada",
+    "kicker": "SRAM SÍNCRONA 1RW",
+    "kind": "architecture",
+    "bullets": [
+      "Azul: células padrão SKY130HD",
+      "Verde: seis famílias customizadas",
+      "12 FF de requisição + 8 FF de leitura; DATA bidirecional."
+    ],
+    "takeaway": "Uma palavra de oito bits por linha física, sem column mux.",
+    "source": [
+      "rtl/sram_4x8_wrapper.v",
+      "physical/phase2/macro_binding.v"
+    ],
+    "speech": "À esquerda está a interface pública. Na subida do clock capturamos dois bits de endereço, oito dados de escrita e dois pedidos de operação. O controle de fases fica entre esses pedidos e o núcleo. Na saída, oito registradores capturam a leitura na descida e oito buffers tri-state controlam o barramento. As cores distinguem as standard cells dos circuitos customizados. O desenho é explicativo; a conectividade efetiva é verificada no layout extraído.",
+    "caveat": "São 20 FF de controle/captura, e não 32 FF substituindo as bitcells.",
+    "transition": "Com a fronteira clara, podemos definir o protocolo externo."
+  },
+  {
+    "title": "O pedido é capturado; a saída é mascarada",
+    "kicker": "PROTOCOLO",
+    "kind": "protocol",
+    "bullets": [
+      "001 → leitura · 010 → escrita · demais combinações → nenhum novo acesso.",
+      "Subida: captura de ADDR, operação e DATA de escrita.",
+      "Descida: captura de leitura; o registro retém o último resultado.",
+      "DATA habilitado somente com READ_Q e controles vivos de leitura."
+    ],
+    "takeaway": "Mudar controles vivos pode liberar DATA sem cancelar o acesso capturado.",
+    "source": [
+      "specs/sram_4x8_digital.md",
+      "rtl/sram_controller.v",
+      "rtl/sram_4x8_wrapper.v"
+    ],
+    "speech": "Os códigos são apresentados na ordem CSb, OEb e WEb. Só 001 lê e 010 escreve. Depois da captura, o endereço e o dado interno permanecem registrados, mesmo se as entradas externas mudarem. A saída tem uma máscara combinacional adicional: ao retirar leitura viva, liberamos DATA, mas não abortamos a operação interna. Em leituras consecutivas o valor anterior pode continuar visível durante a fase alta. O novo valor pertence à captura na descida.",
+    "caveat": "O mestre deve aguardar a liberação real do driver antes de dirigir DATA; turnaround não está caracterizado.",
+    "transition": "Essas regras foram implementadas em vistas RTL separadas."
+  },
+  {
+    "title": "RTL e fronteira da macro",
+    "kicker": "IMPLEMENTAÇÃO DIGITAL",
+    "kind": "hierarchy",
+    "bullets": [
+      "sram_model: referência pública parametrizada.",
+      "sram_controller + wrapper: captura e interface 4×8.",
+      "macro_model: substituto funcional para simulação.",
+      "macro_bb: núcleo preservado como black box na síntese."
+    ],
+    "takeaway": "A definição comportamental de armazenamento não entra na fabricação.",
+    "source": [
+      "rtl/model.f",
+      "rtl/wrapper_sim.f",
+      "rtl/wrapper_synth.f"
+    ],
+    "speech": "Há uma vista simples do comportamento público e outra estrutural com controlador e wrapper. Na simulação digital, uma macro funcional fornece o armazenamento para exercitar a interface. Na síntese, usamos uma black box com os mesmos pinos. Assim o Yosys mapeia controle, FF e buffers sem converter a matriz em registradores. Depois essa fronteira é ligada ao núcleo físico. Também evitamos uma segunda captura de endereço, que acrescentaria um ciclo indevido.",
+    "caveat": "Não compilar simultaneamente as definições macro_model e macro_bb.",
+    "transition": "O comportamento foi comparado com um scoreboard independente."
+  },
+  {
+    "title": "Verificação orientada ao protocolo",
+    "kicker": "DESIGN VERIFICATION",
+    "kind": "digital_checks",
+    "bullets": [
+      "Scoreboard independente; sem reutilizar helpers do DUT.",
+      "Todos os endereços, 8 controles, 64 transições e padrões dirigidos.",
+      "2.048 operações pseudoaleatórias por regressão de memória.",
+      "154.303 checks RTL na campanha completa."
+    ],
+    "takeaway": "Conteúdo não escrito é desconhecido; mutantes verificam os observadores.",
+    "source": [
+      "tb/sram_ref_model.sv",
+      "reports/digital/phase2_review_20261104/results.json"
+    ],
+    "speech": "O scoreboard trabalha com transações e expectativas externas. Foram exercitados todos os endereços, os oito controles e suas transições ordenadas, além de 00, FF, AA, 55 e padrões walking. As alterações de entradas durante a fase alta verificam que usamos os valores capturados. Também há casos negativos deliberados para detectar borda errada e máscara ausente. Os 154 mil checks cobrem vários modelos e asserções por transação; não são 154 mil operações físicas.",
+    "caveat": "A regressão digital cobre profundidades maiores, sem afirmar layouts correspondentes.",
+    "transition": "A etapa seguinte verifica se a síntese preservou essa semântica."
+  },
+  {
+    "title": "Mapeamento real em SKY130HD",
+    "kicker": "SÍNTESE E GLS",
+    "kind": "synthesis",
+    "bullets": [
+      "20 flip-flops · 8 ebufn físicos · 1 macro customizada.",
+      "Sem latches inesperados ou armazenamento convertido em FF.",
+      "Piloto tri-state validou 0, 1 e Z.",
+      "15.619 checks GLS aprovados."
+    ],
+    "takeaway": "GLS sem atraso confirma comportamento, não fechamento de timing.",
+    "source": [
+      "reports/phase2/review_20261104/digital/results.json",
+      "reports/phase2/routed_gls/results.json"
+    ],
+    "speech": "O mapeamento foi feito com a Liberty da SKY130HD e os modelos de alimentação explícita. O barramento não ficou apenas como construção Verilog: há oito ebufn, com polaridade de enable conferida em um piloto e em um mutante. O wrapper passou nos 15.619 checks. A netlist roteada repetiu a mesma cobertura; não somamos as duas execuções como 31 mil testes exclusivos. Essa GLS usa atraso zero e uma macro funcional, portanto não mede o desempenho completo da SRAM.",
+    "caveat": "Liberty de mapeamento TT/25 °C; ensaio elétrico nominal a 27 °C.",
+    "transition": "Para verificar o circuito real, precisamos do binding de fases."
+  },
+  {
+    "title": "Pedidos digitais, fases elétricas",
+    "kicker": "INTERFACE DIGITAL–FÍSICA",
+    "kind": "binding",
+    "bullets": [
+      "ADDR_Q e DIN_Q estabilizam endereço e escrita.",
+      "READ_Q / WRITE_Q são pedidos, não pulsos diretos.",
+      "PCLK, PRECH, WE e SCLK coordenam acesso e recuperação.",
+      "DOUT_RAW alimenta o mux e o FF de saída."
+    ],
+    "takeaway": "Taps 24 / 40 / 60 / 80 são posições em uma cadeia de inversores.",
+    "source": [
+      "specs/phase2_physical_interface.md",
+      "physical/phase2/macro_binding.v"
+    ],
+    "speech": "O núcleo recebe requisições já capturadas. A cadeia de 80 inversores e as portas qualificadoras geram separação entre liberação da pré-carga, escrita, avaliação e sense. PCLK é qualificado por validade e clock; cada DEC também é qualificado antes do driver de wordline. O sense persiste depois da descida o suficiente para a captura local. As posições dos taps não representam nanossegundos e não constituem uma solução qualificada para todos os corners.",
+    "caveat": "Não há FSM dedicada, replica bitline ou reset acrescentado.",
+    "transition": "O decoder dinâmico é uma parte essencial dessa sequência."
+  },
+  {
+    "title": "Pré-carga, avaliação e retenção",
+    "kicker": "DECODER DINÂMICO",
+    "kind": "decoder",
+    "bullets": [
+      "PCLK baixo: PMOS carregam os quatro nós internos.",
+      "PCLK alto: o endereço capturado descarrega apenas o caminho selecionado.",
+      "Quatro keepers restauram os nós não selecionados.",
+      "DEC qualificado → WL driver → linha física."
+    ],
+    "takeaway": "33 MOS oficiais; o decoder RTL permanece somente referência funcional.",
+    "source": [
+      "specs/technical_specification.md",
+      "release/phase1_keeper/manifest.json",
+      "docs/phase2_review_20261104.md"
+    ],
+    "speech": "No decoder dinâmico, primeiro carregamos os nós internos. Depois a combinação do endereço abre uma rede de descarga. O inversor desse caminho gera DEC ativo. O keeper de realimentação ajuda a manter alto um nó não selecionado e se desliga quando a saída correspondente sobe após descarga. A implementação usa um footer compartilhado para isolar avaliação. É importante respeitar os pinos por nome: no subcircuito congelado DEC3 aparece antes de DEC2, mas o mapeamento lógico das quatro linhas continua o binário esperado.",
+    "caveat": "O esquema visual deste slide é explicativo e não substitui o esquemático congelado.",
+    "transition": "O gerador reproduz essa conectividade ao compor a matriz."
+  },
+  {
+    "title": "Composição e verificação independente",
+    "kicker": "GERADOR PYTHON",
+    "kind": "generator",
+    "bullets": [
+      "4 linhas × 8 colunas; 32 bitcells e 8 pares BL/BLB.",
+      "Instâncias periféricas e pinos lidos dos artefatos congelados.",
+      "Magic: custom fabric; OpenROAD: integração com SKY130HD.",
+      "Auditor separado confere terminais, coordenadas e ordem dos bits."
+    ],
+    "takeaway": "A mesma configuração reproduziu GDS e SPICE equivalentes.",
+    "source": [
+      "tools/phase2_core.py",
+      "tools/run_phase2_fabric.py",
+      "tools/review_phase2_structure.py",
+      "reports/phase2/review_20261104/reproduction/results.json"
+    ],
+    "speech": "O gerador monta a matriz e os periféricos, produz referência e layout e exporta a fronteira física para a integração. Para evitar que o mesmo erro seja repetido no grafo e na geometria, usamos uma conferência independente da extração: cada WL tem 16 gates de acesso, correspondentes a duas portas por bitcell, e cada par BL/BLB corresponde à coluna correta. A reconstrução a partir das fontes produziu o mesmo GDS após normalizar datas e SPICE idêntico inclusive nas junções.",
+    "caveat": "O gerador físico entregue está limitado a 4×8; equivalência de artefatos não substitui leitura/escrita elétrica.",
+    "transition": "O resultado integrado está nesta geometria real."
+  },
+  {
+    "title": "O top-level físico entregue",
+    "kicker": "LAYOUT INTEGRADO",
+    "kind": "layout",
+    "bullets": [
+      "1.493 MOS: 401 customizados + 1.092 SKY130HD.",
+      "20 FF e lógica de fases, captura, interface e CTS.",
+      "Floorplan experimental: 540 × 380 µm."
+    ],
+    "takeaway": "Imagem do GDS real: M4/M5 e footprints das células padrão.",
+    "source": [
+      "reports/phase2/layout_overview/results.json",
+      "physical/phase2/delivery.json",
+      "reports/phase2/review_20261104/structure/results.json"
+    ],
+    "speech": "Esta imagem mostra a geometria realmente entregue, não uma ilustração genérica de chip. O total é de 1.493 MOS. Os 1.092 adicionais incluem 480 MOS dos vinte FF, 328 da lógica de captura e interface, 266 das fases e adaptadores e 18 de três buffers de clock. Taps e fillers ocupam geometria, mas seus modelos usados aqui não acrescentam MOS à contagem. A dimensão do top é um floorplan experimental e não uma macro compacta otimizada.",
+    "caveat": "A visualização não comprova DRC ou LVS; essas verificações vêm separadamente.",
+    "transition": "Primeiro mostro a sequência elétrica efetivamente observada."
+  },
+  {
+    "title": "Da pré-carga à captura",
+    "kicker": "FORMAS DE ONDA REAIS",
+    "kind": "phases",
+    "bullets": [
+      "PRECH libera antes de WE/WL.",
+      "WL seleciona a linha; BL/BLB desenvolvem diferencial.",
+      "SCLK regenera e o FF captura após a descida pública."
+    ],
+    "takeaway": "TT · 1,8 V · 27 °C · conectividade e junções extraídas, sem wire RC.",
+    "source": [
+      "reports/phase2/final_polish_20261104/startup_extended/r1_idle2/results.json",
+      "reports/phase2/final_polish_20261104/events/results.json"
+    ],
+    "speech": "Este é um recorte real contendo escrita e leitura do cenário de partida com dois ciclos inativos. PRECH é ativo baixo; por isso precisamos que suba antes de WE e da wordline. Durante a leitura aparece a separação entre BL e BLB, seguida da regeneração do sense. A captura nos FF tem atraso local em relação à descida externa. As verificações analisaram todas as amostras, inclusive a recuperação, e não apenas o valor final de DATA.",
+    "caveat": "As curvas não contêm PEX RC detalhado das interconexões.",
+    "transition": "A separação entre as fases precisou de correções durante o desenvolvimento."
+  },
+  {
+    "title": "Problemas reais, correções rastreáveis",
+    "kicker": "ENGENHARIA",
+    "kind": "issues",
+    "bullets": [
+      "WE antecipado: guarda −232,897 ps → tap 40 → +167,388 ps no piloto.",
+      "Roteamento: anel de obstrução de 5 nm isolava acessos M4.",
+      "Importação: vias tecnológicas e vistas físicas reais precisaram ser preservadas."
+    ],
+    "takeaway": "Readback correto, sozinho, não revelava todos os problemas.",
+    "source": [
+      "docs/phase2_execution.md",
+      "reports/phase2/phase_guard_review/results.json"
+    ],
+    "speech": "O primeiro exemplo é elétrico: o dado lido estava correto, mas WE começava enquanto a pré-carga ainda não tinha liberado. Corrigimos a qualificação para o tap 40 e preservamos os dois resultados. No roteamento, uma subtração de obstruções deixava um anel de cinco nanômetros fechando o acesso ao pino. Corrigimos a exportação do pad real, sem alterar a célula. Por fim, a importação no Magic precisava carregar vias tecnológicas e vistas físicas de taps e fillers. Isso mostra por que uma saída de ferramenta ou uma única simulação não bastam.",
+    "caveat": "As guardas citadas são dos pilotos históricos, não limites de PVT da macro final.",
+    "transition": "As correções foram fechadas com verificações físicas independentes."
+  },
+  {
+    "title": "Geometria e conectividade verificadas",
+    "kicker": "DRC · LVS · GDSII",
+    "kind": "physical_checks",
+    "bullets": [
+      "Magic: zero violações no GDS reimportado.",
+      "Netgen: correspondência expandida de modelos, terminais e dimensões.",
+      "Gate, bulk, W e L adulterados foram rejeitados.",
+      "1.493 MOS brutos → 1.459 equivalentes após redução legal de paralelos."
+    ],
+    "takeaway": "DRC verifica regras geométricas; LVS compara o circuito extraído.",
+    "source": [
+      "reports/phase2/final_gds/magic.txt",
+      "reports/phase2/final_gds/lvs.txt",
+      "reports/phase2/review_20261104/lvs_negative/results.json"
+    ],
+    "speech": "DRC e LVS respondem perguntas diferentes. DRC verifica regras de construção do layout. LVS compara o circuito que extraímos com a referência, incluindo o controle e os dispositivos reais. A comparação não usa uma black box para esconder o núcleo. Reimportamos o GDS final e repetimos a verificação. Os quatro defeitos deliberados foram rejeitados inclusive quando o Netgen retorna código de processo zero, por isso analisamos o conteúdo do log. A redução de paralelos explica a diferença de contagem sem remover MOS físicos.",
+    "caveat": "Zero DRC no deck público não equivale a signoff de foundry ou confiabilidade de fabricação.",
+    "transition": "Depois de verificar a geometria, exercitamos o armazenamento real."
+  },
+  {
+    "title": "Escrever, manter e recuperar",
+    "kicker": "VALIDAÇÃO ELÉTRICA",
+    "kind": "electrical",
+    "bullets": [
+      "Campanha original: 128 bits lidos + 392 checks adicionais.",
+      "Campanha dirigida: 1.332 checks totais, incluindo 160 bits lidos.",
+      "Walking-one/zero, perturbações pós-captura, idle e máscara viva."
+    ],
+    "takeaway": "Bitcells e sense amplifiers transistor-level; sem armazenamento comportamental.",
+    "source": [
+      "reports/phase2/extracted_access_singlethread/results.json",
+      "reports/phase2/review_20261104/directed/results.json",
+      "docs/phase2_final_polish.md"
+    ],
+    "speech": "A campanha original percorreu os endereços e verificou também o protocolo. A dirigida acrescentou padrões walking e mudanças no endereço e nos dados externos após a captura. O resultado continuou coerente com a requisição registrada. O gráfico complementar ilustra estados internos e leitura externa no circuito real, durante escrita e reescrita complementar. As 1.332 verificações já incluem os 160 bits lidos; não somamos esse subconjunto outra vez. Retenção e preservação são demonstradas nas janelas e padrões ensaiados.",
+    "caveat": "A figura é um recorte identificado de um ensaio real de partida; os totais da campanha dirigida vêm do receipt separado.",
+    "transition": "A temporização precisa distinguir disponibilidade interna de garantia externa."
+  },
+  {
+    "title": "Contrato temporal sem números inventados",
+    "kicker": "INTERFACE PÚBLICA",
+    "kind": "timing",
+    "bullets": [
+      "Subida: captura da requisição. Descida: captura da leitura.",
+      "RAW válido ~7,44 ns antes do clock local; FF_D ~7,25 ns.",
+      "Estabilidade posterior observada ≥2 ns: janela limitada.",
+      "20 ns = 50 MHz no experimento; Fmax e turnaround pendentes."
+    ],
+    "takeaway": "Janelas internas disponíveis não são setup/hold públicos da SRAM.",
+    "source": [
+      "specs/sram_4x8_timing_contract.md",
+      "reports/phase2/final_polish_20261104/capture_directed/results.json"
+    ],
+    "speech": "Formalizamos o comportamento, mas não preenchemos as lacunas com números arbitrários. SA_OUT e DOUT_RAW são o mesmo nó neste binding; depois há mux, FF e tri-state. As janelas próximas de 7,44 e 7,25 nanossegundos mostram estabilidade disponível antes do clock local. Os dois nanossegundos posteriores são o limite da observação, não hold mínimo. A comparação usa uma referência Liberty de 25 graus contra o ensaio de 27 graus. O clock de 20 nanossegundos é uma condição que funcionou, não a frequência máxima.",
+    "caveat": "Setup/hold externo, read-valid, enable/disable, turnaround e mínimo de partida não estão qualificados.",
+    "transition": "A última rodada também ampliou a partida sem reset."
+  },
+  {
+    "title": "Cinco partidas independentes",
+    "kicker": "SEM RESET EXTERNO",
+    "kind": "startup",
+    "bullets": [
+      "Rampas 1 / 5 / 10 ns; condicionamento de 0 / 2 / 3 ciclos nas combinações ensaiadas.",
+      "5 cenários PASS · 3.383 checks totais, incluindo 240 bits lidos.",
+      "Sem IC, nodeset ou conteúdo artificialmente imposto."
+    ],
+    "takeaway": "Zero ciclos inativos ainda incluiu 9 ns de espera após o plateau.",
+    "source": [
+      "reports/phase2/final_polish_20261104/startup_verification/results.json",
+      "docs/phase2_final_polish.md"
+    ],
+    "speech": "Cada cenário começou em um processo novo do simulador. Variamos rampa, quantidade de capturas inativas e primeira linha e palavra. A primeira operação foi escrita, seguida de leitura; depois escrevemos as outras linhas e reescrevemos a primeira com o complemento. O auditor conferiu os nós de armazenamento conhecidos, a pré-carga, a seleção e o barramento. Todos os cinco passaram. O caso sem ciclos inativos aguardou nove nanossegundos após o plateau. Mantivemos duas capturas inativas como procedimento de reprodução, sem alegar ganho estatístico ou mínimo universal.",
+    "caveat": "Cinco cenários direcionados não representam todas as rampas, estados iniciais, brownout ou PVT.",
+    "transition": "Podemos então consolidar os aceites sem misturar os escopos."
+  },
+  {
+    "title": "Resultados consolidados",
+    "kicker": "ACEITES SEPARADOS",
+    "kind": "results",
+    "bullets": [
+      "F2-DIG: síntese/GLS funcional aprovada.",
+      "F2-FIS: SRAM 4×8 integrada e aprovada no experimento nominal.",
+      "DRC/LVS e acessos reais, com artefatos e hashes rastreáveis.",
+      "Contrato temporal documentado e partida ampliada."
+    ],
+    "takeaway": "Desenvolvimento concluído no escopo experimental; revisão formal pendente.",
+    "source": [
+      "docs/phase2_review_20261104_acceptance.md",
+      "docs/phase2_final_polish.md",
+      "physical/phase2/delivery.json"
+    ],
+    "speech": "O resultado principal é a convergência das representações: o controle mapeado corresponde ao protocolo; o layout corresponde ao circuito; e o circuito recupera os dados nos ensaios reais. Mantemos os aceites separados, com a configuração e as condições explícitas. Os arquivos podem ser revisados pelo manifesto e pelo guia de reprodução. O pacote também preserva tentativas e correções históricas para não transformar tudo em uma sequência de PASS sem explicação.",
+    "caveat": "O parecer técnico não substitui a deliberação dos integrantes e orientadores.",
+    "transition": "As limitações delimitam o que o projeto ainda não está afirmando."
+  },
+  {
+    "title": "Limites reconhecidos",
+    "kicker": "ESCOPO EXPERIMENTAL",
+    "kind": "limits",
+    "bullets": [
+      "Fmax e temporização externa completa ainda não caracterizados.",
+      "Sem RC detalhado, robustez PVT ou partida estatística.",
+      "Sem potência/yield caracterizados ou qualificação de fabricação.",
+      "Geração física 8×8 / 16×8 / 32×8 continua fora desta entrega."
+    ],
+    "takeaway": "Conhecer o limite da evidência faz parte da conclusão técnica.",
+    "source": [
+      "specs/sram_4x8_timing_contract.md",
+      "docs/phase2_review_20261104_acceptance.md"
+    ],
+    "speech": "Esses pontos são limites do trabalho realizado e não defeitos automaticamente atribuídos ao circuito. O protótipo funciona no ponto TT, 1,8 volts e 27 graus, com interconexões sem RC detalhado. Ainda não medimos frequência máxima, pior caso externo ou variabilidade estatística. A limitação de cobertura de modelos da Fase 1 também continua registrada. Apontamos essas fronteiras sem iniciar agora a próxima fase.",
+    "caveat": "Não confundir o nominal experimental com robustez de fabricação.",
+    "transition": "Fecho com a contribuição concreta desta fase."
+  },
+  {
+    "title": "Da célula ao sistema SRAM",
+    "kicker": "CONCLUSÕES E DISCUSSÃO",
+    "kind": "closing",
+    "bullets": [
+      "Controle digital sintetizado e células customizadas integrados.",
+      "SRAM 4×8 física com leitura, escrita e captura demonstradas.",
+      "Fontes, vistas, evidências e procedimentos disponíveis para revisão."
+    ],
+    "takeaway": "Fase 2 tecnicamente concluída no escopo experimental. Fechamento acadêmico depende da equipe e dos orientadores.",
+    "source": [
+      "docs/phase2_reproduction_guide.md",
+      "docs/phase2_final_polish.md"
+    ],
+    "speech": "A Fase 2 transformou células individuais em uma SRAM 4 por 8 integrada, com controle digital mapeado, vistas físicas e leitura e escrita demonstradas. Conseguimos reproduzir a geometria e fortalecer a auditoria, sem esconder os problemas encontrados ou extrapolar o alcance do experimento. A entrega está pronta para revisão técnica. Gostaria de discutir com vocês a aceitação desse escopo e os parâmetros que precisam ser definidos antes de qualquer caracterização posterior. Obrigado.",
+    "caveat": "Sem aprovação formal atribuída antecipadamente aos orientadores.",
+    "transition": ""
+  }
+]
