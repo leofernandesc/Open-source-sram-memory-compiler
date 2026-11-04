@@ -82,6 +82,8 @@ for tool_dir in \
     /opt/magic/*/bin \
     /opt/netgen/*/bin \
     /opt/iverilog/*/bin \
+    /opt/yosys/*/bin \
+    /opt/openroad/*/bin \
     /opt/xschem/*/bin; do
     if [ -d "$tool_dir" ]; then
         PATH="$tool_dir:$PATH"
@@ -99,7 +101,7 @@ case "${1:-}" in
         failed=0
         printf 'Container: %s\nPDK: %s (%s)\n' "$HOSTNAME" "$PDK" "$PDK_ROOT/$PDK"
 
-        for tool in xschem ngspice magic netgen iverilog vvp gtkwave python3 git; do
+        for tool in xschem ngspice magic netgen iverilog vvp gtkwave yosys openroad python3 git; do
             if tool_path="$(command -v "$tool" 2>/dev/null)"; then
                 printf '%-10s %s\n' "$tool" "$tool_path"
             else

@@ -6,6 +6,14 @@ Magic, Netgen, Icarus Verilog, GTKWave, Python e gdstk. Alguns executáveis em
 `/opt` não estavam no `PATH`, e executar um script Python diretamente no host
 fazia seus subprocessos procurarem `xschem` no Ubuntu do host.
 
+Na auditoria de 2026-11-04, o container existente usa
+`isaiassh/unic-cass-tools:1.0.7`, image ID
+`sha256:921d95e8cd03b8fbe5cec683ea14add4c1b6e0db1d5d05187fac7deb16b5e0f8`.
+Foram encontrados Yosys 0.44, OpenROAD ee9759486, Magic 8.3.684,
+Netgen 1.5.293, ngspice 44.2 e Icarus 13.0 de desenvolvimento. O registro
+datado de 2026-10-08 abaixo é histórico, não uma exigência para reinstalar
+ou substituir a imagem atual. A Fase 2 não executa PEX RC detalhado.
+
 No checkout conferido em 2026-10-08, o container `sram-xschem` usa
 `isaiassh/unic-cass-tools:1.1.0`, com este repositório montado em `/work`.
 O `--check` confirma executáveis e arquivos SKY130A instalados; a tag sozinha
@@ -81,7 +89,7 @@ Para uma sessão interativa já configurada:
 ```
 
 Dentro dela, `xschem`, `ngspice`, `magic`, `netgen`, `iverilog`, `vvp`,
-`gtkwave` e `python3` estarão no `PATH`; `PDK` e `PDK_ROOT` também estarão
+`gtkwave`, `yosys`, `openroad` e `python3` estarão no `PATH`; `PDK` e `PDK_ROOT` também estarão
 definidos.
 
 Scripts que chamam ferramentas externas devem ser iniciados pelo lançador (ou
