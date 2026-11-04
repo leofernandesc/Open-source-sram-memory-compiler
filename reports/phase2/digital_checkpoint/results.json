@@ -1,0 +1,232 @@
+{
+  "status": "PASS",
+  "F2_DIG": "PASS_FUNCTIONAL_MAPPING_GLS",
+  "F2_FIS": "NOT_EVALUATED",
+  "scope": "SKY130HD mapping and power-aware zero-delay GLS; functional macro substitute",
+  "timing": "Custom macro has no characterized timing model; no SRAM timing closure",
+  "commands": [
+    {
+      "argv": [
+        "yosys",
+        "-V"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "yosys_version.txt"
+    },
+    {
+      "argv": [
+        "iverilog",
+        "-V"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "iverilog_version.txt"
+    },
+    {
+      "argv": [
+        "openroad",
+        "-version"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "openroad_version.txt"
+    },
+    {
+      "argv": [
+        "yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "tristate_pilot.ys"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "tristate_pilot_synthesis.txt"
+    },
+    {
+      "argv": [
+        "iverilog",
+        "-g2012",
+        "-DFUNCTIONAL",
+        "-DUSE_POWER_PINS",
+        "-DUNIT_DELAY=#0",
+        "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+        "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+        "/work/build/phase2/digital-xca_ee8m/tristate_pilot_powered.v",
+        "verification/phase2/tb_tristate.sv",
+        "-s",
+        "tb_tristate",
+        "-o",
+        "pilot.vvp"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "tristate_compile.txt"
+    },
+    {
+      "argv": [
+        "vvp",
+        "pilot.vvp"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "tristate_gls.txt"
+    },
+    {
+      "argv": [
+        "iverilog",
+        "-g2012",
+        "-DFUNCTIONAL",
+        "-DUSE_POWER_PINS",
+        "-DUNIT_DELAY=#0",
+        "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+        "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+        "tristate_mutant.v",
+        "verification/phase2/tb_tristate.sv",
+        "-s",
+        "tb_tristate",
+        "-o",
+        "mutant.vvp"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "tristate_mutant_compile.txt"
+    },
+    {
+      "argv": [
+        "vvp",
+        "mutant.vvp"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "tristate_mutant.txt"
+    },
+    {
+      "argv": [
+        "yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "sram_4x8_wrapper.ys"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "sram_4x8_wrapper_synthesis.txt"
+    },
+    {
+      "argv": [
+        "iverilog",
+        "-g2012",
+        "-DFUNCTIONAL",
+        "-DUSE_POWER_PINS",
+        "-DUNIT_DELAY=#0",
+        "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+        "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+        "/work/build/phase2/digital-xca_ee8m/sram_4x8_wrapper_powered.v",
+        "-DTEST_WRAPPER",
+        "rtl/sram_4x8_macro_model.v",
+        "tb/sram_ref_model.sv",
+        "tb/tb_sram_4x8.sv",
+        "-s",
+        "tb_sram_4x8",
+        "-o",
+        "wrapper.vvp"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "wrapper_compile.txt"
+    },
+    {
+      "argv": [
+        "vvp",
+        "wrapper.vvp",
+        "+seed=23063",
+        "+random_ops=2048"
+      ],
+      "cwd": "/work/build/phase2/digital-xca_ee8m",
+      "log": "wrapper_gls.txt"
+    }
+  ],
+  "build_directory": "build/phase2/digital-xca_ee8m",
+  "inputs": {
+    "rtl/sram_model.v": "3c60b89cf12285e9c9ae955bd3c023343c99a7e391fbd1f6e6339a202cab80de",
+    "rtl/row_decoder_2to4.v": "803e247d68a9283e3b7e42459f651e84488bada45557ba48a11cb577b2d98269",
+    "rtl/sram_4x8_macro_bb.v": "428a8194602a823e529ad8015387f09d9ddd6cf5e5119cd0401a80cbd6f86f35",
+    "rtl/sram_4x8_wrapper.v": "b424ef2f767417b288cd0e5a2742af34100ddffe7cadb32a5a803bbf12d1f6cc",
+    "rtl/sram_4x8_macro_model.v": "b4d060500fc6910d56e449ce755eecd67db612e69ed945fe0f176adc6a904a09",
+    "rtl/sram_controller.v": "ab1da9237859d1ae343e5dfa5212a74b5774ffb844908f26b80a7c110ba26b2c",
+    "tb/tb_sram_4x8.sv": "fd49505bad574bbf1da01de3b66c08087057f2fe216840b111c760264f3d1cea",
+    "tb/sram_ref_model.sv": "4ed6874211d334ed2d890fafb05e5fe1b03e471368318ef4c69ba0d492b37b91",
+    "synth/tristate_pilot.v": "9542b5aa2ea0fa1072e076b603c55359507afb63d3bcc595a13999d5e087d2c7",
+    "synth/sky130_tristate.v": "4b50e64bfbbdc5195091f7f502de71cdc84d0d2de86291b65f5da006713c18b6",
+    "verification/phase2/tb_tristate.sv": "2ef84c2b81b366e91388c903c0ce6b1ea7ea5c35efb2e598792735d18713713d",
+    "tools/run_phase2_digital.py": "951e779c595f79ffd2acbcb0b3288eb0231e3b4a4c2d4702cddb70307cd2ae57",
+    "tools/run_digital_regression.py": "83923265f201462f2231ddfa24fdb16659c8c85b25e5a86ff4d0c7dd5f640773",
+    "scripts/run_synth.sh": "508c6a44d5b4da6c71fef694482b1064dd13520c4773df396d4c0ab0d0980b32",
+    "tools/sram-eda": "09937e3321b55d9cc26f1f631b3f68ef714e4288071ef54ff14aae505524a35e"
+  },
+  "pdk": {
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v": "7d4b1441d06b0f2b9662befa675a0484d77149e04eb42a5f1fa2d4cfded7b2ce",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v": "fbf3b406a2ee7b47e4d28ab3f2ebf80e2a755a316fe8fb1f4b1873f71b563f3b"
+  },
+  "versions": {
+    "yosys": "Yosys 0.44 (git sha1 80ba43d26, g++ 11.4.0-1ubuntu1~22.04.2 -fPIC -O3)",
+    "iverilog": "Icarus Verilog version 13.0 (devel) (s20221226-554-g25a84d5cf-dirty)\n\nCopyright (c) 2000-2024 Stephen Williams (steve@icarus.com)\n\n  This program is free software; you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation; either version 2 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License along\n  with this program; if not, write to the Free Software Foundation, Inc.,\n  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n\nIcarus Verilog Preprocessor version 13.0 (devel) (s20221226-554-g25a84d5cf-dirty)\n\nCopyright (c) 1999-2024 Stephen Williams (steve@icarus.com)\n\n  This program is free software; you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation; either version 2 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License along\n  with this program; if not, write to the Free Software Foundation, Inc.,\n  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n\nIcarus Verilog Parser/Elaborator version 13.0 (devel) (s20221226-554-g25a84d5cf-dirty)\n\nCopyright (c) 1998-2024 Stephen Williams (steve@icarus.com)\n\n  This program is free software; you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation; either version 2 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License along\n  with this program; if not, write to the Free Software Foundation, Inc.,\n  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n\n FLAGS DLL vvp.tgt\nvvp.tgt: Icarus Verilog VVP Code Generator 13.0 (devel) (s20221226-554-g25a84d5cf-dirty)\n\nCopyright (c) 2001-2024 Stephen Williams (steve@icarus.com)\n\n  This program is free software; you can redistribute it and/or modify\n  it under the terms of the GNU General Public License as published by\n  the Free Software Foundation; either version 2 of the License, or\n  (at your option) any later version.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n  GNU General Public License for more details.\n\n  You should have received a copy of the GNU General Public License along\n  with this program; if not, write to the Free Software Foundation, Inc.,\n  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.",
+    "openroad": "v2.0-25787-gee9759486"
+  },
+  "tristate_pilot": {
+    "sky130_fd_sc_hd__clkinv_1": 1,
+    "sky130_fd_sc_hd__ebufn_1": 1
+  },
+  "tristate_negative": "POLARITY_DEFECT_REJECTED_BY_SCOREBOARD",
+  "sram_4x8_wrapper": {
+    "sky130_fd_sc_hd__clkinv_1": 8,
+    "sky130_fd_sc_hd__dfxtp_1": 20,
+    "sky130_fd_sc_hd__ebufn_1": 8,
+    "sky130_fd_sc_hd__mux2_1": 16,
+    "sky130_fd_sc_hd__nand2_1": 8,
+    "sky130_fd_sc_hd__nor3b_1": 2,
+    "sram_4x8_macro": 1
+  },
+  "gls_result": {
+    "depth": 4,
+    "seed": 23063,
+    "random_ops": 2048,
+    "transactions": 2504,
+    "checks": 15619,
+    "control_transitions": 64,
+    "controls": [
+      286,
+      473,
+      374,
+      257,
+      266,
+      281,
+      273,
+      294
+    ],
+    "read_addresses": [
+      111,
+      136,
+      115,
+      111
+    ],
+    "write_addresses": [
+      91,
+      100,
+      91,
+      92
+    ]
+  },
+  "artifacts": {
+    "tristate_pilot.ys": "2a05265731a91e12a6bc929bc47e5b82bec4e310a0b19264ec51417f92eb8a3c",
+    "tristate_pilot.json": "1ad87257c9df07d8f762f16824979302b744e32b433538da2cde12d41f27ffe4",
+    "sram_4x8_wrapper_powered.v": "e8795c7e3336154fc0579b42d5e558d3a1abd7ac7ae5a718b9239f2bdfafdefd",
+    "wrapper_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sram_4x8_wrapper_synthesis.txt": "006d38842547868551690f4241d99252becd252357ff05b2df08db1919c13339",
+    "openroad_version.txt": "c9e94ad3b58db9e46a38dc8316edb4c9e4ade9d21116852fc238e43f558337a6",
+    "iverilog_version.txt": "a59e28967872c9d9b99c3a9d64ca527714b36eee4de045b87e3f7d3af6935a42",
+    "tristate_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wrapper_gls.txt": "0da9d2ff8b0383450d7efbe0954dd5ddba92b33b803b620b14e2308cb9688ff7",
+    "sram_4x8_wrapper.ys": "22dfda05c6ef437a2200101f8be857a60964cb280945560e06d04342278ff28f",
+    "tristate_pilot_powered.v": "65f085249b570fef795e7e9c4d7d232835f41cefe0acb5c43c7f656bea832321",
+    "yosys_version.txt": "e82f801e61420b03917848797945f4f080fd624cab5e3c1da07b51873219551d",
+    "tristate_gls.txt": "3088b3fb566daf8b1f7c41e47b427bf83a2ea5abdfb27f215b69fa92f9f2b26d",
+    "tristate_pilot_synthesis.txt": "56dc22258a9156f1c38d181283a08f239720be80c9858db88b6f4e7f9918d121",
+    "sram_4x8_wrapper.json": "883a01bf5c02e32280d207e9cbbdb17544bf65100302b82045d95643db46d616",
+    "tristate_mutant_compile.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tristate_mutant.txt": "35dca4ae9dc49242eb1258344ef30a865c65a199be30bc43f6f6bdbee1024909"
+  }
+}

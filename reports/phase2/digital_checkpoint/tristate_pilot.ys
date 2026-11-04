@@ -1,0 +1,13 @@
+read_liberty -lib /opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog synth/tristate_pilot.v
+tribuf
+synth -top tristate_pilot -flatten -noabc
+dfflibmap -liberty /opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+techmap -map synth/sky130_tristate.v
+techmap
+abc -liberty /opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+clean
+check -assert
+stat -liberty /opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+write_json tristate_pilot.json
+write_verilog -noattr -noexpr tristate_pilot.v
