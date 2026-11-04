@@ -18,9 +18,9 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [README.md](../../README.md), [GITFLOW.md](../../GITFLOW.md)
 
 
-## Slide 2 — Uma ponte entre lógica e silício
+## Slide 2 — Contexto e escopo do projeto
 
-**Objetivo:** O protótipo pequeno permite inspecionar a integração completa.
+**Objetivo:** A implementação física desta entrega está limitada a quatro palavras de oito bits.
 
 **Fala sugerida:** Uma SRAM customizada depende tanto da bitcell quanto de seleção de linha, bitlines e leitura diferencial. O compilador organiza essas peças de maneira repetível. Começamos com quatro palavras de oito bits, sem multiplexação de colunas, para conseguir analisar cada interface. Isso não significa que já exista geração física para as quatro profundidades previstas. Hoje a vista física entregue é 4 por 8; as maiores têm evidência RTL.
 
@@ -33,9 +33,9 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [specs/technical_specification.md](../../specs/technical_specification.md), [docs/phase2_execution.md](../../docs/phase2_execution.md)
 
 
-## Slide 3 — Dois marcos, duas evidências
+## Slide 3 — Critérios de entrega da Fase 2
 
-**Objetivo:** Uma SRAM funcional em Verilog não comprova uma SRAM física.
+**Objetivo:** F2-DIG verifica mapeamento e comportamento; F2-FIS verifica integração e acesso elétrico.
 
 **Fala sugerida:** Separamos os aceites para não confundir níveis de abstração. A frente digital precisa preservar a arquitetura durante a síntese. A frente física precisa conectar as bitcells e os periféricos, verificar a geometria e recuperar dados por circuitos reais. Um núcleo customizado pronto também não basta: o top precisa incluir registradores, controle e barramento. O parecer atual aceita esses resultados dentro do experimento nominal, aguardando revisão da equipe.
 
@@ -48,9 +48,9 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [docs/phase2_review_20261104_acceptance.md](../../docs/phase2_review_20261104_acceptance.md)
 
 
-## Slide 4 — Seis famílias, 401 MOS customizados
+## Slide 4 — Células selecionadas na Fase 1
 
-**Objetivo:** As folhas foram preservadas; adaptações de integração ficam fora delas.
+**Objetivo:** O manifesto da Fase 1 seleciona as seis famílias e seus artefatos congelados.
 
 **Fala sugerida:** A bitcell armazena o bit; o decoder e o wordline driver selecionam a linha; o precharge prepara o par de bitlines; o write driver aplica dados complementares; e o sense amplifier resolve a leitura. A composição soma 401 MOS. O decoder selecionado já é a revisão de 33 MOS com quatro keepers, não a versão histórica de 29. Preservar o manifesto evita misturar células de campanhas diferentes.
 
@@ -63,9 +63,9 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [release/phase1_current.json](../../release/phase1_current.json), [release/phase1_keeper/manifest.json](../../release/phase1_keeper/manifest.json), [docs/phase2_review_20261104.md](../../docs/phase2_review_20261104.md)
 
 
-## Slide 5 — Arquitetura integrada
+## Slide 5 — Arquitetura da SRAM 4×8
 
-**Objetivo:** Uma palavra de oito bits por linha física, sem column mux.
+**Objetivo:** Organização física: quatro linhas de oito bits, sem multiplexação de colunas.
 
 **Fala sugerida:** À esquerda está a interface pública. Na subida do clock capturamos dois bits de endereço, oito dados de escrita e dois pedidos de operação. O controle de fases fica entre esses pedidos e o núcleo. Na saída, oito registradores capturam a leitura na descida e oito buffers tri-state controlam o barramento. As cores distinguem as standard cells dos circuitos customizados. O desenho é explicativo; a conectividade efetiva é verificada no layout extraído.
 
@@ -78,7 +78,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [rtl/sram_4x8_wrapper.v](../../rtl/sram_4x8_wrapper.v), [physical/phase2/macro_binding.v](../../physical/phase2/macro_binding.v)
 
 
-## Slide 6 — O pedido é capturado; a saída é mascarada
+## Slide 6 — Protocolo de leitura e escrita
 
 **Objetivo:** Mudar controles vivos pode liberar DATA sem cancelar o acesso capturado.
 
@@ -93,9 +93,9 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [specs/sram_4x8_digital.md](../../specs/sram_4x8_digital.md), [rtl/sram_controller.v](../../rtl/sram_controller.v), [rtl/sram_4x8_wrapper.v](../../rtl/sram_4x8_wrapper.v)
 
 
-## Slide 7 — RTL e fronteira da macro
+## Slide 7 — Hierarquia RTL
 
-**Objetivo:** A definição comportamental de armazenamento não entra na fabricação.
+**Objetivo:** A síntese preserva a fronteira da macro customizada.
 
 **Fala sugerida:** Há uma vista simples do comportamento público e outra estrutural com controlador e wrapper. Na simulação digital, uma macro funcional fornece o armazenamento para exercitar a interface. Na síntese, usamos uma black box com os mesmos pinos. Assim o Yosys mapeia controle, FF e buffers sem converter a matriz em registradores. Depois essa fronteira é ligada ao núcleo físico. Também evitamos uma segunda captura de endereço, que acrescentaria um ciclo indevido.
 
@@ -108,7 +108,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [rtl/model.f](../../rtl/model.f), [rtl/wrapper_sim.f](../../rtl/wrapper_sim.f), [rtl/wrapper_synth.f](../../rtl/wrapper_synth.f)
 
 
-## Slide 8 — Verificação orientada ao protocolo
+## Slide 8 — Cobertura da verificação digital
 
 **Objetivo:** Conteúdo não escrito é desconhecido; mutantes verificam os observadores.
 
@@ -123,7 +123,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [tb/sram_ref_model.sv](../../tb/sram_ref_model.sv), [reports/digital/phase2_review_20261104/results.json](../../reports/digital/phase2_review_20261104/results.json)
 
 
-## Slide 9 — Mapeamento real em SKY130HD
+## Slide 9 — Síntese e GLS em SKY130HD
 
 **Objetivo:** GLS sem atraso confirma comportamento, não fechamento de timing.
 
@@ -138,7 +138,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [reports/phase2/review_20261104/digital/results.json](../../reports/phase2/review_20261104/digital/results.json), [reports/phase2/routed_gls/results.json](../../reports/phase2/routed_gls/results.json)
 
 
-## Slide 10 — Pedidos digitais, fases elétricas
+## Slide 10 — Interface entre controle e núcleo
 
 **Objetivo:** Taps 24 / 40 / 60 / 80 são posições em uma cadeia de inversores.
 
@@ -153,7 +153,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [specs/phase2_physical_interface.md](../../specs/phase2_physical_interface.md), [physical/phase2/macro_binding.v](../../physical/phase2/macro_binding.v)
 
 
-## Slide 11 — Pré-carga, avaliação e retenção
+## Slide 11 — Decoder dinâmico e seleção de linha
 
 **Objetivo:** 33 MOS oficiais; o decoder RTL permanece somente referência funcional.
 
@@ -168,7 +168,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [specs/technical_specification.md](../../specs/technical_specification.md), [release/phase1_keeper/manifest.json](../../release/phase1_keeper/manifest.json), [docs/phase2_review_20261104.md](../../docs/phase2_review_20261104.md)
 
 
-## Slide 12 — Composição e verificação independente
+## Slide 12 — Geração da matriz e integração física
 
 **Objetivo:** A mesma configuração reproduziu GDS e SPICE equivalentes.
 
@@ -183,7 +183,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [tools/phase2_core.py](../../tools/phase2_core.py), [tools/run_phase2_fabric.py](../../tools/run_phase2_fabric.py), [tools/review_phase2_structure.py](../../tools/review_phase2_structure.py), [reports/phase2/review_20261104/reproduction/results.json](../../reports/phase2/review_20261104/reproduction/results.json)
 
 
-## Slide 13 — O top-level físico entregue
+## Slide 13 — Layout integrado da SRAM 4×8
 
 **Objetivo:** Imagem do GDS real: M4/M5 e footprints das células padrão.
 
@@ -198,7 +198,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [reports/phase2/layout_overview/results.json](../../reports/phase2/layout_overview/results.json), [physical/phase2/delivery.json](../../physical/phase2/delivery.json), [reports/phase2/review_20261104/structure/results.json](../../reports/phase2/review_20261104/structure/results.json)
 
 
-## Slide 14 — Da pré-carga à captura
+## Slide 14 — Sequenciamento elétrico de acesso
 
 **Objetivo:** TT · 1,8 V · 27 °C · conectividade e junções extraídas, sem wire RC.
 
@@ -213,7 +213,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [reports/phase2/final_polish_20261104/startup_extended/r1_idle2/results.json](../../reports/phase2/final_polish_20261104/startup_extended/r1_idle2/results.json), [reports/phase2/final_polish_20261104/events/results.json](../../reports/phase2/final_polish_20261104/events/results.json)
 
 
-## Slide 15 — Problemas reais, correções rastreáveis
+## Slide 15 — Problemas encontrados e correções
 
 **Objetivo:** Readback correto, sozinho, não revelava todos os problemas.
 
@@ -228,7 +228,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [docs/phase2_execution.md](../../docs/phase2_execution.md), [reports/phase2/phase_guard_review/results.json](../../reports/phase2/phase_guard_review/results.json)
 
 
-## Slide 16 — Geometria e conectividade verificadas
+## Slide 16 — Verificação física: DRC e LVS
 
 **Objetivo:** DRC verifica regras geométricas; LVS compara o circuito extraído.
 
@@ -243,7 +243,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [reports/phase2/final_gds/magic.txt](../../reports/phase2/final_gds/magic.txt), [reports/phase2/final_gds/lvs.txt](../../reports/phase2/final_gds/lvs.txt), [reports/phase2/review_20261104/lvs_negative/results.json](../../reports/phase2/review_20261104/lvs_negative/results.json)
 
 
-## Slide 17 — Escrever, manter e recuperar
+## Slide 17 — Simulação elétrica de leitura e escrita
 
 **Objetivo:** Bitcells e sense amplifiers transistor-level; sem armazenamento comportamental.
 
@@ -258,11 +258,11 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [reports/phase2/extracted_access_singlethread/results.json](../../reports/phase2/extracted_access_singlethread/results.json), [reports/phase2/review_20261104/directed/results.json](../../reports/phase2/review_20261104/directed/results.json), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)
 
 
-## Slide 18 — Contrato temporal sem números inventados
+## Slide 18 — Contrato temporal da interface
 
 **Objetivo:** Janelas internas disponíveis não são setup/hold públicos da SRAM.
 
-**Fala sugerida:** Formalizamos o comportamento, mas não preenchemos as lacunas com números arbitrários. SA_OUT e DOUT_RAW são o mesmo nó neste binding; depois há mux, FF e tri-state. As janelas próximas de 7,44 e 7,25 nanossegundos mostram estabilidade disponível antes do clock local. Os dois nanossegundos posteriores são o limite da observação, não hold mínimo. A comparação usa uma referência Liberty de 25 graus contra o ensaio de 27 graus. O clock de 20 nanossegundos é uma condição que funcionou, não a frequência máxima.
+**Fala sugerida:** O contrato registra o comportamento funcional e identifica os parâmetros numéricos ainda não caracterizados. SA_OUT e DOUT_RAW são o mesmo nó neste binding; depois há mux, FF e tri-state. As janelas próximas de 7,44 e 7,25 nanossegundos mostram estabilidade disponível antes do clock local. Os dois nanossegundos posteriores são o limite da observação, não hold mínimo. A comparação usa uma referência Liberty de 25 graus contra o ensaio de 27 graus. O clock de 20 nanossegundos é uma condição que funcionou, não a frequência máxima.
 
 **Destaque:** Subida: captura da requisição. Descida: captura da leitura.
 
@@ -273,7 +273,7 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [specs/sram_4x8_timing_contract.md](../../specs/sram_4x8_timing_contract.md), [reports/phase2/final_polish_20261104/capture_directed/results.json](../../reports/phase2/final_polish_20261104/capture_directed/results.json)
 
 
-## Slide 19 — Cinco partidas independentes
+## Slide 19 — Ensaios de partida sem reset
 
 **Objetivo:** Zero ciclos inativos ainda incluiu 9 ns de espera após o plateau.
 
@@ -288,11 +288,11 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [reports/phase2/final_polish_20261104/startup_verification/results.json](../../reports/phase2/final_polish_20261104/startup_verification/results.json), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)
 
 
-## Slide 20 — Resultados consolidados
+## Slide 20 — Quadro de resultados
 
-**Objetivo:** Desenvolvimento concluído no escopo experimental; revisão formal pendente.
+**Objetivo:** F2-DIG funcional e F2-FIS nominal concluídos; aceite formal pendente.
 
-**Fala sugerida:** O resultado principal é a convergência das representações: o controle mapeado corresponde ao protocolo; o layout corresponde ao circuito; e o circuito recupera os dados nos ensaios reais. Mantemos os aceites separados, com a configuração e as condições explícitas. Os arquivos podem ser revisados pelo manifesto e pelo guia de reprodução. O pacote também preserva tentativas e correções históricas para não transformar tudo em uma sequência de PASS sem explicação.
+**Fala sugerida:** A síntese e a GLS verificaram o controle mapeado. O LVS comparou o layout ao circuito, e as simulações transistor-level verificaram os acessos no ponto nominal. Mantemos os aceites separados, com a configuração e as condições explícitas. Os arquivos podem ser revisados pelo manifesto e pelo guia de reprodução. As tentativas e correções históricas permanecem identificadas nos relatórios.
 
 **Destaque:** F2-DIG: síntese/GLS funcional aprovada.
 
@@ -303,9 +303,9 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [docs/phase2_review_20261104_acceptance.md](../../docs/phase2_review_20261104_acceptance.md), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md), [physical/phase2/delivery.json](../../physical/phase2/delivery.json)
 
 
-## Slide 21 — Limites reconhecidos
+## Slide 21 — Limitações da validação
 
-**Objetivo:** Conhecer o limite da evidência faz parte da conclusão técnica.
+**Objetivo:** A caracterização completa não faz parte do aceite experimental desta entrega.
 
 **Fala sugerida:** Esses pontos são limites do trabalho realizado e não defeitos automaticamente atribuídos ao circuito. O protótipo funciona no ponto TT, 1,8 volts e 27 graus, com interconexões sem RC detalhado. Ainda não medimos frequência máxima, pior caso externo ou variabilidade estatística. A limitação de cobertura de modelos da Fase 1 também continua registrada. Apontamos essas fronteiras sem iniciar agora a próxima fase.
 
@@ -318,11 +318,11 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Fontes:** [specs/sram_4x8_timing_contract.md](../../specs/sram_4x8_timing_contract.md), [docs/phase2_review_20261104_acceptance.md](../../docs/phase2_review_20261104_acceptance.md)
 
 
-## Slide 22 — Da célula ao sistema SRAM
+## Slide 22 — Conclusão da Fase 2
 
 **Objetivo:** Fase 2 tecnicamente concluída no escopo experimental. Fechamento acadêmico depende da equipe e dos orientadores.
 
-**Fala sugerida:** A Fase 2 transformou células individuais em uma SRAM 4 por 8 integrada, com controle digital mapeado, vistas físicas e leitura e escrita demonstradas. Conseguimos reproduzir a geometria e fortalecer a auditoria, sem esconder os problemas encontrados ou extrapolar o alcance do experimento. A entrega está pronta para revisão técnica. Gostaria de discutir com vocês a aceitação desse escopo e os parâmetros que precisam ser definidos antes de qualquer caracterização posterior. Obrigado.
+**Fala sugerida:** A Fase 2 transformou células individuais em uma SRAM 4 por 8 integrada, com controle digital mapeado, vistas físicas e leitura e escrita demonstradas. A reconstrução reproduziu a geometria e o circuito extraído; os relatórios registram as correções e o alcance dos ensaios. A entrega está pronta para revisão técnica. Gostaria de discutir com vocês a aceitação desse escopo e os parâmetros que precisam ser definidos antes de qualquer caracterização posterior. Obrigado.
 
 **Destaque:** Controle digital sintetizado e células customizadas integrados.
 

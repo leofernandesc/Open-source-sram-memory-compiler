@@ -14,7 +14,7 @@ PHASE 2 · TECHNICAL REVIEW
 - Equipe: Danilo · André · Leonardo
 
 
-**Mensagem:** Implementação e auditoria concluídas no escopo experimental; revisão formal pendente.
+**Síntese do conteúdo:** Implementação e auditoria concluídas no escopo experimental; revisão formal pendente.
 
 
 **Fontes:** [README.md](../../README.md), [GITFLOW.md](../../GITFLOW.md)
@@ -22,7 +22,7 @@ PHASE 2 · TECHNICAL REVIEW
 
 ---
 
-## 02 — Uma ponte entre lógica e silício
+## 02 — Contexto e escopo do projeto
 
 CONTEXTO
 
@@ -32,7 +32,7 @@ CONTEXTO
 - 4×8: primeiro alvo físico; RTL já exercita 4, 8, 16 e 32 palavras.
 
 
-**Mensagem:** O protótipo pequeno permite inspecionar a integração completa.
+**Síntese do conteúdo:** A implementação física desta entrega está limitada a quatro palavras de oito bits.
 
 
 **Fontes:** [specs/technical_specification.md](../../specs/technical_specification.md), [docs/phase2_execution.md](../../docs/phase2_execution.md)
@@ -40,7 +40,7 @@ CONTEXTO
 
 ---
 
-## 03 — Dois marcos, duas evidências
+## 03 — Critérios de entrega da Fase 2
 
 OBJETIVO DA FASE 2
 
@@ -49,7 +49,7 @@ OBJETIVO DA FASE 2
 - F2-FIS: conectar células reais, gerar o GDS e demonstrar acesso elétrico com DRC/LVS.
 
 
-**Mensagem:** Uma SRAM funcional em Verilog não comprova uma SRAM física.
+**Síntese do conteúdo:** F2-DIG verifica mapeamento e comportamento; F2-FIS verifica integração e acesso elétrico.
 
 
 **Fontes:** [docs/phase2_review_20261104_acceptance.md](../../docs/phase2_review_20261104_acceptance.md)
@@ -57,7 +57,7 @@ OBJETIVO DA FASE 2
 
 ---
 
-## 04 — Seis famílias, 401 MOS customizados
+## 04 — Células selecionadas na Fase 1
 
 HERANÇA DA FASE 1
 
@@ -67,7 +67,7 @@ HERANÇA DA FASE 1
 - Seleção congelada: release/phase1_current.json
 
 
-**Mensagem:** As folhas foram preservadas; adaptações de integração ficam fora delas.
+**Síntese do conteúdo:** O manifesto da Fase 1 seleciona as seis famílias e seus artefatos congelados.
 
 
 **Fontes:** [release/phase1_current.json](../../release/phase1_current.json), [release/phase1_keeper/manifest.json](../../release/phase1_keeper/manifest.json), [docs/phase2_review_20261104.md](../../docs/phase2_review_20261104.md)
@@ -75,7 +75,7 @@ HERANÇA DA FASE 1
 
 ---
 
-## 05 — Arquitetura integrada
+## 05 — Arquitetura da SRAM 4×8
 
 SRAM SÍNCRONA 1RW
 
@@ -85,7 +85,7 @@ SRAM SÍNCRONA 1RW
 - 12 FF de requisição + 8 FF de leitura; DATA bidirecional.
 
 
-**Mensagem:** Uma palavra de oito bits por linha física, sem column mux.
+**Síntese do conteúdo:** Organização física: quatro linhas de oito bits, sem multiplexação de colunas.
 
 
 **Fontes:** [rtl/sram_4x8_wrapper.v](../../rtl/sram_4x8_wrapper.v), [physical/phase2/macro_binding.v](../../physical/phase2/macro_binding.v)
@@ -93,7 +93,7 @@ SRAM SÍNCRONA 1RW
 
 ---
 
-## 06 — O pedido é capturado; a saída é mascarada
+## 06 — Protocolo de leitura e escrita
 
 PROTOCOLO
 
@@ -104,7 +104,7 @@ PROTOCOLO
 - DATA habilitado somente com READ_Q e controles vivos de leitura.
 
 
-**Mensagem:** Mudar controles vivos pode liberar DATA sem cancelar o acesso capturado.
+**Síntese do conteúdo:** Mudar controles vivos pode liberar DATA sem cancelar o acesso capturado.
 
 
 **Fontes:** [specs/sram_4x8_digital.md](../../specs/sram_4x8_digital.md), [rtl/sram_controller.v](../../rtl/sram_controller.v), [rtl/sram_4x8_wrapper.v](../../rtl/sram_4x8_wrapper.v)
@@ -112,7 +112,7 @@ PROTOCOLO
 
 ---
 
-## 07 — RTL e fronteira da macro
+## 07 — Hierarquia RTL
 
 IMPLEMENTAÇÃO DIGITAL
 
@@ -123,7 +123,7 @@ IMPLEMENTAÇÃO DIGITAL
 - macro_bb: núcleo preservado como black box na síntese.
 
 
-**Mensagem:** A definição comportamental de armazenamento não entra na fabricação.
+**Síntese do conteúdo:** A síntese preserva a fronteira da macro customizada.
 
 
 **Fontes:** [rtl/model.f](../../rtl/model.f), [rtl/wrapper_sim.f](../../rtl/wrapper_sim.f), [rtl/wrapper_synth.f](../../rtl/wrapper_synth.f)
@@ -131,7 +131,7 @@ IMPLEMENTAÇÃO DIGITAL
 
 ---
 
-## 08 — Verificação orientada ao protocolo
+## 08 — Cobertura da verificação digital
 
 DESIGN VERIFICATION
 
@@ -142,7 +142,7 @@ DESIGN VERIFICATION
 - 154.303 checks RTL na campanha completa.
 
 
-**Mensagem:** Conteúdo não escrito é desconhecido; mutantes verificam os observadores.
+**Síntese do conteúdo:** Conteúdo não escrito é desconhecido; mutantes verificam os observadores.
 
 
 **Fontes:** [tb/sram_ref_model.sv](../../tb/sram_ref_model.sv), [reports/digital/phase2_review_20261104/results.json](../../reports/digital/phase2_review_20261104/results.json)
@@ -150,7 +150,7 @@ DESIGN VERIFICATION
 
 ---
 
-## 09 — Mapeamento real em SKY130HD
+## 09 — Síntese e GLS em SKY130HD
 
 SÍNTESE E GLS
 
@@ -161,7 +161,7 @@ SÍNTESE E GLS
 - 15.619 checks GLS aprovados.
 
 
-**Mensagem:** GLS sem atraso confirma comportamento, não fechamento de timing.
+**Síntese do conteúdo:** GLS sem atraso confirma comportamento, não fechamento de timing.
 
 
 **Fontes:** [reports/phase2/review_20261104/digital/results.json](../../reports/phase2/review_20261104/digital/results.json), [reports/phase2/routed_gls/results.json](../../reports/phase2/routed_gls/results.json)
@@ -169,7 +169,7 @@ SÍNTESE E GLS
 
 ---
 
-## 10 — Pedidos digitais, fases elétricas
+## 10 — Interface entre controle e núcleo
 
 INTERFACE DIGITAL–FÍSICA
 
@@ -180,7 +180,7 @@ INTERFACE DIGITAL–FÍSICA
 - DOUT_RAW alimenta o mux e o FF de saída.
 
 
-**Mensagem:** Taps 24 / 40 / 60 / 80 são posições em uma cadeia de inversores.
+**Síntese do conteúdo:** Taps 24 / 40 / 60 / 80 são posições em uma cadeia de inversores.
 
 
 **Fontes:** [specs/phase2_physical_interface.md](../../specs/phase2_physical_interface.md), [physical/phase2/macro_binding.v](../../physical/phase2/macro_binding.v)
@@ -188,7 +188,7 @@ INTERFACE DIGITAL–FÍSICA
 
 ---
 
-## 11 — Pré-carga, avaliação e retenção
+## 11 — Decoder dinâmico e seleção de linha
 
 DECODER DINÂMICO
 
@@ -199,7 +199,7 @@ DECODER DINÂMICO
 - DEC qualificado → WL driver → linha física.
 
 
-**Mensagem:** 33 MOS oficiais; o decoder RTL permanece somente referência funcional.
+**Síntese do conteúdo:** 33 MOS oficiais; o decoder RTL permanece somente referência funcional.
 
 
 **Fontes:** [specs/technical_specification.md](../../specs/technical_specification.md), [release/phase1_keeper/manifest.json](../../release/phase1_keeper/manifest.json), [docs/phase2_review_20261104.md](../../docs/phase2_review_20261104.md)
@@ -207,7 +207,7 @@ DECODER DINÂMICO
 
 ---
 
-## 12 — Composição e verificação independente
+## 12 — Geração da matriz e integração física
 
 GERADOR PYTHON
 
@@ -218,7 +218,7 @@ GERADOR PYTHON
 - Auditor separado confere terminais, coordenadas e ordem dos bits.
 
 
-**Mensagem:** A mesma configuração reproduziu GDS e SPICE equivalentes.
+**Síntese do conteúdo:** A mesma configuração reproduziu GDS e SPICE equivalentes.
 
 
 **Fontes:** [tools/phase2_core.py](../../tools/phase2_core.py), [tools/run_phase2_fabric.py](../../tools/run_phase2_fabric.py), [tools/review_phase2_structure.py](../../tools/review_phase2_structure.py), [reports/phase2/review_20261104/reproduction/results.json](../../reports/phase2/review_20261104/reproduction/results.json)
@@ -226,7 +226,7 @@ GERADOR PYTHON
 
 ---
 
-## 13 — O top-level físico entregue
+## 13 — Layout integrado da SRAM 4×8
 
 LAYOUT INTEGRADO
 
@@ -236,7 +236,7 @@ LAYOUT INTEGRADO
 - Floorplan experimental: 540 × 380 µm.
 
 
-**Mensagem:** Imagem do GDS real: M4/M5 e footprints das células padrão.
+**Síntese do conteúdo:** Imagem do GDS real: M4/M5 e footprints das células padrão.
 
 
 **Fontes:** [reports/phase2/layout_overview/results.json](../../reports/phase2/layout_overview/results.json), [physical/phase2/delivery.json](../../physical/phase2/delivery.json), [reports/phase2/review_20261104/structure/results.json](../../reports/phase2/review_20261104/structure/results.json)
@@ -244,7 +244,7 @@ LAYOUT INTEGRADO
 
 ---
 
-## 14 — Da pré-carga à captura
+## 14 — Sequenciamento elétrico de acesso
 
 FORMAS DE ONDA REAIS
 
@@ -254,7 +254,7 @@ FORMAS DE ONDA REAIS
 - SCLK regenera e o FF captura após a descida pública.
 
 
-**Mensagem:** TT · 1,8 V · 27 °C · conectividade e junções extraídas, sem wire RC.
+**Síntese do conteúdo:** TT · 1,8 V · 27 °C · conectividade e junções extraídas, sem wire RC.
 
 
 **Fontes:** [reports/phase2/final_polish_20261104/startup_extended/r1_idle2/results.json](../../reports/phase2/final_polish_20261104/startup_extended/r1_idle2/results.json), [reports/phase2/final_polish_20261104/events/results.json](../../reports/phase2/final_polish_20261104/events/results.json)
@@ -262,7 +262,7 @@ FORMAS DE ONDA REAIS
 
 ---
 
-## 15 — Problemas reais, correções rastreáveis
+## 15 — Problemas encontrados e correções
 
 ENGENHARIA
 
@@ -272,7 +272,7 @@ ENGENHARIA
 - Importação: vias tecnológicas e vistas físicas reais precisaram ser preservadas.
 
 
-**Mensagem:** Readback correto, sozinho, não revelava todos os problemas.
+**Síntese do conteúdo:** Readback correto, sozinho, não revelava todos os problemas.
 
 
 **Fontes:** [docs/phase2_execution.md](../../docs/phase2_execution.md), [reports/phase2/phase_guard_review/results.json](../../reports/phase2/phase_guard_review/results.json)
@@ -280,7 +280,7 @@ ENGENHARIA
 
 ---
 
-## 16 — Geometria e conectividade verificadas
+## 16 — Verificação física: DRC e LVS
 
 DRC · LVS · GDSII
 
@@ -291,7 +291,7 @@ DRC · LVS · GDSII
 - 1.493 MOS brutos → 1.459 equivalentes após redução legal de paralelos.
 
 
-**Mensagem:** DRC verifica regras geométricas; LVS compara o circuito extraído.
+**Síntese do conteúdo:** DRC verifica regras geométricas; LVS compara o circuito extraído.
 
 
 **Fontes:** [reports/phase2/final_gds/magic.txt](../../reports/phase2/final_gds/magic.txt), [reports/phase2/final_gds/lvs.txt](../../reports/phase2/final_gds/lvs.txt), [reports/phase2/review_20261104/lvs_negative/results.json](../../reports/phase2/review_20261104/lvs_negative/results.json)
@@ -299,7 +299,7 @@ DRC · LVS · GDSII
 
 ---
 
-## 17 — Escrever, manter e recuperar
+## 17 — Simulação elétrica de leitura e escrita
 
 VALIDAÇÃO ELÉTRICA
 
@@ -309,7 +309,7 @@ VALIDAÇÃO ELÉTRICA
 - Walking-one/zero, perturbações pós-captura, idle e máscara viva.
 
 
-**Mensagem:** Bitcells e sense amplifiers transistor-level; sem armazenamento comportamental.
+**Síntese do conteúdo:** Bitcells e sense amplifiers transistor-level; sem armazenamento comportamental.
 
 
 **Fontes:** [reports/phase2/extracted_access_singlethread/results.json](../../reports/phase2/extracted_access_singlethread/results.json), [reports/phase2/review_20261104/directed/results.json](../../reports/phase2/review_20261104/directed/results.json), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)
@@ -317,7 +317,7 @@ VALIDAÇÃO ELÉTRICA
 
 ---
 
-## 18 — Contrato temporal sem números inventados
+## 18 — Contrato temporal da interface
 
 INTERFACE PÚBLICA
 
@@ -328,7 +328,7 @@ INTERFACE PÚBLICA
 - 20 ns = 50 MHz no experimento; Fmax e turnaround pendentes.
 
 
-**Mensagem:** Janelas internas disponíveis não são setup/hold públicos da SRAM.
+**Síntese do conteúdo:** Janelas internas disponíveis não são setup/hold públicos da SRAM.
 
 
 **Fontes:** [specs/sram_4x8_timing_contract.md](../../specs/sram_4x8_timing_contract.md), [reports/phase2/final_polish_20261104/capture_directed/results.json](../../reports/phase2/final_polish_20261104/capture_directed/results.json)
@@ -336,7 +336,7 @@ INTERFACE PÚBLICA
 
 ---
 
-## 19 — Cinco partidas independentes
+## 19 — Ensaios de partida sem reset
 
 SEM RESET EXTERNO
 
@@ -346,7 +346,7 @@ SEM RESET EXTERNO
 - Sem IC, nodeset ou conteúdo artificialmente imposto.
 
 
-**Mensagem:** Zero ciclos inativos ainda incluiu 9 ns de espera após o plateau.
+**Síntese do conteúdo:** Zero ciclos inativos ainda incluiu 9 ns de espera após o plateau.
 
 
 **Fontes:** [reports/phase2/final_polish_20261104/startup_verification/results.json](../../reports/phase2/final_polish_20261104/startup_verification/results.json), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)
@@ -354,7 +354,7 @@ SEM RESET EXTERNO
 
 ---
 
-## 20 — Resultados consolidados
+## 20 — Quadro de resultados
 
 ACEITES SEPARADOS
 
@@ -365,7 +365,7 @@ ACEITES SEPARADOS
 - Contrato temporal documentado e partida ampliada.
 
 
-**Mensagem:** Desenvolvimento concluído no escopo experimental; revisão formal pendente.
+**Síntese do conteúdo:** F2-DIG funcional e F2-FIS nominal concluídos; aceite formal pendente.
 
 
 **Fontes:** [docs/phase2_review_20261104_acceptance.md](../../docs/phase2_review_20261104_acceptance.md), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md), [physical/phase2/delivery.json](../../physical/phase2/delivery.json)
@@ -373,7 +373,7 @@ ACEITES SEPARADOS
 
 ---
 
-## 21 — Limites reconhecidos
+## 21 — Limitações da validação
 
 ESCOPO EXPERIMENTAL
 
@@ -384,7 +384,7 @@ ESCOPO EXPERIMENTAL
 - Geração física 8×8 / 16×8 / 32×8 continua fora desta entrega.
 
 
-**Mensagem:** Conhecer o limite da evidência faz parte da conclusão técnica.
+**Síntese do conteúdo:** A caracterização completa não faz parte do aceite experimental desta entrega.
 
 
 **Fontes:** [specs/sram_4x8_timing_contract.md](../../specs/sram_4x8_timing_contract.md), [docs/phase2_review_20261104_acceptance.md](../../docs/phase2_review_20261104_acceptance.md)
@@ -392,17 +392,17 @@ ESCOPO EXPERIMENTAL
 
 ---
 
-## 22 — Da célula ao sistema SRAM
+## 22 — Conclusão da Fase 2
 
 CONCLUSÕES E DISCUSSÃO
 
 
 - Controle digital sintetizado e células customizadas integrados.
 - SRAM 4×8 física com leitura, escrita e captura demonstradas.
-- Fontes, vistas, evidências e procedimentos disponíveis para revisão.
+- Entregáveis: RTL, gerador Python, GDS/LEF/DEF/MAG/SPICE, relatórios e scripts.
 
 
-**Mensagem:** Fase 2 tecnicamente concluída no escopo experimental. Fechamento acadêmico depende da equipe e dos orientadores.
+**Síntese do conteúdo:** Fase 2 tecnicamente concluída no escopo experimental. Fechamento acadêmico depende da equipe e dos orientadores.
 
 
 **Fontes:** [docs/phase2_reproduction_guide.md](../../docs/phase2_reproduction_guide.md), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)

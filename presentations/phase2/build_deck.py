@@ -66,8 +66,11 @@ def main():
  slides=json.loads((OUT/'slides.json').read_text());assert len(slides)==22
  prs=Presentation();prs.slide_width=Inches(13.333);prs.slide_height=Inches(7.5)
  def box(s,x,y,w,h,fill=LIGHT,line=None):
-  z=s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x),Inches(y),Inches(w),Inches(h));z.fill.solid();z.fill.fore_color.rgb=color(fill)
-  z.line.color.rgb=color(line or fill);z.adjustments[0]=.08;return z
+  z=s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x),Inches(y),Inches(w),Inches(h));z.fill.solid();z.fill.fore_color.rgb=color(fill)
+  z.line.color.rgb=color(line or fill)
+  from pptx.oxml.xmlchemy import OxmlElement
+  z._element.spPr.append(OxmlElement('a:effectLst'))
+  return z
  def text(s,x,y,w,h,string,size=18,fg=INK,bold=False,align=PP_ALIGN.LEFT):
   z=s.shapes.add_textbox(Inches(x),Inches(y),Inches(w),Inches(h));tf=z.text_frame;tf.clear();tf.word_wrap=True
   tf.margin_left=Pt(0);tf.margin_right=Pt(0);tf.margin_top=Pt(0);tf.margin_bottom=Pt(0)
@@ -100,8 +103,8 @@ def main():
   s=prs.slides.add_slide(prs.slide_layouts[6]);s.background.fill.solid();s.background.fill.fore_color.rgb=color(WHITE)
   text(s,.65,.28,11.8,.3,d['kicker'],11,BLUE,True)
   if i!=1:text(s,.65,.78,12,.7,d['title'],30,NAVY,True)
-  box(s,.65,6.55,12,.48,LIGHT);text(s,.84,6.64,11.62,.35,d['takeaway'],11.4 if i==22 else 12.4,NAVY,True)
-  text(s,.65,7.13,11.6,.2,'SRAM 4×8 · SKY130A · evidências: slides.json / assets/sources.json',8.2,GRAY)
+  refs = ['/'.join(Path(n).parts[-2:]) if len(n)>60 else n for n in d['source'][:2]]
+  text(s,.65,6.97,11.35,.36,'Fontes: '+' · '.join(refs),8.5,GRAY)
   text(s,12.05,7.06,.65,.3,f'{i:02d} / 22',9,GRAY)
   kind=d['kind']
   if kind=='cover':
@@ -166,6 +169,7 @@ def main():
    picture(s,'layout.png',.6,1.48,8.35,4.9);bullet_list(s,d['bullets'],x=9.2,y=1.9,w=3.45,step=1.32,size=17)
   elif kind=='phases':
    picture(s,'access_phases.png',.65,1.55,12,4.78)
+   text(s,.75,6.4,11.8,.3,'Condição do ensaio: TT · 1,8 V · 27 °C · clock de 20 ns · sem RC de interconexões.',12,GRAY)
   elif kind=='issues':
    picture(s,'phase_guard.png',.65,1.6,7.1,4.55);bullet_list(s,d['bullets'],x=8.05,y=1.8,w=4.6,step=1.42,size=16)
   elif kind=='physical_checks':
@@ -182,11 +186,13 @@ def main():
    picture(s,'startup_ramps.png',.65,1.7,5.45,3.65)
    table(s,6.5,1.75,6.0,['Rampa','Idle','Checks','Estado'],[['1 ns',0,637,'PASS'],['1 ns',2,681,'PASS'],['5 ns',2,681,'PASS'],['10 ns',2,681,'PASS'],['1 ns',3,703,'PASS']],fontsize=15)
    text(s,.85,5.58,11.65,.5,'3.383 checks totais, incluindo 240 bits lidos; sem falhas.',21,TEAL,True)
+   text(s,.85,6.25,11.65,.55,'Primeira subida: 9 ns após o plateau de VDD, inclusive no caso com zero ciclos inativos.\nSem IC/nodeset. O tempo mínimo de partida não foi caracterizado.',12,GRAY)
   elif kind=='limits':
    for k,b in enumerate(d['bullets']):card(s,.65+(k%2)*6.15,1.75+(k//2)*2.13,5.85,1.9,['Timing','Variabilidade','Caracterização','Escala física'][k],b,ORANGE)
   elif kind=='closing':
-   text(s,.75,1.8,11.8,1.5,'Uma SRAM física verificável,\ncom seus limites explícitos.',34,NAVY,True)
-   bullet_list(s,d['bullets'],y=3.7,w=11.8,step=.75,size=19)
+   text(s,.75,1.8,11.8,.75,'Resultados da implementação 4×8',27,NAVY,True)
+   bullet_list(s,d['bullets'],y=3.0,w=11.8,step=.85,size=19)
+   text(s,.95,5.85,11.45,.65,'Aceite técnico: escopo experimental nominal.\nFechamento acadêmico: revisão da equipe e dos orientadores pendente.',17,GRAY)
   note=s.notes_slide.notes_text_frame;note.text=f"Objetivo: {d['takeaway']}\n\n{d['speech']}\n\nRessalva: {d['caveat']}\n\nTransição: {d['transition']}\n\nFontes: "+'\n'.join(d['source'])
  prs.core_properties.title='Open-Source SRAM Memory Compiler — Phase 2';prs.core_properties.subject='Experimental 4x8 SKY130 integration review';prs.core_properties.author='SRAM project team'
  dest=OUT/'phase2_technical_review.pptx';prs.save(dest)

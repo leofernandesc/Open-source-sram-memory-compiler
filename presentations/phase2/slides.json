@@ -17,7 +17,7 @@
     "transition": "Começo pela motivação e pelo tamanho do primeiro protótipo."
   },
   {
-    "title": "Uma ponte entre lógica e silício",
+    "title": "Contexto e escopo do projeto",
     "kicker": "CONTEXTO",
     "kind": "cards",
     "bullets": [
@@ -25,7 +25,7 @@
       "Compilador: composição repetível das células e geração de vistas físicas.",
       "4×8: primeiro alvo físico; RTL já exercita 4, 8, 16 e 32 palavras."
     ],
-    "takeaway": "O protótipo pequeno permite inspecionar a integração completa.",
+    "takeaway": "A implementação física desta entrega está limitada a quatro palavras de oito bits.",
     "source": [
       "specs/technical_specification.md",
       "docs/phase2_execution.md"
@@ -35,14 +35,14 @@
     "transition": "A Fase 2 teve dois aceites complementares."
   },
   {
-    "title": "Dois marcos, duas evidências",
+    "title": "Critérios de entrega da Fase 2",
     "kicker": "OBJETIVO DA FASE 2",
     "kind": "gates",
     "bullets": [
       "F2-DIG: mapear controle e registradores em SKY130HD e verificar a netlist por GLS.",
       "F2-FIS: conectar células reais, gerar o GDS e demonstrar acesso elétrico com DRC/LVS."
     ],
-    "takeaway": "Uma SRAM funcional em Verilog não comprova uma SRAM física.",
+    "takeaway": "F2-DIG verifica mapeamento e comportamento; F2-FIS verifica integração e acesso elétrico.",
     "source": [
       "docs/phase2_review_20261104_acceptance.md"
     ],
@@ -51,7 +51,7 @@
     "transition": "Essa integração reutiliza uma seleção congelada da Fase 1."
   },
   {
-    "title": "Seis famílias, 401 MOS customizados",
+    "title": "Células selecionadas na Fase 1",
     "kicker": "HERANÇA DA FASE 1",
     "kind": "leaves",
     "bullets": [
@@ -59,7 +59,7 @@
       "8 precharge · 8 write drivers · 8 sense amplifiers",
       "Seleção congelada: release/phase1_current.json"
     ],
-    "takeaway": "As folhas foram preservadas; adaptações de integração ficam fora delas.",
+    "takeaway": "O manifesto da Fase 1 seleciona as seis famílias e seus artefatos congelados.",
     "source": [
       "release/phase1_current.json",
       "release/phase1_keeper/manifest.json",
@@ -70,7 +70,7 @@
     "transition": "Agora mostro como essas células se conectam à lógica digital."
   },
   {
-    "title": "Arquitetura integrada",
+    "title": "Arquitetura da SRAM 4×8",
     "kicker": "SRAM SÍNCRONA 1RW",
     "kind": "architecture",
     "bullets": [
@@ -78,7 +78,7 @@
       "Verde: seis famílias customizadas",
       "12 FF de requisição + 8 FF de leitura; DATA bidirecional."
     ],
-    "takeaway": "Uma palavra de oito bits por linha física, sem column mux.",
+    "takeaway": "Organização física: quatro linhas de oito bits, sem multiplexação de colunas.",
     "source": [
       "rtl/sram_4x8_wrapper.v",
       "physical/phase2/macro_binding.v"
@@ -88,7 +88,7 @@
     "transition": "Com a fronteira clara, podemos definir o protocolo externo."
   },
   {
-    "title": "O pedido é capturado; a saída é mascarada",
+    "title": "Protocolo de leitura e escrita",
     "kicker": "PROTOCOLO",
     "kind": "protocol",
     "bullets": [
@@ -108,7 +108,7 @@
     "transition": "Essas regras foram implementadas em vistas RTL separadas."
   },
   {
-    "title": "RTL e fronteira da macro",
+    "title": "Hierarquia RTL",
     "kicker": "IMPLEMENTAÇÃO DIGITAL",
     "kind": "hierarchy",
     "bullets": [
@@ -117,7 +117,7 @@
       "macro_model: substituto funcional para simulação.",
       "macro_bb: núcleo preservado como black box na síntese."
     ],
-    "takeaway": "A definição comportamental de armazenamento não entra na fabricação.",
+    "takeaway": "A síntese preserva a fronteira da macro customizada.",
     "source": [
       "rtl/model.f",
       "rtl/wrapper_sim.f",
@@ -128,7 +128,7 @@
     "transition": "O comportamento foi comparado com um scoreboard independente."
   },
   {
-    "title": "Verificação orientada ao protocolo",
+    "title": "Cobertura da verificação digital",
     "kicker": "DESIGN VERIFICATION",
     "kind": "digital_checks",
     "bullets": [
@@ -147,7 +147,7 @@
     "transition": "A etapa seguinte verifica se a síntese preservou essa semântica."
   },
   {
-    "title": "Mapeamento real em SKY130HD",
+    "title": "Síntese e GLS em SKY130HD",
     "kicker": "SÍNTESE E GLS",
     "kind": "synthesis",
     "bullets": [
@@ -166,7 +166,7 @@
     "transition": "Para verificar o circuito real, precisamos do binding de fases."
   },
   {
-    "title": "Pedidos digitais, fases elétricas",
+    "title": "Interface entre controle e núcleo",
     "kicker": "INTERFACE DIGITAL–FÍSICA",
     "kind": "binding",
     "bullets": [
@@ -185,7 +185,7 @@
     "transition": "O decoder dinâmico é uma parte essencial dessa sequência."
   },
   {
-    "title": "Pré-carga, avaliação e retenção",
+    "title": "Decoder dinâmico e seleção de linha",
     "kicker": "DECODER DINÂMICO",
     "kind": "decoder",
     "bullets": [
@@ -205,7 +205,7 @@
     "transition": "O gerador reproduz essa conectividade ao compor a matriz."
   },
   {
-    "title": "Composição e verificação independente",
+    "title": "Geração da matriz e integração física",
     "kicker": "GERADOR PYTHON",
     "kind": "generator",
     "bullets": [
@@ -226,7 +226,7 @@
     "transition": "O resultado integrado está nesta geometria real."
   },
   {
-    "title": "O top-level físico entregue",
+    "title": "Layout integrado da SRAM 4×8",
     "kicker": "LAYOUT INTEGRADO",
     "kind": "layout",
     "bullets": [
@@ -245,7 +245,7 @@
     "transition": "Primeiro mostro a sequência elétrica efetivamente observada."
   },
   {
-    "title": "Da pré-carga à captura",
+    "title": "Sequenciamento elétrico de acesso",
     "kicker": "FORMAS DE ONDA REAIS",
     "kind": "phases",
     "bullets": [
@@ -263,7 +263,7 @@
     "transition": "A separação entre as fases precisou de correções durante o desenvolvimento."
   },
   {
-    "title": "Problemas reais, correções rastreáveis",
+    "title": "Problemas encontrados e correções",
     "kicker": "ENGENHARIA",
     "kind": "issues",
     "bullets": [
@@ -281,7 +281,7 @@
     "transition": "As correções foram fechadas com verificações físicas independentes."
   },
   {
-    "title": "Geometria e conectividade verificadas",
+    "title": "Verificação física: DRC e LVS",
     "kicker": "DRC · LVS · GDSII",
     "kind": "physical_checks",
     "bullets": [
@@ -301,7 +301,7 @@
     "transition": "Depois de verificar a geometria, exercitamos o armazenamento real."
   },
   {
-    "title": "Escrever, manter e recuperar",
+    "title": "Simulação elétrica de leitura e escrita",
     "kicker": "VALIDAÇÃO ELÉTRICA",
     "kind": "electrical",
     "bullets": [
@@ -320,7 +320,7 @@
     "transition": "A temporização precisa distinguir disponibilidade interna de garantia externa."
   },
   {
-    "title": "Contrato temporal sem números inventados",
+    "title": "Contrato temporal da interface",
     "kicker": "INTERFACE PÚBLICA",
     "kind": "timing",
     "bullets": [
@@ -334,12 +334,12 @@
       "specs/sram_4x8_timing_contract.md",
       "reports/phase2/final_polish_20261104/capture_directed/results.json"
     ],
-    "speech": "Formalizamos o comportamento, mas não preenchemos as lacunas com números arbitrários. SA_OUT e DOUT_RAW são o mesmo nó neste binding; depois há mux, FF e tri-state. As janelas próximas de 7,44 e 7,25 nanossegundos mostram estabilidade disponível antes do clock local. Os dois nanossegundos posteriores são o limite da observação, não hold mínimo. A comparação usa uma referência Liberty de 25 graus contra o ensaio de 27 graus. O clock de 20 nanossegundos é uma condição que funcionou, não a frequência máxima.",
+    "speech": "O contrato registra o comportamento funcional e identifica os parâmetros numéricos ainda não caracterizados. SA_OUT e DOUT_RAW são o mesmo nó neste binding; depois há mux, FF e tri-state. As janelas próximas de 7,44 e 7,25 nanossegundos mostram estabilidade disponível antes do clock local. Os dois nanossegundos posteriores são o limite da observação, não hold mínimo. A comparação usa uma referência Liberty de 25 graus contra o ensaio de 27 graus. O clock de 20 nanossegundos é uma condição que funcionou, não a frequência máxima.",
     "caveat": "Setup/hold externo, read-valid, enable/disable, turnaround e mínimo de partida não estão qualificados.",
     "transition": "A última rodada também ampliou a partida sem reset."
   },
   {
-    "title": "Cinco partidas independentes",
+    "title": "Ensaios de partida sem reset",
     "kicker": "SEM RESET EXTERNO",
     "kind": "startup",
     "bullets": [
@@ -357,7 +357,7 @@
     "transition": "Podemos então consolidar os aceites sem misturar os escopos."
   },
   {
-    "title": "Resultados consolidados",
+    "title": "Quadro de resultados",
     "kicker": "ACEITES SEPARADOS",
     "kind": "results",
     "bullets": [
@@ -366,18 +366,18 @@
       "DRC/LVS e acessos reais, com artefatos e hashes rastreáveis.",
       "Contrato temporal documentado e partida ampliada."
     ],
-    "takeaway": "Desenvolvimento concluído no escopo experimental; revisão formal pendente.",
+    "takeaway": "F2-DIG funcional e F2-FIS nominal concluídos; aceite formal pendente.",
     "source": [
       "docs/phase2_review_20261104_acceptance.md",
       "docs/phase2_final_polish.md",
       "physical/phase2/delivery.json"
     ],
-    "speech": "O resultado principal é a convergência das representações: o controle mapeado corresponde ao protocolo; o layout corresponde ao circuito; e o circuito recupera os dados nos ensaios reais. Mantemos os aceites separados, com a configuração e as condições explícitas. Os arquivos podem ser revisados pelo manifesto e pelo guia de reprodução. O pacote também preserva tentativas e correções históricas para não transformar tudo em uma sequência de PASS sem explicação.",
+    "speech": "A síntese e a GLS verificaram o controle mapeado. O LVS comparou o layout ao circuito, e as simulações transistor-level verificaram os acessos no ponto nominal. Mantemos os aceites separados, com a configuração e as condições explícitas. Os arquivos podem ser revisados pelo manifesto e pelo guia de reprodução. As tentativas e correções históricas permanecem identificadas nos relatórios.",
     "caveat": "O parecer técnico não substitui a deliberação dos integrantes e orientadores.",
     "transition": "As limitações delimitam o que o projeto ainda não está afirmando."
   },
   {
-    "title": "Limites reconhecidos",
+    "title": "Limitações da validação",
     "kicker": "ESCOPO EXPERIMENTAL",
     "kind": "limits",
     "bullets": [
@@ -386,7 +386,7 @@
       "Sem potência/yield caracterizados ou qualificação de fabricação.",
       "Geração física 8×8 / 16×8 / 32×8 continua fora desta entrega."
     ],
-    "takeaway": "Conhecer o limite da evidência faz parte da conclusão técnica.",
+    "takeaway": "A caracterização completa não faz parte do aceite experimental desta entrega.",
     "source": [
       "specs/sram_4x8_timing_contract.md",
       "docs/phase2_review_20261104_acceptance.md"
@@ -396,20 +396,20 @@
     "transition": "Fecho com a contribuição concreta desta fase."
   },
   {
-    "title": "Da célula ao sistema SRAM",
+    "title": "Conclusão da Fase 2",
     "kicker": "CONCLUSÕES E DISCUSSÃO",
     "kind": "closing",
     "bullets": [
       "Controle digital sintetizado e células customizadas integrados.",
       "SRAM 4×8 física com leitura, escrita e captura demonstradas.",
-      "Fontes, vistas, evidências e procedimentos disponíveis para revisão."
+      "Entregáveis: RTL, gerador Python, GDS/LEF/DEF/MAG/SPICE, relatórios e scripts."
     ],
     "takeaway": "Fase 2 tecnicamente concluída no escopo experimental. Fechamento acadêmico depende da equipe e dos orientadores.",
     "source": [
       "docs/phase2_reproduction_guide.md",
       "docs/phase2_final_polish.md"
     ],
-    "speech": "A Fase 2 transformou células individuais em uma SRAM 4 por 8 integrada, com controle digital mapeado, vistas físicas e leitura e escrita demonstradas. Conseguimos reproduzir a geometria e fortalecer a auditoria, sem esconder os problemas encontrados ou extrapolar o alcance do experimento. A entrega está pronta para revisão técnica. Gostaria de discutir com vocês a aceitação desse escopo e os parâmetros que precisam ser definidos antes de qualquer caracterização posterior. Obrigado.",
+    "speech": "A Fase 2 transformou células individuais em uma SRAM 4 por 8 integrada, com controle digital mapeado, vistas físicas e leitura e escrita demonstradas. A reconstrução reproduziu a geometria e o circuito extraído; os relatórios registram as correções e o alcance dos ensaios. A entrega está pronta para revisão técnica. Gostaria de discutir com vocês a aceitação desse escopo e os parâmetros que precisam ser definidos antes de qualquer caracterização posterior. Obrigado.",
     "caveat": "Sem aprovação formal atribuída antecipadamente aos orientadores.",
     "transition": ""
   }
