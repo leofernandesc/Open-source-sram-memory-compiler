@@ -1,0 +1,55 @@
+* Mapped synchronous SRAM with real HD control and all 32 bitcells
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+.include "binding.spice"
+.include "fabric.spice"
+.temp 27
+.options method=gear reltol=1e-4 vabstol=1e-8 iabstol=1e-12
+VSS_SRC VSS 0 0
+.model HOST_SWITCH sw ron=1 roff=1e12 vt=.9 vh=.1
+.model HOST_WEAK_SWITCH sw ron=1k roff=1e12 vt=.9 vh=.1
+.options klu
+VDD_SRC VDD 0 PWL(0 0 10n 1.8)
+V_CLK CLK 0 PWL(0n 0 19n 0 19.05n 1.8 29n 1.8 29.05n 0 39n 0 39.05n 1.8 49n 1.8 49.05n 0 59n 0 59.05n 1.8 69n 1.8 69.05n 0 79n 0 79.05n 1.8 89n 1.8 89.05n 0 99n 0 99.05n 1.8 109n 1.8 109.05n 0 119n 0 119.05n 1.8 129n 1.8 129.05n 0 139n 0 139.05n 1.8 149n 1.8 149.05n 0 159n 0 159.05n 1.8 169n 1.8 169.05n 0 179n 0 179.05n 1.8 189n 1.8 189.05n 0 199n 0 199.05n 1.8 209n 1.8 209.05n 0 219n 0 219.05n 1.8 229n 1.8 229.05n 0 239n 0 239.05n 1.8 249n 1.8 249.05n 0 259n 0 259.05n 1.8 269n 1.8 269.05n 0 279n 0 279.05n 1.8 289n 1.8 289.05n 0)
+V_CSb CSb 0 PWL(0n 0 10n 1.8 16n 1.8 16.05n 1.8 36n 1.8 36.05n 1.8 56n 1.8 56.05n 0 76n 0 76.05n 0 96n 0 96.05n 0 116n 0 116.05n 0 136n 0 136.05n 0 156n 0 156.05n 0 176n 0 176.05n 0 196n 0 196.05n 0 216n 0 216.05n 0 236n 0 236.05n 0 256n 0 256.05n 1.8 276n 1.8 276.05n 0)
+V_OEb OEb 0 PWL(0n 0 10n 1.8 16n 1.8 16.05n 1.8 36n 1.8 36.05n 1.8 56n 1.8 56.05n 1.8 76n 1.8 76.05n 0 96n 0 96.05n 1.8 116n 1.8 116.05n 1.8 136n 1.8 136.05n 1.8 156n 1.8 156.05n 1.8 176n 1.8 176.05n 0 196n 0 196.05n 0 216n 0 216.05n 0 236n 0 236.05n 0 256n 0 256.05n 1.8 276n 1.8 276.05n 0)
+V_WEb WEb 0 PWL(0n 0 10n 1.8 16n 1.8 16.05n 1.8 36n 1.8 36.05n 1.8 56n 1.8 56.05n 0 76n 0 76.05n 1.8 96n 1.8 96.05n 0 116n 0 116.05n 0 136n 0 136.05n 0 156n 0 156.05n 0 176n 0 176.05n 1.8 196n 1.8 196.05n 1.8 216n 1.8 216.05n 1.8 236n 1.8 236.05n 1.8 256n 1.8 256.05n 1.8 276n 1.8 276.05n 1.8)
+V_ADDR0 ADDR0 0 PWL(0n 0 16n 0 16.05n 0 36n 0 36.05n 0 56n 0 56.05n 1.8 76n 1.8 76.05n 1.8 96n 1.8 96.05n 0 116n 0 116.05n 1.8 136n 1.8 136.05n 0 156n 0 156.05n 1.8 176n 1.8 176.05n 0 196n 0 196.05n 1.8 216n 1.8 216.05n 0 236n 0 236.05n 1.8 256n 1.8 256.05n 0 276n 0 276.05n 1.8)
+V_ADDR1 ADDR1 0 PWL(0n 0 16n 0 16.05n 0 36n 0 36.05n 0 56n 0 56.05n 1.8 76n 1.8 76.05n 1.8 96n 1.8 96.05n 0 116n 0 116.05n 0 136n 0 136.05n 1.8 156n 1.8 156.05n 1.8 176n 1.8 176.05n 0 196n 0 196.05n 0 216n 0 216.05n 1.8 236n 1.8 236.05n 1.8 256n 1.8 256.05n 0 276n 0 276.05n 1.8)
+V_HOST_EN HOST_EN 0 PWL(0n 0 17n 0 17.05n 0 20n 0 20.05n 0 37n 0 37.05n 0 40n 0 40.05n 0 57n 0 57.05n 1.8 60n 1.8 60.05n 0 77n 0 77.05n 0 80n 0 80.05n 0 97n 0 97.05n 1.8 100n 1.8 100.05n 0 117n 0 117.05n 1.8 120n 1.8 120.05n 0 137n 0 137.05n 1.8 140n 1.8 140.05n 0 157n 0 157.05n 1.8 160n 1.8 160.05n 0 177n 0 177.05n 0 180n 0 180.05n 0 197n 0 197.05n 0 200n 0 200.05n 0 217n 0 217.05n 0 220n 0 220.05n 0 237n 0 237.05n 0 240n 0 240.05n 0 257n 0 257.05n 0 260n 0 260.05n 0 277n 0 277.05n 0 280n 0 280.05n 0)
+V_HOST_WEAK_EN HOST_WEAK_EN 0 PWL(0n 0 11n 0 11.05n 1.8 15n 1.8 15.05n 0 20n 0 20.05n 1.8 27n 1.8 27.05n 0 40n 0 40.05n 1.8 47n 1.8 47.05n 0 260n 0 260.05n 1.8 267n 1.8 267.05n 0)
+V_HOST0 HOST0 0 PWL(0n 0 11n 0 11.05n 1.8 13n 1.8 13.05n 0 16.5n 0 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 1.8 76.5n 1.8 76.55n 1.8 96.5n 1.8 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 0 156.5n 0 156.55n 0 176.5n 0 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 0 236.5n 0 236.55n 0 256.5n 0 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 0)
+V_HOST1 HOST1 0 PWL(0n 0 11n 0 11.05n 0 13n 0 13.05n 1.8 16.5n 1.8 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 0 76.5n 0 76.55n 0 96.5n 0 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 1.8 156.5n 1.8 156.55n 1.8 176.5n 1.8 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 1.8 236.5n 1.8 236.55n 1.8 256.5n 1.8 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 1.8)
+V_HOST2 HOST2 0 PWL(0n 0 11n 0 11.05n 0 13n 0 13.05n 1.8 16.5n 1.8 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 1.8 76.5n 1.8 76.55n 1.8 96.5n 1.8 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 0 156.5n 0 156.55n 0 176.5n 0 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 0 236.5n 0 236.55n 0 256.5n 0 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 0)
+V_HOST3 HOST3 0 PWL(0n 0 11n 0 11.05n 1.8 13n 1.8 13.05n 0 16.5n 0 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 0 76.5n 0 76.55n 0 96.5n 0 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 1.8 156.5n 1.8 156.55n 1.8 176.5n 1.8 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 1.8 236.5n 1.8 236.55n 1.8 256.5n 1.8 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 1.8)
+V_HOST4 HOST4 0 PWL(0n 0 11n 0 11.05n 0 13n 0 13.05n 1.8 16.5n 1.8 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 1.8 76.5n 1.8 76.55n 1.8 96.5n 1.8 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 0 156.5n 0 156.55n 0 176.5n 0 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 0 236.5n 0 236.55n 0 256.5n 0 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 0)
+V_HOST5 HOST5 0 PWL(0n 0 11n 0 11.05n 1.8 13n 1.8 13.05n 0 16.5n 0 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 0 76.5n 0 76.55n 0 96.5n 0 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 1.8 156.5n 1.8 156.55n 1.8 176.5n 1.8 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 1.8 236.5n 1.8 236.55n 1.8 256.5n 1.8 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 1.8)
+V_HOST6 HOST6 0 PWL(0n 0 11n 0 11.05n 1.8 13n 1.8 13.05n 0 16.5n 0 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 1.8 76.5n 1.8 76.55n 1.8 96.5n 1.8 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 0 156.5n 0 156.55n 0 176.5n 0 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 0 236.5n 0 236.55n 0 256.5n 0 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 0)
+V_HOST7 HOST7 0 PWL(0n 0 11n 0 11.05n 0 13n 0 13.05n 1.8 16.5n 1.8 16.55n 0 23n 0 23.05n 1.8 36.5n 1.8 36.55n 0 43n 0 43.05n 1.8 56.5n 1.8 56.55n 0 76.5n 0 76.55n 0 96.5n 0 96.55n 0 116.5n 0 116.55n 1.8 136.5n 1.8 136.55n 1.8 156.5n 1.8 156.55n 1.8 176.5n 1.8 176.55n 0 196.5n 0 196.55n 1.8 216.5n 1.8 216.55n 1.8 236.5n 1.8 236.55n 1.8 256.5n 1.8 256.55n 0 263n 0 263.05n 1.8 276.5n 1.8 276.55n 1.8)
+S_HOST0 DATA0 HOST0 HOST_EN 0 HOST_SWITCH
+S_WEAK0 DATA0 HOST0 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST1 DATA1 HOST1 HOST_EN 0 HOST_SWITCH
+S_WEAK1 DATA1 HOST1 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST2 DATA2 HOST2 HOST_EN 0 HOST_SWITCH
+S_WEAK2 DATA2 HOST2 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST3 DATA3 HOST3 HOST_EN 0 HOST_SWITCH
+S_WEAK3 DATA3 HOST3 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST4 DATA4 HOST4 HOST_EN 0 HOST_SWITCH
+S_WEAK4 DATA4 HOST4 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST5 DATA5 HOST5 HOST_EN 0 HOST_SWITCH
+S_WEAK5 DATA5 HOST5 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST6 DATA6 HOST6 HOST_EN 0 HOST_SWITCH
+S_WEAK6 DATA6 HOST6 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+S_HOST7 DATA7 HOST7 HOST_EN 0 HOST_SWITCH
+S_WEAK7 DATA7 HOST7 HOST_WEAK_EN 0 HOST_WEAK_SWITCH
+XDUT ADDR0 ADDR1 CLK CSb DATA0 DATA1 DATA2 DATA3 DATA4 DATA5 DATA6 DATA7 OEb VDD VSS WEb sram_4x8_wrapper
+.save v(DATA0) v(DATA1) v(DATA2) v(DATA3) v(DATA4) v(DATA5) v(DATA6) v(DATA7) v(xdut.e635) v(xdut.e717) v(xdut.e728) v(xdut.e729) v(xdut.e606) v(xdut.e607) v(xdut.e608) v(xdut.e609) v(xdut.e26) v(xdut.e25) v(xdut.e24) v(xdut.e23) v(xdut.e22) v(xdut.e21) v(xdut.e20) v(xdut.e19) v(xdut.e69) v(xdut.e16) v(xdut.e50) v(xdut.e51) v(xdut.e52) v(xdut.e636) v(xdut.e53) v(xdut.e54) v(xdut.e55) v(xdut.e56) v(xdut.e57) v(xdut.e59) v(xdut.e60) v(xdut.e61) v(xdut.e62) v(xdut.e63) v(xdut.e64) v(xdut.e65) v(VDD) v(CLK) v(CSb) v(OEb) v(WEb) v(HOST_EN) v(xdut.e610) v(xdut.e611) v(xdut.e612) v(xdut.e613) v(xdut.e614) v(xdut.e615) v(xdut.e616) v(xdut.e617) v(xdut.e618) v(xdut.e619) v(xdut.e620) v(xdut.e621) v(xdut.e622) v(xdut.e623) v(xdut.e624) v(xdut.e625) v(xdut.e590) v(xdut.e591) v(xdut.e592) v(xdut.e593) v(xdut.e67) v(xdut.e66) v(xdut.e58) v(xdut.e72) v(xdut.e73) v(xdut.e74) v(xdut.e75) v(xdut.e76) v(xdut.e77) v(xdut.e78) v(xdut.e95) v(xdut.e124) v(xdut.e242) v(xdut.e331) v(xdut.e384) v(xdut.e457) v(xdut.e556) v(xdut.e574) v(xdut.e96) v(xdut.e125) v(xdut.e243) v(xdut.e332) v(xdut.e385) v(xdut.e458) v(xdut.e557) v(xdut.e575) v(xdut.e97) v(xdut.e126) v(xdut.e244) v(xdut.e333) v(xdut.e386) v(xdut.e459) v(xdut.e558) v(xdut.e576) v(xdut.e98) v(xdut.e127) v(xdut.e245) v(xdut.e334) v(xdut.e387) v(xdut.e460) v(xdut.e559) v(xdut.e577)
+.control
+set num_threads=1
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+tran 10p 299n 0 10p
+wrdata waveform.dat v(DATA0) v(DATA1) v(DATA2) v(DATA3) v(DATA4) v(DATA5) v(DATA6) v(DATA7) v(xdut.e635) v(xdut.e717) v(xdut.e728) v(xdut.e729) v(xdut.e606) v(xdut.e607) v(xdut.e608) v(xdut.e609) v(xdut.e26) v(xdut.e25) v(xdut.e24) v(xdut.e23) v(xdut.e22) v(xdut.e21) v(xdut.e20) v(xdut.e19) v(xdut.e69) v(xdut.e16) v(xdut.e50) v(xdut.e51) v(xdut.e52) v(xdut.e636) v(xdut.e53) v(xdut.e54) v(xdut.e55) v(xdut.e56) v(xdut.e57) v(xdut.e59) v(xdut.e60) v(xdut.e61) v(xdut.e62) v(xdut.e63) v(xdut.e64) v(xdut.e65) v(VDD) v(CLK) v(CSb) v(OEb) v(WEb) v(HOST_EN) v(xdut.e610) v(xdut.e611) v(xdut.e612) v(xdut.e613) v(xdut.e614) v(xdut.e615) v(xdut.e616) v(xdut.e617) v(xdut.e618) v(xdut.e619) v(xdut.e620) v(xdut.e621) v(xdut.e622) v(xdut.e623) v(xdut.e624) v(xdut.e625) v(xdut.e590) v(xdut.e591) v(xdut.e592) v(xdut.e593) v(xdut.e67) v(xdut.e66) v(xdut.e58) v(xdut.e72) v(xdut.e73) v(xdut.e74) v(xdut.e75) v(xdut.e76) v(xdut.e77) v(xdut.e78) v(xdut.e95) v(xdut.e124) v(xdut.e242) v(xdut.e331) v(xdut.e384) v(xdut.e457) v(xdut.e556) v(xdut.e574) v(xdut.e96) v(xdut.e125) v(xdut.e243) v(xdut.e332) v(xdut.e385) v(xdut.e458) v(xdut.e557) v(xdut.e575) v(xdut.e97) v(xdut.e126) v(xdut.e244) v(xdut.e333) v(xdut.e386) v(xdut.e459) v(xdut.e558) v(xdut.e576) v(xdut.e98) v(xdut.e127) v(xdut.e245) v(xdut.e334) v(xdut.e387) v(xdut.e460) v(xdut.e559) v(xdut.e577)
+quit
+.endc
+.end
