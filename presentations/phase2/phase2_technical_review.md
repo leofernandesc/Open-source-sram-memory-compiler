@@ -406,4 +406,3 @@ CONCLUSÕES E DISCUSSÃO
 
 
 **Fontes:** [docs/phase2_reproduction_guide.md](../../docs/phase2_reproduction_guide.md), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)
-

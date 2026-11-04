@@ -56,6 +56,16 @@ def classify(name, selected):
     return 'A', 'Source/configuration/documentation required for reconstruction or review'
 
 
+def verify_index(root, names):
+    entries = subprocess.check_output(['git','ls-files','-s'],cwd=root,text=True).splitlines()
+    staged = {line.split('\t',1)[1]:line.split()[1] for line in entries}
+    if any(n not in staged for n in names): raise ValueError('Publication input is not versioned')
+    actual = subprocess.check_output(['git','hash-object','--stdin-paths'],cwd=root,
+                                    input='\n'.join(names)+'\n',text=True).splitlines()
+    if len(actual)!=len(names) or any(staged[n]!=h for n,h in zip(names,actual)):
+        raise ValueError('Worktree bytes differ from the staged publication blobs')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', required=True)
@@ -81,11 +91,15 @@ def main():
         staged = set(subprocess.check_output(['git','ls-files'],cwd=ROOT,text=True).splitlines())
         candidates = set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],cwd=ROOT,text=True).splitlines())
         include = sorted(n for n in staged | candidates if n in selected or n.startswith(('reports/phase2/','reports/digital/phase2_','physical/phase2/','synth/','verification/phase2/','presentations/phase2/','release/phase2_experimental/')) or n in ('README.md','.gitignore') or n.startswith(('docs/phase2','tools/phase2','tools/run_phase2','tools/review_phase2','tools/verify_phase2','tools/analyze_phase2','tools/plot_phase2','tools/package_phase2','tools/pack_phase2','tools/finish_phase2','tools/export_phase2','tools/tests/test_phase2','scripts/run_phase2','scripts/run_synth','scripts/reproduce_phase2','specs/phase2','specs/sram_4x8_timing','rtl/','tb/','scripts/run_rtl','tools/run_digital_regression','tools/sram-eda','tools/tests/test_digital','tools/audit_phase2','tools/bundle_phase2','tools/ENVIRONMENT','specs/technical_specification','specs/sram_4x8_digital')))
-        include = [n for n in include if n != 'release/phase2_experimental/inventory.json']
+        # Validation seals the inventory. Neither metadata file belongs inside
+        # that inventory, otherwise their hashes would form a recursive cycle.
+        include = [n for n in include if n not in ('release/phase2_experimental/inventory.json',
+                                                  'release/phase2_experimental/validation.json')]
         ignored = subprocess.run(['git','check-ignore','--stdin'],cwd=ROOT,input='\n'.join(selected)+'\n',capture_output=True,text=True).stdout.splitlines()
         if ignored: raise ValueError('Mandatory evidence hidden by gitignore: '+str(ignored))
         if args.require_versioned and not selected <= staged:
             raise ValueError('Mandatory evidence not versioned: '+str(sorted(selected-staged)))
+        if args.require_versioned: verify_index(ROOT, include)
         inventory = []
         secrets = re.compile(rb'gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
         for name in include:

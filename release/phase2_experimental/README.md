@@ -34,6 +34,11 @@ intentional because that commit follows the selected Phase 1 base.
   lossless roundtrip verified. The ~81-MiB bundle stays outside Git and is not
   hosted automatically. Obtain it from the holder or regenerate simulations.
 
+The inventory excludes itself and `validation.json`: validation seals the
+inventory in one direction, avoiding recursive hashes. The versioned gate
+also compares worktree content against Git's staged blobs; a path being
+tracked is insufficient if its current bytes were not staged.
+
 ## Publication selection
 
 Mandatory views, metadata, logs and sealed evidence are retained, including

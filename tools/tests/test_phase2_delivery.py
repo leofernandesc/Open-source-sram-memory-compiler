@@ -6,8 +6,9 @@ import sys
 import tarfile
 import tempfile
 import unittest
+import subprocess
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from review_phase2_delivery import verify_entries
+from review_phase2_delivery import verify_entries, verify_index
 from bundle_phase2_raw import verify
 
 
@@ -24,6 +25,15 @@ class DeliveryTests(unittest.TestCase):
 
     def test_empty_manifest_rejected(self):
         with self.assertRaisesRegex(ValueError,'Empty'):verify_entries({})
+
+    def test_index_gate_rejects_worktree_bytes_changed_after_staging(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);subprocess.run(['git','init','-q',str(root)],check=True)
+            p=root/'proof.txt';p.write_text('audited bytes\n')
+            subprocess.run(['git','add','proof.txt'],cwd=root,check=True)
+            verify_index(root,['proof.txt'])
+            p.write_text('different bytes after staging\n')
+            with self.assertRaisesRegex(ValueError,'staged publication blobs'):verify_index(root,['proof.txt'])
 
     def archive(self,root,name='case/waveform.dat',payload=b'full trace fixture'):
         archive=root/'bundle.tar.gz'

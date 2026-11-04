@@ -35,7 +35,7 @@ it has not been duplicated or rewritten. No main/develop merge is requested.
 | Baseline electrical | 128 read-bit checks plus 392 protocol/capture checks |
 | Directed electrical | 1,332 total checks, **including** 160 read bits |
 | Additional startup | 5 passing scenarios, 3,383 total checks **including** 240 read bits |
-| Publication regression | 47 relevant Python tests; old seals/manifests and raw evidence reaudited |
+| Publication regression | 48 relevant Python tests; old seals/manifests and raw evidence reaudited |
 
 Mapped and routed GLS repeat the same coverage; they are not 31,238 unique
 tests. The read-bit subsets above are not added to the corresponding totals.

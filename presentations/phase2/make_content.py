@@ -125,6 +125,6 @@ for i,s in enumerate(slides,1):
  if s['transition']:notes += [f"**Transição:** {s['transition']}\n"]
  notes += ['**Fontes:** '+', '.join(f'[{n}](../../{n})' for n in s['source'])+'\n']
  md += [f"\n---\n\n## {i:02d} — {s['title'].replace(chr(10),' ')}\n\n{s['kicker']}\n\n",'\n'.join('- '+b for b in s['bullets'])+'\n',f"\n**Mensagem:** {s['takeaway']}\n",'\n**Fontes:** '+', '.join(f'[{n}](../../{n})' for n in s['source'])+'\n']
-(ROOT/'speaker_notes.md').write_text('\n'.join(notes)+'\n')
-(ROOT/'phase2_technical_review.md').write_text('\n'.join(md)+'\n')
+(ROOT/'speaker_notes.md').write_text('\n'.join(notes).rstrip()+'\n')
+(ROOT/'phase2_technical_review.md').write_text('\n'.join(md).rstrip()+'\n')
 print('slides',len(slides))

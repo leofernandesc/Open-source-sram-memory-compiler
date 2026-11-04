@@ -329,4 +329,3 @@ Duração sugerida: 20–25 minutos, ajustável à discussão. Este roteiro não
 **Ressalva:** Sem aprovação formal atribuída antecipadamente aos orientadores.
 
 **Fontes:** [docs/phase2_reproduction_guide.md](../../docs/phase2_reproduction_guide.md), [docs/phase2_final_polish.md](../../docs/phase2_final_polish.md)
-
