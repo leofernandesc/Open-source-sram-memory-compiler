@@ -1,0 +1,44 @@
+* Mapped synchronous SRAM with real HD control and all 32 bitcells
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+.include "binding.spice"
+.include "fabric.spice"
+.temp 27
+.options method=gear reltol=1e-4 vabstol=1e-8 iabstol=1e-12
+VSS_SRC VSS 0 0
+VDD_SRC VDD 0 PWL(0 0 1n 1.8)
+.model HOST_SWITCH sw ron=1 roff=1e12 vt=.9 vh=.1
+.options klu
+V_CLK CLK 0 PWL(0n 0 10n 0 10.05n 1.8 20n 1.8 20.05n 0 30n 0 30.05n 1.8 40n 1.8 40.05n 0 50n 0 50.05n 1.8 60n 1.8 60.05n 0 70n 0 70.05n 1.8 80n 1.8 80.05n 0 90n 0 90.05n 1.8 100n 1.8 100.05n 0)
+V_CSb CSb 0 PWL(0n 0 1n 1.8 7n 1.8 7.05n 1.8 27n 1.8 27.05n 1.8 47n 1.8 47.05n 0 67n 0 67.05n 0 87n 0 87.05n 0)
+V_OEb OEb 0 PWL(0n 0 1n 1.8 7n 1.8 7.05n 1.8 27n 1.8 27.05n 1.8 47n 1.8 47.05n 0 67n 0 67.05n 1.8 87n 1.8 87.05n 0)
+V_WEb WEb 0 PWL(0n 0 1n 1.8 7n 1.8 7.05n 1.8 27n 1.8 27.05n 1.8 47n 1.8 47.05n 1.8 67n 1.8 67.05n 0 87n 0 87.05n 1.8)
+V_ADDR0 ADDR0 0 PWL(0n 0 7n 0 7.05n 0 27n 0 27.05n 0 47n 0 47.05n 0 67n 0 67.05n 0 87n 0 87.05n 0)
+V_ADDR1 ADDR1 0 PWL(0n 0 7n 0 7.05n 0 27n 0 27.05n 0 47n 0 47.05n 0 67n 0 67.05n 0 87n 0 87.05n 0)
+V_HOST_EN HOST_EN 0 PWL(0n 0 8n 0 8.05n 0 11n 0 11.05n 0 28n 0 28.05n 0 31n 0 31.05n 0 48n 0 48.05n 0 51n 0 51.05n 0 68n 0 68.05n 1.8 71n 1.8 71.05n 0 88n 0 88.05n 0 91n 0 91.05n 0)
+V_HOST0 HOST0 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 1.8 87.5n 1.8 87.55n 1.8)
+V_HOST1 HOST1 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 1.8 87.5n 1.8 87.55n 1.8)
+V_HOST2 HOST2 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 1.8 87.5n 1.8 87.55n 1.8)
+V_HOST3 HOST3 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 0 87.5n 0 87.55n 0)
+V_HOST4 HOST4 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 0 87.5n 0 87.55n 0)
+V_HOST5 HOST5 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 1.8 87.5n 1.8 87.55n 1.8)
+V_HOST6 HOST6 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 0 87.5n 0 87.55n 0)
+V_HOST7 HOST7 0 PWL(0n 0 7.5n 0 7.55n 0 27.5n 0 27.55n 0 47.5n 0 47.55n 0 67.5n 0 67.55n 1.8 87.5n 1.8 87.55n 1.8)
+S_HOST0 DATA0 HOST0 HOST_EN 0 HOST_SWITCH
+S_HOST1 DATA1 HOST1 HOST_EN 0 HOST_SWITCH
+S_HOST2 DATA2 HOST2 HOST_EN 0 HOST_SWITCH
+S_HOST3 DATA3 HOST3 HOST_EN 0 HOST_SWITCH
+S_HOST4 DATA4 HOST4 HOST_EN 0 HOST_SWITCH
+S_HOST5 DATA5 HOST5 HOST_EN 0 HOST_SWITCH
+S_HOST6 DATA6 HOST6 HOST_EN 0 HOST_SWITCH
+S_HOST7 DATA7 HOST7 HOST_EN 0 HOST_SWITCH
+XDUT CLK ADDR0 ADDR1 DATA0 DATA1 DATA2 DATA3 DATA4 DATA5 DATA6 DATA7 CSb OEb WEb VDD VSS sram_4x8_wrapper
+.save v(DATA0) v(DATA1) v(DATA2) v(DATA3) v(DATA4) v(DATA5) v(DATA6) v(DATA7) v(xdut.n93) v(xdut.n94) v(xdut.n99) v(xdut.n100) v(xdut.xmapped63.WL0) v(xdut.xmapped63.WL1) v(xdut.xmapped63.WL2) v(xdut.xmapped63.WL3) v(xdut.n44) v(xdut.n41) v(xdut.n38) v(xdut.n35) v(xdut.n32) v(xdut.n29) v(xdut.n26) v(xdut.n23) v(xdut.n18) v(xdut.n70) v(xdut.n71) v(xdut.n72) v(xdut.n73) v(xdut.n74) v(xdut.n75) v(xdut.n76) v(xdut.n45) v(xdut.n42) v(xdut.n39) v(xdut.n36) v(xdut.n33) v(xdut.n30) v(xdut.n27) v(xdut.n24)
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+tran 10p 110n 0 10p
+wrdata waveform.dat v(DATA0) v(DATA1) v(DATA2) v(DATA3) v(DATA4) v(DATA5) v(DATA6) v(DATA7) v(xdut.n93) v(xdut.n94) v(xdut.n99) v(xdut.n100) v(xdut.xmapped63.WL0) v(xdut.xmapped63.WL1) v(xdut.xmapped63.WL2) v(xdut.xmapped63.WL3) v(xdut.n44) v(xdut.n41) v(xdut.n38) v(xdut.n35) v(xdut.n32) v(xdut.n29) v(xdut.n26) v(xdut.n23) v(xdut.n18) v(xdut.n70) v(xdut.n71) v(xdut.n72) v(xdut.n73) v(xdut.n74) v(xdut.n75) v(xdut.n76) v(xdut.n45) v(xdut.n42) v(xdut.n39) v(xdut.n36) v(xdut.n33) v(xdut.n30) v(xdut.n27) v(xdut.n24)
+quit
+.endc
+.end

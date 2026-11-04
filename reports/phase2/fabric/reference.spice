@@ -1,0 +1,162 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt bitcell_6t VDD BL BLB VSS WL
+MMPL Q QB VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNL Q QB VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMPR QB Q VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNR QB Q VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMAL Q WL BL VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMAR BLB WL QB VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+.ends bitcell_6t
+
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt sense_amp VDD VSS BL BLB SCLK SA_OUT SA_OUTB
+MMP1 SA_OUT SA_OUTB VDD VDD sky130_fd_pr__pfet_01v8 w=1.89u l=0.15u
+MMN1 SA_OUT SA_OUTB NTAIL VSS sky130_fd_pr__nfet_01v8 w=0.975u l=0.15u
+MMP2 SA_OUTB SA_OUT VDD VDD sky130_fd_pr__pfet_01v8 w=1.89u l=0.15u
+MMN2 SA_OUTB SA_OUT NTAIL VSS sky130_fd_pr__nfet_01v8 w=0.975u l=0.15u
+MMSAMPBL BL SCLK SA_OUT VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+MMSAMPBLB SA_OUTB SCLK BLB VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+MMTAIL NTAIL SCLK VSS VSS sky130_fd_pr__nfet_01v8 w=0.975u l=0.15u
+.ends sense_amp
+
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt precharge VDD BL BLB PRECH VSS
+MMPBL BL PRECH VDD VDD sky130_fd_pr__pfet_01v8 w=2.52u l=0.15u
+MMPBLB BLB PRECH VDD VDD sky130_fd_pr__pfet_01v8 w=2.52u l=0.15u
+MMEQ BL PRECH BLB VDD sky130_fd_pr__pfet_01v8 w=2.52u l=0.15u
+.ends precharge
+
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt wl_driver VDD VSS WL_IN WL
+MMP1 WL_N WL_IN VDD VDD sky130_fd_pr__pfet_01v8 w=1.68u l=0.15u
+MMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 w=1.68u l=0.15u
+MMP2 WL WL_N VDD VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMN2 WL WL_N VSS VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+.ends wl_driver
+
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt write_driver DATA DATA_B WE BL BLB VDD VSS
+MMPWEB WE_B WE VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MMNWEB WE_B WE VSS VSS sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+MMPENBL net1 WE_B VDD VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMPDBL BL DATA_B net1 VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMNDBL BL DATA_B net2 VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+MMNENBL net2 WE VSS VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+MMPENBLB net3 WE_B VDD VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMPDBLB BLB DATA net3 VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMNDBLB BLB DATA net4 VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+MMNENBLB net4 WE VSS VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+.ends write_driver
+
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt row_decoder VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS
+MM1 A0B A0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM2 A0B A0 VSS VSS sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+MM3 A1B A1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM4 A1B A1 VSS VSS sky130_fd_pr__nfet_01v8 w=0.84u l=0.15u
+MM5 N0 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM6 N0 A1B net1 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM7 net1 A0B EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM8 EVAL_GND PCLK VSS VSS sky130_fd_pr__nfet_01v8 w=1.5u l=0.15u
+MM9 DEC0 N0 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM10 DEC0 N0 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM11 N1 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM12 N1 A1B net2 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM13 net2 A0T EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM14 DEC1 N1 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM15 DEC1 N1 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM16 N2 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM17 N2 A1T net3 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM18 net3 A0B EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM19 DEC2 N2 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM20 DEC2 N2 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM21 N3 PCLK VDD VDD sky130_fd_pr__pfet_01v8 w=1.25u l=0.15u
+MM22 N3 A1T net4 VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM23 net4 A0T EVAL_GND VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM24 DEC3 N3 VDD VDD sky130_fd_pr__pfet_01v8 w=3u l=0.15u
+MM25 DEC3 N3 VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM26 A0T A0B VDD VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+MM27 A0T A0B VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM28 A1T A1B VDD VDD sky130_fd_pr__pfet_01v8 w=2u l=0.15u
+MM29 A1T A1B VSS VSS sky130_fd_pr__nfet_01v8 w=2u l=0.15u
+MM30 N0 DEC0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM31 N1 DEC1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM32 N2 DEC2 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+MM33 N3 DEC3 VDD VDD sky130_fd_pr__pfet_01v8 w=0.84u l=0.15u
+.ends row_decoder
+
+.subckt leaf_fabric VDD VSS A0 A1 PCLK PRECH SCLK WE DIN0 DIN1 DIN2 DIN3 DIN4 DIN5 DIN6 DIN7 DIN_B0 DIN_B1 DIN_B2 DIN_B3 DIN_B4 DIN_B5 DIN_B6 DIN_B7 DOUT0 DOUT1 DOUT2 DOUT3 DOUT4 DOUT5 DOUT6 DOUT7 ROW0 ROW1 ROW2 ROW3 DEC0 DEC1 DEC2 DEC3
+Xbit_r0_b0 VDD BL0 BLB0 VSS WL0 bitcell_6t
+Xbit_r0_b1 VDD BL1 BLB1 VSS WL0 bitcell_6t
+Xbit_r0_b2 VDD BL2 BLB2 VSS WL0 bitcell_6t
+Xbit_r0_b3 VDD BL3 BLB3 VSS WL0 bitcell_6t
+Xbit_r0_b4 VDD BL4 BLB4 VSS WL0 bitcell_6t
+Xbit_r0_b5 VDD BL5 BLB5 VSS WL0 bitcell_6t
+Xbit_r0_b6 VDD BL6 BLB6 VSS WL0 bitcell_6t
+Xbit_r0_b7 VDD BL7 BLB7 VSS WL0 bitcell_6t
+Xbit_r1_b0 VDD BL0 BLB0 VSS WL1 bitcell_6t
+Xbit_r1_b1 VDD BL1 BLB1 VSS WL1 bitcell_6t
+Xbit_r1_b2 VDD BL2 BLB2 VSS WL1 bitcell_6t
+Xbit_r1_b3 VDD BL3 BLB3 VSS WL1 bitcell_6t
+Xbit_r1_b4 VDD BL4 BLB4 VSS WL1 bitcell_6t
+Xbit_r1_b5 VDD BL5 BLB5 VSS WL1 bitcell_6t
+Xbit_r1_b6 VDD BL6 BLB6 VSS WL1 bitcell_6t
+Xbit_r1_b7 VDD BL7 BLB7 VSS WL1 bitcell_6t
+Xbit_r2_b0 VDD BL0 BLB0 VSS WL2 bitcell_6t
+Xbit_r2_b1 VDD BL1 BLB1 VSS WL2 bitcell_6t
+Xbit_r2_b2 VDD BL2 BLB2 VSS WL2 bitcell_6t
+Xbit_r2_b3 VDD BL3 BLB3 VSS WL2 bitcell_6t
+Xbit_r2_b4 VDD BL4 BLB4 VSS WL2 bitcell_6t
+Xbit_r2_b5 VDD BL5 BLB5 VSS WL2 bitcell_6t
+Xbit_r2_b6 VDD BL6 BLB6 VSS WL2 bitcell_6t
+Xbit_r2_b7 VDD BL7 BLB7 VSS WL2 bitcell_6t
+Xbit_r3_b0 VDD BL0 BLB0 VSS WL3 bitcell_6t
+Xbit_r3_b1 VDD BL1 BLB1 VSS WL3 bitcell_6t
+Xbit_r3_b2 VDD BL2 BLB2 VSS WL3 bitcell_6t
+Xbit_r3_b3 VDD BL3 BLB3 VSS WL3 bitcell_6t
+Xbit_r3_b4 VDD BL4 BLB4 VSS WL3 bitcell_6t
+Xbit_r3_b5 VDD BL5 BLB5 VSS WL3 bitcell_6t
+Xbit_r3_b6 VDD BL6 BLB6 VSS WL3 bitcell_6t
+Xbit_r3_b7 VDD BL7 BLB7 VSS WL3 bitcell_6t
+Xdecode VDD PCLK A0 A1 DEC0 DEC1 DEC3 DEC2 VSS row_decoder
+Xdrive0 VDD VSS ROW0 WL0 wl_driver
+Xdrive1 VDD VSS ROW1 WL1 wl_driver
+Xdrive2 VDD VSS ROW2 WL2 wl_driver
+Xdrive3 VDD VSS ROW3 WL3 wl_driver
+Xprecharge0 VDD BL0 BLB0 PRECH VSS precharge
+Xwrite0 DIN0 DIN_B0 WE BL0 BLB0 VDD VSS write_driver
+Xsense0 VDD VSS BL0 BLB0 SCLK DOUT0 DOUT_B0 sense_amp
+Xprecharge1 VDD BL1 BLB1 PRECH VSS precharge
+Xwrite1 DIN1 DIN_B1 WE BL1 BLB1 VDD VSS write_driver
+Xsense1 VDD VSS BL1 BLB1 SCLK DOUT1 DOUT_B1 sense_amp
+Xprecharge2 VDD BL2 BLB2 PRECH VSS precharge
+Xwrite2 DIN2 DIN_B2 WE BL2 BLB2 VDD VSS write_driver
+Xsense2 VDD VSS BL2 BLB2 SCLK DOUT2 DOUT_B2 sense_amp
+Xprecharge3 VDD BL3 BLB3 PRECH VSS precharge
+Xwrite3 DIN3 DIN_B3 WE BL3 BLB3 VDD VSS write_driver
+Xsense3 VDD VSS BL3 BLB3 SCLK DOUT3 DOUT_B3 sense_amp
+Xprecharge4 VDD BL4 BLB4 PRECH VSS precharge
+Xwrite4 DIN4 DIN_B4 WE BL4 BLB4 VDD VSS write_driver
+Xsense4 VDD VSS BL4 BLB4 SCLK DOUT4 DOUT_B4 sense_amp
+Xprecharge5 VDD BL5 BLB5 PRECH VSS precharge
+Xwrite5 DIN5 DIN_B5 WE BL5 BLB5 VDD VSS write_driver
+Xsense5 VDD VSS BL5 BLB5 SCLK DOUT5 DOUT_B5 sense_amp
+Xprecharge6 VDD BL6 BLB6 PRECH VSS precharge
+Xwrite6 DIN6 DIN_B6 WE BL6 BLB6 VDD VSS write_driver
+Xsense6 VDD VSS BL6 BLB6 SCLK DOUT6 DOUT_B6 sense_amp
+Xprecharge7 VDD BL7 BLB7 PRECH VSS precharge
+Xwrite7 DIN7 DIN_B7 WE BL7 BLB7 VDD VSS write_driver
+Xsense7 VDD VSS BL7 BLB7 SCLK DOUT7 DOUT_B7 sense_amp
+.ends leaf_fabric

@@ -1,0 +1,26 @@
+{
+  "scope": "Isolated 4ffbbf5 worktree mounted as /work in a fresh container using the existing image; no simulator rerun",
+  "checks": {
+    "container_identity": {
+      "status": "PASS",
+      "error": null
+    },
+    "clean_without_raw_bootstrap": {
+      "status": "FAIL_OR_INCOMPLETE",
+      "error": "[Errno 2] No such file or directory: '/work/build/phase2/directed-review-3z5164ay/waveform.dat'"
+    },
+    "clean_with_raw": {
+      "status": "PASS_EXPERIMENTAL_4X8",
+      "error": null
+    },
+    "clean_startup_with_raw": {
+      "status": "PASS",
+      "error": null
+    }
+  },
+  "raw_transfer": "Existing seven-member lossless bundle restored into previously empty cache",
+  "limitations": [
+    "Same Linux image/PDK; not Windows portability",
+    "Initial host-worktree gitdir and absent build-directory failures preserved separately"
+  ]
+}

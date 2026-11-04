@@ -16,3 +16,17 @@ sims/g1_revalidation_parts/
 *~
 *.swp
 *.swo
+
+# Reproducible Phase 2 digital executables and full waveforms
+/build/digital/
+/build/phase2/
+/reports/phase2/local/
+/reports/phase2/**/.run.lock
+/reports/digital/latest/
+/reports/digital/**/.run.lock
+
+# Selected test transcripts are mandatory evidence despite the generic *.log rule.
+!/reports/phase2/final_polish_20261104/checker_tests/*.log
+
+# Presentation tooling, exported raw bundles and rendering scratch are reproducible.
+/build/presentations/

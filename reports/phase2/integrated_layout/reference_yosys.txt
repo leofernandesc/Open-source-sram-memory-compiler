@@ -1,0 +1,37 @@
+
+-- Executing script file `reference.ys' --
+
+1. Executing Liberty frontend: /opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+Imported 428 cell types from liberty file.
+
+2. Executing Verilog-2005 frontend: physical_stubs.v
+Parsing Verilog input from `physical_stubs.v' to AST representation.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__fill_1'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__fill_2'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__fill_4'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__fill_8'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__tapvpwrvgnd_1'.
+Successfully finished Verilog frontend.
+
+3. Executing Verilog-2005 frontend: macro_binding.v
+Parsing Verilog input from `macro_binding.v' to AST representation.
+Generating RTLIL representation for module `\sram_4x8_macro'.
+Generating RTLIL representation for module `\leaf_fabric'.
+Successfully finished Verilog frontend.
+
+4. Executing Verilog-2005 frontend: final.v
+Parsing Verilog input from `final.v' to AST representation.
+Generating RTLIL representation for module `\sram_4x8_wrapper'.
+Successfully finished Verilog frontend.
+
+5. Executing HIERARCHY pass (managing design hierarchy).
+
+5.1. Analyzing design hierarchy..
+Top module:  \sram_4x8_wrapper
+
+5.2. Analyzing design hierarchy..
+Top module:  \sram_4x8_wrapper
+Removing unused module `\sram_4x8_macro'.
+Removed 1 unused modules.
+
+6. Executing JSON backend.

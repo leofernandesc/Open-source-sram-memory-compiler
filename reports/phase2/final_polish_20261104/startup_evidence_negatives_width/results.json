@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "fault": "counter",
+      "status": "REJECTED",
+      "diagnostic": "Startup counters/metrics differ from actual checks"
+    },
+    {
+      "fault": "configuration",
+      "status": "REJECTED",
+      "diagnostic": "Startup scenario configuration differs"
+    },
+    {
+      "fault": "transistor_width",
+      "status": "REJECTED",
+      "diagnostic": "Startup circuit differs from baseline",
+      "old_width": 0.42,
+      "new_width": 0.504,
+      "changed_mos": "X0"
+    },
+    {
+      "fault": "partial_transient",
+      "status": "REJECTED",
+      "diagnostic": "Incomplete startup transient"
+    }
+  ],
+  "fixture_directory": "build/phase2/startup-width-negatives-nwvwzgt9",
+  "scope": "Disposable copies of completed real startup scenario; width mutation changes a MOS, with output/pre-run hashes updated in the fixture; all original data preserved",
+  "verifier_sha256": "668a6f851dd35be9160b390b024de8978550c56c5cdb9b6a861e7c72a8e1724d"
+}

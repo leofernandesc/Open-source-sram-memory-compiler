@@ -1,0 +1,32 @@
+Flattening unmatched subcell wl_driver in circuit pilot_flat (1)(1 instance)
+Flattening unmatched subcell sky130_fd_sc_hd__inv_1 in circuit pilot_flat (1)(1 instance)
+
+Subcircuit summary:
+Circuit 1: pilot_flat                      |Circuit 2: pilot_flat                      
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__pfet_01v8 (2)                |sky130_fd_pr__pfet_01v8 (2)                
+sky130_fd_pr__pfet_01v8_hvt (1)            |sky130_fd_pr__pfet_01v8_hvt (1)            
+sky130_fd_pr__nfet_01v8 (3)                |sky130_fd_pr__nfet_01v8 (3)                
+Number of devices: 6                       |Number of devices: 6                       
+Number of nets: 6                          |Number of nets: 6                          
+---------------------------------------------------------------------------------------
+Netlists match uniquely with property errors.
+sky130_fd_pr__pfet_01v8:0 vs. wl_driver:W/sky130_fd_pr__pfet_01v8:MP1:
+ W circuit1: 2.016e-06   circuit2: 1.68e-06   (delta=18.2%, cutoff=1%)
+
+Subcircuit pins:
+Circuit 1: pilot_flat                      |Circuit 2: pilot_flat                      
+-------------------------------------------|-------------------------------------------
+IN                                         |IN                                         
+OUT                                        |OUT                                        
+VDD                                        |VDD                                        
+VSS                                        |VSS                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes pilot_flat and pilot_flat are equivalent.
+
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ pilot_flat

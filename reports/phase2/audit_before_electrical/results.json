@@ -1,0 +1,52 @@
+{
+  "status": "FAIL_OR_INCOMPLETE",
+  "F2_DIG": "PASS_FUNCTIONAL_MAPPING_GLS",
+  "CORE": "NOT_EVALUATED",
+  "F2_FIS": "NOT_EVALUATED",
+  "scope": "Experimental 4x8 integration acceptance; no R-C/PVT/Fmax/reliability qualification",
+  "checks": [
+    {
+      "name": "mapped_digital_and_raw_gls",
+      "status": "PASS",
+      "checks": 15619
+    },
+    {
+      "name": "rtl_evidence_verification",
+      "status": "PASS",
+      "python_tests": 98
+    },
+    {
+      "name": "routed_binding_preservation",
+      "status": "PASS_GRAPH_PRESERVATION",
+      "original_instances": 162,
+      "inserted_clock_buffers": 3,
+      "other_inserted_instances": 12695,
+      "signal_groups": 179,
+      "scope": "All original signal pin connectivity/types preserved; added functional cells restricted to public CLK buffers; body/rail LVS remains mandatory"
+    },
+    {
+      "name": "delivered_geometry_and_routed_gls",
+      "status": "PASS",
+      "mos": 1493
+    }
+  ],
+  "receipt_sha256": {
+    "digital": "78433ae310b4fa96ae584c22df7a2dd713d2e89e198a4eaef31d99c3df71ec9a",
+    "rtl_regression": "193ad6168c9e4dfd90a7631069c8b470e82b87e5af8d547c3076a2eee1f16bb8",
+    "physical_pilot": "99d847696f16978be7422b2c582de64fc24700afd5578b8c2978c70510d13ac7",
+    "fabric": "d8f6ef05d9c47bf4e06bb473e308be4e4a0619e0f7b88a51c9b17c854a3f967b",
+    "binding": "ce09c5c94f09dd8f6d014c3ff7a0c1989aee6dc1814d92cac82f051f24261344",
+    "electrical_access": "e982bc8ea72112eb8e8fc06aa9527346145847ba2824a8e3516ed599017c2aeb",
+    "phase_guard": "f32eb3777f9454668c630588ae2d5fbd1f48e680ae9dded371e549058f0fa595",
+    "route": "bfd1160e9e87d6a9df68e4fdf61e0a0dc982985cda4d87319bcc00751586a694",
+    "integrated_layout": "811be49ada3ad81e56dd9bce95be3b669c8801fc863ce964a5072b4788ace990",
+    "final_gds": "e07a80a1d6ac91fe040b8716ca2c7ebce7729e9923ce82fc9454cbb0febe8c4f",
+    "routed_gls": "1cd54ce1c748d7e86d8c500629c5c40df5e75902510c547db51ec8ff4bc0f98b",
+    "extracted_access": "9689ede27560752f6ada0f9502276edcfabd31f8744094a6c0ec90e87b2dc91b"
+  },
+  "error": "Complete final-extracted electrical campaign has not passed",
+  "artifacts": {
+    "graph_yosys.txt": "22d569c01d2c3415be36b6c5f8c43e632a156583d118592a26e524c76b9ada80",
+    "graph_preservation.json": "e742574beff5a3e29eed65cc8bd4074e88d3072f9a52477d6c465bd58fc94f15"
+  }
+}

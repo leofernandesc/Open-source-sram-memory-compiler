@@ -1,0 +1,15 @@
+* External 0V series current meter unit; no SRAM or internal node
+Vdrive HOST 0 1.8
+Rdriver HOST METER 1k
+v_sense_host0 METER DATA0 0
+Rload DATA0 0 1k
+.save v(DATA0) i(v_sense_host0)
+.control
+set noaskquit
+set wr_singlescale
+set wr_vecnames
+tran 10p 1n 0 10p
+wrdata waveform.dat v(DATA0) i(v_sense_host0)
+quit
+.endc
+.end

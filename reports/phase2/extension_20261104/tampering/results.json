@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "control": {
+    "status": "PASS",
+    "checks": 309,
+    "failures": 0,
+    "read_bit_checks": 16,
+    "receipt_sha256": "ffd3e19df57838a51bb93c36a6abc9a5adac602231e2292a54049216703747e1",
+    "raw_sha256": "8984daa02eb28c10ba33201aa07d8499e43568bb84043ed1011749738683be11",
+    "scope": "Complete native raw reanalysis; not another circuit simulation"
+  },
+  "cases": [
+    {
+      "name": "counter",
+      "status": "PASS_REJECTED",
+      "expected": "Counters/status differ",
+      "diagnostic": "Counters/status differ from actual checks"
+    },
+    {
+      "name": "raw_identity",
+      "status": "PASS_REJECTED",
+      "expected": "Raw changed",
+      "diagnostic": "Raw changed"
+    },
+    {
+      "name": "stimulus",
+      "status": "PASS_REJECTED",
+      "expected": "Declared stimulus",
+      "diagnostic": "Declared stimulus or observations differ"
+    },
+    {
+      "name": "missing_required_artifact",
+      "status": "PASS_REJECTED",
+      "expected": "Missing mandatory artifact",
+      "diagnostic": "Missing mandatory artifact"
+    },
+    {
+      "name": "changed_circuit",
+      "status": "PASS_REJECTED",
+      "expected": "Changed campaign artifact",
+      "diagnostic": "Changed campaign artifact: binding.spice"
+    },
+    {
+      "name": "incomplete_native_log",
+      "status": "PASS_REJECTED",
+      "expected": "Missing native successful",
+      "diagnostic": "Missing native successful simulator completion"
+    },
+    {
+      "name": "checks_after_generation",
+      "status": "PASS_REJECTED",
+      "expected": "Checks differ",
+      "diagnostic": "Checks differ from complete raw reanalysis"
+    },
+    {
+      "name": "source_snapshot",
+      "status": "PASS_REJECTED",
+      "expected": "Source snapshot differs",
+      "diagnostic": "Source snapshot differs"
+    }
+  ],
+  "original_receipt_sha256": "ffd3e19df57838a51bb93c36a6abc9a5adac602231e2292a54049216703747e1",
+  "auditor_sha256": "d139a44cf91adc05cece60421466b3b46c41a5ab5fe0bdbc7d88ac149c9d1f34",
+  "original_preserved": true
+}

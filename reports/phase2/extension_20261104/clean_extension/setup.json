@@ -1,0 +1,30 @@
+{
+  "commit": "2397898750aa052f707d9d9359d570bbbdd6d0ab",
+  "tracked_status": "",
+  "new_raws_preexisting": [],
+  "scope": "Clean committed extension plus existing Linux image; restore optional new raws and reanalyze, no fresh SPICE",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "--cpus",
+    "1",
+    "--memory",
+    "1500m",
+    "--entrypoint",
+    "/bin/bash",
+    "-v",
+    "/home/leofernandesc/Open-source-sram-memory-compiler/build/phase2/extension_clean:/work",
+    "-v",
+    "/home/leofernandesc/Open-source-sram-memory-compiler/.git:/home/leofernandesc/Open-source-sram-memory-compiler/.git:ro",
+    "-v",
+    "/home/leofernandesc/Open-source-sram-memory-compiler/build/phase2/transfer/raw_extension_20261104.tar.gz:/transfer/raw_extension.tar.gz:ro",
+    "-w",
+    "/work",
+    "isaiassh/unic-cass-tools:1.0.7",
+    "-lc",
+    "set -eu\nexport PATH=/opt/ngspice/ngspice-44.2/bin:$PATH\nexport PDK_ROOT=/opt/pdks PDK=sky130A OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1\nmkdir -p build/phase2\npython3 tools/bundle_phase2_extension_raw.py --restore /transfer/raw_extension.tar.gz\npython3 tools/verify_phase2_extension.py --sources reports/phase2/extension_20261104/c1_pilot reports/phase2/extension_20261104/c1_sequences reports/phase2/extension_20261104/c2_bus --output reports/phase2/local/extension_clean_reanalysis\npython3 tools/analyze_phase2_extension_timing.py --sources reports/phase2/extension_20261104/c1_sequences reports/phase2/extension_20261104/c2_bus --output reports/phase2/local/extension_clean_timing\npython3 -m unittest discover -s tools/tests -p 'test_phase2_*.py' -v\n"
+  ]
+}

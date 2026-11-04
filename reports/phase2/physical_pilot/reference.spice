@@ -1,0 +1,21 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt wl_driver VDD VSS WL_IN WL
+MMP1 WL_N WL_IN VDD VDD sky130_fd_pr__pfet_01v8 w=1.68u l=0.15u
+MMN1 WL_N WL_IN VSS VSS sky130_fd_pr__nfet_01v8 w=1.68u l=0.15u
+MMP2 WL WL_N VDD VDD sky130_fd_pr__pfet_01v8 w=5.04u l=0.15u
+MMN2 WL WL_N VSS VSS sky130_fd_pr__nfet_01v8 w=5.04u l=0.15u
+.ends wl_driver
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.subckt sky130_fd_sc_hd__inv_1 A VGND VNB VPB VPWR Y
+M0 VGND A Y VNB sky130_fd_pr__nfet_01v8 w=0.65u l=0.15u
+M1 VPWR A Y VPB sky130_fd_pr__pfet_01v8_hvt w=1u l=0.15u
+.ends sky130_fd_sc_hd__inv_1
+
+.subckt pilot_flat VDD VSS IN OUT
+XW VDD VSS IN LINK wl_driver
+XI LINK VSS VSS VDD VDD OUT sky130_fd_sc_hd__inv_1
+.ends pilot_flat

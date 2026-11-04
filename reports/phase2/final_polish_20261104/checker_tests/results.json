@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "tests": 20,
+  "new_startup_tests": 7,
+  "scope": "Synthetic negative checker tests and real CLI preservation, not 20 SPICE runs",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_phase2_startup.py",
+        "-v"
+      ],
+      "return_code": 0,
+      "tests": 7,
+      "log": "test_phase2_startup.py.log",
+      "sha256": "df9ef01e26bddac4a925b474b4d6ccc1af1fb7824db8c0d240b77ced1f189e5c"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_phase2_protocol.py",
+        "-v"
+      ],
+      "return_code": 0,
+      "tests": 6,
+      "log": "test_phase2_protocol.py.log",
+      "sha256": "eda06270f8116c6eb669bcecf45ca8b073ce346485fde4482cdb662ff1fb06e8"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-p",
+        "test_phase2_evidence.py",
+        "-v"
+      ],
+      "return_code": 0,
+      "tests": 7,
+      "log": "test_phase2_evidence.py.log",
+      "sha256": "b4a32441570ba2666106bf96a31d43f46ac30f6625ea4a2842eae65654dc7977"
+    }
+  ],
+  "test_sources": {
+    "tools/tests/test_phase2_startup.py": "3c449b26503fa5812322ea125a439712fd00faf7845c2f4f0e44a399ffc577e8",
+    "tools/tests/test_phase2_protocol.py": "565fdf14a75119ffade4477de0854e5c0c36ecab45d76377a3f8b0954a148245",
+    "tools/tests/test_phase2_evidence.py": "97f50c98e9668c332d355c8a0857afe34545cd717e13f4d503cc9e2a45fd2e98"
+  }
+}

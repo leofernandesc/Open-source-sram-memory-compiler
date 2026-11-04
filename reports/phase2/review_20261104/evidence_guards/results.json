@@ -1,0 +1,74 @@
+{
+  "status": "PASS_EVIDENCE_GUARDS",
+  "scope": "Receipt corruption negatives against real electrical raw data; original evidence untouched",
+  "guards": [
+    {
+      "mutation": "missing_read",
+      "status": "REJECTED",
+      "diagnostic": "Incomplete/duplicate read CSV coverage"
+    },
+    {
+      "mutation": "plausible_voltage",
+      "status": "REJECTED",
+      "diagnostic": "Read CSV differs from raw trace"
+    },
+    {
+      "mutation": "forged_protocol",
+      "status": "REJECTED",
+      "diagnostic": "Protocol receipt differs from raw reanalysis"
+    },
+    {
+      "mutation": "forged_counter",
+      "status": "REJECTED",
+      "diagnostic": "Electrical summary counters do not reconcile"
+    },
+    {
+      "mutation": "csv_nan",
+      "status": "REJECTED",
+      "diagnostic": "Nonfinite numeric evidence: CSV voltage_v"
+    },
+    {
+      "mutation": "missing_inventory",
+      "status": "REJECTED",
+      "diagnostic": "Missing mandatory evidence inventory"
+    },
+    {
+      "mutation": "post_run_netlist",
+      "status": "REJECTED",
+      "diagnostic": "Simulation input differs from pre-run identity: binding.spice"
+    },
+    {
+      "mutation": "missing_capture",
+      "status": "REJECTED",
+      "diagnostic": "Missing mandatory output capture probes"
+    },
+    {
+      "mutation": "wrong_condition",
+      "status": "REJECTED",
+      "diagnostic": "Electrical condition differs from the declared TT experiment"
+    },
+    {
+      "mutation": "wrong_probes",
+      "status": "REJECTED",
+      "diagnostic": "Probe metadata differs from the executed SPICE fixture"
+    }
+  ],
+  "source_receipt_sha256": "098b52683d7083dfe31e336e47b35ff87ee353edf0783105a3c9fb205c31e277",
+  "baseline": {
+    "read_checks": 128,
+    "protocol_checks": 392,
+    "condition": {
+      "corner": "tt",
+      "vdd_v": 1.8,
+      "temp_c": 27
+    },
+    "waveform_sha256": "9b65ad9bcc79b9f14952333c2d061d78a440ebc61af05e2d45b5ecc3927821d5",
+    "startup": "Ramp plus two inactive cycles; no internal IC; minimum/statistical startup not characterized"
+  },
+  "build_directory": "build/phase2/evidence-guards-ummuo7z2",
+  "checker_sha256": "363b05a3758e15f5d4b0120f67c646a85581aed2517607cb736501b5097e2cdf",
+  "validator_inputs": {
+    "tools/phase2_evidence.py": "0e8d36de9cf6f6208484587c6bb716341a55a5547ca02a390d55600a430b08b2",
+    "tools/verify_phase2_evidence_guards.py": "7e327771ffd179a7c29358ca2a1e9054ed342a82168781e21056c246ba8230aa"
+  }
+}

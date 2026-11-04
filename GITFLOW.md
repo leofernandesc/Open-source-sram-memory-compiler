@@ -75,3 +75,14 @@ PR #6 merged the earlier `develop` revision into `main` on 2026-10-30.
 PR #7 still targets `develop` and proposes the reconciled six-cell delivery.
 After PR #7 is reviewed and merged, use a new `develop` -> `main` PR for that
 delivery; the already closed PR #6 cannot publish subsequent changes.
+
+## Phase 2 digital work
+
+`feature/phase2-digital` carries the architecture/RTL and digital-verification
+fronts separately from Phase 1 PR #7. It starts at Phase 1 integration commit
+`a27dd1e5373d70c546bdfae44decefde64393794` and depends on that PR's delivery.
+After #7 is integrated, merge the current `develop` into this feature branch,
+then review only the additional Phase 2 work through its own PR to `develop`.
+Do not fold digital development into the six-leaf review or rewrite the shared
+integration branch. Synthesis/GLS and complete physical macro generation remain
+separate Phase 2 fronts.

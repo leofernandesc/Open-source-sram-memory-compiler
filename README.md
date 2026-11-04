@@ -7,8 +7,60 @@ explicit VDD/VSS. The first macro target is 4×8; supported compiler depths
 are 4, 8, 16 and 32 words.
 
 The [technical specification](specs/technical_specification.md) defines the
-architecture and open advisor decisions. The compiler, complete macros and
-GDSII/LEF/behavioral Verilog/Liberty macro views remain planned work.
+architecture and open advisor decisions. A local experimental physical 4×8
+prototype now has an integrated GDSII/LEF, mapped digital control, GLS and
+transistor-level checks. Physical generation at depths 8/16/32 and characterized
+Liberty remain future work. This is not full PVT, RC timing or fabrication qualification.
+
+## Phase 2 experimental handoff
+
+Implementation and technical audit are complete within the declared nominal
+scope; **formal team/advisor acceptance is pending**. The physical prototype
+is 4×8. The compiler is still under development: physical 8×8/16×8/32×8
+and a characterized Liberty library are not delivered.
+
+| Evidence | Verified scope/result |
+|---|---|
+| Integrated circuit | 1,493 MOS: 401 selected custom + 1,092 SKY130HD |
+| Digital interface | 20 FF, eight physical tri-state cells, custom macro preserved |
+| Functional regression | 154,303 RTL checks; 15,619 mapped GLS checks |
+| Physical verification | Zero Magic DRC and expanded Netgen LVS, including GDS reimport |
+| Directed electrical access | 1,332 total checks, including 160 read bits |
+| Additional no-reset startup | Five passing scenarios; 3,383 total checks including 240 read bits |
+
+Mapped and routed GLS repeat the same coverage and are not 31,238 unique tests.
+Read-bit counts are subsets of the corresponding total checks. Electrical
+conditions are TT, 1.8 V, 27 °C and a **20-ns experimental clock**, with extracted
+connectivity/junctions and no detailed interconnect RC. This does not establish
+Fmax, complete external timing, statistical startup/PVT, power/yield or
+fabrication reliability. The Phase 1 model-coverage limitation remains recorded.
+
+```text
+RTL/controller → Yosys/SKY130HD → mapped GLS
+Frozen custom cells → Python/Magic fabric → OpenROAD integration
+→ final GDS reimport → DRC/LVS → transistor-level access/capture
+```
+
+Start with the [reproduction guide](docs/phase2_reproduction_guide.md),
+[current handoff index](release/phase2_experimental/README.md),
+[public timing contract](specs/sram_4x8_timing_contract.md) and
+[22-slide technical presentation](presentations/phase2/README.md).
+The [audit](docs/phase2_review_20261104.md),
+[requirements matrix](docs/phase2_review_20261104_requirements.md),
+[acceptance gates](docs/phase2_review_20261104_acceptance.md) and
+[startup supplement](docs/phase2_final_polish.md) distinguish verified results
+from uncharacterized limits. Historical receipts retain their original
+pre-publication status; Git publication does not change scientific acceptance.
+
+A light identity audit needs no EDA reconstruction:
+
+```sh
+python3 tools/review_phase2_delivery.py --output reports/phase2/local/review_new --require-versioned
+```
+
+The source-to-GDS script reconstructs an unselected candidate without cached
+ODBs. Costly SPICE is optional and explicit; full raw-data recovery and
+regeneration routes are documented in the guide.
 
 ## Phase 1 delivery
 
@@ -75,13 +127,18 @@ that dated scope; the current six-cell manifest and public specification
 control the present delivery. The selected physical proofs supersede an older
 wrapper-only LVS claim for the masks actually checked.
 
-## Next phase and review workflow
+## Repository structure and review workflow
 
-Phase 2 integrates the selected leaves into a 4×8 SRAM with data write/readback,
-physically implements capture/PCLK/PRECH control, derives macro timing and
-sense-enable margins, and develops the compiler and generated views.
+- `rtl/`, `tb/`, `synth/`, `verification/`: digital sources and verification.
+- `cells/`, `layout/`, `release/phase1*`: selected leaf development/frozen views.
+- `physical/phase2/`, `tools/`: phase binding, 4×8 generation and verification.
+- `reports/phase2/`, `reports/digital/`: selected evidence and dated histories.
+- `presentations/phase2/`: editable deck, PDF, notes and technical Q&A.
+- `build/`: ignored regenerable databases, local raw data and rendering scratch.
 
-See [GITFLOW.md](GITFLOW.md) for branch ownership and review. PR #6 published
-the earlier develop state to main. PR #7 proposes the reconciled six-cell
-package to develop; after its acceptance, a new develop-to-main PR is needed
-to publish that delivery as a reviewed milestone.
+The digital reference `3b0675b` was already published on `feature/phase2-digital`.
+The Phase 2 integration branch preserves it by ancestry. PR #7 still proposes
+Phase 1 to `develop`; the Phase 2 draft is stacked on
+`integration/phase1-six-cells`. Review/integrate Phase 1 first, then retarget
+and recheck the Phase 2 comparison. No direct main/develop merge is implied.
+See [GITFLOW.md](GITFLOW.md) and the [handoff review order](release/phase2_experimental/README.md).

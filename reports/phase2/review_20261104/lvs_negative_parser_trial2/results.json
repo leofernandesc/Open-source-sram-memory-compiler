@@ -1,0 +1,42 @@
+{
+  "status": "FAIL",
+  "scope": "Expanded original 1493-MOS top; copies only; no geometric or frozen-cell edit",
+  "cases": [
+    {
+      "fault": "golden",
+      "status": "PASS",
+      "report_sha256": "a0391e46a0db25b1450ada7de6a3bc39f678e08c28bbd2cc6006118b490ef764",
+      "netlist_sha256": "f20d29b03fa6ae155f0a226a9a04579c22e45be615b51a8c538c4cdd84e232cd"
+    },
+    {
+      "fault": "gate",
+      "status": "REJECTED",
+      "report_sha256": "62f7235a2bc27f665d9186615b6a1cf54f7feece2ba333d6aafb41b69ad4b01c",
+      "netlist_sha256": "ce00dc5923456c99728a3e0b692d462f20a75d9b3da31de5abbe00516b26357a"
+    },
+    {
+      "fault": "body",
+      "status": "REJECTED",
+      "report_sha256": "6b2d22e0114e6c3ed2ba69ede34d2e02dda78e884f51394f6f39e697cbc57eda",
+      "netlist_sha256": "09fa93bfd342a2ad14808ba0540fed625580a8d7b765470b3a0158642fa2bba8"
+    }
+  ],
+  "resources": {
+    "available_memory_mb": 2410,
+    "free_disk_mb": 2547,
+    "logical_cpus": 8,
+    "swap_total_mb": 4096,
+    "swap_free_mb": 2776,
+    "thread_limit": 1,
+    "minimum_disk_mb": 512,
+    "minimum_memory_mb": 1024
+  },
+  "inputs": {
+    "/work/reports/phase2/final_gds/layout_mos.spice": "f20d29b03fa6ae155f0a226a9a04579c22e45be615b51a8c538c4cdd84e232cd",
+    "/work/reports/phase2/final_gds/reference_mos.spice": "df0e06a474c4f208cb4568d2b025b4427614347256156b872ae751428eec1f9a",
+    "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl": "7a33f3f54fab57a9d9b0887ac7b7b64ce6c454110e8b7f01f3cfb90a1282dc94",
+    "/work/tools/run_phase2_lvs_review.py": "fc21bf7c5e676ece407a4e17e98e3d9cacefad699d1892edf6b6299eb6d6e874"
+  },
+  "build_directory": "build/phase2/lvs-review-tvr4aly4",
+  "error": "Wrong negative outcome or scope: width"
+}

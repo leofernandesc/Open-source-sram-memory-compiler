@@ -1,0 +1,265 @@
+{
+  "status": "PASS_MEASURED",
+  "scope": "Nominal raw-based event measurements, no qualified timing limits",
+  "inputs": {
+    "reports/phase2/extracted_access_singlethread": {
+      "source_receipt_sha256": "098b52683d7083dfe31e336e47b35ff87ee353edf0783105a3c9fb205c31e277",
+      "raw_sha256": "9b65ad9bcc79b9f14952333c2d061d78a440ebc61af05e2d45b5ecc3927821d5"
+    },
+    "reports/phase2/review_20261104/directed": {
+      "source_receipt_sha256": "b19145833c419a026437acbc4c7bd07bc9880e09f4797ee95eb2800b84571ec9",
+      "raw_sha256": "ce22becdcb48d749e82c4d1fb7182b001fb136e54a1c542453175b48e3206a97"
+    }
+  },
+  "ranges": {
+    "write_on_guard_ns": {
+      "min": 0.21138949041947797,
+      "max": 0.21284089685900653,
+      "samples": 24,
+      "worst_case": {
+        "source": "reports/phase2/review_20261104/directed",
+        "cycle": 3,
+        "operation": "write",
+        "row": 0,
+        "pclk_on20_ns": 72.13903333706072,
+        "precharge_release_ns": 71.39922269719791,
+        "wordline_active80_ns": 72.46975275679311,
+        "wordline_release20_ns": 80.66238681178814,
+        "precharge_resume80_ns": 82.85982647036995,
+        "wl_release_guard_ns": 2.197439658581814,
+        "write_release_guard_ns": 2.2905781344329625,
+        "write_on_guard_ns": 0.21138949041947797,
+        "wl_to_sense_ns": null,
+        "minimum_signed_bl_at_sense_v": null,
+        "write_on20_ns": 71.61061218761739,
+        "write_off20_ns": 80.56924833593699
+      }
+    },
+    "wl_to_sense_ns": {
+      "min": 0.2373777867485387,
+      "max": 0.24362357956590586,
+      "samples": 36,
+      "worst_case": {
+        "source": "reports/phase2/extracted_access_singlethread",
+        "cycle": 31,
+        "operation": "read",
+        "row": 0,
+        "pclk_on20_ns": 632.1388647010874,
+        "precharge_release_ns": 631.3985748558812,
+        "wordline_active80_ns": 632.4723794871775,
+        "wordline_release20_ns": 640.6621905382553,
+        "precharge_resume80_ns": 642.8599654306313,
+        "wl_release_guard_ns": 2.1977748923759464,
+        "write_release_guard_ns": null,
+        "write_on_guard_ns": null,
+        "wl_to_sense_ns": 0.2373777867485387,
+        "minimum_signed_bl_at_sense_v": null,
+        "sense_on20_ns": 632.709757273926
+      }
+    },
+    "wl_release_guard_ns": {
+      "min": 2.1968453359708064,
+      "max": 2.198068609838515,
+      "samples": 60,
+      "worst_case": {
+        "source": "reports/phase2/review_20261104/directed",
+        "cycle": 14,
+        "operation": "read",
+        "row": 1,
+        "pclk_on20_ns": 292.1393548606069,
+        "precharge_release_ns": 291.3993070262573,
+        "wordline_active80_ns": 292.4668982349676,
+        "wordline_release20_ns": 300.66257072363106,
+        "precharge_resume80_ns": 302.85941605960187,
+        "wl_release_guard_ns": 2.1968453359708064,
+        "write_release_guard_ns": null,
+        "write_on_guard_ns": null,
+        "wl_to_sense_ns": 0.24244264322084064,
+        "minimum_signed_bl_at_sense_v": 1.7444919057297126,
+        "sense_on20_ns": 292.7093408781884,
+        "minimum_signed_bl_50ps_before_sense_v": 1.588288600866211
+      }
+    },
+    "write_release_guard_ns": {
+      "min": 2.2904036728590427,
+      "max": 2.2909960932056492,
+      "samples": 24,
+      "worst_case": {
+        "source": "reports/phase2/extracted_access_singlethread",
+        "cycle": 17,
+        "operation": "write",
+        "row": 0,
+        "pclk_on20_ns": 352.1395962170633,
+        "precharge_release_ns": 351.39899312037,
+        "wordline_active80_ns": 352.4738517341469,
+        "wordline_release20_ns": 360.6624032430443,
+        "precharge_resume80_ns": 362.8596743383361,
+        "wl_release_guard_ns": 2.1972710952917964,
+        "write_release_guard_ns": 2.2904036728590427,
+        "write_on_guard_ns": 0.21284089685900653,
+        "wl_to_sense_ns": null,
+        "minimum_signed_bl_at_sense_v": null,
+        "write_on20_ns": 351.611834017229,
+        "write_off20_ns": 360.56927066547706
+      }
+    },
+    "minimum_signed_bl_at_sense_v": {
+      "min": 1.7401723201827863,
+      "max": 1.7464045670821433,
+      "samples": 20,
+      "worst_case": {
+        "source": "reports/phase2/review_20261104/directed",
+        "cycle": 40,
+        "operation": "read",
+        "row": 3,
+        "pclk_on20_ns": 812.139298749058,
+        "precharge_release_ns": 811.3992784539862,
+        "wordline_active80_ns": 812.4658631692142,
+        "wordline_release20_ns": 820.6626989645748,
+        "precharge_resume80_ns": 822.8599991369598,
+        "wl_release_guard_ns": 2.1973001723849848,
+        "write_release_guard_ns": null,
+        "write_on_guard_ns": null,
+        "wl_to_sense_ns": 0.24301458688137245,
+        "minimum_signed_bl_at_sense_v": 1.7401723201827863,
+        "sense_on20_ns": 812.7088777560956,
+        "minimum_signed_bl_50ps_before_sense_v": 1.5785398668968316
+      }
+    },
+    "minimum_signed_bl_50ps_before_sense_v": {
+      "min": 1.5785398668968316,
+      "max": 1.59268615439164,
+      "samples": 20,
+      "worst_case": {
+        "source": "reports/phase2/review_20261104/directed",
+        "cycle": 40,
+        "operation": "read",
+        "row": 3,
+        "pclk_on20_ns": 812.139298749058,
+        "precharge_release_ns": 811.3992784539862,
+        "wordline_active80_ns": 812.4658631692142,
+        "wordline_release20_ns": 820.6626989645748,
+        "precharge_resume80_ns": 822.8599991369598,
+        "wl_release_guard_ns": 2.1973001723849848,
+        "write_release_guard_ns": null,
+        "write_on_guard_ns": null,
+        "wl_to_sense_ns": 0.24301458688137245,
+        "minimum_signed_bl_at_sense_v": 1.7401723201827863,
+        "sense_on20_ns": 812.7088777560956,
+        "minimum_signed_bl_50ps_before_sense_v": 1.5785398668968316
+      }
+    },
+    "raw_valid_before_capture_ns": {
+      "min": 7.438005478215246,
+      "max": 10.271614205241292,
+      "samples": 288,
+      "worst_case": {
+        "source": "reports/phase2/extracted_access_singlethread",
+        "cycle": 16,
+        "bit": 5,
+        "expected": 0,
+        "public_falling50_ns": 340.025,
+        "local_capture50_ns": 340.25514047821525,
+        "clock_arrival_from_public_ns": 0.23014047821527583,
+        "raw_valid_before_capture_ns": 7.438005478215246,
+        "raw_start_lower_bound": false,
+        "fd_valid_before_capture_ns": 7.248005478215248,
+        "fd_start_lower_bound": false,
+        "raw_valid_time_ns": 332.817135,
+        "fd_valid_time_ns": 333.007135,
+        "raw_from_sense20_ns": 0.1075670860526543,
+        "fd_from_raw_valid_ns": 0.18999999999999773,
+        "ff_q_from_local_ns": null,
+        "data_from_public_fall_ns": null,
+        "transition": "changed"
+      }
+    },
+    "fd_valid_before_capture_ns": {
+      "min": 7.240390654934345,
+      "max": 10.271614205241292,
+      "samples": 288,
+      "worst_case": {
+        "source": "reports/phase2/extracted_access_singlethread",
+        "cycle": 31,
+        "bit": 4,
+        "expected": 0,
+        "public_falling50_ns": 640.025,
+        "local_capture50_ns": 640.2551386549344,
+        "clock_arrival_from_public_ns": 0.23013865493442154,
+        "raw_valid_before_capture_ns": 7.44039065493439,
+        "raw_start_lower_bound": false,
+        "fd_valid_before_capture_ns": 7.240390654934345,
+        "fd_start_lower_bound": false,
+        "raw_valid_time_ns": 632.814748,
+        "fd_valid_time_ns": 633.014748,
+        "raw_from_sense20_ns": 0.10499072607399285,
+        "fd_from_raw_valid_ns": 0.20000000000004547,
+        "ff_q_from_local_ns": null,
+        "data_from_public_fall_ns": null,
+        "transition": "changed"
+      }
+    },
+    "ff_q_from_local_ns": {
+      "min": 0.190406412740856,
+      "max": 0.223205571181893,
+      "samples": 42,
+      "worst_case": {
+        "source": "reports/phase2/review_20261104/directed",
+        "cycle": 16,
+        "bit": 5,
+        "expected": 0,
+        "public_falling50_ns": 340.025,
+        "local_capture50_ns": 340.2551385872591,
+        "clock_arrival_from_public_ns": 0.23013858725914815,
+        "raw_valid_before_capture_ns": 7.441928587259099,
+        "raw_start_lower_bound": false,
+        "fd_valid_before_capture_ns": 7.2521385872591395,
+        "fd_start_lower_bound": false,
+        "raw_valid_time_ns": 332.81321,
+        "fd_valid_time_ns": 333.003,
+        "raw_from_sense20_ns": 0.10374725076604818,
+        "fd_from_raw_valid_ns": 0.1897899999999595,
+        "ff_q_from_local_ns": 0.190406412740856,
+        "data_from_public_fall_ns": null,
+        "transition": "changed",
+        "q_already_valid_at_edge": false
+      }
+    },
+    "clock_arrival_from_public_ns": {
+      "min": 0.23013750013012668,
+      "max": 0.24661420524131472,
+      "samples": 288,
+      "worst_case": {
+        "source": "reports/phase2/review_20261104/directed",
+        "cycle": 34,
+        "bit": 7,
+        "expected": 0,
+        "public_falling50_ns": 700.025,
+        "local_capture50_ns": 700.2551375001301,
+        "clock_arrival_from_public_ns": 0.23013750013012668,
+        "raw_valid_before_capture_ns": 7.439470500130028,
+        "raw_start_lower_bound": false,
+        "fd_valid_before_capture_ns": 7.252137500130175,
+        "fd_start_lower_bound": false,
+        "raw_valid_time_ns": 692.8156670000001,
+        "fd_valid_time_ns": 693.0029999999999,
+        "raw_from_sense20_ns": 0.10677308782817363,
+        "fd_from_raw_valid_ns": 0.1873329999998532,
+        "ff_q_from_local_ns": 0.19043349986998237,
+        "data_from_public_fall_ns": null,
+        "transition": "changed",
+        "q_already_valid_at_edge": false
+      }
+    }
+  },
+  "internal_only": true,
+  "additional_checks": 1152,
+  "failures": 0,
+  "methodology": "10ps maximum step; crossing interpolation; valid-level settling sample quantization. 2ns post-capture window is a lower bound, not hold requirement.",
+  "analyzer_sha256": "5cc7a8b9e3005bb13a684ce0bda3234752517c169fc41c1ae25006cb4ef0923e",
+  "artifacts": {
+    "phase.csv": "73cc833deb5dd50e995dad2f00dd5e7ca8151669bae0fe66da619051949be04a",
+    "checks.json": "f3e1495a8b7363737ee49e57012410d591bfdd684bde905b23f181574d1e690e",
+    "capture.csv": "79029df8208f93cbfd19a3e7d75d455215c38376e0f1a940bfc02307346ac5a8"
+  }
+}
