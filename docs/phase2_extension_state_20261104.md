@@ -123,6 +123,11 @@ Esse resultado demonstra **reanálise da entrega publicada** na mesma imagem
 Linux/PDK. Não demonstra regeneração integral do SPICE num clone, execução
 Windows, outro PDK ou simulações novas sem acesso a seus raws.
 
-Qualquer prova adicional de restauração/reanálise dos raws complementares
-fica em recibo próprio no diretório desta rodada. A apresentação e o estado
-dos PRs devem ser verificados no commit efetivamente examinado pela equipe.
+Em seguida, o mesmo worktree foi avançado, sem alterações locais, ao commit
+`2397898` desta extensão. Um novo container restaurou os três raws complementares
+num cache onde eles ainda não existiam. A reanálise C1/piloto/C2, os 820 screens
+temporais e os 63 testes Python passaram. Os quatro CSV/JSON de medição
+(`phase.csv`, `capture.csv`, `bus.csv`, `checks.json`) reproduziram exatamente
+os arquivos selecionados. O worktree permaneceu sem alterações rastreadas.
+Ver [`clean_extension/results.json`](../reports/phase2/extension_20261104/clean_extension/results.json).
+Continua sendo reprodução da análise, não novas simulações do DUT.

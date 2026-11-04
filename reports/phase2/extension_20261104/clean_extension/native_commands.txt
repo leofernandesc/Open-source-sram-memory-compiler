@@ -1,0 +1,112 @@
+PDK set to ihp-sg13g2
+{"status": "PASS", "verified_members": 3, "restored": ["build/phase2/extension-sequences-icalblpd/waveform.dat", "build/phase2/extension-sequences-gyqs9fb6/waveform.dat", "build/phase2/extension-bus-gjgq9gdg/waveform.dat"]}
+{
+  "status": "PASS",
+  "cases": {
+    "reports/phase2/extension_20261104/c1_pilot": {
+      "status": "PASS",
+      "checks": 309,
+      "failures": 0,
+      "read_bit_checks": 16,
+      "receipt_sha256": "ffd3e19df57838a51bb93c36a6abc9a5adac602231e2292a54049216703747e1",
+      "raw_sha256": "8984daa02eb28c10ba33201aa07d8499e43568bb84043ed1011749738683be11",
+      "scope": "Complete native raw reanalysis; not another circuit simulation"
+    },
+    "reports/phase2/extension_20261104/c1_sequences": {
+      "status": "PASS",
+      "checks": 1150,
+      "failures": 0,
+      "read_bit_checks": 72,
+      "receipt_sha256": "40ec63d203d9344ef44afc568ece910cdf366d11636e99c1172934365bd61fa7",
+      "raw_sha256": "7e11801037e7e1f616d60e47f65fee9e567c9c85d2181429c40e9c89e2197305",
+      "scope": "Complete native raw reanalysis; not another circuit simulation"
+    },
+    "reports/phase2/extension_20261104/c2_bus": {
+      "status": "PASS",
+      "checks": 1281,
+      "failures": 0,
+      "read_bit_checks": 48,
+      "receipt_sha256": "dfab2de9f896da7ca6e1749a3e8a397f3290d861ad1626af02fb01d42054a57f",
+      "raw_sha256": "e3662caeb1a0b8d816c2825c37b2207127e519d858de9abecb15a4f190f8f071",
+      "scope": "Complete native raw reanalysis; not another circuit simulation"
+    }
+  },
+  "verifier_sha256": "3bb84505a6f6f474da699636aadcfc9b2904ac78b6f6b5b59019f8e34a29b534"
+}
+{
+  "status": "PASS_MEASURED",
+  "scope": "Nominal raw-based event measurements, no qualified timing limits",
+  "internal_only": false,
+  "additional_checks": 820,
+  "failures": 0,
+  "methodology": "10ps maximum step; crossing interpolation; valid-level settling sample quantization. 2ns post-capture window is a lower bound, not hold requirement.",
+  "analyzer_sha256": "65971f6abcd431682a0a229335fd94adbf997369da7d284b8c71074e496da128"
+}
+test_reject_address_bit_permutation_even_when_matrix_is_complete (test_phase2_core.CoreTopologyTests) ... ok
+test_reject_missing_and_duplicate_storage (test_phase2_core.CoreTopologyTests) ... ok
+test_reject_shared_wrong_graph_for_reference_and_layout (test_phase2_core.CoreTopologyTests) ... ok
+test_archive_path_traversal_and_wrong_raw_rejected (test_phase2_delivery.DeliveryTests) ... ok
+test_conflicting_cache_is_never_overwritten (test_phase2_delivery.DeliveryTests) ... ok
+test_empty_manifest_rejected (test_phase2_delivery.DeliveryTests) ... ok
+test_index_gate_rejects_worktree_bytes_changed_after_staging (test_phase2_delivery.DeliveryTests) ... ok
+test_lossless_restore_missing_cache_and_skip_identical_existing (test_phase2_delivery.DeliveryTests) ... ok
+test_reject_changed_payload_and_byte_count (test_phase2_delivery.DeliveryTests) ... ok
+test_changed_gds_rejected_before_package (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_empty_and_incomplete_hash_inventories_fail (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_legacy_inventory_must_match_both_receipt_and_artifact (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_missing_required_delivery_evidence_rejected (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_missing_stage_output_does_not_inherit_pass (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_nonfinite_csv_numbers_are_never_equal_to_a_real_sample (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_partial_execution_or_changed_receipt_cannot_reuse_legacy_pass (test_phase2_evidence.EvidenceIntegrityTests) ... ok
+test_capture_retention_during_mask (test_phase2_extension.ExtensionObserverTests) ... ok
+test_collateral_known_storage (test_phase2_extension.ExtensionObserverTests) ... ok
+test_crossing_unique_and_interpolated (test_phase2_extension.ExtensionObserverTests) ... ok
+test_current_alone_cannot_fake_probe_voltage (test_phase2_extension.ExtensionObserverTests) ... ok
+test_current_floor_interpolation (test_phase2_extension.ExtensionObserverTests) ... ok
+test_expected_read_requires_prior_write (test_phase2_extension.ExtensionObserverTests) ... ok
+test_independent_reference_fixture (test_phase2_extension.ExtensionObserverTests) ... ok
+test_invisible_load_rejected (test_phase2_extension.ExtensionObserverTests) ... ok
+test_nonfinite_and_truncated_rejected (test_phase2_extension.ExtensionObserverTests) ... ok
+test_output_not_overwritten (test_phase2_extension.ExtensionObserverTests) ... ok
+test_settling_does_not_measure_unchanged_as_transition (test_phase2_extension.ExtensionObserverTests) ... ok
+test_strong_driver_overlap_and_current_rejected (test_phase2_extension.ExtensionObserverTests) ... ok
+test_unwritten_storage_is_not_assumed (test_phase2_extension.ExtensionObserverTests) ... ok
+test_voltage_alone_cannot_fake_bus_release (test_phase2_extension.ExtensionObserverTests) ... ok
+test_wrong_captured_data_and_address (test_phase2_extension.ExtensionObserverTests) ... ok
+test_missing_probe_alias_is_a_failure (test_phase2_extracted.ExtractedBindingTests) ... ok
+test_preserves_devices_and_junction_parameters (test_phase2_extracted.ExtractedBindingTests) ... ok
+test_rejects_extracted_open_instead_of_repairing_from_hdl (test_phase2_extracted.ExtractedBindingTests) ... ok
+test_rejects_two_hdl_nets_short_in_layout (test_phase2_extracted.ExtractedBindingTests) ... ok
+test_bind_power_and_body_on_every_mapped_instance (test_phase2_flow.Phase2FlowTests) ... ok
+test_normalize_pdk_suffix_without_million_fold_size_error (test_phase2_flow.Phase2FlowTests) ... ok
+test_reject_generic_tristate_and_latch (test_phase2_flow.Phase2FlowTests) ... ok
+test_reject_storage_removed_or_register_array (test_phase2_flow.Phase2FlowTests) ... ok
+test_reject_unexpanded_or_multifinger_lvs (test_phase2_flow.Phase2FlowTests) ... ok
+test_reject_unrelated_property_error_scope (test_phase2_lvs_receipts.LVSReceiptTests) ... ok
+test_reject_wrong_width_mutation (test_phase2_lvs_receipts.LVSReceiptTests) ... ok
+test_require_deliberate_gate_mismatch_in_successful_tool_run (test_phase2_lvs_receipts.LVSReceiptTests) ... ok
+test_width_defect_rejected_even_when_connectivity_is_unique (test_phase2_lvs_receipts.LVSReceiptTests) ... ok
+test_real_entrypoints_preserve_input_receipt_on_rejected_output (test_phase2_output_safety.ReportOutputSafetyTests) ... ok
+test_clock_arrival_delay_allowed_only_before_precharge_conduction (test_phase2_protocol.ElectricalProtocolTests) ... ok
+test_precharge_must_finish_before_next_access (test_phase2_protocol.ElectricalProtocolTests) ... ok
+test_reject_late_wordline_release (test_phase2_protocol.ElectricalProtocolTests) ... ok
+test_reject_misdeclared_waveform_columns (test_phase2_protocol.ElectricalProtocolTests) ... ok
+test_reject_multiple_rows (test_phase2_protocol.ElectricalProtocolTests) ... ok
+test_reject_write_precharge_contention_independent_of_read_result (test_phase2_protocol.ElectricalProtocolTests) ... ok
+test_allows_clock_tree_and_physical_fill (test_phase2_routed_graph.RoutedGraphTests) ... ok
+test_rejects_buffer_inserted_in_phase_instead_of_clock (test_phase2_routed_graph.RoutedGraphTests) ... ok
+test_rejects_data_reconnection (test_phase2_routed_graph.RoutedGraphTests) ... ok
+test_rejects_functional_master_replacement (test_phase2_routed_graph.RoutedGraphTests) ... ok
+test_rejects_missing_functional_instance (test_phase2_routed_graph.RoutedGraphTests) ... ok
+test_bus_contention_during_conditioning_rejected (test_phase2_startup.StartupReviewTests) ... ok
+test_existing_output_rejected_without_overwrite (test_phase2_startup.StartupReviewTests) ... ok
+test_incorrect_read_and_collateral_storage_error_rejected (test_phase2_startup.StartupReviewTests) ... ok
+test_initial_wordline_and_write_contention_rejected (test_phase2_startup.StartupReviewTests) ... ok
+test_missing_precharge_rejected (test_phase2_startup.StartupReviewTests) ... ok
+test_nonfinite_incomplete_and_empty_windows_rejected (test_phase2_startup.StartupReviewTests) ... ok
+test_reference_fixture_and_no_expectation_on_unwritten_cells (test_phase2_startup.StartupReviewTests) ... ok
+
+----------------------------------------------------------------------
+Ran 63 tests in 1.449s
+
+OK
