@@ -1,0 +1,11 @@
+* NGSPICE file created from pilot_flat.ext - technology: sky130A
+
+.subckt pilot_flat VDD VSS IN OUT
+X0 VDD IN a_827_2832# VDD sky130_fd_pr__pfet_01v8 ad=0.4872 pd=3.94 as=0.4872 ps=3.94 w=1.68 l=0.15
+X1 VDD a_827_2832# wl_driver_0.WL VDD sky130_fd_pr__pfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X2 OUT wl_driver_0.WL VDD VDD sky130_fd_pr__pfet_01v8_hvt ad=0.26 pd=2.52 as=0.26 ps=2.52 w=1 l=0.15
+X3 OUT wl_driver_0.WL VSS VSS sky130_fd_pr__nfet_01v8 ad=0.169 pd=1.82 as=0.169 ps=1.82 w=0.65 l=0.15
+X4 VSS a_827_2832# wl_driver_0.WL VSS sky130_fd_pr__nfet_01v8 ad=1.4616 pd=10.66 as=1.4616 ps=10.66 w=5.04 l=0.15
+X5 VSS IN a_827_2832# VSS sky130_fd_pr__nfet_01v8 ad=0.4872 pd=3.94 as=0.4872 ps=3.94 w=1.68 l=0.15
+.ends
+

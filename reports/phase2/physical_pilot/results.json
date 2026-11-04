@@ -1,0 +1,121 @@
+{
+  "status": "PASS",
+  "scope": "Custom WL plus HD inverter/tap connectivity pilot; no RC PEX",
+  "F2_FIS": "NOT_EVALUATED",
+  "commands": [
+    {
+      "argv": [
+        "magic",
+        "-dnull",
+        "-noconsole",
+        "-rcfile",
+        "/opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc"
+      ],
+      "cwd": "/work/build/phase2/physical-pilot-qmc47sjr",
+      "log": "magic.txt"
+    },
+    {
+      "argv": [
+        "netgen",
+        "-batch",
+        "lvs",
+        "layout_mos.spice pilot_flat",
+        "reference.spice pilot_flat",
+        "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl",
+        "/work/build/phase2/physical-pilot-qmc47sjr/lvs.txt"
+      ],
+      "cwd": "/work/build/phase2/physical-pilot-qmc47sjr",
+      "log": "lvs_console.txt"
+    },
+    {
+      "argv": [
+        "netgen",
+        "-batch",
+        "lvs",
+        "negative_gate.spice pilot_flat",
+        "reference.spice pilot_flat",
+        "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl",
+        "/work/build/phase2/physical-pilot-qmc47sjr/negative_gate.txt"
+      ],
+      "cwd": "/work/build/phase2/physical-pilot-qmc47sjr",
+      "log": "negative_gate_console.txt"
+    },
+    {
+      "argv": [
+        "netgen",
+        "-batch",
+        "lvs",
+        "negative_width.spice pilot_flat",
+        "reference.spice pilot_flat",
+        "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl",
+        "/work/build/phase2/physical-pilot-qmc47sjr/negative_width.txt"
+      ],
+      "cwd": "/work/build/phase2/physical-pilot-qmc47sjr",
+      "log": "negative_width_console.txt"
+    },
+    {
+      "argv": [
+        "magic",
+        "-dnull",
+        "-noconsole",
+        "-rcfile",
+        "/opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc"
+      ],
+      "cwd": "/work/build/phase2/physical-pilot-qmc47sjr",
+      "log": "reimport_magic.txt"
+    },
+    {
+      "argv": [
+        "netgen",
+        "-batch",
+        "lvs",
+        "reimport_mos.spice pilot_flat",
+        "reference.spice pilot_flat",
+        "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl",
+        "/work/build/phase2/physical-pilot-qmc47sjr/reimport_lvs.txt"
+      ],
+      "cwd": "/work/build/phase2/physical-pilot-qmc47sjr",
+      "log": "reimport_lvs_console.txt"
+    }
+  ],
+  "build_directory": "build/phase2/physical-pilot-qmc47sjr",
+  "inputs": {
+    "release/phase1/cells/wl_driver/wl_driver.mag": "5c9769700fedfd612a20b89a1ec31ea97d5201dbf58189b5ab420339d2a628fb",
+    "/opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc": "7bc1d5d14d910bd1407287ec1ab1305b17e1d7ac384f918c5dad34e97494b94d",
+    "release/phase1/cells/wl_driver/wl_driver.spice": "843808b94414be032d114590c2c6d9a787ed5b13ed1c26dd4eba4b9173d68bdd",
+    "/opt/pdks/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice": "304da9725492089107bb20840a4020558b028487d300f8df79bbbad5332aaa99",
+    "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl": "7a33f3f54fab57a9d9b0887ac7b7b64ce6c454110e8b7f01f3cfb90a1282dc94",
+    "tools/run_phase2_physical_pilot.py": "34ced2eb5c3591652ca6aa36059774920b8921dba0ed924af1fc9c56a44fe452"
+  },
+  "drc_markers": [
+    "0"
+  ],
+  "lvs": "UNIQUE_MATCH_W_L_TERMINALS",
+  "mos": 6,
+  "reimport_drc": 0,
+  "reimport_lvs": "UNIQUE_MATCH_W_L_TERMINALS",
+  "negative_controls": {
+    "gate": "REJECTED",
+    "width": "REJECTED"
+  },
+  "artifacts": {
+    "negative_width.txt": "491fe2c260e4a04a1a2916381fc7c80129f4c0dfead9f1d3de212cd58d92c880",
+    "lvs_console.txt": "f3859eba2429962b9ce728e291da8ba6886b594ff2eecd13c6555625fe2747bf",
+    "reimport_extracted.spice": "6e2e9e36bf37d02225c2509f62abfb83a3ce9e188b111142338e23f3832df99b",
+    "pilot.tcl": "2b531154b8a9093c74c84a8379186778bb2a0bf5b7caceaff0b1052b4a1450f2",
+    "negative_gate_console.txt": "f3c2f31be062387e1432b8ff4c79c4b80ff0da4cfee81c5019a699b072e428b2",
+    "negative_gate.txt": "fe91dab6bee87273aaec79a1ab3aec067477e2af9d0f018df8c3381103de1332",
+    "layout_mos.spice": "d6e50a78cd319f1ab4c9e61335eebdc836b46e0f220282eb661096941facff61",
+    "pilot.gds": "812b769b1ba3fac7beb71f8130012d214703c34a22c666a0c85caae978549f8c",
+    "magic.txt": "c6f0eb81a3cbde6183c16758490d598a53485f31a163488d1e7565e62b4d355d",
+    "lvs.txt": "f50a1846b66c69fe2da148844762847728bd3fe4f16b8e8c947f153388b54a34",
+    "reference.spice": "6cbd49f3e6c54d49def3bb8c4f09a75385c5f98f810ccb513c6c20d6e3c1eb04",
+    "reimport_lvs.txt": "f50a1846b66c69fe2da148844762847728bd3fe4f16b8e8c947f153388b54a34",
+    "pilot_extracted.spice": "2e91d77cfe1e03257f87cedd53122de5be8f44346e2b77a9e4bde72df8d05964",
+    "reimport_mos.spice": "6e471c70a2d43b7e93a7a51ce4bb8731ac5e66301937d919fee1257e86154780",
+    "reimport_magic.txt": "a74a58be9153c9843bbad89b10f744638fabf06fbcf7e92caee5f00480b56c98",
+    "reimport_lvs_console.txt": "b67dc371a8ff70c256f0f22246055bc080a6c36ca64e08a6057c4388803dcb16",
+    "negative_width_console.txt": "c6d958c984891eb06c937beb95bf8589ee6d43a90f72f6f7a0fefe968bd50977",
+    "pilot_flat.mag": "0d8a9f65d6ed1873792a7c44a8bde4f8be51ad73432f30fac201b04aa0435b73"
+  }
+}

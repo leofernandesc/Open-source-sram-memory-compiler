@@ -1,0 +1,63 @@
+library (phase2_uncharacterized_interface) {
+  input_threshold_pct_rise : 50;
+  output_threshold_pct_rise : 50;
+  slew_lower_threshold_pct_rise : 20;
+  slew_upper_threshold_pct_rise : 80;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_fall : 20;
+  slew_upper_threshold_pct_fall : 80;
+  delay_model : table_lookup;
+  time_unit : "1ns";
+  capacitive_load_unit (1,pf);
+  voltage_unit : "1V";
+  current_unit : "1mA";
+  leakage_power_unit : "1nW";
+  nom_voltage : 1.8;
+  nom_temperature : 25;
+  nom_process : 1;
+  cell (leaf_fabric) {
+    dont_touch : true;
+    area : 87648.750000;
+    pg_pin (VDD) { pg_type : primary_power; voltage_name : "VDD"; }
+    pg_pin (VSS) { pg_type : primary_ground; voltage_name : "VSS"; }
+    pin (A0) { direction : input; }
+    pin (A1) { direction : input; }
+    pin (PCLK) { direction : input; }
+    pin (PRECH) { direction : input; }
+    pin (SCLK) { direction : input; }
+    pin (WE) { direction : input; }
+    pin (DIN0) { direction : input; }
+    pin (DIN1) { direction : input; }
+    pin (DIN2) { direction : input; }
+    pin (DIN3) { direction : input; }
+    pin (DIN4) { direction : input; }
+    pin (DIN5) { direction : input; }
+    pin (DIN6) { direction : input; }
+    pin (DIN7) { direction : input; }
+    pin (DIN_B0) { direction : input; }
+    pin (DIN_B1) { direction : input; }
+    pin (DIN_B2) { direction : input; }
+    pin (DIN_B3) { direction : input; }
+    pin (DIN_B4) { direction : input; }
+    pin (DIN_B5) { direction : input; }
+    pin (DIN_B6) { direction : input; }
+    pin (DIN_B7) { direction : input; }
+    pin (DOUT0) { direction : output; }
+    pin (DOUT1) { direction : output; }
+    pin (DOUT2) { direction : output; }
+    pin (DOUT3) { direction : output; }
+    pin (DOUT4) { direction : output; }
+    pin (DOUT5) { direction : output; }
+    pin (DOUT6) { direction : output; }
+    pin (DOUT7) { direction : output; }
+    pin (ROW0) { direction : input; }
+    pin (ROW1) { direction : input; }
+    pin (ROW2) { direction : input; }
+    pin (ROW3) { direction : input; }
+    pin (DEC0) { direction : output; }
+    pin (DEC1) { direction : output; }
+    pin (DEC2) { direction : output; }
+    pin (DEC3) { direction : output; }
+  }
+}

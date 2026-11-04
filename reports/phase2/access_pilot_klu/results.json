@@ -1,0 +1,129 @@
+{
+  "status": "PASS_NOMINAL_ACCESS_ONLY",
+  "CORE": "NOT_EVALUATED",
+  "F2_FIS": "NOT_EVALUATED",
+  "scope": "Mapped physical phases/capture and selected 32-bit fabric; schematic interconnect",
+  "condition": {
+    "corner": "tt",
+    "vdd_v": 1.8,
+    "temp_c": 27
+  },
+  "quick": true,
+  "solver": "klu",
+  "build_directory": "build/phase2/access-gpuq_h0j",
+  "cycles": [
+    {
+      "cycle": 0,
+      "operation": "idle",
+      "row": 0,
+      "expected": 0,
+      "rise_ns": 10,
+      "fall_ns": 20,
+      "sample_ns": 21
+    },
+    {
+      "cycle": 1,
+      "operation": "idle",
+      "row": 0,
+      "expected": 0,
+      "rise_ns": 30,
+      "fall_ns": 40,
+      "sample_ns": 41
+    },
+    {
+      "cycle": 2,
+      "operation": "unwritten",
+      "row": 0,
+      "expected": 0,
+      "rise_ns": 50,
+      "fall_ns": 60,
+      "sample_ns": 61
+    },
+    {
+      "cycle": 3,
+      "operation": "write",
+      "row": 0,
+      "expected": 167,
+      "rise_ns": 70,
+      "fall_ns": 80,
+      "sample_ns": 81
+    },
+    {
+      "cycle": 4,
+      "operation": "read",
+      "row": 0,
+      "expected": 167,
+      "rise_ns": 90,
+      "fall_ns": 100,
+      "sample_ns": 101
+    },
+    {
+      "cycle": 5,
+      "operation": "idle",
+      "row": 0,
+      "expected": 0,
+      "rise_ns": 110,
+      "fall_ns": 120,
+      "sample_ns": 121
+    },
+    {
+      "cycle": 6,
+      "operation": "idle",
+      "row": 0,
+      "expected": 0,
+      "rise_ns": 130,
+      "fall_ns": 140,
+      "sample_ns": 141
+    },
+    {
+      "cycle": 7,
+      "operation": "read",
+      "row": 0,
+      "expected": 167,
+      "rise_ns": 150,
+      "fall_ns": 160,
+      "sample_ns": 161
+    }
+  ],
+  "vectors": [
+    "v(DATA0)",
+    "v(DATA1)",
+    "v(DATA2)",
+    "v(DATA3)",
+    "v(DATA4)",
+    "v(DATA5)",
+    "v(DATA6)",
+    "v(DATA7)",
+    "v(xdut.n93)",
+    "v(xdut.n94)",
+    "v(xdut.n99)",
+    "v(xdut.n100)",
+    "v(xdut.xmapped63.WL0)",
+    "v(xdut.xmapped63.WL1)",
+    "v(xdut.xmapped63.WL2)",
+    "v(xdut.xmapped63.WL3)",
+    "v(xdut.n44)",
+    "v(xdut.n41)",
+    "v(xdut.n38)",
+    "v(xdut.n35)",
+    "v(xdut.n32)",
+    "v(xdut.n29)",
+    "v(xdut.n26)",
+    "v(xdut.n23)",
+    "v(xdut.n18)",
+    "v(xdut.n70)",
+    "v(xdut.n71)",
+    "v(xdut.n72)",
+    "v(xdut.n73)",
+    "v(xdut.n74)",
+    "v(xdut.n75)",
+    "v(xdut.n76)"
+  ],
+  "inputs": {
+    "binding.spice": "d85dcfed2eb24a721645dc58672847299fae37bba3e0132442296d3b8166d9e0",
+    "fabric.spice": "0ea937738f5099f9aad5a7812af140f11eab61f28b13b4194d85fde1ea6cb38c",
+    "bench.spice": "49ce48b2b7ddaa5a2e4b7b804c5b56fd167e692b615061ecdb74582c1d7a7c6f"
+  },
+  "checks": 16,
+  "failures": 0
+}

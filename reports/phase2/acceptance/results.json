@@ -1,0 +1,76 @@
+{
+  "status": "PASS_EXPERIMENTAL_4X8",
+  "F2_DIG": "PASS_FUNCTIONAL_MAPPING_GLS",
+  "CORE": "PASS_INTEGRATED_NOMINAL",
+  "F2_FIS": "PASS_EXPERIMENTAL_4X8",
+  "scope": "Experimental 4x8 integration acceptance; no R-C/PVT/Fmax/reliability qualification",
+  "checks": [
+    {
+      "name": "mapped_digital_and_raw_gls",
+      "status": "PASS",
+      "checks": 15619
+    },
+    {
+      "name": "rtl_evidence_verification",
+      "status": "PASS",
+      "python_tests": 109
+    },
+    {
+      "name": "routed_binding_preservation",
+      "status": "PASS_GRAPH_PRESERVATION",
+      "original_instances": 162,
+      "inserted_clock_buffers": 3,
+      "other_inserted_instances": 12695,
+      "signal_groups": 179,
+      "scope": "All original signal pin connectivity/types preserved; added functional cells restricted to public CLK buffers; body/rail LVS remains mandatory"
+    },
+    {
+      "name": "delivered_geometry_and_routed_gls",
+      "status": "PASS",
+      "mos": 1493
+    },
+    {
+      "name": "final_extracted_electrical_raw_reconciliation",
+      "status": "PASS",
+      "read_checks": 128,
+      "protocol_checks": 392,
+      "condition": {
+        "corner": "tt",
+        "vdd_v": 1.8,
+        "temp_c": 27
+      },
+      "waveform_sha256": "9b65ad9bcc79b9f14952333c2d061d78a440ebc61af05e2d45b5ecc3927821d5",
+      "startup": "Ramp plus two inactive cycles; no internal IC; minimum/statistical startup not characterized"
+    },
+    {
+      "name": "raw_evidence_corruption_guards",
+      "status": "PASS",
+      "rejected": 4
+    }
+  ],
+  "receipt_sha256": {
+    "digital": "78433ae310b4fa96ae584c22df7a2dd713d2e89e198a4eaef31d99c3df71ec9a",
+    "rtl_regression": "193ad6168c9e4dfd90a7631069c8b470e82b87e5af8d547c3076a2eee1f16bb8",
+    "physical_pilot": "99d847696f16978be7422b2c582de64fc24700afd5578b8c2978c70510d13ac7",
+    "fabric": "d8f6ef05d9c47bf4e06bb473e308be4e4a0619e0f7b88a51c9b17c854a3f967b",
+    "binding": "ce09c5c94f09dd8f6d014c3ff7a0c1989aee6dc1814d92cac82f051f24261344",
+    "electrical_access": "e982bc8ea72112eb8e8fc06aa9527346145847ba2824a8e3516ed599017c2aeb",
+    "phase_guard": "f32eb3777f9454668c630588ae2d5fbd1f48e680ae9dded371e549058f0fa595",
+    "route": "bfd1160e9e87d6a9df68e4fdf61e0a0dc982985cda4d87319bcc00751586a694",
+    "integrated_layout": "811be49ada3ad81e56dd9bce95be3b669c8801fc863ce964a5072b4788ace990",
+    "final_gds": "e07a80a1d6ac91fe040b8716ca2c7ebce7729e9923ce82fc9454cbb0febe8c4f",
+    "routed_gls": "1cd54ce1c748d7e86d8c500629c5c40df5e75902510c547db51ec8ff4bc0f98b",
+    "top_abstract": "90e8efe168e4ca885283bb3a06016cece8fec79d69cb3b281b29a366c946adc5",
+    "extracted_access": "098b52683d7083dfe31e336e47b35ff87ee353edf0783105a3c9fb205c31e277"
+  },
+  "remaining": [
+    "Advisor review of experimental acceptance and open timing criteria",
+    "Detailed interconnect R-C PEX and PVT/statistical characterization",
+    "Fmax/Liberty characterization and Phase 1 model/reliability limitations remain open"
+  ],
+  "artifacts": {
+    "graph_yosys.txt": "6452c6d51e789af7a33ec38d83af9115b6fe806c80b03aa7234c420302dcb65d",
+    "phase1_preservation.txt": "74f05467c2fe809a0b6ee43122c177b97d0181e51cae20adc80fc34d33e28d56",
+    "graph_preservation.json": "e742574beff5a3e29eed65cc8bd4074e88d3072f9a52477d6c465bd58fc94f15"
+  }
+}
