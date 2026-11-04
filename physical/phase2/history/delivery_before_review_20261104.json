@@ -1,0 +1,170 @@
+{
+  "status": "LOCAL_REVIEW_CANDIDATE",
+  "publication": "LOCAL_ONLY",
+  "phase": "2",
+  "configuration": "4x8",
+  "F2_DIG": "PASS_FUNCTIONAL_MAPPING_GLS",
+  "CORE": "PASS_INTEGRATED_NOMINAL",
+  "F2_FIS": "PASS_EXPERIMENTAL_4X8",
+  "review": "Advisor/team review pending; no commit, push, merge or project-wide closure performed",
+  "baseline_commit": "3b0675b6fe42c79561be6e710e328ce95b8b6f81",
+  "source_state": "Uncommitted implementation on integration/phase2-4x8",
+  "phase1_selection": {
+    "path": "release/phase1_current.json",
+    "sha256": "3154284519ed5919d0b9713816c6406e34ac1f33cf1949d3bafa0068b26fe06a",
+    "bytes": 281
+  },
+  "core": {
+    "module": "leaf_fabric",
+    "gds": {
+      "path": "reports/phase2/delivery/core_4x8.gds",
+      "sha256": "12054ba4459b9de20acfcd7ed74aadc1530484c0bf633c64ebbdc972e71f7bf8",
+      "bytes": 2837498
+    },
+    "lef": {
+      "path": "reports/phase2/delivery/core_4x8.lef",
+      "sha256": "db65c4cb1e6dcccebe0bea1456672c9a5e4405f8344a88073dbb6745fcd744d4",
+      "bytes": 682319
+    },
+    "geometry_in_top": {
+      "path": "reports/phase2/delivery/core_geometry.json",
+      "sha256": "250bdcdb89b31c95740a0a7648570bddbfa5b14ef88cab4871aa28ef7d2072df",
+      "bytes": 648
+    },
+    "boundary": "401-MOS storage/peripheral fabric; qualified row/data/phase signals are explicit external pins"
+  },
+  "top": {
+    "module": "sram_4x8_wrapper",
+    "gds": {
+      "path": "reports/phase2/final_gds/sram_4x8.gds",
+      "sha256": "d45ab0ca9438116a61c5db39ef2577a6dc08c510e40dd6f6ade87a1b9299d880",
+      "bytes": 5529674
+    },
+    "lef": {
+      "path": "reports/phase2/top_abstract_current/sram_4x8.lef",
+      "sha256": "dda895fb4de258979aedf58d0543719c99c1ff707394fc4751eaf6194cfe7af1",
+      "bytes": 8270
+    },
+    "spice": {
+      "path": "reports/phase2/extracted_access_singlethread/binding.spice",
+      "sha256": "27de843b585fffaca43d78b5ebd9c81e6ecddee99b067ade26cb60002e515f55",
+      "bytes": 146914
+    },
+    "spice_port_order": [
+      "ADDR0",
+      "ADDR1",
+      "CLK",
+      "CSb",
+      "DATA0",
+      "DATA1",
+      "DATA2",
+      "DATA3",
+      "DATA4",
+      "DATA5",
+      "DATA6",
+      "DATA7",
+      "OEb",
+      "VDD",
+      "VSS",
+      "WEb"
+    ],
+    "spice_bus_aliases": {
+      "ADDR[0]": "ADDR0",
+      "ADDR[1]": "ADDR1",
+      "DATA[0]": "DATA0",
+      "DATA[1]": "DATA1",
+      "DATA[2]": "DATA2",
+      "DATA[3]": "DATA3",
+      "DATA[4]": "DATA4",
+      "DATA[5]": "DATA5",
+      "DATA[6]": "DATA6",
+      "DATA[7]": "DATA7"
+    },
+    "routed_powered_verilog": {
+      "path": "reports/phase2/integrated_import_fix/final_powered.v",
+      "sha256": "61e600064d422ca2a72e36a291630bbf2fc3407b5689fca796794133a1908d6c",
+      "bytes": 1275182
+    },
+    "def": {
+      "path": "reports/phase2/integrated_import_fix/final.def",
+      "sha256": "9d0d957efb7d68505ad1a47cc7209c2933a8764211ad60246c72172e5dc95c1d",
+      "bytes": 1829766
+    },
+    "magic_flat": {
+      "path": "reports/phase2/integrated_import_fix/integrated_flat.mag",
+      "sha256": "e2fda8013ffcbb190fdb0ff254ba480b78b5ea5af8d0944228c7cac63ba0da15",
+      "bytes": 21996204
+    },
+    "mos_before_parallel_reduction": 1493,
+    "footprint_um": [
+      540,
+      380
+    ]
+  },
+  "functional_verilog_inputs": [
+    {
+      "path": "rtl/sram_controller.v",
+      "sha256": "ab1da9237859d1ae343e5dfa5212a74b5774ffb844908f26b80a7c110ba26b2c",
+      "bytes": 495
+    },
+    {
+      "path": "rtl/sram_4x8_wrapper.v",
+      "sha256": "b424ef2f767417b288cd0e5a2742af34100ddffe7cadb32a5a803bbf12d1f6cc",
+      "bytes": 975
+    },
+    {
+      "path": "rtl/sram_4x8_macro_model.v",
+      "sha256": "b4d060500fc6910d56e449ce755eecd67db612e69ed945fe0f176adc6a904a09",
+      "bytes": 514
+    }
+  ],
+  "physical_generator_source": {
+    "path": "physical/phase2/macro_binding.v",
+    "sha256": "75681706ea7cbbe1e532017238193d3771b9e97d9c1751223df0e526eca7da49",
+    "bytes": 3237
+  },
+  "evidence": {
+    "acceptance": {
+      "path": "reports/phase2/acceptance/results.json",
+      "sha256": "2cd997b3e947ac91575ea6039cf601148b971931f3b8d55b6cab10a45d070a3d",
+      "bytes": 3277
+    },
+    "electrical_receipt": {
+      "path": "reports/phase2/extracted_access_singlethread/results.json",
+      "sha256": "098b52683d7083dfe31e336e47b35ff87ee353edf0783105a3c9fb205c31e277",
+      "bytes": 82788
+    },
+    "gds_lvs": {
+      "path": "reports/phase2/final_gds/lvs.txt",
+      "sha256": "a0391e46a0db25b1450ada7de6a3bc39f678e08c28bbd2cc6006118b490ef764",
+      "bytes": 4734
+    },
+    "gds_drc_transcript": {
+      "path": "reports/phase2/final_gds/magic.txt",
+      "sha256": "f70a8ab35cbb8c33bedac6d22ebbb4a2ec806aa4fa31d6cf36541f6e64bece75",
+      "bytes": 1837
+    },
+    "routed_gls": {
+      "path": "reports/phase2/routed_gls/gls.txt",
+      "sha256": "a6fdaca0dd61345f0c93ffe647478225b2db21e5cb2b0d0486a39b345d3537de",
+      "bytes": 351
+    },
+    "full_raw_gzip": {
+      "path": "reports/phase2/portable_raw/waveform.dat.gz",
+      "sha256": "b5b1dfba99af0325189680f0807ac7806b8c8f1e19f1105dc91a196694cd72a3",
+      "bytes": 12227547
+    },
+    "raw_identity": {
+      "path": "reports/phase2/portable_raw/results.json",
+      "sha256": "3f39fa06fb36cb7246e5d2a8a3ffc85f041ca1813bec79dafdaccce8200590b8",
+      "bytes": 917
+    }
+  },
+  "exclusions": [
+    "No characterized Liberty, Fmax or complete SRAM STA",
+    "No detailed wire R-C PEX, PVT/statistical startup or yield qualification",
+    "Phase 1 model-coverage/reliability disposition is retained",
+    "The GLS leaf_fabric model is verification-only and is not a physical deliverable"
+  ],
+  "reproduction": "docs/phase2_execution.md; scripts/run_phase2.sh"
+}
