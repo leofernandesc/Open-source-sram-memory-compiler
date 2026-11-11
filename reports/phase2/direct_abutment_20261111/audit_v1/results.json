@@ -1,0 +1,160 @@
+{
+  "status": "PASS_NEW_CANDIDATE_AUDIT",
+  "script_sha256": "d163cf8ae109d6d654fbd7ed74a8eea2315550dcb622bb7a6e8559ee9b3e7306",
+  "receipts": {
+    "reports/phase2/direct_abutment_20261111/fabric_v3": "9e2027479d0d728eef287dadf0bbf0201cdc7c567b19c3b099d11a3e151d8f72",
+    "reports/phase2/direct_abutment_20261111/route_v1": "738296c7046a9bb1f441e6b4b078ec4ab98973c782265522f705243c8572f942",
+    "reports/phase2/direct_abutment_20261111/layout_v1": "36147ccef40edb8e30b0f66869a34f29a32ada323c99a983e2370d8666f35650",
+    "reports/phase2/direct_abutment_20261111/gds_v1": "883fac6a098340db8e6c82f208dcb5cc03ae3170f23ddea2a896b70ed51f8121",
+    "reports/phase2/direct_abutment_20261111/fixture_v1": "6e59291c69439336c711a67862a409d4a9aecf3298b8dc7270e1f3588a348d91",
+    "reports/phase2/direct_abutment_20261111/qualification_v1": "a559e9d90c3393b614c937b1e515717be8fc4fe624fc445fb21e05c8b76ec708"
+  },
+  "geometry": {
+    "seams_checked": 180,
+    "tile_size_um": [
+      17.25,
+      14.0
+    ],
+    "matrix_size_um": [
+      138.0,
+      56.0
+    ],
+    "horizontal_rail_y_um": [
+      2.25,
+      3.0,
+      13.25
+    ]
+  },
+  "lower_layers_identical": [
+    "nwell",
+    "pwell",
+    "nmos",
+    "pmos",
+    "ndiff",
+    "pdiff",
+    "ndiffc",
+    "pdiffc",
+    "psubdiff",
+    "nsubdiff",
+    "psubdiffcont",
+    "nsubdiffcont",
+    "poly",
+    "polycont",
+    "locali",
+    "viali",
+    "metal1",
+    "via1",
+    "metal2",
+    "via2"
+  ],
+  "preserved_selected_inputs": {
+    "release/phase1_current.json": "3154284519ed5919d0b9713816c6406e34ac1f33cf1949d3bafa0068b26fe06a",
+    "release/phase1_keeper/manifest.json": "d1e70cefa6a90e4e820e75544a1665d5a4de5764ae0d3eaccf268c498f80116b",
+    "physical/phase2/checkpoints.json": "b5772a3e6436a08744d3b1173e86ee639ada14ad3eae1a36f73d9ad8b7e57a26",
+    "physical/phase2/delivery.json": "5592cc8a65f5abddd65d98df75749195fe4904f6baf49a80fad9579ae7d43890",
+    "reports/phase2/final_gds/sram_4x8.gds": "d45ab0ca9438116a61c5db39ef2577a6dc08c510e40dd6f6ade87a1b9299d880",
+    "reports/phase2/final_gds/final_extracted.spice": "eba610035b7d7d97cd97f49c39819ffa8de022b70c969851e152bbe8253bb89b"
+  },
+  "protected_existing_git_files_modified": false,
+  "storage_bits": 32,
+  "mos": 1493,
+  "hd_ff": 20,
+  "ebufn": 8,
+  "delay_inverters": 80,
+  "negative_controls": [
+    {
+      "name": "row_alias",
+      "status": "REJECTED",
+      "diagnostic": "Wordlines alias or access count differs"
+    },
+    {
+      "name": "column_alias",
+      "status": "REJECTED",
+      "diagnostic": "Column bitline alias/missing access"
+    },
+    {
+      "name": "wrong_width",
+      "status": "REJECTED",
+      "diagnostic": "Access body/type/dimension changed"
+    },
+    {
+      "name": "supply_short",
+      "status": "REJECTED",
+      "diagnostic": "6T cross-coupling/rail/body error"
+    },
+    {
+      "name": "10nm_horizontal_gap",
+      "status": "REJECTED",
+      "diagnostic": "Horizontal gap or missing continuity"
+    }
+  ],
+  "electrical_checks": 1740,
+  "read_bits_included": 72,
+  "additional_raw_screens": 444,
+  "nominal_timing_ranges": {
+    "write_on_guard_ns": {
+      "min": 0.2113311316440445,
+      "max": 0.21221463347966107,
+      "samples": 6
+    },
+    "wl_to_sense_ns": {
+      "min": 0.23854400226545636,
+      "max": 0.2444711849631176,
+      "samples": 9
+    },
+    "wl_release_guard_ns": {
+      "min": 2.1963368891960613,
+      "max": 2.1975864632094897,
+      "samples": 15
+    },
+    "write_release_guard_ns": {
+      "min": 2.290610132557447,
+      "max": 2.2907657581164216,
+      "samples": 6
+    },
+    "raw_valid_before_capture_ns": {
+      "min": 7.436842098900939,
+      "max": 10.271613874391335,
+      "samples": 72
+    },
+    "fd_valid_before_capture_ns": {
+      "min": 7.240194090249133,
+      "max": 10.271613874391335,
+      "samples": 72
+    },
+    "data_from_public_fall_ns": {
+      "min": 0.48883200000000215,
+      "max": 0.5509119999999825,
+      "samples": 44
+    },
+    "disable_from_control50_ns": {
+      "min": 0.13314601612583488,
+      "max": 0.1841645213808647,
+      "samples": 72
+    },
+    "enable_from_control50_ns": {
+      "min": 0.6287745926210278,
+      "max": 0.6319208686790887,
+      "samples": 72
+    },
+    "measured_release_to_host20_ns": {
+      "min": 0.12585468433314873,
+      "max": 0.42607690884295835,
+      "samples": 16
+    }
+  },
+  "area": {
+    "old_matrix_envelope_um2": 19979.82,
+    "new_matrix_envelope_um2": 7728,
+    "reduction_percent": 61.32097286161737,
+    "old_pitch_budget_um2": 24000,
+    "new_pitch_budget_um2": 7728,
+    "top_floorplan_um2": 205200,
+    "top_floorplan_reduction_percent": 0
+  },
+  "scope": "Nominal new candidate only; no official selector change, detailed wire RC or PVT guarantee",
+  "artifacts": {
+    "structure.json": "0b249bbf20c549da517959625e7d801ba3afe4b881304a76dd3e334844a6b985",
+    "timing.json": "10f88b86db8a48f8597054be5bb108ed1c21dc2ce98d6ad6be731ff8123291cd"
+  }
+}

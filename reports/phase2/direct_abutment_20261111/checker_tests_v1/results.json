@@ -1,0 +1,34 @@
+{
+  "status": "PASS_CHECKER_TESTS",
+  "positive_cases": 2,
+  "rejected": 5,
+  "negative": [
+    {
+      "case": "row_alias",
+      "status": "REJECTED",
+      "diagnostic": "Wordlines alias or access count differs"
+    },
+    {
+      "case": "column_alias",
+      "status": "REJECTED",
+      "diagnostic": "Column bitline alias/missing access"
+    },
+    {
+      "case": "width",
+      "status": "REJECTED",
+      "diagnostic": "Access body/type/dimension changed"
+    },
+    {
+      "case": "supply_short",
+      "status": "REJECTED",
+      "diagnostic": "6T cross-coupling/rail/body error"
+    },
+    {
+      "case": "10nm_gap",
+      "status": "REJECTED",
+      "diagnostic": "Horizontal gap or missing continuity"
+    }
+  ],
+  "input_sha256": "fc81ac7083f2619512e91f26cffa2a0a2d090f530e63d9fd13885bb72b6faf95",
+  "scope": "In-memory copies of real pilot data and GDS, no source artifact modified; not new circuit simulations"
+}
