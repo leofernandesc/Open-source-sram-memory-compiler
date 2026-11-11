@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "selection_type": "phase2_milestone2_baseline",
+  "decision_date": "2026-11-11",
+  "decision_source": "Explicit project-user authorization in ChatGPT conversation, items 1 and 2",
+  "status": "APPROVED_BY_PROJECT_USER_WITH_DOCUMENTED_LIMITATIONS",
+  "team_or_supervisor_formal_ratification": "NOT_RECORDED",
+  "branch_of_selected_implementation": "feature/phase2-direct-abutment",
+  "implementation_commit": "826978ab73a7335fa245f4e4d0f021ad6cf94dea",
+  "candidate_manifest": "physical/phase2_direct_abutment/candidate.json",
+  "candidate_manifest_status_at_approval": "QUALIFIED_NOMINAL_CANDIDATE",
+  "chosen_gds": "reports/phase2/direct_abutment_20261111/gds_v1/sram_4x8.gds",
+  "chosen_gds_sha256": "83e72aee8d45a9826751cdefd46dd062acc2a17ec0acfd33c07f218d20d8e64e",
+  "previous_physical_baseline": "physical/phase2/delivery.json",
+  "previous_selection_disposition": "RETAIN_HISTORICAL_DO_NOT_DELETE",
+  "phase1_library_selector": "release/phase1_current.json",
+  "phase1_physical_cell_override": "physical/phase2_direct_abutment/bitcell_6t_abut.mag",
+  "electric_qualification": "reports/phase2/direct_abutment_20261111/qualification_v1/results.json",
+  "physical_qualification": "reports/phase2/direct_abutment_20261111/gds_v1/results.json",
+  "gls_qualification": "reports/phase2/direct_abutment_20261111/gls_v1/results.json",
+  "f1_04_disposition": "USER_ACCEPTED_WITH_SMALL_SIGNAL_PEX_EXCEPTION",
+  "f1_04_evidence": "docs/phase1_final_isolated_20261111.md",
+  "f1_04_causal_diagnostic": "docs/sense_pex_small_signal_investigation.md",
+  "limitations": [
+    "Nominal TT/1.8V/27C/20ns electrical qualification only",
+    "No full distributed wire/leaf RC in integrated simulation",
+    "Sense PEX 5mV has reproducible wrong-polarity decisions",
+    "No qualified PVT, Fmax, timing/power, Liberty, yield",
+    "Approval is user decision; team/supervisor formal sign-off not independently evidenced"
+  ],
+  "integration_policy": "Release pointer on this dedicated branch; no merge into default/integration branches automatically; no existing frozen manifest or layout modified"
+}
