@@ -1,0 +1,116 @@
+{
+  "status": "PASS_ARCHIVED_WINDOW_REANALYSIS",
+  "source_npz": "reports/phase1/sense_pex_small_signal_20261111/top_context_v1/top_edge_windows.npz",
+  "source_npz_sha256": "4d6ade65704dc0be161190abeb9ce97d6607d45b8b996d572885408ee2e",
+  "source_qualification": "reports/phase2/direct_abutment_20261111/qualification_v1/results.json",
+  "source_timing": "reports/phase2/direct_abutment_20261111/audit_v1/timing.json",
+  "condition": {
+    "corner": "tt",
+    "vdd_v": 1.8,
+    "temp_c": 27
+  },
+  "scope": "Original selected bitline samples from archived windows, without distributed wire/leaf RC",
+  "reference": "WL80 of selected row; SCLK20 of sense enable",
+  "observations": 72,
+  "threshold_checks": 432,
+  "thresholds_mv": [
+    5,
+    10,
+    20,
+    50,
+    100,
+    200
+  ],
+  "summary": {
+    "5mV": {
+      "total": 72,
+      "crossed_in_window": 44,
+      "already_above_at_window_start": 28,
+      "not_reached_before_sclk20": 0,
+      "t_relative_wl80_ps": {
+        "min": -8.419842528837762,
+        "max": -7.136859967999953
+      },
+      "lead_before_sclk20_ps": {
+        "min": 246.18552833933904,
+        "max": 252.54033376046436
+      }
+    },
+    "10mV": {
+      "total": 72,
+      "crossed_in_window": 44,
+      "already_above_at_window_start": 28,
+      "not_reached_before_sclk20": 0,
+      "t_relative_wl80_ps": {
+        "min": -7.526761987435293,
+        "max": -6.098804445628048
+      },
+      "lead_before_sclk20_ps": {
+        "min": 245.33829506685834,
+        "max": 251.73188206844088
+      }
+    },
+    "20mV": {
+      "total": 72,
+      "crossed_in_window": 56,
+      "already_above_at_window_start": 16,
+      "not_reached_before_sclk20": 0,
+      "t_relative_wl80_ps": {
+        "min": -39.851695430741074,
+        "max": -4.695158502102004
+      },
+      "lead_before_sclk20_ps": {
+        "min": 243.6438285218685,
+        "max": 279.118563360214
+      }
+    },
+    "50mV": {
+      "total": 72,
+      "crossed_in_window": 72,
+      "already_above_at_window_start": 0,
+      "not_reached_before_sclk20": 0,
+      "t_relative_wl80_ps": {
+        "min": -7.141574328500155,
+        "max": -0.4842206715238717
+      },
+      "lead_before_sclk20_ps": {
+        "min": 239.26942931072404,
+        "max": 251.49274410529188
+      }
+    },
+    "100mV": {
+      "total": 72,
+      "crossed_in_window": 72,
+      "already_above_at_window_start": 0,
+      "not_reached_before_sclk20": 0,
+      "t_relative_wl80_ps": {
+        "min": 3.47066422369835,
+        "max": 5.21872065644402
+      },
+      "lead_before_sclk20_ps": {
+        "min": 233.48062685448667,
+        "max": 240.96434305653247
+      }
+    },
+    "200mV": {
+      "total": 72,
+      "crossed_in_window": 72,
+      "already_above_at_window_start": 0,
+      "not_reached_before_sclk20": 0,
+      "t_relative_wl80_ps": {
+        "min": 14.59696273713007,
+        "max": 20.439667110622395
+      },
+      "lead_before_sclk20_ps": {
+        "min": 218.27078425383206,
+        "max": 229.7728812546893
+      }
+    }
+  },
+  "limits": [
+    "No evidence of crossings before archived window start",
+    "Earliest 5/10/20mV timings censored due to pre-existing differential",
+    "This is not a full-array RC extraction or a retimed SCLK simulation",
+    "Crossing interpolation is not guaranteed picosecond accuracy"
+  ]
+}
