@@ -1,0 +1,54 @@
+{
+  "status": "PASS_PHYSICAL",
+  "stage": "pilot",
+  "base_commit": "3d148806ba16fcf6d9c5e46d1cefb975dfcc11d6",
+  "resources": {
+    "available_memory_mb": 2928,
+    "free_disk_mb": 5635,
+    "logical_cpus": 8,
+    "swap_total_mb": 4096,
+    "swap_free_mb": 3901,
+    "thread_limit": 1,
+    "minimum_disk_mb": 512,
+    "minimum_memory_mb": 1024
+  },
+  "inputs": {
+    "release/phase1/cells/bitcell_6t/bitcell_6t.mag": "d40e2635173f705dbf1878821db6b1bd12e621f8042fcba7c20ea044ec34cf23",
+    "release/phase1/cells/bitcell_6t/bitcell_6t.spice": "15195d40573b4ce13ae69a83841ea5863d98e6faaf5dd8ea4a0289682de4bf8c",
+    "tools/run_direct_abutment.py": "f3aafb9567559d18caecb18efe792389efe3bd47047d98629c6534341ca262b6",
+    "reports/direct_abutment/20261111/leaf_v2/results.json": "c58e207285f89aad72147a6f50b21305cbe3fdb52ab32af2f23ac39c7c48c1ac"
+  },
+  "pdk": {
+    "/opt/pdks/sky130A/libs.tech/magic/sky130A.magicrc": "7bc1d5d14d910bd1407287ec1ab1305b17e1d7ac384f918c5dad34e97494b94d",
+    "/opt/pdks/sky130A/libs.tech/netgen/sky130A_setup.tcl": "7a33f3f54fab57a9d9b0887ac7b7b64ce6c454110e8b7f01f3cfb90a1282dc94"
+  },
+  "build_directory": "build/direct_abutment/pilot-fcyi5t6n",
+  "drc_groups": 0,
+  "expanded_mos": 24,
+  "lvs": "UNIQUE_MATCH_W_L_TERMINALS",
+  "ports": [
+    "VDD",
+    "VSS",
+    "WL0",
+    "WL1",
+    "BL0",
+    "BLB0",
+    "BL1",
+    "BLB1"
+  ],
+  "width_um": 34.5,
+  "height_um": 28.0,
+  "abutment": "Zero placement gap; horizontal WL/power and vertical BL/BLB/power touch at explicit tile boundaries",
+  "artifacts": {
+    "array_2x2_abut.gds": "0b9247033bac0624a0e9f4e964fa2e8498aa550e3af06fe33388b656f8918a51",
+    "array_2x2_abut.mag": "648a4a8ca4fe39689d97b13e48cb9afbc1cd5426d251d06303103b6c26054f71",
+    "layout_mos.spice": "0a7ac6e84a9d6ee1dc24c9a8bfe681fdeb11e10ac402cca14612b112f0f337fe",
+    "extracted.spice": "46faf2e48fb73e558f69d7bc752c8c57d981f66ebb91b9ab36ab07b8418e7120",
+    "magic.txt": "8eb6ac8d00e76c7cfbe65aeaaa71c4a6dccad2e95b4259d141f72fac44561e22",
+    "lvs.txt": "8624b0d58a97fdf093fa0f52a4864b53e00af6505d8b27f06de098f4799afddc",
+    "reference.spice": "74c71b440bd007052208b1e0bba40a955014048e817d4d143cdfa8b304a43be0",
+    "generate.tcl": "d08cd8e634d33c3ba8b26a4b5d20b7e222a889c2ca7f1fafec25b52a722cb0e2",
+    "netgen.txt": "b96c6296803046c7bd57478952a327f9ddb1cc7152e47f33fa491af4054c586a",
+    "flat.ext": "6b773edfbfc6a1d1178bdbf28946f4523021b8cbeba550b0807feaa8503db903"
+  }
+}

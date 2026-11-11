@@ -1,0 +1,30 @@
+.model sky130_fd_pr__nfet_01v8 nmos
+.model sky130_fd_pr__pfet_01v8 pmos
+.model sky130_fd_pr__pfet_01v8_hvt pmos
+.model sky130_fd_pr__special_nfet_01v8 nmos
+.subckt array_2x2_abut VDD VSS WL0 WL1 BL0 BLB0 BL1 BLB1
+MMPL_r0_b0 Q_0_0 QB_0_0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNL_r0_b0 Q_0_0 QB_0_0 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMPR_r0_b0 QB_0_0 Q_0_0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNR_r0_b0 QB_0_0 Q_0_0 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMAL_r0_b0 Q_0_0 WL0 BL0 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMAR_r0_b0 BLB0 WL0 QB_0_0 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMPL_r0_b1 Q_0_1 QB_0_1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNL_r0_b1 Q_0_1 QB_0_1 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMPR_r0_b1 QB_0_1 Q_0_1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNR_r0_b1 QB_0_1 Q_0_1 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMAL_r0_b1 Q_0_1 WL0 BL1 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMAR_r0_b1 BLB1 WL0 QB_0_1 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMPL_r1_b0 Q_1_0 QB_1_0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNL_r1_b0 Q_1_0 QB_1_0 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMPR_r1_b0 QB_1_0 Q_1_0 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNR_r1_b0 QB_1_0 Q_1_0 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMAL_r1_b0 Q_1_0 WL1 BL0 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMAR_r1_b0 BLB0 WL1 QB_1_0 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMPL_r1_b1 Q_1_1 QB_1_1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNL_r1_b1 Q_1_1 QB_1_1 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMPR_r1_b1 QB_1_1 Q_1_1 VDD VDD sky130_fd_pr__pfet_01v8 w=0.42u l=0.15u
+MMNR_r1_b1 QB_1_1 Q_1_1 VSS VSS sky130_fd_pr__nfet_01v8 w=1.26u l=0.15u
+MMAL_r1_b1 Q_1_1 WL1 BL1 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+MMAR_r1_b1 BLB1 WL1 QB_1_1 VSS sky130_fd_pr__nfet_01v8 w=0.6u l=0.15u
+.ends array_2x2_abut

@@ -1,0 +1,38 @@
+* New 2x2 extracted abutment: external drivers only; no internal initialization
+.lib "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+.include "binding.spice"
+.temp 27
+.options method=gear klu
+.model WSW SW(Ron=50 Roff=1e12 Vt=.9 Vh=.1)
+.model PSW SW(Ron=100 Roff=1e12 Vt=.9 Vh=.1)
+VDD_SRC VDD 0 PWL(0 0 1n 1.8)
+V_WL0 WL0 0 PWL(0n 0 1n 0 11n 0 11.05n 1.8 14n 1.8 14.05n 0 51n 0 51.05n 1.8 54n 1.8 54.05n 0 91n 0 91.05n 1.8 94n 1.8 94.05n 0 111n 0 111.05n 1.8 114n 1.8 114.05n 0 211n 0 211.05n 1.8 214n 1.8 214.05n 0)
+V_WL1 WL1 0 PWL(0n 0 1n 0 31n 0 31.05n 1.8 34n 1.8 34.05n 0 71n 0 71.05n 1.8 74n 1.8 74.05n 0 131n 0 131.05n 1.8 134n 1.8 134.05n 0 191n 0 191.05n 1.8 194n 1.8 194.05n 0 231n 0 231.05n 1.8 234n 1.8 234.05n 0)
+V_WE WE 0 PWL(0n 0 1n 0 9.5n 0 9.55n 1.8 15n 1.8 15.05n 0 29.5n 0 29.55n 1.8 35n 1.8 35.05n 0 49.5n 0 49.55n 0 55n 0 55.05n 0 69.5n 0 69.55n 0 75n 0 75.05n 0 89.5n 0 89.55n 1.8 95n 1.8 95.05n 0 109.5n 0 109.55n 0 115n 0 115.05n 0 129.5n 0 129.55n 0 135n 0 135.05n 0 189.5n 0 189.55n 1.8 195n 1.8 195.05n 0 209.5n 0 209.55n 0 215n 0 215.05n 0 229.5n 0 229.55n 0 235n 0 235.05n 0)
+V_PRE PRE 0 PWL(0n 0 1n 1.8 9n 1.8 9.05n 0 16n 0 16.05n 1.8 29n 1.8 29.05n 0 36n 0 36.05n 1.8 49n 1.8 49.05n 0 56n 0 56.05n 1.8 69n 1.8 69.05n 0 76n 0 76.05n 1.8 89n 1.8 89.05n 0 96n 0 96.05n 1.8 109n 1.8 109.05n 0 116n 0 116.05n 1.8 129n 1.8 129.05n 0 136n 0 136.05n 1.8 189n 1.8 189.05n 0 196n 0 196.05n 1.8 209n 1.8 209.05n 0 216n 0 216.05n 1.8 229n 1.8 229.05n 0 236n 0 236.05n 1.8)
+V_D0 D0 0 PWL(0n 0 1n 0 8n 0 8.05n 1.8 28n 1.8 28.05n 0 48n 0 48.05n 1.8 68n 1.8 68.05n 0 88n 0 88.05n 0 108n 0 108.05n 0 128n 0 128.05n 0 188n 0 188.05n 1.8 208n 1.8 208.05n 0 228n 0 228.05n 1.8)
+V_DB0 DB0 0 PWL(0n 0 1n 0 8n 0 8.05n 0 28n 0 28.05n 1.8 48n 1.8 48.05n 0 68n 0 68.05n 1.8 88n 1.8 88.05n 1.8 108n 1.8 108.05n 1.8 128n 1.8 128.05n 1.8 188n 1.8 188.05n 0 208n 0 208.05n 1.8 228n 1.8 228.05n 0)
+V_D1 D1 0 PWL(0n 0 1n 0 8n 0 8.05n 0 28n 0 28.05n 1.8 48n 1.8 48.05n 0 68n 0 68.05n 1.8 88n 1.8 88.05n 1.8 108n 1.8 108.05n 1.8 128n 1.8 128.05n 1.8 188n 1.8 188.05n 0 208n 0 208.05n 1.8 228n 1.8 228.05n 0)
+V_DB1 DB1 0 PWL(0n 0 1n 0 8n 0 8.05n 1.8 28n 1.8 28.05n 0 48n 0 48.05n 1.8 68n 1.8 68.05n 0 88n 0 88.05n 0 108n 0 108.05n 0 128n 0 128.05n 0 188n 0 188.05n 1.8 208n 1.8 208.05n 0 228n 0 228.05n 1.8)
+SP_BL0 BL0 VDD PRE 0 PSW
+SW_BL0 BL0 D0 WE 0 WSW
+C_BL0 BL0 0 10f
+SP_BLB0 BLB0 VDD PRE 0 PSW
+SW_BLB0 BLB0 DB0 WE 0 WSW
+C_BLB0 BLB0 0 10f
+SP_BL1 BL1 VDD PRE 0 PSW
+SW_BL1 BL1 D1 WE 0 WSW
+C_BL1 BL1 0 10f
+SP_BLB1 BLB1 VDD PRE 0 PSW
+SW_BLB1 BLB1 DB1 WE 0 WSW
+C_BLB1 BLB1 0 10f
+XDUT VDD 0 WL0 WL1 BL0 BLB0 BL1 BLB1 array_2x2
+.control
+set num_threads=1
+set wr_singlescale
+set wr_vecnames
+tran 10p 250n 0 10p
+wrdata waveform.dat v(VDD) v(WL0) v(WL1) v(BL0) v(BLB0) v(BL1) v(BLB1) v(xdut.n6) v(xdut.n5) v(xdut.n2) v(xdut.n1) v(xdut.n7) v(xdut.n4) v(xdut.n3) v(xdut.n0)
+quit
+.endc
+.end
