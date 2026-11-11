@@ -1,0 +1,95 @@
+{
+  "status": "PASS_ANALYSIS_INTEGRITY",
+  "inputs": {
+    "tools/analyze_sense_pex_investigation.py": "a4fef3562e66ee20e4828ef2309258739fe65a51185132bb9818f2ddf108f49b",
+    "reports/phase1/sense_pex_small_signal_20261111/sweep_v1/results.json": "16faf3d8f549097a87a2e19565c4bbad65e94b4b1f5315eb2c45d2cd60faee6d",
+    "reports/phase1/sense_pex_small_signal_20261111/ablation_v2/results.json": "81e67e7eb85240198b6815425ecc96b3f19ad2a2125a82f7059b6611944c4126",
+    "reports/phase1/sense_pex_small_signal_20261111/focused_v1/results.json": "1f00b536676edf3701486676d56367dfbb6513ac2d5c429d706a2e9c54d53c2a",
+    "reports/phase1/sense_pex_small_signal_20261111/operating_v1/results.json": "69f5ce4415dfed91c39124cb9ef4d2504d359d961b99054a9d6948db26ad5246",
+    "reports/phase1/sense_pex_small_signal_20261111/refine_v1/results.json": "2afb054c2af6c96961371289938f23b95fca6952a98d704bbcdd1cef91d95d20",
+    "reports/phase1/sense_pex_small_signal_20261111/top_context_v1/results.json": "f1fd9fa40f7dae4e9951c6586fdfa5a82a93d27c9002cf2d6215fbf28680f33a"
+  },
+  "replayed": [
+    {
+      "source": "reports/phase1/sense_pex_small_signal_20261111/sweep_v1",
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 20,
+      "case_failures": 8,
+      "functional_status": "FAIL"
+    },
+    {
+      "source": "reports/phase1/sense_pex_small_signal_20261111/ablation_v2",
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 12,
+      "case_failures": 4,
+      "functional_status": "FAIL"
+    },
+    {
+      "source": "reports/phase1/sense_pex_small_signal_20261111/focused_v1",
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 12,
+      "case_failures": 10,
+      "functional_status": "FAIL"
+    },
+    {
+      "source": "reports/phase1/sense_pex_small_signal_20261111/operating_v1",
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 8,
+      "case_failures": 8,
+      "functional_status": "FAIL"
+    },
+    {
+      "source": "reports/phase1/sense_pex_small_signal_20261111/refine_v1",
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 4,
+      "case_failures": 2,
+      "functional_status": "FAIL"
+    }
+  ],
+  "top_edge_window_measurements_replayed": true,
+  "cases": 56,
+  "events": 112,
+  "case_failures": 32,
+  "functional_failures_preserved": true,
+  "decision_limits": [
+    {
+      "cap_ff": 2,
+      "expected_sign": 1,
+      "smallest_pass_tested_mv": 20,
+      "largest_failure_below_mv": 15.0,
+      "passed_tested_mv": "20 30 50",
+      "failed_tested_mv": "5 10 15"
+    },
+    {
+      "cap_ff": 2,
+      "expected_sign": -1,
+      "smallest_pass_tested_mv": 5,
+      "largest_failure_below_mv": null,
+      "passed_tested_mv": "5 10 15 20 30 50",
+      "failed_tested_mv": ""
+    },
+    {
+      "cap_ff": 10,
+      "expected_sign": 1,
+      "smallest_pass_tested_mv": 15.0,
+      "largest_failure_below_mv": 10,
+      "passed_tested_mv": "15 20 30 50",
+      "failed_tested_mv": "5 10"
+    },
+    {
+      "cap_ff": 10,
+      "expected_sign": -1,
+      "smallest_pass_tested_mv": 5,
+      "largest_failure_below_mv": null,
+      "passed_tested_mv": "5 10 15 20 30 50",
+      "failed_tested_mv": ""
+    }
+  ],
+  "artifacts": {
+    "capacitance_groups.json": "2e694ef8f770c97f7840c5035d5e058cad44044b943526fb4afb3983b066bac9",
+    "cases.csv": "3eea76763f366e6188ee48322ff1f30aa8aac9ddc28aaaa12100d830585abdbe",
+    "decision_limits.csv": "bdec883111a66d5885f547f5842b570dc8beac19fc6b655e6c420f8a15e8d3ef",
+    "diagnostic_summary.png": "dbc959d76ad1722851f6493dff8f396ceacd2a518628e99fab8119356fd9882d",
+    "events.csv": "7ebc53e2f3514ffac04cc3a4290865804e4210595ef75525ba56dd0c890a9345"
+  }
+}

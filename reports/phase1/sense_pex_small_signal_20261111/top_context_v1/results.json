@@ -1,0 +1,163 @@
+{
+  "status": "PASS_PIN_IDENTITY_AND_RAW_RECONCILIATION",
+  "resources": {
+    "available_memory_mb": 3196,
+    "free_disk_mb": 5180,
+    "logical_cpus": 8,
+    "swap_total_mb": 4096,
+    "swap_free_mb": 2129,
+    "thread_limit": 1,
+    "minimum_disk_mb": 512,
+    "minimum_memory_mb": 1024
+  },
+  "inputs": {
+    "reports/phase2/direct_abutment_20261111/gds_v1/final_extracted.spice": "ed9474b2681fb05e1aa69485b927d2da5a47a72e44e4cc5606a87eb9b8c3397a",
+    "reports/phase2/direct_abutment_20261111/qualification_v1/binding.spice": "f4b502bcf1c99fb18d02ebad712878ebf83c0a4cec04987d2dce3d9645baa510",
+    "reports/phase2/direct_abutment_20261111/gds_v1/final_flat.ext": "966149c6c39f8fbe584d78e05e5a8e4bd9fa5a9ffa68179a8439cbfe120ea1b9",
+    "reports/phase2/direct_abutment_20261111/qualification_v1/results.json": "a559e9d90c3393b614c937b1e515717be8fc4fe624fc445fb21e05c8b76ec708",
+    "reports/phase2/direct_abutment_20261111/audit_v1/timing.json": "10f88b86db8a48f8597054be5bb108ed1c21dc2ce98d6ad6be731ff8123291cd",
+    "tools/extract_sense_top_context.py": "79a95b439fea1760d28ab239a63e8ef8b4964d8f03b077ce812ab3ec7a632b56",
+    "tools/run_phase2_directed_review.py": "935b428169c6a46ee13b4083ef8080e4191a578f03095d41f1790918c2d39192"
+  },
+  "source_raw_sha256": "f5c19a6db9293edd792d73c4fe306c7782f9ad718fd66dfd0fa56872b75feb95",
+  "source_raw_path": "build/phase2/abutment-qualification-jlkzunqd/waveform.dat",
+  "condition": {
+    "corner": "tt",
+    "vdd_v": 1.8,
+    "temp_c": 27
+  },
+  "source_scope": "NEW direct-abutment extraction; no old electrical acceptance reused; no wire RC",
+  "pins": {
+    "BL0": "v(xdut.e610)",
+    "BLB0": "v(xdut.e611)",
+    "SCLK0": "v(xdut.e728)",
+    "BL1": "v(xdut.e612)",
+    "BLB1": "v(xdut.e613)",
+    "SCLK1": "v(xdut.e728)",
+    "BL2": "v(xdut.e614)",
+    "BLB2": "v(xdut.e615)",
+    "SCLK2": "v(xdut.e728)",
+    "BL3": "v(xdut.e616)",
+    "BLB3": "v(xdut.e617)",
+    "SCLK3": "v(xdut.e728)",
+    "BL4": "v(xdut.e618)",
+    "BLB4": "v(xdut.e619)",
+    "SCLK4": "v(xdut.e728)",
+    "BL5": "v(xdut.e620)",
+    "BLB5": "v(xdut.e621)",
+    "SCLK5": "v(xdut.e728)",
+    "BL6": "v(xdut.e622)",
+    "BLB6": "v(xdut.e623)",
+    "SCLK6": "v(xdut.e728)",
+    "BL7": "v(xdut.e624)",
+    "BLB7": "v(xdut.e625)",
+    "SCLK7": "v(xdut.e728)"
+  },
+  "read_cycles": 9,
+  "bit_observations": 288,
+  "ranges": {
+    "before20_50ps": {
+      "signed_delta_v": {
+        "min": 1.5714020755712494,
+        "max": 1.6773952876634954
+      },
+      "common_mode_v": {
+        "min": 1.0066050278292737,
+        "max": 1.0569925395956012
+      },
+      "high_v": {
+        "min": 1.8397207315218462,
+        "max": 1.8485292973901601
+      },
+      "low_v": {
+        "min": 0.16790738399752592,
+        "max": 0.2712915018099766
+      }
+    },
+    "at20": {
+      "signed_delta_v": {
+        "min": 1.737076867902982,
+        "max": 1.841748572348786
+      },
+      "common_mode_v": {
+        "min": 0.9610048110109548,
+        "max": 0.9984601411294753
+      },
+      "high_v": {
+        "min": 1.8642393352578277,
+        "max": 1.886026033564687
+      },
+      "low_v": {
+        "min": 0.04013052483656176,
+        "max": 0.12992170717798437
+      }
+    },
+    "at50": {
+      "signed_delta_v": {
+        "min": 1.8325262499579438,
+        "max": 1.9225686514654052
+      },
+      "common_mode_v": {
+        "min": 0.9733073089141526,
+        "max": 0.9814534912746538
+      },
+      "high_v": {
+        "min": 1.8945831023819426,
+        "max": 1.9382361129084256
+      },
+      "low_v": {
+        "min": 0.013772223784055777,
+        "max": 0.0651597469132643
+      }
+    },
+    "at80": {
+      "signed_delta_v": {
+        "min": 1.8835673070739207,
+        "max": 1.9595339793729456
+      },
+      "common_mode_v": {
+        "min": 0.9658968006298885,
+        "max": 0.986355576997214
+      },
+      "high_v": {
+        "min": 1.9081892819152633,
+        "max": 1.9661225666836868
+      },
+      "low_v": {
+        "min": 0.006303644291550413,
+        "max": 0.02681649725606654
+      }
+    }
+  },
+  "sclk_slew_10_90_ps": {
+    "min": 157.78888595849594,
+    "max": 158.20647579880642
+  },
+  "excerpt_columns": [
+    "time_ns",
+    "SCLK",
+    "BL0",
+    "BLB0",
+    "BL1",
+    "BLB1",
+    "BL2",
+    "BLB2",
+    "BL3",
+    "BLB3",
+    "BL4",
+    "BLB4",
+    "BL5",
+    "BLB5",
+    "BL6",
+    "BLB6",
+    "BL7",
+    "BLB7"
+  ],
+  "excerpt_scope": "All native samples only in nine windows -0.3..+0.7 ns around sense20, not the complete top transient",
+  "limitations": "Top uses extracted MOS/junctions without wire/leaf R-C. No implication of full top PEX qualification.",
+  "artifacts": {
+    "clock_edges.csv": "eddad9d7e1b17731949c92516171ca6750176b4a78bddcf5c57bc84951369e1f",
+    "pins_at_sense.csv": "415b57b5680db0bee778c1d15b214adea3187ed7fb0dbd592888408ee3590bad",
+    "top_edge_windows.npz": "4d6ade65704dc0be161190abeb9ce97b40fd4c012b16772f982c8f338fff36e3"
+  }
+}

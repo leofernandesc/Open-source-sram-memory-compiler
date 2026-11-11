@@ -1,0 +1,22 @@
+* Final frozen sense_amp: isolated pex; full_d50_p-1_c2_h1.8_s50
+.lib /opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include dut.spice
+.temp 27
+.options method=gear reltol=1e-5 abstol=1e-13 vntol=1e-7
+VPOWER VDD 0 PWL(0 0 1n 1.8)
+XDUT VDD 0 BL BLB SCLK SA_OUT SA_OUTB sense_amp_scale1p5_flat
+VBL BL 0 PWL(0 0 1n 1.8 3n 1.8 3.05n 1.75 10n 1.75 10.05n 1.8)
+VBLB BLB 0 PWL(0 0 1n 1.8 3n 1.8 3.05n 1.8 10n 1.8 10.05n 1.75)
+VSCLK SCLK 0 PWL(0 0 5n 0 5.05n 1.8 9n 1.8 9.05n 0 13n 0 13.05n 1.8 17n 1.8 17.05n 0)
+CA SA_OUT 0 2f
+CB SA_OUTB 0 2f
+.control
+set num_threads=1
+set wr_singlescale
+set wr_vecnames
+set numdgt=12
+tran 5p 18n 0 5p
+wrdata waveform.dat v(VDD) v(BL) v(BLB) v(SCLK) v(SA_OUT) v(SA_OUTB) v(xdut.SCLK.t0) v(xdut.SCLK.t2) v(xdut.SCLK.t1) v(xdut.SA_OUT.t3) v(xdut.SA_OUTB.t3) v(xdut.a_615_n3098.t0) v(xdut.a_615_n3098.t2)
+quit
+.endc
+.end

@@ -1,0 +1,49 @@
+{
+  "status": "PASS_EVIDENCE_INTEGRITY",
+  "all_functional_failures_preserved": true,
+  "stages": {
+    "sweep_v1": {
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 20,
+      "case_failures": 8,
+      "functional_status": "FAIL"
+    },
+    "ablation_v2": {
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 12,
+      "case_failures": 4,
+      "functional_status": "FAIL"
+    },
+    "focused_v1": {
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 12,
+      "case_failures": 10,
+      "functional_status": "FAIL"
+    },
+    "operating_v1": {
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 8,
+      "case_failures": 8,
+      "functional_status": "FAIL"
+    },
+    "refine_v1": {
+      "evidence_status": "PASS_INTEGRITY",
+      "cases": 4,
+      "case_failures": 2,
+      "functional_status": "FAIL"
+    }
+  },
+  "baseline": "ed9fb323a644f479a3e2687b73eecf35432d8c93",
+  "preexisting_files_changed": [],
+  "prior_isolated_package_unchanged": true,
+  "top_excerpt_replayed": true,
+  "unit_tests": 8,
+  "report_sha256": "657b68168a021dbbb840574d813b240f860002d7106116112fd2d9d2174223c1",
+  "new_sources": {
+    "tools/investigate_sense_pex.py": "212603bd1b3cd68a9d41cb21dd6066cfe5833f334062d169867d8d1a508f2bb0",
+    "tools/extract_sense_top_context.py": "79a95b439fea1760d28ab239a63e8ef8b4964d8f03b077ce812ab3ec7a632b56",
+    "tools/analyze_sense_pex_investigation.py": "a4fef3562e66ee20e4828ef2309258739fe65a51185132bb9818f2ddf108f49b",
+    "tools/test_sense_pex_diagnostics.py": "cb074f7073c3a691cdaa21093b81c97815ae14c04871f384a422c6004a019764"
+  },
+  "decision": "Recommend A subject to team approval; no automatic F1-04 closure or circuit change."
+}
