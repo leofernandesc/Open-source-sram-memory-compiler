@@ -1,0 +1,588 @@
+snap internal
+path search +.
+load fabric_hier
+proc rect {layer x1 y1 x2 y2} {
+    box values $x1 $y1 $x2 $y2
+    paint $layer
+}
+proc promote34 {x y} {
+    rect metal3 [expr {$x-48}] [expr {$y-48}] [expr {$x+48}] [expr {$y+48}]
+    rect metal4 [expr {$x-60}] [expr {$y-48}] [expr {$x+60}] [expr {$y+48}]
+    box values [expr {$x-32}] [expr {$y-32}] [expr {$x+32}] [expr {$y+32}]
+    contact via3
+}
+proc via12 {x y} {
+    rect metal1 [expr {$x-34}] [expr {$y-34}] [expr {$x+34}] [expr {$y+34}]
+    rect metal2 [expr {$x-34}] [expr {$y-34}] [expr {$x+34}] [expr {$y+34}]
+    box values [expr {$x-26}] [expr {$y-26}] [expr {$x+26}] [expr {$y+26}]
+    contact via1
+}
+proc via23 {x y} {
+    rect metal2 [expr {$x-48}] [expr {$y-48}] [expr {$x+48}] [expr {$y+48}]
+    rect metal3 [expr {$x-60}] [expr {$y-48}] [expr {$x+60}] [expr {$y+48}]
+    box values [expr {$x-30}] [expr {$y-30}] [expr {$x+30}] [expr {$y+30}]
+    contact via2
+}
+proc pin {name index x y} {
+    box values [expr {$x-20}] [expr {$y-20}] [expr {$x+20}] [expr {$y+20}]
+    label $name center metal4
+    port make $index n
+}
+
+proc via45 {x y} {
+    rect metal4 [expr {$x-140}] [expr {$y-140}] [expr {$x+140}] [expr {$y+140}]
+    rect metal5 [expr {$x-180}] [expr {$y-200}] [expr {$x+180}] [expr {$y+200}]
+    box values [expr {$x-118}] [expr {$y-118}] [expr {$x+118}] [expr {$y+118}]
+    contact via4
+}
+
+getcell bitcell_6t child 0 0 parent 0 36000
+getcell bitcell_6t child 0 0 parent 3450 36000
+getcell bitcell_6t child 0 0 parent 6900 36000
+getcell bitcell_6t child 0 0 parent 10350 36000
+getcell bitcell_6t child 0 0 parent 13800 36000
+getcell bitcell_6t child 0 0 parent 17250 36000
+getcell bitcell_6t child 0 0 parent 20700 36000
+getcell bitcell_6t child 0 0 parent 24150 36000
+getcell bitcell_6t child 0 0 parent 0 38800
+getcell bitcell_6t child 0 0 parent 3450 38800
+getcell bitcell_6t child 0 0 parent 6900 38800
+getcell bitcell_6t child 0 0 parent 10350 38800
+getcell bitcell_6t child 0 0 parent 13800 38800
+getcell bitcell_6t child 0 0 parent 17250 38800
+getcell bitcell_6t child 0 0 parent 20700 38800
+getcell bitcell_6t child 0 0 parent 24150 38800
+getcell bitcell_6t child 0 0 parent 0 41600
+getcell bitcell_6t child 0 0 parent 3450 41600
+getcell bitcell_6t child 0 0 parent 6900 41600
+getcell bitcell_6t child 0 0 parent 10350 41600
+getcell bitcell_6t child 0 0 parent 13800 41600
+getcell bitcell_6t child 0 0 parent 17250 41600
+getcell bitcell_6t child 0 0 parent 20700 41600
+getcell bitcell_6t child 0 0 parent 24150 41600
+getcell bitcell_6t child 0 0 parent 0 44400
+getcell bitcell_6t child 0 0 parent 3450 44400
+getcell bitcell_6t child 0 0 parent 6900 44400
+getcell bitcell_6t child 0 0 parent 10350 44400
+getcell bitcell_6t child 0 0 parent 13800 44400
+getcell bitcell_6t child 0 0 parent 17250 44400
+getcell bitcell_6t child 0 0 parent 20700 44400
+getcell bitcell_6t child 0 0 parent 24150 44400
+getcell row_decoder child 0 0 parent -27000 26000
+getcell wl_driver child 0 0 parent -7000 35600
+getcell wl_driver child 0 0 parent -7000 40600
+getcell wl_driver child 0 0 parent -7000 45600
+getcell wl_driver child 0 0 parent -7000 50600
+getcell precharge child 0 0 parent 0 30000
+getcell write_driver child 0 0 parent 0 15000
+getcell sense_amp child 0 0 parent 0 23000
+getcell precharge child 0 0 parent 6000 30000
+getcell write_driver child 0 0 parent 6000 15000
+getcell sense_amp child 0 0 parent 6000 23000
+getcell precharge child 0 0 parent 12000 30000
+getcell write_driver child 0 0 parent 12000 15000
+getcell sense_amp child 0 0 parent 12000 23000
+getcell precharge child 0 0 parent 18000 30000
+getcell write_driver child 0 0 parent 18000 15000
+getcell sense_amp child 0 0 parent 18000 23000
+getcell precharge child 0 0 parent 24000 30000
+getcell write_driver child 0 0 parent 24000 15000
+getcell sense_amp child 0 0 parent 24000 23000
+getcell precharge child 0 0 parent 30000 30000
+getcell write_driver child 0 0 parent 30000 15000
+getcell sense_amp child 0 0 parent 30000 23000
+getcell precharge child 0 0 parent 36000 30000
+getcell write_driver child 0 0 parent 36000 15000
+getcell sense_amp child 0 0 parent 36000 23000
+getcell precharge child 0 0 parent 42000 30000
+getcell write_driver child 0 0 parent 42000 15000
+getcell sense_amp child 0 0 parent 42000 23000
+promote34 -5200 35300
+promote34 -4600 32000
+promote34 -5200 40300
+promote34 -4600 37000
+promote34 -5200 45300
+promote34 -4600 42000
+promote34 -5200 50300
+promote34 -4600 47000
+promote34 1800 29700
+promote34 2400 28150
+promote34 600 28500
+promote34 1200 28350
+promote34 1800 14700
+promote34 2400 9300
+promote34 600 12700
+promote34 1200 12550
+promote34 1800 22700
+promote34 2400 19400
+promote34 600 22500
+promote34 1200 22350
+promote34 7800 29700
+promote34 8400 28150
+promote34 6600 28500
+promote34 7200 28350
+promote34 7800 14700
+promote34 8400 9300
+promote34 6600 12700
+promote34 7200 12550
+promote34 7800 22700
+promote34 8400 19400
+promote34 6600 22500
+promote34 7200 22350
+promote34 13800 29700
+promote34 14400 28150
+promote34 12600 28500
+promote34 13200 28350
+promote34 13800 14700
+promote34 14400 9300
+promote34 12600 12700
+promote34 13200 12550
+promote34 13800 22700
+promote34 14400 19400
+promote34 12600 22500
+promote34 13200 22350
+promote34 19800 29700
+promote34 20400 28150
+promote34 18600 28500
+promote34 19200 28350
+promote34 19800 14700
+promote34 20400 9300
+promote34 18600 12700
+promote34 19200 12550
+promote34 19800 22700
+promote34 20400 19400
+promote34 18600 22500
+promote34 19200 22350
+promote34 25800 29700
+promote34 26400 28150
+promote34 24600 28500
+promote34 25200 28350
+promote34 25800 14700
+promote34 26400 9300
+promote34 24600 12700
+promote34 25200 12550
+promote34 25800 22700
+promote34 26400 19400
+promote34 24600 22500
+promote34 25200 22350
+promote34 31800 29700
+promote34 32400 28150
+promote34 30600 28500
+promote34 31200 28350
+promote34 31800 14700
+promote34 32400 9300
+promote34 30600 12700
+promote34 31200 12550
+promote34 31800 22700
+promote34 32400 19400
+promote34 30600 22500
+promote34 31200 22350
+promote34 37800 29700
+promote34 38400 28150
+promote34 36600 28500
+promote34 37200 28350
+promote34 37800 14700
+promote34 38400 9300
+promote34 36600 12700
+promote34 37200 12550
+promote34 37800 22700
+promote34 38400 19400
+promote34 36600 22500
+promote34 37200 22350
+promote34 43800 29700
+promote34 44400 28150
+promote34 42600 28500
+promote34 43200 28350
+promote34 43800 14700
+promote34 44400 9300
+promote34 42600 12700
+promote34 43200 12550
+promote34 43800 22700
+promote34 44400 19400
+promote34 42600 22500
+promote34 43200 22350
+rect metal4 552 9000 648 32048
+promote34 600 32000
+promote34 1850 32000
+rect metal3 552 31952 1898 32048
+rect metal4 1790 32000 1910 36000
+rect metal4 1152 9000 1248 32228
+promote34 1200 32180
+promote34 2530 32180
+rect metal3 1152 32132 2578 32228
+rect metal4 2470 32180 2590 36000
+rect metal4 1752 9000 1848 31140
+via45 1800 31000
+rect metal4 2352 9000 2448 31740
+via45 2400 31600
+rect metal4 6552 9000 6648 32408
+promote34 6600 32360
+promote34 5300 32360
+rect metal3 5252 32312 6648 32408
+rect metal4 5240 32360 5360 36000
+rect metal4 7152 9000 7248 32588
+promote34 7200 32540
+promote34 5980 32540
+rect metal3 5932 32492 7248 32588
+rect metal4 5920 32540 6040 36000
+rect metal4 7752 9000 7848 31140
+via45 7800 31000
+rect metal4 8352 9000 8448 31740
+via45 8400 31600
+rect metal4 12552 9000 12648 32768
+promote34 12600 32720
+promote34 8750 32720
+rect metal3 8702 32672 12648 32768
+rect metal4 8690 32720 8810 36000
+rect metal4 13152 9000 13248 32948
+promote34 13200 32900
+promote34 9430 32900
+rect metal3 9382 32852 13248 32948
+rect metal4 9370 32900 9490 36000
+rect metal4 13752 9000 13848 31140
+via45 13800 31000
+rect metal4 14352 9000 14448 31740
+via45 14400 31600
+rect metal4 18552 9000 18648 33128
+promote34 18600 33080
+promote34 12200 33080
+rect metal3 12152 33032 18648 33128
+rect metal4 12140 33080 12260 36000
+rect metal4 19152 9000 19248 33308
+promote34 19200 33260
+promote34 12880 33260
+rect metal3 12832 33212 19248 33308
+rect metal4 12820 33260 12940 36000
+rect metal4 19752 9000 19848 31140
+via45 19800 31000
+rect metal4 20352 9000 20448 31740
+via45 20400 31600
+rect metal4 24552 9000 24648 33488
+promote34 24600 33440
+promote34 15650 33440
+rect metal3 15602 33392 24648 33488
+rect metal4 15590 33440 15710 36000
+rect metal4 25152 9000 25248 33668
+promote34 25200 33620
+promote34 16330 33620
+rect metal3 16282 33572 25248 33668
+rect metal4 16270 33620 16390 36000
+rect metal4 25752 9000 25848 31140
+via45 25800 31000
+rect metal4 26352 9000 26448 31740
+via45 26400 31600
+rect metal4 30552 9000 30648 33848
+promote34 30600 33800
+promote34 19100 33800
+rect metal3 19052 33752 30648 33848
+rect metal4 19040 33800 19160 36000
+rect metal4 31152 9000 31248 34028
+promote34 31200 33980
+promote34 19780 33980
+rect metal3 19732 33932 31248 34028
+rect metal4 19720 33980 19840 36000
+rect metal4 31752 9000 31848 31140
+via45 31800 31000
+rect metal4 32352 9000 32448 31740
+via45 32400 31600
+rect metal4 36552 9000 36648 34208
+promote34 36600 34160
+promote34 22550 34160
+rect metal3 22502 34112 36648 34208
+rect metal4 22490 34160 22610 36000
+rect metal4 37152 9000 37248 34388
+promote34 37200 34340
+promote34 23230 34340
+rect metal3 23182 34292 37248 34388
+rect metal4 23170 34340 23290 36000
+rect metal4 37752 9000 37848 31140
+via45 37800 31000
+rect metal4 38352 9000 38448 31740
+via45 38400 31600
+rect metal4 42552 9000 42648 34568
+promote34 42600 34520
+promote34 26000 34520
+rect metal3 25952 34472 42648 34568
+rect metal4 25940 34520 26060 36000
+rect metal4 43152 9000 43248 34748
+promote34 43200 34700
+promote34 26680 34700
+rect metal3 26632 34652 43248 34748
+rect metal4 26620 34700 26740 36000
+rect metal4 43752 9000 43848 31140
+via45 43800 31000
+rect metal4 44352 9000 44448 31740
+via45 44400 31600
+rect metal5 -27000 30800 44800 31200
+via45 -25500 31000
+rect metal5 -27000 31400 44800 31800
+via45 -24500 31600
+rect metal4 2890 47200 3010 55000
+via45 2950 55000
+rect metal4 3090 47200 3210 56500
+via45 3150 56500
+rect metal4 -5248 31500 -5152 55140
+promote34 -5200 35300
+promote34 -5200 40300
+promote34 -5200 45300
+promote34 -5200 50300
+via45 -5200 55000
+rect metal4 -4648 31500 -4552 56640
+promote34 -4600 32000
+promote34 -4600 37000
+promote34 -4600 42000
+promote34 -4600 47000
+via45 -4600 56500
+promote34 -7230 33400
+rect metal4 -7278 33400 -7182 36400
+via45 -7230 36400
+rect metal5 -7410 36200 -1620 36600
+via45 -1800 36400
+rect metal4 -1848 36400 -1752 36450
+promote34 -1800 36450
+rect metal3 -1848 36402 100 36498
+promote34 -6000 35100
+promote34 -7230 38400
+rect metal4 -7278 38400 -7182 41400
+via45 -7230 41400
+rect metal5 -7410 41200 -1220 41600
+via45 -1400 41400
+rect metal4 -1448 39250 -1352 41400
+promote34 -1400 39250
+rect metal3 -1448 39202 100 39298
+promote34 -6000 40100
+promote34 -7230 43400
+rect metal4 -7278 43400 -7182 46400
+via45 -7230 46400
+rect metal5 -7410 46200 -820 46600
+via45 -1000 46400
+rect metal4 -1048 42050 -952 46400
+promote34 -1000 42050
+rect metal3 -1048 42002 100 42098
+promote34 -6000 45100
+promote34 -7230 48400
+rect metal4 -7278 48400 -7182 51400
+via45 -7230 51400
+rect metal5 -7410 51200 -420 51600
+via45 -600 51400
+rect metal4 -648 44850 -552 51400
+promote34 -600 44850
+rect metal3 -648 44802 100 44898
+promote34 -6000 50100
+rect metal5 -410 30300 42180 30700
+promote34 -230 29500
+rect metal4 -278 29500 -182 30500
+via45 -230 30500
+promote34 5770 29500
+rect metal4 5722 29500 5818 30500
+via45 5770 30500
+promote34 11770 29500
+rect metal4 11722 29500 11818 30500
+via45 11770 30500
+promote34 17770 29500
+rect metal4 17722 29500 17818 30500
+via45 17770 30500
+promote34 23770 29500
+rect metal4 23722 29500 23818 30500
+via45 23770 30500
+promote34 29770 29500
+rect metal4 29722 29500 29818 30500
+via45 29770 30500
+promote34 35770 29500
+rect metal4 35722 29500 35818 30500
+via45 35770 30500
+promote34 41770 29500
+rect metal4 41722 29500 41818 30500
+via45 41770 30500
+rect metal5 -410 23300 42180 23700
+promote34 -230 20650
+rect metal4 -278 20650 -182 23500
+via45 -230 23500
+promote34 5770 20650
+rect metal4 5722 20650 5818 23500
+via45 5770 23500
+promote34 11770 20650
+rect metal4 11722 20650 11818 23500
+via45 11770 23500
+promote34 17770 20650
+rect metal4 17722 20650 17818 23500
+via45 17770 23500
+promote34 23770 20650
+rect metal4 23722 20650 23818 23500
+via45 23770 23500
+promote34 29770 20650
+rect metal4 29722 20650 29818 23500
+via45 29770 23500
+promote34 35770 20650
+rect metal4 35722 20650 35818 23500
+via45 35770 23500
+promote34 41770 20650
+rect metal4 41722 20650 41818 23500
+via45 41770 23500
+rect metal5 -410 15300 42180 15700
+promote34 -230 13300
+rect metal4 -278 13300 -182 15500
+via45 -230 15500
+promote34 5770 13300
+rect metal4 5722 13300 5818 15500
+via45 5770 15500
+promote34 11770 13300
+rect metal4 11722 13300 11818 15500
+via45 11770 15500
+promote34 17770 13300
+rect metal4 17722 13300 17818 15500
+via45 17770 15500
+promote34 23770 13300
+rect metal4 23722 13300 23818 15500
+via45 23770 15500
+promote34 29770 13300
+rect metal4 29722 13300 29818 15500
+via45 29770 15500
+promote34 35770 13300
+rect metal4 35722 13300 35818 15500
+via45 35770 15500
+promote34 41770 13300
+rect metal4 41722 13300 41818 15500
+via45 41770 15500
+promote34 4000 12850
+promote34 3600 13000
+promote34 170 20995
+promote34 10000 12850
+promote34 9600 13000
+promote34 6170 20995
+promote34 16000 12850
+promote34 15600 13000
+promote34 12170 20995
+promote34 22000 12850
+promote34 21600 13000
+promote34 18170 20995
+promote34 28000 12850
+promote34 27600 13000
+promote34 24170 20995
+promote34 34000 12850
+promote34 33600 13000
+promote34 30170 20995
+promote34 40000 12850
+promote34 39600 13000
+promote34 36170 20995
+promote34 46000 12850
+promote34 45600 13000
+promote34 42170 20995
+promote34 -26500 26200
+promote34 -26500 26500
+promote34 -26500 29200
+promote34 -18200 28600
+promote34 -14900 28600
+promote34 -10500 28600
+promote34 -7200 28600
+promote34 -26500 27700
+rect metal4 -26548 27652 -25452 27748
+rect metal4 -25548 27700 -25452 55000
+via45 -25500 55000
+promote34 -26500 24300
+rect metal4 -26548 24252 -24452 24348
+rect metal4 -24548 24300 -24452 56500
+via45 -24500 56500
+rect metal5 -27000 54800 44800 55200
+rect metal5 -27000 56300 44800 56700
+rect metal4 -25620 54920 -25380 55080
+pin VDD 1 -25500 55000
+rect metal4 -24620 56420 -24380 56580
+pin VSS 2 -24500 56500
+rect metal4 -26620 26120 -26380 26280
+pin A0 3 -26500 26200
+rect metal4 -26620 26420 -26380 26580
+pin A1 4 -26500 26500
+rect metal4 -26620 29120 -26380 29280
+pin PCLK 5 -26500 29200
+rect metal4 -350 30420 -110 30580
+pin PRECH 6 -230 30500
+rect metal4 -350 23420 -110 23580
+pin SCLK 7 -230 23500
+rect metal4 -350 15420 -110 15580
+pin WE 8 -230 15500
+rect metal4 3880 12770 4120 12930
+pin DIN0 9 4000 12850
+rect metal4 9880 12770 10120 12930
+pin DIN1 10 10000 12850
+rect metal4 15880 12770 16120 12930
+pin DIN2 11 16000 12850
+rect metal4 21880 12770 22120 12930
+pin DIN3 12 22000 12850
+rect metal4 27880 12770 28120 12930
+pin DIN4 13 28000 12850
+rect metal4 33880 12770 34120 12930
+pin DIN5 14 34000 12850
+rect metal4 39880 12770 40120 12930
+pin DIN6 15 40000 12850
+rect metal4 45880 12770 46120 12930
+pin DIN7 16 46000 12850
+rect metal4 3480 12920 3720 13080
+pin DIN_B0 17 3600 13000
+rect metal4 9480 12920 9720 13080
+pin DIN_B1 18 9600 13000
+rect metal4 15480 12920 15720 13080
+pin DIN_B2 19 15600 13000
+rect metal4 21480 12920 21720 13080
+pin DIN_B3 20 21600 13000
+rect metal4 27480 12920 27720 13080
+pin DIN_B4 21 27600 13000
+rect metal4 33480 12920 33720 13080
+pin DIN_B5 22 33600 13000
+rect metal4 39480 12920 39720 13080
+pin DIN_B6 23 39600 13000
+rect metal4 45480 12920 45720 13080
+pin DIN_B7 24 45600 13000
+rect metal4 50 20915 290 21075
+pin DOUT0 25 170 20995
+rect metal4 6050 20915 6290 21075
+pin DOUT1 26 6170 20995
+rect metal4 12050 20915 12290 21075
+pin DOUT2 27 12170 20995
+rect metal4 18050 20915 18290 21075
+pin DOUT3 28 18170 20995
+rect metal4 24050 20915 24290 21075
+pin DOUT4 29 24170 20995
+rect metal4 30050 20915 30290 21075
+pin DOUT5 30 30170 20995
+rect metal4 36050 20915 36290 21075
+pin DOUT6 31 36170 20995
+rect metal4 42050 20915 42290 21075
+pin DOUT7 32 42170 20995
+rect metal4 -6120 35020 -5880 35180
+pin ROW0 33 -6000 35100
+rect metal4 -6120 40020 -5880 40180
+pin ROW1 34 -6000 40100
+rect metal4 -6120 45020 -5880 45180
+pin ROW2 35 -6000 45100
+rect metal4 -6120 50020 -5880 50180
+pin ROW3 36 -6000 50100
+rect metal4 -18320 28520 -18080 28680
+pin DEC0 37 -18200 28600
+rect metal4 -15020 28520 -14780 28680
+pin DEC1 38 -14900 28600
+rect metal4 -10620 28520 -10380 28680
+pin DEC2 39 -10500 28600
+rect metal4 -7320 28520 -7080 28680
+pin DEC3 40 -7200 28600
+select top cell
+expand
+flatten leaf_fabric
+load leaf_fabric
+select top cell
+expand
+drc euclidean on
+drc style drc(full)
+drc on
+drc check
+drc catchup
+puts "FABRIC_DRC=[llength [drc listall why]]"
+puts "FABRIC_DETAILS=[drc listall why]"
+save leaf_fabric
+gds write leaf_fabric.gds
+lef write leaf_fabric.lef
+extract all
+ext2spice lvs
+ext2spice scale off
+ext2spice -o fabric_extracted.spice
+quit -noprompt

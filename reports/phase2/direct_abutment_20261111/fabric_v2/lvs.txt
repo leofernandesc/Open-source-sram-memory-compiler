@@ -1,0 +1,97 @@
+Flattening unmatched subcell bitcell_6t in circuit leaf_fabric (1)(32 instances)
+Flattening unmatched subcell row_decoder in circuit leaf_fabric (1)(1 instance)
+Flattening unmatched subcell wl_driver in circuit leaf_fabric (1)(4 instances)
+Flattening unmatched subcell precharge in circuit leaf_fabric (1)(8 instances)
+Flattening unmatched subcell write_driver in circuit leaf_fabric (1)(8 instances)
+Flattening unmatched subcell sense_amp in circuit leaf_fabric (1)(8 instances)
+
+Subcircuit summary:
+Circuit 1: leaf_fabric                     |Circuit 2: leaf_fabric                     
+-------------------------------------------|-------------------------------------------
+sky130_fd_pr__nfet_01v8 (217)              |sky130_fd_pr__nfet_01v8 (217)              
+sky130_fd_pr__pfet_01v8 (184)              |sky130_fd_pr__pfet_01v8 (184)              
+Number of devices: 401                     |Number of devices: 401                     
+Number of nets: 198 **Mismatch**           |Number of nets: 197 **Mismatch**           
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: leaf_fabric                     |Circuit 2: leaf_fabric                     
+
+---------------------------------------------------------------------------------------
+Net: wl_driver_0.WL                        |Net: WL0                                   
+  sky130_fd_pr__nfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/gate = 16        
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+                                           |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+                                           |                                           
+Net: wl_driver_1.WL                        |Net: WL1                                   
+  sky130_fd_pr__nfet_01v8/gate = 16        |  sky130_fd_pr__nfet_01v8/gate = 16        
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__nfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+                                           |                                           
+Net: wl_driver_2.WL                        |Net: WL2                                   
+  sky130_fd_pr__nfet_01v8/gate = 16        |  sky130_fd_pr__nfet_01v8/gate = 16        
+  sky130_fd_pr__nfet_01v8/(drain|source) = |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+                                           |                                           
+Net: bitcell_6t_24.WL                      |Net: WL3                                   
+  sky130_fd_pr__nfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/gate = 16        
+  sky130_fd_pr__nfet_01v8/gate = 16        |  sky130_fd_pr__pfet_01v8/(drain|source) = 
+  sky130_fd_pr__pfet_01v8/(drain|source) = |  sky130_fd_pr__nfet_01v8/(drain|source) = 
+                                           |                                           
+Net: bitcell_6t_0.WL                       |(no matching net)                          
+  sky130_fd_pr__nfet_01v8/gate = 16        |                                           
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: leaf_fabric                     |Circuit 2: leaf_fabric                     
+-------------------------------------------|-------------------------------------------
+A1                                         |A1                                         
+A0                                         |A0                                         
+ROW1                                       |ROW3 **Mismatch**                          
+ROW2                                       |ROW2                                       
+ROW0                                       |ROW1 **Mismatch**                          
+ROW3                                       |ROW0 **Mismatch**                          
+DIN0                                       |DIN_B7 **Mismatch**                        
+DIN_B6                                     |DIN7 **Mismatch**                          
+DIN2                                       |DIN_B6 **Mismatch**                        
+DIN_B1                                     |DIN6 **Mismatch**                          
+DIN7                                       |DIN_B5 **Mismatch**                        
+DIN_B0                                     |DIN5 **Mismatch**                          
+DIN_B3                                     |DIN_B4 **Mismatch**                        
+DIN1                                       |DIN4 **Mismatch**                          
+DIN5                                       |DIN_B3 **Mismatch**                        
+DIN6                                       |DIN3 **Mismatch**                          
+DIN_B2                                     |DIN_B2                                     
+DIN_B7                                     |DIN2 **Mismatch**                          
+DIN4                                       |DIN_B1 **Mismatch**                        
+DIN_B5                                     |DIN1 **Mismatch**                          
+DIN_B4                                     |DIN_B0 **Mismatch**                        
+DIN3                                       |DIN0 **Mismatch**                          
+DEC0                                       |DEC0                                       
+DEC1                                       |DEC1                                       
+DEC3                                       |DEC3                                       
+DEC2                                       |DEC2                                       
+PRECH                                      |PRECH                                      
+SCLK                                       |SCLK                                       
+WE                                         |WE                                         
+VDD                                        |VDD                                        
+VSS                                        |VSS                                        
+PCLK                                       |PCLK                                       
+DOUT1                                      |DOUT0 **Mismatch**                         
+DOUT6                                      |(no pin, node is DOUT_B1)                  
+DOUT0                                      |(no pin, node is DOUT_B2)                  
+DOUT4                                      |(no pin, node is DOUT_B3)                  
+DOUT2                                      |DOUT4 **Mismatch**                         
+DOUT5                                      |DOUT6 **Mismatch**                         
+DOUT3                                      |(no pin, node is DOUT_B6)                  
+DOUT7                                      |DOUT7                                      
+(no pin, node is sense_amp_3.SA_OUTB)      |DOUT1                                      
+(no pin, node is sense_amp_3.SA_OUTB)      |DOUT2                                      
+(no pin, node is sense_amp_3.SA_OUTB)      |DOUT3                                      
+(no pin, node is sense_amp_3.SA_OUTB)      |DOUT5                                      
+---------------------------------------------------------------------------------------
+Cell pin lists for leaf_fabric and leaf_fabric altered to match.
+Device classes leaf_fabric and leaf_fabric are equivalent.
+
+Final result: Top level cell failed pin matching.
