@@ -1,0 +1,19 @@
+* Final frozen wl_driver: isolated spice; wl_spice_c20
+.lib /opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include dut.spice
+.temp 27
+.options method=gear reltol=1e-5 abstol=1e-13 vntol=1e-7
+VPOWER VDD 0 PWL(0 0 1n 1.8)
+XDUT VDD 0 WL_IN WL wl_driver
+VIN WL_IN 0 PULSE(0 1.8 3n 50p 50p 4.95n 8n)
+CW WL 0 20f
+.control
+set num_threads=1
+set wr_singlescale
+set wr_vecnames
+set numdgt=12
+tran 5p 20n 0 5p
+wrdata waveform.dat v(VDD) v(WL_IN) v(WL)
+quit
+.endc
+.end

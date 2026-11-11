@@ -1,0 +1,19 @@
+* Final frozen wl_driver: isolated pex; wl_pex_c20
+.lib /opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include dut.spice
+.temp 27
+.options method=gear reltol=1e-5 abstol=1e-13 vntol=1e-7
+VPOWER VDD 0 PWL(0 0 1n 1.8)
+XDUT VDD 0 WL_IN WL wl_driver_s1p68_s2p5p04_flat
+VIN WL_IN 0 PWL(0 0 3n 0 3.05n 1.8 8n 1.8 8.05n 0 11n 0 11.05n 1.8 16n 1.8 16.05n 0)
+CW WL 0 20f
+.control
+set num_threads=1
+set wr_singlescale
+set wr_vecnames
+set numdgt=12
+tran 5p 20n 0 5p
+wrdata waveform.dat v(VDD) v(WL_IN) v(WL)
+quit
+.endc
+.end
