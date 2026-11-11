@@ -5,6 +5,8 @@
 **Marco 3:** 23/11/2026 — relatório de caracterização e `.lib` simplificada gerada automaticamente  
 **Equipe proposta:** Danilo, André, Leonardo, Integrante 4 (nome não informado). A alocação abaixo é **proposta nova**, não um histórico confirmado de tarefas.
 
+**Atenção ao calendário:** 14–15 e 21–22/11 caem em fins de semana; 20/11 é feriado nacional. Os checkpoints são metas em dias corridos e dependem da disponibilidade combinada entre os integrantes. Não se presume trabalho obrigatório nessas datas.
+
 ## 1. Escopo obrigatório da proposta
 
 - **14:** extrair parasitas do bloco gerado, com Magic.
