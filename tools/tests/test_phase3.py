@@ -111,6 +111,27 @@ class Phase3Tests(unittest.TestCase):
                     self.assertEqual(r['status'],expected,r.get('error'))
                     self.assertTrue((p/f'reports/phase3/{mode}/ngspice.log').exists())
                     if mode in ('fail','timeout'): self.assertIsNone(r['measurements'][0]['value'])
+                # Numeric measurements alone cannot approve an SRAM run.
+                self.c['scope']='sram'
+                self.c['measurements'][0].update(metric='tACCESS',unit='s')
+                config.write_text(json.dumps(self.c)); mode='success'
+                for functional_status in ('absent','PASS','FAIL','ERROR'):
+                    prepared = None if functional_status=='absent' else dict(pins={},context={})
+                    result = dict(status=functional_status,checks=[dict(kind='synthetic',status='FAIL' if functional_status=='FAIL' else 'PASS')])
+                    with patch.object(runner.subprocess,'Popen',side_effect=popen), patch.object(runner,'prepare_context',return_value=prepared), patch.object(runner,'check_waveform',return_value=result) as checker:
+                        if functional_status=='ERROR': checker.side_effect=ValueError('truncated waveform')
+                        r=runner.run(config,p/f'reports/phase3/functional_{functional_status}')
+                    self.assertEqual(r['simulator_status'],'PASS')
+                    self.assertEqual(r['measurement_status'],'PASS')
+                    self.assertEqual(r['measurements'][0]['status'],'PASS')
+                    self.assertEqual(r['status'],'NOT_CHARACTERIZED' if functional_status=='absent' else functional_status)
+                    self.assertFalse(r['sram_characterized'])
+                    if functional_status=='absent': checker.assert_not_called()
+                with patch.object(runner,'prepare_context',return_value=dict(pins={},context={})), patch.object(runner,'check_waveform') as checker:
+                    r=runner.run(config,p/'reports/phase3/functional_dry',True)
+                    checker.assert_not_called()
+                    self.assertFalse(r['electrical_simulation_performed'])
+                    self.assertEqual(r['functional_validation']['status'],'NOT_CHARACTERIZED')
                 with patch.object(runner,'preflight',side_effect=ValueError('resources low')):
                     r=runner.run(config,p/'reports/phase3/resources',True)
                     self.assertEqual(r['status'],'BLOCKED')

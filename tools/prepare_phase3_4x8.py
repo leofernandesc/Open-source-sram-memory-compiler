@@ -10,6 +10,8 @@ from pathlib import Path
 import re
 from phase2_evidence import digest
 from phase3.runner import ROOT, write_json
+from phase3.provenance import selected_inputs
+from phase3.functional import ADAPTER
 
 
 def prepare(output):
@@ -17,7 +19,8 @@ def prepare(output):
     if not output.is_relative_to(ROOT/'reports/phase3'):
         raise ValueError('Use a new directory below reports/phase3')
     output.mkdir(parents=True)  # no overwrite, including preparation directories
-    source = ROOT/'reports/phase2/direct_abutment_20261111/qualification_v1'
+    identity = selected_inputs(ROOT)
+    source = (ROOT/identity['qualification']).parent
     receipt = json.loads((source/'results.json').read_text())
     for name in ('bench.spice', 'binding.spice', 'fabric.spice'):
         if digest(source/name) != receipt['artifacts'][name]:
@@ -40,10 +43,14 @@ def prepare(output):
     c.update(scope='sram', extraction='devices/junctions', deck=pin(deck),
              netlist=pin(source/'binding.spice'), measurements=[], timeout_s=2400, memory_mb=4096,
              load_ff=10, stimuli='Historical qualification_v1 PWL; fixed TT/1.8V/27C/20ns/50ps, plus explicit exploratory 10fF per DATA bit. No timing or power measurements configured.')
+    context = output/'preparation.json'
+    write_json(context, dict(status='NOT_CHARACTERIZED', electrical_simulation_performed=False,
+        adapter=ADAPTER, baseline=c['baseline'], selection=identity,
+        inputs={str(ROOT/name):sha for name,sha in identity['inputs'].items()},
+        expected_inputs={k:c[k] for k in ('deck','netlist','model')},
+        limitation='Fixed nominal stimulus; no simulation, distributed RC or characterization inferred.'))
+    c['functional_validation'] = pin(context)
     write_json(output/'config.json',c)
-    write_json(output/'preparation.json',dict(status='NOT_CHARACTERIZED',electrical_simulation_performed=False,
-        inputs={str(source/n):digest(source/n) for n in ('bench.spice','binding.spice','fabric.spice','results.json')},
-        limitation='Fixed historical nominal stimulus; no RC distributed or characterization inferred.'))
     return output/'config.json'
 
 if __name__=='__main__':

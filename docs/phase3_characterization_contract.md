@@ -24,7 +24,8 @@ mesmo commit da baseline. Não houve troca de branch nem restauração de arquiv
 | `run_phase2_extracted_access.model_closure` | Examina `.include`; o snapshot novo precisa também capturar `.lib arquivo seção` e isolar dependências |
 | Locks/atomic writes de `run_digital_regression.py` | Política nova mais restrita: reservar diretório com mkdir exclusivo e publicar manifesto por rename |
 
-A implementação usa apenas a biblioteca padrão Python. Nenhuma mudança em células,
+O núcleo usa a biblioteca padrão Python; o adapter funcional opcional reutiliza
+os verificadores existentes e sua dependência NumPy. Nenhuma mudança em células,
 80 inversores, taps 24/40/60/80, layout, especificações oficiais ou releases.
 
 ## Configuração externa
@@ -40,6 +41,9 @@ Campos obrigatórios: `schema_version=1`, `configuration` (4x8/8x8/16x8/32x8),
 `vdd_v`, `temp_c`, `period_ns`, `duty_cycle`, `slew_ps`, `load_ff`, `extraction`,
 `deck`, `netlist`, `model`, `stimuli`, `measurements`, `timeout_s`, `memory_mb`.
 Cada arquivo principal é `{ "path": "...", "sha256": "64 hex caracteres" }`.
+O campo opcional `functional_validation` aceita um pin `{path, sha256}` para o
+contexto de integração elétrica da Fase 2. Configurações anteriores continuam
+válidas; uma execução SRAM sem esse contexto não obtém PASS global.
 Campos desconhecidos, valores não finitos, booleanos numéricos e unidades
 incompatíveis são rejeitados. As configurações maiores são aceitas como dados;
 não significam que circuitos físicos dessas dimensões já estejam disponíveis.
@@ -121,7 +125,7 @@ proveniência fornecida pelo responsável pela extração; não é inferida pelo
 
 | Estado | Significado |
 |---|---|
-| PASS | Execução completa, medições solicitadas presentes e dentro dos critérios fornecidos; não qualifica a SRAM |
+| PASS | Simulador completo e medições presentes/dentro dos critérios; para scope=sram, verificações funcionais também PASS; não qualifica a SRAM |
 | FAIL | Medição real fora de um limite configurado |
 | ERROR | Configuração/integridade inválida, erro SPICE, timeout ou execução incompleta |
 | BLOCKED | Dependência ausente, baseline incompatível ou corner não disponível |
@@ -143,7 +147,8 @@ CPU time e 512 MiB por arquivo, além do timeout de parede e preflight existente
 
 ## Consumo futuro por Liberty
 
-Aceitar somente métricas reais PASS de execuções completas, scope=sram, mesma
+Aceitar somente métricas reais PASS de execuções completas com estado global PASS
+e validação funcional PASS, scope=sram, mesma
 identidade de netlist/extração, corner/VDD/temperatura e metodologia. Agrupar por
 slew/carga, pin/bit, sentido e arco. Nunca usar SMOKE_VOLTAGE, dry-run, bit estável
 como atraso zero ou células vazias para preencher lookup tables. `definition`
@@ -153,3 +158,62 @@ O contrato prepara esse consumo, mas ainda não implementa gerador Liberty,
 interpolação, sweeps de setup/hold, extração automática de waveform ou verificação
 sintática de .lib. Antes de Liberty, fechar quais arcos representam a interface
 com captura em bordas opostas, medir tabelas reais e revisar a cobertura funcional.
+
+
+## Revisão independente — 13/11/2026
+
+O CSV e `schema_version=1` permanecem compatíveis. O manifesto acrescenta
+`simulator_status`, `measurement_status` e `functional_validation` com seu próprio
+`status`, cobertura e referência de evidência. O último registra NOT_CHARACTERIZED
+no dry-run e quando o adapter não foi configurado. Valores de medição PASS não
+são apagados porque um check funcional falhou: o estado global e a evidência de
+cada etapa distinguem os resultados. `sram_characterized` continua false.
+
+CLI: exit 0 exige PASS global, ou dry-run concluído como NOT_CHARACTERIZED sem
+simulação. Execução real NOT_CHARACTERIZED retorna 1, incluindo métricas ausentes
+ou nenhuma métrica configurada. FAIL/ERROR/BLOCKED retornam 1; argumentos e destino
+recusado retornam 2. Portanto o adapter nominal sem métricas não retorna sucesso
+numa execução real, mesmo que seus checks funcionais venham a passar.
+
+O preparador confere os bytes do seletor e candidato contra a baseline Git e
+valida hashes/status dos recibos de prova, payload, GDS selecionado e override.
+Confere ainda as arestas explícitas elétrica→fixture→GDS/extração, o binding do
+payload e a igualdade dos netlists publicados com os efetivamente simulados.
+Paths históricos sob `/work` são mapeados para o checkout atual; não se usa busca
+por basename. Alterar recibo e hash localmente não substitui a âncora Git.
+O novo `preparation.json` fixa essa seleção e os pins do deck/netlist/modelo;
+`config.json` fixa o hash do contexto. Nada histórico é escrito ou resselado.
+
+Para o futuro smoke SRAM, `phase3.functional` é um adapter de
+`phase2_extension.check`, que já chama `phase2_access_checks.check`. As equações,
+limiares e verificações não são duplicados. O runner verifica e copia as entradas
+do contexto antes do processo; depois verifica hashes de novo. O adapter consome
+somente `inputs/waveform.dat` da execução nova, com cabeçalho idêntico aos vetores
+pinados. Os registros históricos fornecem protocolo/probes, nunca resultados
+funcionais ou raw substituto para o ensaio novo.
+
+Critérios explícitos para esse primeiro smoke, ainda NÃO EXECUTADO:
+
+1. Somente 4x8, TT, 1,8 V, 27 °C, período 20 ns, duty 50%, slew 50 ps,
+   devices/junctions e nova carga exploratória de 10 fF/bit. O adapter rejeita
+   SS/FF e condições diferentes antes de simular, pois os checks são nominais.
+2. Simulador concluído sem erro/timeout e waveform completa até 370 ns,
+   finita, temporalmente crescente e com todos os probes esperados.
+3. Reutilizar os 18 ciclos pinados, escrita/leitura das quatro linhas,
+   reescritas complementares, leituras consecutivas, retenção e handoffs de DATA.
+4. Os checks existentes de captura, armazenamento conhecido, nova leitura,
+   palavra anterior, exclusão de WL/pré-carga/escrita/sense, margens do registrador
+   e condução/liberação do barramento devem passar. A sonda de corrente/tensão
+   existente distingue alta impedância de uma tensão acidentalmente correta.
+5. Exigir a mesma cobertura por tipo do perfil selecionado: 1.740 checks,
+   incluindo 72 bits lidos; checks vazios ou cobertura reduzida são ERROR,
+   não PASS. Nenhum FAIL pode ser descartado. Não são 1.740 medições de desempenho.
+6. O check do registrador reaproveita o envelope conservador da biblioteca
+   TT/25 °C contra o ensaio TT/27 °C; isso não caracteriza setup/hold da SRAM.
+7. Simulador PASS, medições PASS e checks funcionais PASS são exigências
+   independentes para PASS global. Sem medidas, o estado permanece
+   NOT_CHARACTERIZED; falha funcional produz FAIL e evidência incompleta ERROR.
+
+A inclusão dos 10 fF precisa ser avaliada no futuro ensaio; o PASS histórico não
+é transferido para essa nova carga. Este adapter não valida variantes de PVT,
+RC distribuído ou outros protocolos sem nova revisão de metodologia.

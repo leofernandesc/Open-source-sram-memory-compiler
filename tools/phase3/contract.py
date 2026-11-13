@@ -30,7 +30,7 @@ def validate(c):
     required = {'schema_version', 'configuration', 'scope', 'baseline', 'pdk', 'corner', 'vdd_v',
                 'temp_c', 'period_ns', 'duty_cycle', 'slew_ps', 'load_ff', 'extraction',
                 'deck', 'netlist', 'model', 'stimuli', 'measurements', 'timeout_s', 'memory_mb'}
-    if set(c) != required or c['schema_version'] != 1:
+    if set(c) - {'functional_validation'} != required or c['schema_version'] != 1:
         raise ValueError('Unknown/missing configuration fields or schema')
     if c['configuration'] not in ('4x8', '8x8', '16x8', '32x8') or c['pdk'] != 'SKY130A':
         raise ValueError('Unsupported configuration/PDK')
@@ -50,6 +50,10 @@ def validate(c):
     for k in ('deck', 'netlist', 'model'):
         if set(c[k]) != {'path', 'sha256'} or not re.fullmatch(r'[a-f0-9]{64}', c[k]['sha256']):
             raise ValueError('Expected pinned input: ' + k)
+    if 'functional_validation' in c:
+        spec = c['functional_validation']
+        if c['scope'] != 'sram' or not isinstance(spec, dict) or set(spec) != {'path', 'sha256'} or not re.fullmatch(r'[a-f0-9]{64}', spec['sha256']):
+            raise ValueError('Expected pinned SRAM functional context')
     if not isinstance(c['measurements'], list):
         raise ValueError('Expected measurement list')
     names = set()

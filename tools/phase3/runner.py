@@ -15,6 +15,7 @@ import time
 from phase2_evidence import digest
 from phase2_resources import preflight
 from .contract import FIELDS, rows, validate
+from .functional import prepare_context, check_waveform, overall_status
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -69,7 +70,8 @@ def run(config_path, output, dry_run=False):
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir()  # atomic reservation; never reuse even failed directories
     receipt = dict(schema_version=1, run_id=output.name, status='ERROR', electrical_simulation_performed=False,
-                   sram_characterized=False, dry_run=dry_run, inputs={}, evidence={}, measurements=[])
+                   sram_characterized=False, simulator_status='NOT_CHARACTERIZED', measurement_status='NOT_CHARACTERIZED',
+                   functional_validation=dict(status='NOT_CHARACTERIZED', reason='not evaluated'), dry_run=dry_run, inputs={}, evidence={}, measurements=[])
     c = None
     log_text = ''
     started = time.monotonic()
@@ -85,7 +87,7 @@ def run(config_path, output, dry_run=False):
         c = validate(json.loads(raw))
         code = output / 'source_snapshot'
         code.mkdir()
-        for src in [Path(__file__), Path(__file__).with_name('contract.py'), ROOT/'tools/phase2_evidence.py', ROOT/'tools/phase2_resources.py', ROOT/'tools/run_phase3.py', Path(__file__).with_name('__init__.py')]:
+        for src in [Path(__file__), Path(__file__).with_name('contract.py'), ROOT/'tools/phase2_evidence.py', ROOT/'tools/phase2_resources.py', ROOT/'tools/run_phase3.py', Path(__file__).with_name('__init__.py'), Path(__file__).with_name('functional.py'), Path(__file__).with_name('provenance.py')]:
             if src.is_file():
                 shutil.copyfile(src, code/src.name)
                 receipt['inputs'][str(src)] = digest(src)
@@ -106,6 +108,15 @@ def run(config_path, output, dry_run=False):
             receipt['resources'] = preflight(output)
         except ValueError as error:
             raise Blocked(str(error)) from error
+        functional = prepare_context(ROOT, c)
+        if functional:
+            receipt['inputs'].update(functional['pins'])
+            saved = output/'functional_inputs'
+            for path in functional['pins']:
+                source = Path(path)
+                target = saved/source.relative_to(ROOT) if source.is_relative_to(ROOT) else saved/'context.json'
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, target)
         work = output / 'inputs'
         work.mkdir()
         copied = {}
@@ -176,6 +187,7 @@ def run(config_path, output, dry_run=False):
                                         env=dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1'),
                                         preexec_fn=limits, start_new_session=True)
                 receipt['electrical_simulation_performed'] = True
+                receipt['simulator_status'] = 'ERROR'
                 publish()
                 try:
                     receipt['return_code'] = proc.wait(timeout=c['timeout_s'])
@@ -186,10 +198,13 @@ def run(config_path, output, dry_run=False):
             log_text = (output / 'ngspice.log').read_text(errors='replace')
             if proc.returncode or re.search(r'(?im)^\s*(fatal|error)(?:\b|:)', log_text):
                 raise RuntimeError('Simulator error; inspect ngspice.log')
+            receipt['simulator_status'] = 'PASS'
             receipt['status'] = 'PASS'
         for p, h in receipt['inputs'].items():
             if digest(p) != h:
                 raise ValueError('Input changed during execution: ' + p)
+        if not dry_run:
+            receipt['measurement_status'] = 'ERROR'  # fail closed while parsing actual measurements
         receipt['measurements'] = rows(c, output.name, log_text, dry_run)
         if not dry_run:
             statuses = {r['status'] for r in receipt['measurements']}
@@ -197,6 +212,20 @@ def run(config_path, output, dry_run=False):
                 receipt['status'] = 'FAIL'
             elif not statuses or 'NOT_CHARACTERIZED' in statuses:
                 receipt['status'] = 'NOT_CHARACTERIZED'
+            receipt['measurement_status'] = receipt['status']
+            if c['scope'] == 'sram' and functional:
+                try:
+                    result = check_waveform(ROOT, work, functional['context'])
+                    write_json(output/'functional_checks.json', result)
+                    receipt['functional_validation'] = {k:v for k,v in result.items() if k != 'checks'}
+                    receipt['functional_validation']['evidence'] = 'functional_checks.json'
+                except Exception as error:
+                    receipt['functional_validation'] = dict(status='ERROR', reason=type(error).__name__ + ': ' + str(error))
+                # Checkers must not change their input/evidence identity.
+                for path, sha in receipt['inputs'].items():
+                    if digest(path) != sha:
+                        raise ValueError('Functional input changed during execution: ' + path)
+            receipt['status'] = overall_status(receipt['measurement_status'], receipt['functional_validation']['status'], c['scope'])
     except Blocked as e:
         receipt.update(status='BLOCKED', error=str(e))
     except Exception as e:

@@ -15,4 +15,7 @@ if __name__ == '__main__':
     except (ValueError, FileExistsError) as error:
         parser.exit(2, str(error) + '\n')
     print(json.dumps({k: result[k] for k in ('run_id', 'status', 'electrical_simulation_performed')}))
-    raise SystemExit(0 if result['status'] in ('PASS', 'NOT_CHARACTERIZED') else 1)
+    success = result['status'] == 'PASS' or (
+        args.dry_run and result['status'] == 'NOT_CHARACTERIZED'
+        and not result['electrical_simulation_performed'])
+    raise SystemExit(0 if success else 1)
