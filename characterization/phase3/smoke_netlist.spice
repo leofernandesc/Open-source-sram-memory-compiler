@@ -1,0 +1,5 @@
+* Infrastructure-only SKY130 inverter; not an SRAM timing/power experiment.
+.subckt infra_inv A Y VDD VSS
+XP Y A VDD VDD sky130_fd_pr__pfet_01v8 w=1 l=0.15
+XN Y A VSS VSS sky130_fd_pr__nfet_01v8 w=0.5 l=0.15
+.ends infra_inv

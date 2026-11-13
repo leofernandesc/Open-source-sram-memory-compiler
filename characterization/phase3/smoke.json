@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "configuration": "4x8",
+  "scope": "infrastructure_smoke",
+  "baseline": "origin/release/phase2-acceptance-20261111",
+  "pdk": "SKY130A",
+  "corner": "tt",
+  "vdd_v": 1.8,
+  "temp_c": 27,
+  "period_ns": 20,
+  "duty_cycle": 0.5,
+  "slew_ps": 50,
+  "load_ff": 10,
+  "extraction": "schematic",
+  "deck": {
+    "path": "characterization/phase3/smoke.spice.in",
+    "sha256": "8e4b53ce97472760ac09aa472bcbc0febe7bdeb238fdc5e327e021e829465fc9"
+  },
+  "netlist": {
+    "path": "characterization/phase3/smoke_netlist.spice",
+    "sha256": "527bfa45504cfb4905983c2d07e15d27dd8ccdd4b02e86d879decb2a6f7d2010"
+  },
+  "model": {
+    "path": "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice",
+    "sha256": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e"
+  },
+  "stimuli": "Inverter pulse only; 4x8 is the target configuration, not the DUT of this infrastructure smoke.",
+  "measurements": [
+    {
+      "measure": "smoke_low",
+      "metric": "SMOKE_VOLTAGE",
+      "operation": "smoke",
+      "bit": null,
+      "unit": "V",
+      "transition": "na",
+      "definition": "Inverter output at 5 ns, input high. No SRAM metric.",
+      "min": -0.18,
+      "max": 0.36
+    }
+  ],
+  "timeout_s": 60,
+  "memory_mb": 2048
+}

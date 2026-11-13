@@ -1,0 +1,11 @@
+* Infrastructure smoke: real SKY130 devices, no SRAM qualification.
+.lib "{{MODEL}}" {{CORNER}}
+.include "{{NETLIST}}"
+.temp {{TEMP}}
+VDD VDD 0 {{VDD}}
+VIN A 0 PULSE(0 {{VDD}} 2n {{SLEW}} {{SLEW}} {{HIGH}} {{PERIOD}})
+XINV A Y VDD 0 infra_inv
+CLOAD Y 0 {{LOAD}}
+.tran 10p 40n
+.meas tran smoke_low FIND v(Y) AT=5n
+.end
