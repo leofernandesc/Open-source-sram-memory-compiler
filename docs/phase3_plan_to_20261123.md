@@ -1,5 +1,38 @@
 # Planejamento operacional — Fase 3 (caracterização elétrica)
 
+## Atualização operacional — 13/11/2026 (instrução do responsável)
+
+Esta distribuição substitui a alocação proposta em 11/11 nas seções históricas
+2 e 3 abaixo. Não constitui ratificação retroativa nem altera a baseline.
+
+| Responsável | Entrega atual | Interface com a infraestrutura |
+|---|---|---|
+| Leonardo | Infraestrutura Python, runner, contrato CSV/JSON, integração e futuro Liberty | Contrato em `phase3_characterization_contract.md`; runner `tools/run_phase3.py` |
+| Danilo | Extração RC, timing e potência TT/SS/FF | Netlist/hash, nível de extração, corners/modelos verificados, decks e medições reais |
+| André | Bitlines, pré-carga, sense amplifier e margens de leitura | Evidências BL/BLB, WL, SCLK e DOUT_RAW, limiares e janelas de validade |
+| Ícaro | Monte Carlo de SNM, pelo menos 200 amostras | Método estatístico, modelos de variação, seeds, amostras e falhas preservadas |
+
+Checkpoints atualizados: 13–14/11 infraestrutura e piloto TT; 15–16/11 tabelas TT,
+piloto de SNM e avaliação de throughput; 17–18/11 SS/FF e consolidação de margens;
+19–20/11 integração; 21–22/11 revisão cruzada; 23/11 entrega do Marco 3.
+São metas sujeitas à disponibilidade já registrada, incluindo fins de semana e feriado.
+
+Revisão cruzada atual: André revisa interpretação elétrica de Danilo; Danilo revisa
+modelos/método de Ícaro; Ícaro confere consumo de tabelas reais pelo futuro Liberty;
+Leonardo verifica reprodutibilidade e hashes das três frentes. Na dependência A,
+a responsabilidade pela identidade da extração passa a Danilo, com apoio de André.
+Nenhuma alteração dos 80 inversores/taps, Replica Bitline ou arquitetura é autorizada.
+
+A infraestrutura entregue nesta etapa não satisfaz por si só o Marco 3. O smoke
+usa um inversor SKY130 de teste; o dry-run 4×8 não executa SPICE nem fornece medidas.
+RC distribuído, caracterização TT/SS/FF, setup/hold, SNM e Liberty continuam pendentes.
+
+## Registro histórico do planejamento de 11/11/2026
+
+O texto a seguir é preservado como histórico. As antigas atribuições de pessoas
+nas seções 2 e 3 e na dependência A foram substituídas pela atualização acima.
+
+
 **Período formal da proposta:** 03–23/11/2026  
 **Janela de execução a partir da decisão:** 11–23/11/2026  
 **Marco 3:** 23/11/2026 — relatório de caracterização e `.lib` simplificada gerada automaticamente  
