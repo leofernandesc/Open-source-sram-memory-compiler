@@ -89,7 +89,10 @@ class Phase3Tests(unittest.TestCase):
                 self.assertFalse(r['electrical_simulation_performed'])
                 with self.assertRaises(FileExistsError): runner.run(config,out,True)
                 with (out/'metrics.csv').open() as stream:
-                    self.assertEqual(list(csv.DictReader(stream))[0]['value'],'')
+                    reader=csv.DictReader(stream)
+                    self.assertEqual(reader.fieldnames,FIELDS)
+                    self.assertEqual(list(reader)[0]['value'],'')
+                self.assertEqual(json.loads((out/'manifest.json').read_text())['measurements'],r['measurements'])
                 self.assertEqual(set(json.loads((out/'manifest.json').read_text())['evidence']),set(r['evidence']))
                 for mode in ('success','bounds','fail','timeout','missing'):
                     class Proc:

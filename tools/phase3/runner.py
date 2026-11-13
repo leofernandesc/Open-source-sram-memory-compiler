@@ -124,6 +124,8 @@ def run(config_path, output, dry_run=False):
         model = snapshot(paths['model'], work, receipt['inputs'], copied)
         # Deck dependencies use the same snapshot mechanism; placeholders remain literal.
         template = paths['deck'].read_text()
+        if not all('{{' + key + '}}' in template for key in ('MODEL', 'CORNER', 'NETLIST')):
+            raise ValueError('Deck must use pinned MODEL, CORNER and NETLIST placeholders')
         lines = []
         for line in template.splitlines():
             parts = shlex.split(line, comments=False) if re.match(r'^\s*\.(include|inc|lib)\b', line, re.I) else []
