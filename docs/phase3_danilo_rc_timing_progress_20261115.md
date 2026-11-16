@@ -67,3 +67,17 @@ Para diagnosticar se as malhas distribuídas de alimentação são responsáveis
 5. Entregar tabelas de tempo e energia/potência com proveniência, e marcar explicitamente `NOT_CHARACTERIZED` onde não houver estímulos ou medidas suficientes (incluindo setup/hold e potência estática, na instrumentação atual).
 
 **Situação:** extração RC completa com conectividade DC de alimentação foi obtida; caracterização funcional TT/SS/FF **ainda não foi aprovada**. Não publicar resultados quantitativos de timing ou potência derivados do ensaio TT anterior funcionalmente reprovado.
+
+## Auditoria de continuidade — 16/11/2026
+
+Revalidei a branch `feature/phase3-rc-timing-danilo` no HEAD `b6a4d119581097900cd76d99f016944f900c6381`; o checkout estava limpo antes desta atualização. A extração continua ligada ao GDS fixado pelo hash registrado acima. No contêiner EDA `sram-xschem` (Magic 8.3.613, ngspice 44.2, Sky130A da versão Volare `0fe599b2afb6708d281543108caf8310912f54af`), o `.ext` declara `tech sky130A`, `style ngspice()` e `scale 1000 1 500000`; o `sky130A.magicrc` carrega o techfile do mesmo PDK e desliga a reescala do ext2spice. Os valores extraídos, portanto, estão ligados à regra/versão identificada, mas isso ainda não é uma calibração independente do RC contra medição ou extração de referência.
+
+A auditoria SPICE confirmou 1.493 instâncias MOS, 322.018 resistores e 101.005 capacitores. Os 101.005 capacitores somam 14,738793 pF; 93.771 pares estão entre nós das malhas VDD/VSS e somam 10,922844 pF. Os outros pares somam 3,815949 pF, incluindo 1,110065 pF entre sinais e 2,492607 pF entre sinal e trilho. Estes totais descrevem os cartões produzidos pelo Magic; não demonstram erro de escala. A auditoria topológica anterior segue sem substituir LVS.
+
+A falha permanece reproduzível como diagnóstico: a aproximação de trilhos ideais reprova 39/72 bits e o PEX integral não completa o transiente de 370 ns dentro de 900 s. A separação dos capacitores em ensaios isolados aponta dependência forte de C parasita, mas ambos os ensaios requerem o resistor artificial de 1e15 ohm no nó flutuante `rc701` e excluem a impedância distribuída de alimentação. Eles não permitem escolher ou ajustar capacitâncias para obter aprovação. O fluxo Magic atual tampouco provê, sozinho, uma referência independente para validar os valores capacitivos.
+
+### Decisão de encerramento
+
+**Frente Danilo — NÃO CONCLUÍDA.** A entrega estrutural de extração RC está pronta e rastreável; a qualificação elétrica ainda não passou. Faltam: (1) validar a distribuição de parasitas em referência independente ou com ensaio geométrico calibrado; (2) obter TT funcional 72/72 no deck integral ou em redução de rede demonstravelmente equivalente nos terminais relevantes; (3) somente após TT aprovado, medir timing e potência em TT/SS/FF com proveniência. Setup/hold e potência estática seguem `NOT_CHARACTERIZED` pela instrumentação atual. Não gerei dados substitutos, não alterei janelas de amostragem e não promovi os diagnósticos simplificados a resultados de PEX.
+
+Esta atualização fecha a auditoria e registra objetivamente os bloqueios; não certifica a Fase 3. A próxima decisão técnica deve ser sobre a discrepância elétrica observada entre a extração Magic e o benchmark de referência, com revisão dos valores parasitas antes de qualquer ajuste do circuito ou do estímulo.
