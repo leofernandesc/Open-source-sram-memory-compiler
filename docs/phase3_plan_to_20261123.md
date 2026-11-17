@@ -1,5 +1,16 @@
 # Planejamento operacional — Fase 3 (caracterização elétrica)
 
+## Situação do marco BASELINE / RUNNER — 16/11/2026
+
+O [fechamento da entrega 12–13/11](phase3_baseline_runner_closure_20261116.md)
+consolida infraestrutura e verificação funcional nominal complementar, sem
+antecipar os marcos de RC, timing/potência, PVT, SNM ou Liberty. A
+[homologação nominal r1](phase3_nominal_functional_homologation_r1_20261116.md)
+registra o smoke real posterior: 626/626 observações PASS; B/global permanecem
+NOT_CHARACTERIZED. O comparador legado mantém 1.736 PASS/4 FAIL.
+As metas e descrições datadas abaixo são preservadas como planejamento daquela
+data; não constituem evidência de campanhas posteriores realizadas.
+
 ## Atualização operacional — 13/11/2026 (instrução do responsável)
 
 Esta distribuição substitui a alocação proposta em 11/11 nas seções históricas

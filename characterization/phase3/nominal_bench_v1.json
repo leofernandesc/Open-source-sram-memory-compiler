@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "profile": "phase3_nominal_bench_v1",
+  "decision": "P3-DATA-002",
+  "revision": "r0",
+  "approval": "PROPOSED",
+  "global_gate_enabled": false,
+  "fixture": {
+    "path": "reports/phase2/direct_abutment_20261111/qualification_v1/bench.spice",
+    "sha256": "58809d4edca7002170644e4a7b006a945a4c489139e8b48c56af721af9b7d342"
+  },
+  "conditions": {
+    "configuration": "4x8",
+    "scope": "sram",
+    "corner": "tt",
+    "vdd_v": 1.8,
+    "temp_c": 27,
+    "period_ns": 20,
+    "duty_cycle": 0.5,
+    "slew_ps": 50,
+    "load_ff": 10,
+    "extraction": "devices/junctions"
+  },
+  "decisions": {
+    "O1": "O1a: existing scheduled fixture observations",
+    "O2": "scheduled event windows; no DATA/Q settling references",
+    "O3": "A10 functional obligations separate from unqualified B recovery",
+    "O4": "pinned fixture preconditions; public setup/hold not characterized"
+  },
+  "maximum_transient_step_ns": 0.01,
+  "post_probe_offset_ns": 16.3,
+  "window_rules": [
+    {
+      "id": "DATA_NEW",
+      "kind": "point",
+      "signal": "DATA",
+      "properties": [
+        "A08"
+      ],
+      "start": "sample_ns",
+      "end": "calibration.weak_on_ns",
+      "bounds": "first_sample_ge_start_and_lt_end"
+    },
+    {
+      "id": "Q_NEW",
+      "kind": "point",
+      "signal": "REG_Q",
+      "properties": [
+        "A03"
+      ],
+      "start": "sample_ns",
+      "end": "calibration.weak_on_ns",
+      "bounds": "first_sample_ge_start_and_lt_end"
+    },
+    {
+      "id": "DATA_NEW_STABLE",
+      "kind": "levels",
+      "signal": "DATA",
+      "properties": [
+        "A09"
+      ],
+      "start": "sample_ns",
+      "end": "calibration.weak_on_ns",
+      "bounds": "[)"
+    },
+    {
+      "id": "DATA_POST",
+      "kind": "point",
+      "signal": "DATA",
+      "properties": [
+        "A08",
+        "A10"
+      ],
+      "start": "rise_ns+post_probe_offset_ns",
+      "end": "next_disturbance_or_stop",
+      "bounds": "first_sample_ge_start_and_lt_end"
+    },
+    {
+      "id": "DATA_POST_STABLE",
+      "kind": "levels",
+      "signal": "DATA",
+      "properties": [
+        "A09",
+        "A05_if_continuous_to_next_read"
+      ],
+      "start": "rise_ns+post_probe_offset_ns",
+      "end": "next_disturbance_or_stop",
+      "bounds": "[) except final stop included"
+    },
+    {
+      "id": "Q_RETAIN",
+      "kind": "levels",
+      "signal": "REG_Q",
+      "properties": [
+        "A04"
+      ],
+      "start": "sample_ns",
+      "end": "next_read_fall_or_stop",
+      "bounds": "[) except final stop included"
+    },
+    {
+      "id": "Q_STABLE_CAPTURE",
+      "kind": "levels",
+      "signal": "REG_Q",
+      "properties": [
+        "A03",
+        "A04"
+      ],
+      "start": "fall_ns",
+      "end": "sample_ns",
+      "bounds": "[)",
+      "condition": "known previous read bit equals new read bit"
+    },
+    {
+      "id": "DATA_STABLE_CAPTURE",
+      "kind": "levels",
+      "signal": "DATA",
+      "properties": [
+        "A05",
+        "A09"
+      ],
+      "start": "fall_ns",
+      "end": "sample_ns",
+      "bounds": "[)",
+      "condition": "previous read bit equals new read bit and enable continuity established by fixed fixture events"
+    }
+  ],
+  "recovery": {
+    "old_word_enable_deadline_ns": null,
+    "budget_status": "NOT_CHARACTERIZED",
+    "required_functional_resume_bits": 104
+  },
+  "scope": {
+    "cycles": 18,
+    "stop_ns": 370,
+    "read_cycles": 9,
+    "read_bits": 72,
+    "controls": [
+      "001",
+      "010",
+      "111"
+    ],
+    "mask_controls": [
+      "CSb"
+    ],
+    "pvt_guaranteed": false
+  }
+}

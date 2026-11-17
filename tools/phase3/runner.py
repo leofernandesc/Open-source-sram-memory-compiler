@@ -92,6 +92,8 @@ def run(config_path, output, dry_run=False):
                 shutil.copyfile(src, code/src.name)
                 receipt['inputs'][str(src)] = digest(src)
         receipt['configuration'] = c
+        if c['scope'] == 'sram':
+            receipt['temporal_qualification'] = dict(status='NOT_CHARACTERIZED', reason='No approved B qualification in this delivery')
         receipt['git'] = dict(commit=git('rev-parse', 'HEAD'), branch=git('branch', '--show-current'),
                               dirty=bool(git('status', '--porcelain')))
         ref = c['baseline']
@@ -117,6 +119,27 @@ def run(config_path, output, dry_run=False):
                 target = saved/source.relative_to(ROOT) if source.is_relative_to(ROOT) else saved/'context.json'
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(source, target)
+            if functional.get('operational_nominal'):
+                for name in ('functional_a.py','functional_a_coverage.py','functional_a_observers.py',
+                             'nominal_bench.py','nominal_bench_plan.py','nominal_operational.py'):
+                    source=Path(__file__).with_name(name)
+                    shutil.copyfile(source,code/name);receipt['inputs'][str(source)]=digest(source)
+                source=ROOT/'tools/prepare_phase3_4x8.py'
+                shutil.copyfile(source,code/source.name);receipt['inputs'][str(source)]=digest(source)
+                receipt['temporal_qualification']=dict(status='NOT_CHARACTERIZED',reason='No approved B budgets')
+            if functional.get('activation_blocked'):
+                from .functional_a import blocked_assessment
+                for name in ('functional_a.py', 'functional_a_coverage.py', 'functional_a_observers.py'):
+                    source = Path(__file__).with_name(name)
+                    shutil.copyfile(source, code/name)
+                    receipt['inputs'][str(source)] = digest(source)
+                assessment = blocked_assessment()
+                receipt['policy_assessment'] = assessment
+                receipt['temporal_qualification'] = assessment['temporal_qualification']
+                write_json(output/'policy_assessment.json', assessment)
+                if not dry_run:
+                    receipt['functional_validation'] = assessment
+                    raise Blocked(functional['activation_blocked'])
         work = output / 'inputs'
         work.mkdir()
         copied = {}
@@ -182,6 +205,14 @@ def run(config_path, output, dry_run=False):
                 resource.setrlimit(resource.RLIMIT_FSIZE, (512*2**20,) * 2)
                 os.sched_setaffinity(0, {min(os.sched_getaffinity(0))})
             with (output / 'ngspice.log').open('w') as log:
+                nominal_execution=bool(functional and functional.get('operational_nominal'))
+                if nominal_execution and (work/'waveform.dat').exists():
+                    raise ValueError('Fresh nominal workspace already contains a waveform')
+                execution_start_ns=time.time_ns()
+                if nominal_execution:
+                    marker=work/'.nominal_execution_started'
+                    marker.write_text(output.name+'\n')
+                    execution_start_ns=marker.stat().st_mtime_ns
                 publish()
                 proc = subprocess.Popen(receipt['command'], cwd=work, stdout=log, stderr=subprocess.STDOUT,
                                         env=dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1'),
@@ -199,6 +230,11 @@ def run(config_path, output, dry_run=False):
             if proc.returncode or re.search(r'(?im)^\s*(fatal|error)(?:\b|:)', log_text):
                 raise RuntimeError('Simulator error; inspect ngspice.log')
             receipt['simulator_status'] = 'PASS'
+            if nominal_execution:
+                execution_proof=dict(assessment_mode='fresh_run',workdir=str(work.resolve()),
+                    simulator_status='PASS',return_code=proc.returncode,waveform_absent_before_start=True,
+                    started_ns=execution_start_ns,finished_ns=time.time_ns())
+                write_json(output/'execution_proof.json',execution_proof)
             receipt['status'] = 'PASS'
         for p, h in receipt['inputs'].items():
             if digest(p) != h:
@@ -215,7 +251,12 @@ def run(config_path, output, dry_run=False):
             receipt['measurement_status'] = receipt['status']
             if c['scope'] == 'sram' and functional:
                 try:
-                    result = check_waveform(ROOT, work, functional['context'])
+                    if functional.get('operational_nominal'):
+                        result=check_waveform(ROOT,work,functional['context'],execution=execution_proof)
+                        receipt['nominal_functional_status']=result['status']
+                        receipt['temporal_qualification']=result['temporal_qualification']
+                    else:
+                        result = check_waveform(ROOT, work, functional['context'])
                     write_json(output/'functional_checks.json', result)
                     receipt['functional_validation'] = {k:v for k,v in result.items() if k != 'checks'}
                     receipt['functional_validation']['evidence'] = 'functional_checks.json'
@@ -226,6 +267,14 @@ def run(config_path, output, dry_run=False):
                     if digest(path) != sha:
                         raise ValueError('Functional input changed during execution: ' + path)
             receipt['status'] = overall_status(receipt['measurement_status'], receipt['functional_validation']['status'], c['scope'])
+            if c['scope'] == 'sram':
+                # This delivery has no approved B qualification, for any profile.
+                # Passing configured measures and function cannot qualify the macro.
+                from .functional_a import characterization_status
+                receipt['status'] = characterization_status(receipt['measurement_status'], receipt['functional_validation']['status'])
+            if functional and functional.get('operational_nominal'):
+                from .nominal_operational import global_status
+                receipt['status']=global_status(receipt['measurement_status'],receipt['functional_validation']['status'])
     except Blocked as e:
         receipt.update(status='BLOCKED', error=str(e))
     except Exception as e:

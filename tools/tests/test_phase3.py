@@ -21,7 +21,8 @@ class Phase3Tests(unittest.TestCase):
 
     def test_strict_config(self):
         validate(self.c)
-        for key, value in [('corner','sf'), ('vdd_v',True), ('slew_ps',float('nan')), ('configuration','2x8'), ('duty_cycle',1), ('extra',1)]:
+        for key, value in [('schema_version',True), ('schema_version',1.0),
+                           ('corner','sf'), ('vdd_v',True), ('slew_ps',float('nan')), ('configuration','2x8'), ('duty_cycle',1), ('extra',1)]:
             with self.subTest(key=key):
                 c = dict(self.c); c[key] = value
                 with self.assertRaises((ValueError, KeyError)):
@@ -124,8 +125,11 @@ class Phase3Tests(unittest.TestCase):
                     self.assertEqual(r['simulator_status'],'PASS')
                     self.assertEqual(r['measurement_status'],'PASS')
                     self.assertEqual(r['measurements'][0]['status'],'PASS')
-                    self.assertEqual(r['status'],'NOT_CHARACTERIZED' if functional_status=='absent' else functional_status)
+                    self.assertEqual(r['functional_validation']['status'],
+                                     'NOT_CHARACTERIZED' if functional_status=='absent' else functional_status)
+                    self.assertEqual(r['status'],'NOT_CHARACTERIZED' if functional_status in ('absent','PASS') else functional_status)
                     self.assertFalse(r['sram_characterized'])
+                    self.assertEqual(r['temporal_qualification']['status'],'NOT_CHARACTERIZED')
                     if functional_status=='absent': checker.assert_not_called()
                 with patch.object(runner,'prepare_context',return_value=dict(pins={},context={})), patch.object(runner,'check_waveform') as checker:
                     r=runner.run(config,p/'reports/phase3/functional_dry',True)

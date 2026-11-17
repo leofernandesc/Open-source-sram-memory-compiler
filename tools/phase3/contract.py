@@ -30,7 +30,8 @@ def validate(c):
     required = {'schema_version', 'configuration', 'scope', 'baseline', 'pdk', 'corner', 'vdd_v',
                 'temp_c', 'period_ns', 'duty_cycle', 'slew_ps', 'load_ff', 'extraction',
                 'deck', 'netlist', 'model', 'stimuli', 'measurements', 'timeout_s', 'memory_mb'}
-    if set(c) - {'functional_validation'} != required or c['schema_version'] != 1:
+    if (set(c) - {'functional_validation'} != required
+            or type(c['schema_version']) is not int or c['schema_version'] != 1):
         raise ValueError('Unknown/missing configuration fields or schema')
     if c['configuration'] not in ('4x8', '8x8', '16x8', '32x8') or c['pdk'] != 'SKY130A':
         raise ValueError('Unsupported configuration/PDK')

@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "profile": "phase3_nominal_bench_v1",
+  "decision": "P3-DATA-002",
+  "revision": "r1",
+  "approval": "APPROVED_NOMINAL_BENCH",
+  "global_gate_enabled": false,
+  "fixture": {
+    "path": "reports/phase2/direct_abutment_20261111/qualification_v1/bench.spice",
+    "sha256": "58809d4edca7002170644e4a7b006a945a4c489139e8b48c56af721af9b7d342"
+  },
+  "conditions": {
+    "configuration": "4x8",
+    "scope": "sram",
+    "corner": "tt",
+    "vdd_v": 1.8,
+    "temp_c": 27,
+    "period_ns": 20,
+    "duty_cycle": 0.5,
+    "slew_ps": 50,
+    "load_ff": 10,
+    "extraction": "devices/junctions"
+  },
+  "decisions": {
+    "O1": "O1a: existing scheduled fixture observations",
+    "O2": "scheduled event windows; no DATA/Q settling references",
+    "O3": "A10 functional obligations separate from unqualified B recovery",
+    "O4": "pinned fixture preconditions; public setup/hold not characterized"
+  },
+  "maximum_transient_step_ns": 0.01,
+  "post_probe_offset_ns": 16.3,
+  "window_rules": [
+    {
+      "id": "DATA_NEW",
+      "kind": "point",
+      "signal": "DATA",
+      "properties": [
+        "A08"
+      ],
+      "start": "sample_ns",
+      "end": "calibration.weak_on_ns",
+      "bounds": "first_sample_ge_start_and_lt_end"
+    },
+    {
+      "id": "Q_NEW",
+      "kind": "point",
+      "signal": "REG_Q",
+      "properties": [
+        "A03"
+      ],
+      "start": "sample_ns",
+      "end": "calibration.weak_on_ns",
+      "bounds": "first_sample_ge_start_and_lt_end"
+    },
+    {
+      "id": "DATA_NEW_STABLE",
+      "kind": "levels",
+      "signal": "DATA",
+      "properties": [
+        "A09"
+      ],
+      "start": "sample_ns",
+      "end": "calibration.weak_on_ns",
+      "bounds": "[)"
+    },
+    {
+      "id": "DATA_POST",
+      "kind": "point",
+      "signal": "DATA",
+      "properties": [
+        "A08",
+        "A10"
+      ],
+      "start": "rise_ns+post_probe_offset_ns",
+      "end": "next_disturbance_or_stop",
+      "bounds": "first_sample_ge_start_and_lt_end"
+    },
+    {
+      "id": "DATA_POST_STABLE",
+      "kind": "levels",
+      "signal": "DATA",
+      "properties": [
+        "A09",
+        "A05_if_continuous_to_next_read"
+      ],
+      "start": "rise_ns+post_probe_offset_ns",
+      "end": "next_disturbance_or_stop",
+      "bounds": "[) except final stop included"
+    },
+    {
+      "id": "Q_RETAIN",
+      "kind": "levels",
+      "signal": "REG_Q",
+      "properties": [
+        "A04"
+      ],
+      "start": "sample_ns",
+      "end": "next_read_fall_or_stop",
+      "bounds": "[) except final stop included"
+    },
+    {
+      "id": "Q_STABLE_CAPTURE",
+      "kind": "levels",
+      "signal": "REG_Q",
+      "properties": [
+        "A03",
+        "A04"
+      ],
+      "start": "fall_ns",
+      "end": "sample_ns",
+      "bounds": "[)",
+      "condition": "known previous read bit equals new read bit"
+    },
+    {
+      "id": "DATA_STABLE_CAPTURE",
+      "kind": "levels",
+      "signal": "DATA",
+      "properties": [
+        "A05",
+        "A09"
+      ],
+      "start": "fall_ns",
+      "end": "sample_ns",
+      "bounds": "[)",
+      "condition": "previous read bit equals new read bit and enable continuity established by fixed fixture events"
+    }
+  ],
+  "recovery": {
+    "old_word_enable_deadline_ns": null,
+    "budget_status": "NOT_CHARACTERIZED",
+    "required_functional_resume_bits": 104
+  },
+  "scope": {
+    "cycles": 18,
+    "stop_ns": 370,
+    "read_cycles": 9,
+    "read_bits": 72,
+    "controls": [
+      "001",
+      "010",
+      "111"
+    ],
+    "mask_controls": [
+      "CSb"
+    ],
+    "pvt_guaranteed": false
+  },
+  "functional_gate_enabled": true,
+  "authority": {
+    "path": "docs/phase3_data_operational_policy_approval_r1_20261116.md",
+    "sha256": "33cf76de73b48bf22c902410611f293b78ce2a3eff7dd6ce52224a66b60062dd"
+  },
+  "r0": {
+    "document": {
+      "path": "docs/phase3_data_operational_policy_proposal_20261116.md",
+      "sha256": "f2cf919649a396fd00d107d4a2a8c845328bd8347aaf9eddaee537ae469667c2"
+    },
+    "policy": {
+      "path": "characterization/phase3/nominal_bench_v1.json",
+      "sha256": "cd8f9d83ca3141d2768055d65846962c4d969ee36c50924964f61128fd7181f6"
+    }
+  },
+  "approved_plan_sha256": "6eba5203cca52a101aab3e785e45a9fb0665dd358e8b8cd11000c73dda8241ec",
+  "model": {
+    "path": "/opt/pdks/sky130A/libs.tech/ngspice/sky130.lib.spice",
+    "sha256": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e"
+  },
+  "evaluator_inputs": {
+    "tools/phase3/functional_a_coverage.py": "7b16ead52f009cb33555a8426e610a0c20118308f23249ab83a4360fc6edf970",
+    "tools/phase3/functional_a_observers.py": "16530bd3c7efec67a38674dec650a5fce00da862cb8932e0150210931e2d7d13",
+    "tools/phase3/functional_a.py": "5d50f68fd43bc35ff0e9513e78fa3b4f470951e67012aa76d0d68ac82a41e4d7",
+    "tools/phase3/nominal_bench.py": "1cefb808f4c558dd1b248384fd33b893d6387efb142e4857c67cbe63494d713c",
+    "tools/phase3/nominal_bench_plan.py": "d448057e57482538d19d4a15e1dae68f3c0363b6b0fc54fddff4c3aa6360ee52"
+  }
+}

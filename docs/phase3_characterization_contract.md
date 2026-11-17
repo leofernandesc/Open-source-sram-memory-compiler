@@ -112,6 +112,9 @@ estatística de 200 amostras não pode ser fabricada a partir de TT/SS/FF.
 run_id,configuration,corner,vdd_v,temp_c,operation,metric,bit,value,unit,status,transition,measure,reason
 ```
 
+São **14 colunas**, conforme `tools/phase3/contract.py:FIELDS`; referências a
+15 nos documentos de diagnóstico eram erro de contagem, não outro schema.
+
 Valores ausentes são célula vazia no CSV e `null` no JSON. Unidades exportadas:
 segundos (`s`), watts (`W`), joules (`J`); volts (`V`) só no smoke. Não usar NaN,
 infinito, sentinela zero ou estimativa como medição.
@@ -217,3 +220,49 @@ Critérios explícitos para esse primeiro smoke, ainda NÃO EXECUTADO:
 A inclusão dos 10 fF precisa ser avaliada no futuro ensaio; o PASS histórico não
 é transferido para essa nova carga. Este adapter não valida variantes de PVT,
 RC distribuído ou outros protocolos sem nova revisão de metodologia.
+
+## Desenvolvimento opt-in de A — 16/11/2026
+
+O preparador aceita `--profile phase3_functional_a_v1`, mantendo
+`phase2_qualification_v1` como padrão. O contexto de A é versionado, estrito e
+pinado pelo campo existente `functional_validation`. Sua ativação permanece
+desabilitada: O1–O4 devem estar explicitamente PENDING, sem janelas externas
+novas. Aprovações declaradas no JSON não habilitam o gate nesta implementação.
+
+Uma tentativa real com A retorna BLOCKED/CLI 1 **antes de iniciar ngspice**;
+o dry-run concluído mantém NOT_CHARACTERIZED/CLI 0. `policy_assessment` e
+`temporal_qualification` são metadados aditivos de desenvolvimento; os campos
+existentes e o CSV permanecem compatíveis. Medições PASS não qualificam B.
+
+O replay offline é separado do runner: verifica pins, reutiliza os checkers
+completos e produz evidência nova marcada `assessment_mode=replay` e
+`electrical_simulation_performed=false`. Não altera o histórico nem simula.
+Observações parciais podem ser PASS/FAIL; o perfil completo não recebe PASS.
+Decisões pendentes não absorvem falhas das propriedades avaliadas. Os detalhes,
+limitações e regressões estão no
+[relatório de implementação](phase3_functional_a_implementation_20261116.md).
+
+## Situação operacional no fechamento — 16/11/2026
+
+As seções datadas acima registram a evolução histórica. O primeiro smoke já foi
+executado e preserva 1.736 PASS/4 FAIL no perfil legado. A aprovação
+[P3-DATA-002 r1](phase3_data_operational_policy_approval_r1_20261116.md) habilita
+exclusivamente o opt-in `--profile phase3_nominal_bench_v1`, homologado em
+[nova execução nominal](phase3_nominal_functional_homologation_r1_20261116.md):
+626/626 observações funcionais PASS. O padrão legado e o bloqueio original de
+`phase3_functional_a_v1` permanecem; não há aprovação retroativa.
+
+Nesta entrega não existe qualificação B aprovada. Por isso **qualquer perfil
+SRAM**, inclusive o legado, permanece globalmente NOT_CHARACTERIZED quando
+apenas função e medidas configuradas passam; FAIL/ERROR/BLOCKED continuam sendo
+preservados. O manifesto registra B separadamente. O smoke de infraestrutura
+continua podendo retornar PASS; não caracteriza a macro. Estados públicos,
+CSV de 14 colunas e códigos CLI não mudam.
+
+`schema_version` deve ser o inteiro JSON `1`; `true` e `1.0` são recusados.
+As regressões completas agora têm entrada versionada:
+`tools/sram-eda python3 tools/run_phase3_regressions.py --output reports/phase3/regressao_nova`.
+Ela executa os 165 casos distintos sem SPICE e preserva logs por suíte. O
+[fechamento BASELINE / RUNNER](phase3_baseline_runner_closure_20261116.md)
+documenta reprodução em checkout limpo, recuperação das evidências e os limites
+do marco 12–13/11.

@@ -20,7 +20,15 @@ def prepare_context(root, c):
     if digest(path) != spec['sha256']:
         raise ValueError('Functional context hash mismatch')
     context = json.loads(path.read_text())
-    if context['adapter'] != ADAPTER or context['baseline'] != c['baseline']:
+    from .functional_a import ADAPTER as A_ADAPTER, validate_context
+    is_a = context.get('adapter') == A_ADAPTER
+    if is_a:
+        validate_context(context)
+    is_nominal=context.get('adapter')=='phase3_nominal_bench_v1'
+    if is_nominal:
+        from .nominal_operational import validate_context as validate_nominal
+        nominal_pins=validate_nominal(root,c,context)
+    if context['adapter'] not in (ADAPTER, A_ADAPTER, 'phase3_nominal_bench_v1') or context['baseline'] != c['baseline']:
         raise ValueError('Functional adapter/baseline differs')
     for key, expected in CONDITIONS.items():
         if c[key] != expected:
@@ -31,12 +39,25 @@ def prepare_context(root, c):
     identity = selected_inputs(root, c['baseline'])
     if context['selection'] != identity:
         raise ValueError('Functional context selected candidate differs')
-    return dict(context=context, path=path, pins={**{str(root/p):h for p,h in identity['inputs'].items()},
-                                                 str(path.resolve()):spec['sha256']})
+    prepared = dict(context=context, path=path, pins={**{str(root/p):h for p,h in identity['inputs'].items()},
+                                                     str(path.resolve()):spec['sha256']})
+    if is_a:
+        prepared['activation_blocked'] = 'O1-O4 pending; phase3_functional_a_v1 gate disabled'
+    if is_nominal:
+        prepared['pins'].update(nominal_pins)
+        prepared['operational_nominal']=True
+    return prepared
 
 
-def check_waveform(root, work, context):
+def check_waveform(root, work, context, execution=None):
     """Consume only this execution's fresh full-resolution waveform, never old raw."""
+    if context.get('adapter') == 'phase3_functional_a_v1':
+        from .functional_a import blocked_assessment, validate_context
+        validate_context(context)
+        return blocked_assessment()  # Real A executions are refused before ngspice.
+    if context.get('adapter')=='phase3_nominal_bench_v1':
+        from .nominal_operational import check_fresh
+        return check_fresh(root,work,context,execution)
     import numpy as np
     from phase2_extension import check
     selection = context['selection']
