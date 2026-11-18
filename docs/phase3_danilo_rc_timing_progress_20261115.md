@@ -81,3 +81,93 @@ A falha permanece reproduzível como diagnóstico: a aproximação de trilhos id
 **Frente Danilo — NÃO CONCLUÍDA.** A entrega estrutural de extração RC está pronta e rastreável; a qualificação elétrica ainda não passou. Faltam: (1) validar a distribuição de parasitas em referência independente ou com ensaio geométrico calibrado; (2) obter TT funcional 72/72 no deck integral ou em redução de rede demonstravelmente equivalente nos terminais relevantes; (3) somente após TT aprovado, medir timing e potência em TT/SS/FF com proveniência. Setup/hold e potência estática seguem `NOT_CHARACTERIZED` pela instrumentação atual. Não gerei dados substitutos, não alterei janelas de amostragem e não promovi os diagnósticos simplificados a resultados de PEX.
 
 Esta atualização fecha a auditoria e registra objetivamente os bloqueios; não certifica a Fase 3. A próxima decisão técnica deve ser sobre a discrepância elétrica observada entre a extração Magic e o benchmark de referência, com revisão dos valores parasitas antes de qualquer ajuste do circuito ou do estímulo.
+
+## Continuidade — 17/11/2026: sondas internas e atribuição temporal
+
+Foi reprocessado **sem nova simulação** o ensaio de sondas
+`build/phase3/probe_runs/20261116T052501Z-db99feb6/` com
+`tools/phase3_rc_probe_report.py`. O manifesto registra
+`COMPLETE_DIAGNOSTIC`, as duas formas de onda foram verificadas pelos hashes
+registrados, e a comparação usa interpolação em cada grade temporal. As 13
+sondas foram associadas pelo **nome real da coluna** do `waveform.dat` de cada
+lado: a ordem alfabética do mapa JSON não coincide com a ordem do vetor
+gravado pelo ngspice. Resultado detalhado em
+`build/phase3/probe_reports/20261116T052501Z-db99feb6-comparison.json`.
+
+| Evidência | Controle Fase 2 | RC com alimentação idealizada | Observação |
+| --- | ---: | ---: | --- |
+| `BLB0` aos 139 ns | 1,91228 V | 1,55611 V | Diferença na linha complementar antes da captura |
+| `BL0` aos 139 ns | ~0 V | ~0 V | Linha direta próxima de zero em ambas |
+| `SA_OUTB0` aos 139 ns | 1,80000 V | ~0 V | Divergência já presente na saída interna do sense amplifier |
+| Queda de `CLK` em `_86_.CLK`, limiar 0,9 V | 140,22583 ns | 140,40108 ns | Deslocamento de +0,17525 ns |
+| Queda de `evaluation.X`, limiar 0,9 V | 140,43851 ns | 140,83368 ns | Deslocamento de +0,39517 ns |
+| Queda de `WL0`, limiar 0,9 V | 140,65312 ns | 141,32281 ns | Deslocamento de +0,66969 ns |
+| `precharge_drive.X` aos 143 ns | 0,05555 V | 1,80001 V | Sequência de controle ainda distinta após captura |
+| `sense_drive.X` aos 143 ns | 0,04213 V | 1,79998 V | Sequência de controle ainda distinta após captura |
+| DATA em 141 ns, esperado `0xAA` | `0xAA` | `0x00` | Leitura 6 falha com RC |
+| DATA em 161 ns, esperado `0x55` | `0x55` | `0xFF` | Leitura 7 falha com RC |
+
+O primeiro instante de diferença por sonda no JSON é definido somente pela
+grade de **130 a 144 ns, com passo de 0,05 ns e limiar de 0,3 V**. São sondas
+selecionadas, e uma diferença antecipada pode ocorrer em ciclos anteriores ou
+por deslocamento de fase. Esses números não estabelecem a primeira causa física
+da divergência. Em particular, a falha de `SA_OUTB0` aparece antes da captura,
+o que exige examinar o desenvolvimento de BL/BLB e as condições de habilitação
+do sentido de leitura. O atraso da WL também é observável, mas não é suficiente
+para explicar isoladamente a falha.
+
+A inspeção das capacitâncias **incidentes** do SPICE diagnóstico mostrou
+aproximadamente **55,3897 fF em BL0**, **55,9542 fF em BLB0**,
+**10,8251 fF em SA_OUTB0**, **62,8957 fF em WL0**,
+**104,2136 fF em `precharge_drive.X`** e
+**131,6763 fF em `sense_drive.X`**. Entre `BL0` e `BLB0`, há
+**13,921 fF** de capacitância agregada no modelo com trilhos ideais.
+São somas de cartões incidentes e contribuições de acoplamento, **não**
+capacitâncias de carga equivalente, nem prova de que um valor extraído esteja
+incorreto. Atribuir uma falha a um cartão exige confrontar sua geometria/regras
+Magic e uma referência independente, preservando acoplamentos e nós terminais.
+
+No cálculo exploratório de `tACCESS` e `tCLK_TO_DATA`, o cruzamento de DATA
+precisa representar a **nova palavra após a borda de descida/captura de CLK**.
+A transição anterior à captura pode ser recuperação da palavra anterior.
+O analisador passou a classificá-la como `OUTPUT_BEFORE_FALLING_EDGE` e
+`NOT_CHARACTERIZED` para o atraso, com teste de regressão. Bits estáveis ou
+sem cruzamento único permanecem sem valor temporal atribuído. Os valores de
+energia/potência por janela continuam experimentais e só podem ser consumidos
+com os estados de simulação, verificação funcional e qualificação elétrica.
+
+Foi verificado no ramo remoto `origin/feature/phase3-infra-leonardo` o contrato
+P3-DATA-002 r1, com **626 observações funcionais** aprovadas para a bancada
+nominal no seu domínio, sem extensão homologada para RC distribuído. O atual
+ensaio de 72 bits mantém classificação **diagnóstica**. O CSV local mantém as
+14 colunas do contrato, mas seu manifesto e o conjunto de checks não representam
+uma execução do runner homologado para esse domínio. `simulator_status`,
+`functional_validation` e `electrical_qualification` são expostos separadamente.
+Setup/hold, potência estática e caracterização de timing/potência TT/SS/FF
+continuam **`NOT_CHARACTERIZED`**.
+
+Validação local nesta retomada: **23 testes unitários PASS**, incluindo a nova
+cobertura de ordem de colunas das sondas, integridade de amostras e classificação
+de transições anteriores à captura. O comando `./tools/sram-eda --check`
+informou que o contêiner `sram-xschem` não existe neste ambiente. Assim, a
+retomada reutiliza os artefatos verificados e não acrescenta execução elétrica.
+
+Para reproduzir o relatório na raiz do projeto:
+
+```bash
+python3 tools/phase3_rc_probe_report.py \
+  --probe-run build/phase3/probe_runs/20261116T052501Z-db99feb6
+python3 -m unittest -q \
+  tests.test_phase3_rc_extraction tests.test_phase3_rc_characterization \
+  tests.test_phase3_rc_requalify tests.test_phase3_rc_probe \
+  tests.test_phase3_rc_probe_report
+```
+
+**Próximo bloqueio técnico.** É necessário validar as regras e a geometria dos
+parasitas de BL/BLB, WL e dos controles de pré-carga/sense contra uma referência
+independente e repetir TT no domínio RC. Uma possível redução das malhas de
+alimentação só poderá servir à caracterização após demonstrar preservação das
+respostas nos terminais relevantes, incluindo impedância e efeitos de acoplamento
+na faixa temporal da leitura. A contração ideal de VDD/VSS usada neste relatório
+permanece uma aproximação de diagnóstico. A situação da frente Danilo segue
+**NÃO CONCLUÍDA**.
