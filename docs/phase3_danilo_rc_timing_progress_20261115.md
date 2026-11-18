@@ -456,12 +456,41 @@ python3 tools/phase3_rc_read_path.py "$work/delayed_no_weak" \
 
 O ensaio TT com a extração integral corrigida do protótipo foi iniciado em
 `eco_tt_full/`, usando o RC restaurado cujo SHA-256 está registrado acima.
-Na última inspeção, o `ngspice.log` terminava em **323,5 ns**, antes do fim
-de 370 ns; não havia processo ativo, manifesto, waveform nem resumo funcional
-para essa execução. A causa da interrupção não foi estabelecida. Portanto,
-esse ensaio é **INCOMPLETO** e não permite concluir PASS nem FAIL. O resultado
-72/72 de `eco_tt_signals` continua limitado ao RC dos sinais críticos; ele não
-substitui a execução integral.
+Na primeira tentativa, o `ngspice.log` terminou em **323,5 ns** sem waveform;
+a causa da interrupção não foi estabelecida. A repetição, com o mesmo deck,
+RC e hashes dos três arquivos de entrada, concluiu 370 ns em ngspice 44.2 e
+gerou 22.521 amostras em `eco_tt_full_retry_20261118/`. O manifesto registra
+`simulator_status=PASS`, **72/72** bits corretos na verificação funcional
+pública da janela original e `electrical_qualification=NOT_CHARACTERIZED`.
+Esse resultado é para o protótipo com topologia alterada e RC integral; não
+reverte o resultado **40/72 FAIL** da macro original.
+
+O analisador público encontrou `tACCESS` mensurável em **37/72** casos; os
+outros 35 ficaram `NOT_CHARACTERIZED` porque não houve transição qualificável
+na janela definida pelo analisador. `tCLK_TO_DATA` também teve 37 medidas
+válidas. A energia integrada por ciclo de 20 ns ficou em 13,67–16,64 pJ para
+leitura, 10,55–12,20 pJ para escrita e 3,14–3,93 pJ nos ciclos idle. As
+potências médias de ciclo correspondentes foram 0,683–0,832 mW, 0,527–0,610
+mW e 0,157–0,197 mW. Esses valores incluem o consumo integrado no ciclo
+completo, inclusive leakage, e são medidas exploratórias do modelo TT a 1,8 V,
+27 °C e 10 fF por saída; não constituem potência dinâmica isolada nem
+caracterização qualificada. Recibos e CSVs estão no mesmo diretório do run.
+
+O corner SS também completou 370 ns e 20.437 amostras, mas falhou em
+**31/72 bits** na mesma janela funcional pública. As falhas ocorreram nos
+ciclos 6, 7, 11, 13, 14, 15 e 16; uma saída alta representativa chegou a
+1,409 V, abaixo do limite de 1,44 V. O simulador terminou normalmente, porém
+timing e potência SS não são qualificáveis com a funcionalidade reprovada.
+Manifesto, waveform, checks e log estão em `eco_ss_full_20261118/`.
+O ensaio FF, em `eco_ff_full_20261118/`, também completou 370 ns, com
+22.943 amostras e **72/72 bits corretos**
+na janela funcional pública. `tACCESS` foi mensurável em 38/72 bits; os outros
+34 não tiveram transição qualificável na janela. É um PASS exploratório para
+o protótipo e as condições registradas, não signoff da macro. A energia por
+ciclo de 20 ns ficou em 15,20–18,22 pJ para leitura, 10,54–12,22 pJ para
+escrita e 3,19–3,92 pJ em idle; as potências médias de ciclo foram
+0,760–0,911 mW, 0,527–0,611 mW e 0,160–0,196 mW. Como em TT, são integrais
+do ciclo completo, incluindo leakage, e não potência dinâmica isolada.
 
 ### Fechamento da frente e pendências do Marco 3
 
@@ -471,20 +500,22 @@ substitui a execução integral.
 | Macro original, TT, leitura funcional com RC integral | **FAIL_FUNCTIONAL**, 40/72 bits; não qualifica timing ou potência. |
 | Protótipo, DRC/LVS | **PASS** na versão roteada identificada em `layout_verification.json`; isso verifica a implementação física, não caracteriza a SRAM. |
 | Protótipo, TT com RC dos sinais críticos | **PASS de janela funcional**, 72/72; não inclui o RC integral de alimentação. |
-| Protótipo, TT com RC integral | **INCOMPLETO**; log termina em 323,5 ns/370 ns e não há recibo final. |
-| Caracterização de tempo de acesso e potência dinâmica em TT/SS/FF | **PENDENTE**; requer um deck funcionalmente aprovado, medidas definidas e recibos por corner. |
+| Protótipo, TT com RC integral | **PASS exploratório**, 72/72, 370 ns, 22.521 amostras; tACCESS mensurável em 37/72. Não é signoff da macro. |
+| Protótipo, SS com RC integral | **FAIL_FUNCTIONAL**, 31/72 bits; sem qualificação de timing/potência. |
+| Protótipo, FF com RC integral | **PASS exploratório**, 72/72, 370 ns, 22.943 amostras; tACCESS mensurável em 38/72. Não é signoff da macro. |
+| Caracterização de tempo de acesso e potência em TT/SS/FF | **PARCIAL**; TT/FF têm medidas públicas exploratórias, mas 35/72 e 34/72 tACCESS ficam `NOT_CHARACTERIZED`, respectivamente. SS falhou funcionalmente. Potência medida é média do ciclo completo, não potência dinâmica isolada. |
 | Setup/hold e potência estática | **`NOT_CHARACTERIZED`** na instrumentação disponível. |
-| SNM com Monte Carlo, N ≥ 200 | **PENDENTE** como entrega da Fase 3, pertencente à frente responsável por SNM. |
+| SNM com Monte Carlo, N ≥ 200 | Há dados existentes de 200 seeds para SNM read e hold em `sf_mm`, referenciados em `docs/matriz_testes_bitcell_6t.md` e `docs/relatorio_validacao_bitcell_6t_sky130.md`. São triagem pré-layout da bitcell em dois pontos, não Monte Carlo da macro nem cobertura PVT/yield completa; a frente de SNM precisa confirmar se os reutiliza como entrega do Marco 3. |
 | `.lib` simplificada gerada de dados reais e validada | **PENDENTE** na evidência desta frente; pertence à infraestrutura/Liberty. |
 | Caracterização física 8×8 e 32×8 | **PENDENTE**, condicionada à geração dessas dimensões prevista para a Fase 4 ou a uma decisão formal de antecipação. |
 | Revisão cruzada e relatório integrado | **PENDENTE**. |
 
-**Conclusão:** a frente de extração e diagnóstico de leitura avançou, mas a
-Fase 3 ainda não está concluída. Não há base para publicar números de timing
-ou potência como caracterização aprovada, nem para declarar a macro original
-funcional com RC. O próximo bloqueio técnico desta frente é obter uma execução
-TT integral concluída e funcionalmente aprovada, primeiro para estabelecer se
-o protótipo roteado atende aos ciclos de leitura. Depois disso ainda serão
-necessários os corners SS/FF e as medidas de timing/potência; as entregas de
-SNM, Liberty, dimensões adicionais e revisão cruzada dependem das respectivas
-frentes e decisões de escopo descritas no plano operacional.
+**Conclusão:** o protótipo roteado passa o benchmark público com RC integral em
+TT e FF, mas falha em SS (31/72); a macro original continua reprovada em TT
+(40/72). A alteração de topologia ainda requer decisão de adoção e correção
+para SS antes de ser considerada solução funcional nos três corners. As métricas
+públicas TT/FF são exploratórias; SS não qualifica timing nem potência. Setup/
+hold e potência estática seguem `NOT_CHARACTERIZED`; o deck público não mede
+atraso interno de leitura nem separa potência dinâmica de leakage. A Fase 3
+integrada também depende da validação/revisão da SNM existente, geração e
+validação da `.lib`, decisão sobre 8×8/32×8 e revisão cruzada conforme o plano.
