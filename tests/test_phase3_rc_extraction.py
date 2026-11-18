@@ -13,8 +13,23 @@ sys.path.insert(0, str(SOURCE.parent))
 rc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rc)
 
+from phase3_rc_cap_audit import compare
+
 
 class ExtractionTests(unittest.TestCase):
+    def test_capacitance_audit_detects_grounded_copy_of_preserved_coupling(self):
+        header = '.subckt phase3_rc_flat ' + ' '.join(rc.EXPECTED_PINS) + '\n'
+        devices = ''.join(f'X{i} DATA[6] CLK VSS VSS nmos w=1 l=.15\n' for i in range(1493))
+        coupling = 'C0 DATA[6] VDD 4f\n'
+        reference = header + devices + coupling + 'C1 DATA[6] VSS 2f\n.ends\n'
+        for to_ground, matches in ((2, True), (6, False)):
+            extracted = header + devices + coupling + (
+                f'R0 DATA[6] wire 10\nC1 wire VSS {to_ground}f\n.ends\n')
+            audit = {row['net_b']: row for row in compare(extracted, reference)}
+            self.assertTrue(audit['VDD']['match'])
+            self.assertEqual(audit['VSS']['match'], matches)
+            self.assertAlmostEqual(audit['VSS']['rc_minus_c_only_ff'], to_ground - 2)
+
     def test_flat_deck_keeps_distributed_rc(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'rc.spice'

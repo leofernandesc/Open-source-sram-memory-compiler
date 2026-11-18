@@ -185,7 +185,7 @@ def inspect_dc_supply_paths(extracted):
     }
 
 
-def inspect_netlist(path):
+def inspect_netlist(path, *, expected_mos=1493):
     cards = logical_cards(path.read_text())
     subckts = [c.split() for c in cards if c.lower().startswith('.subckt ')]
     if len(subckts) != 1 or subckts[0][1].lower() != 'phase3_rc_flat':
@@ -194,8 +194,8 @@ def inspect_netlist(path):
     if len(pins) != len(EXPECTED_PINS) or set(pins) != set(EXPECTED_PINS):
         raise ValueError(f'Port mismatch: {pins}')
     parts = Counter(c[0][0].upper() for c in cards if c and not c.startswith('.'))
-    if parts['X'] != 1493:
-        raise ValueError(f'Expected 1493 extracted MOS; got {parts["X"]}')
+    if parts['X'] != expected_mos:
+        raise ValueError(f'Expected {expected_mos} extracted MOS; got {parts["X"]}')
     if parts['R'] <= 0 or parts['C'] <= 0:
         raise ValueError(f'Distributed R/C missing: R={parts["R"]}, C={parts["C"]}')
     zero_caps = 0

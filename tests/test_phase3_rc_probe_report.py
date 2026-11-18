@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 
 from phase3_rc_characterization import PUBLIC
 from phase3_rc_probe_report import read_waveform, voltage, incident_capacitance
+from phase3_rc_read_path import settled_ns
 
 
 class ProbeReportTests(unittest.TestCase):
@@ -87,6 +88,14 @@ class ProbeReportTests(unittest.TestCase):
             path.write_text('C1 foo VDD 3e-15\nC2 foo bar 4e-15\nC3 foo VSS 1e-15\n')
             self.assertEqual(incident_capacitance(path, ['foo'])['foo'],
                              {'rail_ff': 4., 'other_ff': 4., 'pairs': 3})
+
+    def test_settling_requires_both_sense_outputs_to_hold_until_capture(self):
+        times = [ns * 1e-9 for ns in range(1, 6)]
+        rows = list(zip(times, [0., 1.8, 1.8, 1.8, 1.8], [1.8, 0., 1.8, 0., 0.]))
+        pair = [(1, 1), (2, 0)]
+        self.assertIsNone(settled_ns(rows, times, pair, 1., 3.))
+        self.assertAlmostEqual(settled_ns(rows, times, pair, 1., 5.), 3.8)
+        self.assertAlmostEqual(settled_ns(rows, times, pair, 4.5, 5.), 4.5)
 
 
 if __name__ == '__main__':

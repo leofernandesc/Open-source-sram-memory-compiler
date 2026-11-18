@@ -48,7 +48,7 @@ def _mos(text):
             if line and line[0].upper() == 'X']
 
 
-def reference_node_map(ideal, phase2):
+def reference_node_map(ideal, phase2, *, expected_mos=1493):
     """Map PEX nodes to Phase 2 through their signal resistor components.
 
     Resistors split a Phase 2 net into physical PEX MOS terminals. Reject
@@ -56,7 +56,7 @@ def reference_node_map(ideal, phase2):
     every resistor in the experimental circuit.
     """
     a, b = _mos(ideal), _mos(phase2)
-    if len(a) != 1493 or len(b) != len(a):
+    if len(a) != expected_mos or len(b) != len(a):
         raise ValueError('Unexpected MOS count in reference pairing')
     parent = {}
 
