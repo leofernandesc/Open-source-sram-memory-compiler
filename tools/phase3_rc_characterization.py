@@ -292,19 +292,21 @@ def analyze(rows, cycles, corner, run_id):
                 edges = crossing(rows, col, rise_edges[0], sample, .9, direction)
                 previous = at(rows, rise_edges[0] - .2e-9, col)
                 previous_opposite = (previous <= .36 if target else previous >= 1.44)
-                # A correct output alone is not proof of an access time: it may
-                # still be the preceding word. Only a clean new transition counts.
-                valid_delay = good and previous_opposite and len(edges) == 1
+                # A transition before the falling capture edge can be recovery
+                # of the previous word. It cannot qualify new read-data timing.
+                after_capture = len(edges) == 1 and edges[0] >= fall_edges[0]
+                valid_delay = good and previous_opposite and after_capture
                 if valid_delay:
                     after = [r[col] for r in rows if edges[0] + .1e-9 <= r[0] <= sample]
                     valid_delay = all((v >= 1.44 if target else v <= .36) for v in after)
                 for name, reference in (('tCLK_TO_DATA', fall_edges[0]),
                                         ('tACCESS', rise_edges[0])):
-                    measured = valid_delay and (name != 'tCLK_TO_DATA' or edges[0] >= reference)
+                    measured = valid_delay
                     reason = ('READ_INVALID' if not good else
                               'PREVIOUS_WORD_ALREADY_MATCHED' if not previous_opposite else
+                              'OUTPUT_BEFORE_FALLING_EDGE' if len(edges) == 1 and not after_capture else
                               'NO_UNIQUE_SETTLED_SWITCH' if not valid_delay else
-                              'OUTPUT_BEFORE_FALLING_EDGE' if not measured else '')
+                              '')
                     metric('read', name, bit, edges[0] - reference if measured else None,
                            's', 'PASS' if measured else 'NOT_CHARACTERIZED',
                            direction if valid_delay else 'stable',
@@ -367,10 +369,17 @@ def main(argv=None):
               'bench_source_sha256': sha256(QUAL / 'bench.spice'),
               'cycles_sha256': sha256(QUAL / 'results.json'),
               'scope': 'RC PEX per extraction profile, public DATA and macro VDD',
+              'simulator_status': 'NOT_RUN',
+              'functional_validation': {
+                  'status': 'NOT_CHARACTERIZED',
+                  'method': 'legacy 72-bit public DATA sample checks',
+                  'phase3_nominal_bench_r1': 'NOT_EVALUATED_RC_DOMAIN',
+              },
+              'electrical_qualification': 'NOT_CHARACTERIZED',
               'not_characterized': ['tREAD_INTERNAL', 'tSETUP', 'tHOLD', 'P_STATIC',
                                     'tOUT_SETUP', 'tOUT_HOLD', 'Fmax'],
-              'definitions': {'tACCESS': 'rising CLK50 to new DATA50 (after falling register)',
-                              'tCLK_TO_DATA': 'falling CLK50 to new DATA50',
+              'definitions': {'tACCESS': 'rising CLK50 to unique new DATA50 after falling capture edge',
+                              'tCLK_TO_DATA': 'falling CLK50 to unique new DATA50 after capture edge',
                               'power': 'negative VDD times supply-source current; full 20ns per cycle'},
               }
     try:
@@ -401,6 +410,7 @@ def main(argv=None):
                                   env={**os.environ, 'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1'})
         if proc.returncode:
             raise RuntimeError(f'ngspice exited {proc.returncode}; see ngspice.log')
+        result['simulator_status'] = 'PASS'
         rows = parse_waveform(run / 'waveform.dat')
         records = json.loads((QUAL / 'results.json').read_text())['cycles']
         measurements, checks = analyze(rows, records, args.corner, run_id)
@@ -413,6 +423,11 @@ def main(argv=None):
         (run / 'functional_checks.json').write_text(json.dumps(checks, indent=2) + '\n')
         result['read_bits_checked'] = len(checks)
         result['read_bits_failed'] = sum(c['status'] == 'FAIL' for c in checks)
+        result['functional_validation']['legacy_read_bits_checked'] = len(checks)
+        result['functional_validation']['legacy_read_bits_failed'] = result['read_bits_failed']
+        result['functional_validation']['status'] = (
+            'FAIL_DIAGNOSTIC_READ_BITS' if result['read_bits_failed'] else
+            'PASS_DIAGNOSTIC_READ_BITS_ONLY')
         result['metric_pass_count'] = sum(m['status'] == 'PASS' for m in measurements)
         result['metrics_not_characterized'] = sum(m['status'] == 'NOT_CHARACTERIZED' for m in measurements)
         result['status'] = (('PASS_DIAGNOSTIC_IDEAL_SUPPLY' if args.supply_model == 'ideal'

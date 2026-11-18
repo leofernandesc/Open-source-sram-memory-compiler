@@ -116,6 +116,23 @@ class CharacterizationTests(unittest.TestCase):
         self.assertEqual(access1['status'], 'NOT_CHARACTERIZED')
         self.assertEqual(access1['reason'], 'PREVIOUS_WORD_ALREADY_MATCHED')
 
+    def test_pre_capture_recovery_is_not_new_read_data(self):
+        rows = []
+        for i in range(801):
+            ns = 125 + i * .05
+            clk = 1.8 if 130.05 <= ns < 140.05 else 0.
+            data0 = 1.8 if ns >= 135 else 0.
+            rows.append((ns * 1e-9, clk, data0, *([0.] * 7), 1.8, -.001))
+        cycles = [{'cycle': 6, 'operation': 'read', 'rise_ns': 130,
+                   'fall_ns': 140, 'sample_ns': 141, 'expected': 1}]
+        metrics, checks = mod.analyze(rows, cycles, 'tt', 'fixture')
+        self.assertEqual(checks[0]['status'], 'PASS')
+        for name in ('tACCESS', 'tCLK_TO_DATA'):
+            record = next(m for m in metrics if m['metric'] == name and m['bit'] == 0)
+            self.assertEqual(record['status'], 'NOT_CHARACTERIZED')
+            self.assertIsNone(record['value'])
+            self.assertEqual(record['reason'], 'OUTPUT_BEFORE_FALLING_EDGE')
+
 
 if __name__ == '__main__':
     unittest.main()
