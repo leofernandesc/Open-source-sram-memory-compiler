@@ -12,6 +12,24 @@ prototype now has an integrated GDSII/LEF, mapped digital control, GLS and
 transistor-level checks. Physical generation at depths 8/16/32 and characterized
 Liberty remain future work. This is not full PVT, RC timing or fabrication qualification.
 
+## Phase 3 experimental checkpoint and team handoff
+
+The [Phase 3 handoff](docs/phase3_handoff_equipe_20261122.md) documents the
+integration history, local-file inventory, checkpoint recovery and remaining
+decisions. The current experimental physical candidate is **v6**, containing
+three StrongARM sense amplifiers (bits 3, 6 and 7) and five original senses.
+Its **250 ns post-layout fixture passed in TT, SS and FF** using one verified
+GDS-bound RC extraction. The integrated 18-cycle regression has **not run**
+on v6, so functional closure is still inconclusive and electrical qualification
+remains `NOT_CHARACTERIZED`.
+
+The exploratory option to use eight StrongARM senses is **not an approved
+architecture or implemented ECO**. The team must decide whether to study it
+before spending time on the integrated regression of the hybrid candidate.
+See the [transfer quickstart](docs/phase3_transfer_quickstart.md) before
+changing a reconstructed checkout. Large PEX, GDS and waveform checkpoints
+are held in separately hashed ZIP archives, not embedded in this Git branch.
+
 ## Phase 2 experimental handoff
 
 Implementation and technical audit are complete within the declared nominal
