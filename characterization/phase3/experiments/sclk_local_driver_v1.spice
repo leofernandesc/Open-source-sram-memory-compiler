@@ -1,0 +1,9 @@
+* SCLK candidate: PMOS-favored input inverter followed by an HD inv_4.
+* Input rising: weaker pull-down of MID and higher switching point delay activation.
+* Input falling: stronger pull-up of MID drives the output back low.
+* Widths, lengths and diffusion geometry are in the SKY130 ngspice scale.
+.subckt phase3_sclk_local_v1 IN OUT VPWR VGND
+XP_SKEW MID IN VPWR VPWR sky130_fd_pr__pfet_01v8 w=2.52 l=0.15 ad=0.7308 as=0.7308 pd=5.62 ps=5.62
+XN_SKEW MID IN VGND VGND sky130_fd_pr__nfet_01v8 w=0.65 l=0.15 ad=0.1885 as=0.1885 pd=1.88 ps=1.88
+X_RESTORE MID VGND VGND VPWR VPWR OUT sky130_fd_sc_hd__inv_4
+.ends phase3_sclk_local_v1
