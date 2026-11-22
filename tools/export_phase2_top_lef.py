@@ -15,11 +15,18 @@ from run_digital_regression import atomic_text,output_lock
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-report',help='Recheck an existing GDS-bound export without rerunning Magic')
+    parser.add_argument('--verified-geometry',type=Path,
+                        help='Verified local GDS report. Requires a fresh local output directory.')
     parser.add_argument('--output',default='reports/phase2/top_abstract_current')
     args=parser.parse_args()
     source=ROOT/'reports/phase2/final_gds';out=(ROOT/args.output).resolve()
     if not out.is_relative_to(ROOT/'reports/phase2') or out==ROOT/'reports/phase2':parser.error('Output under reports/phase2 required')
-    out.mkdir(parents=True,exist_ok=True)
+    if args.verified_geometry:
+        local=ROOT/'reports/phase2/local'
+        source=(ROOT/args.verified_geometry).resolve()
+        if not source.is_relative_to(local) or not out.is_relative_to(local) or out.exists():
+            parser.error('Use verified geometry and a fresh output below reports/phase2/local')
+    out.mkdir(parents=True,exist_ok=args.verified_geometry is None)
     with output_lock(out):
         result={'status':'RUNNING','scope':'Geometry-only final top LEF; no characterized timing/capacitance or higher-level route qualification'}
         def publish():atomic_text(out/'results.json',json.dumps(result,indent=2)+'\n')
@@ -28,6 +35,8 @@ def main():
             state=json.loads((source/'results.json').read_text())
             if state['status']!='PASS_GEOMETRY_LVS':raise ValueError('Verified final GDS required')
             gds=source/'sram_4x8.gds';identity=sha(gds)
+            if args.verified_geometry and identity!=state['artifacts']['sram_4x8.gds']:
+                raise ValueError('Verified final GDS hash differs')
             build=Path(tempfile.mkdtemp(prefix='top-lef-',dir=ROOT/'build/phase2'))
             commands=f'''gds read {gds}
 load sram_4x8_wrapper
