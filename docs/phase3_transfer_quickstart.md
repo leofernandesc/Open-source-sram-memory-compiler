@@ -21,10 +21,24 @@ separate validation boundaries. This branch is not a production sign-off.
   `phase3_revisao_sense_sky130_checkpoint_C_20261121.zip`.
   They must be transferred through an approved shared storage location;
   their binary contents are **not** part of this source branch.
+- Verify the exact external archives with these SHA-256 hashes:
+
+  | Archive | SHA-256 |
+  | --- | --- |
+  | `phase3_handoff_equipe_20261122.zip` | `c1c7c4246c71ed0f8dec7c07bf02bdfa50d9083da7b7bb418d65a54263a282cb` |
+  | `phase3_fechamento_funcional_strongarm_20261122.zip` | `830f813d1b7c4eae0f42c96e48a9b668dc461835c915ab5eb0dda9abdb56cffb` |
+  | `phase3_triple_strongarm_20261122.zip` | `2d07df46da095128815ff5a9d4b39385b7516753a486654c59499f48f3f71f60` |
+  | `phase3_revisao_sense_sky130_checkpoint_C_20261121.zip` | `3d146c33be721b19f3d90ca31585b6979065147c8c6eb2aed784ba4a416d96d1` |
+
 - Check SHA-256 before extraction. Restore into a **separate clean checkout**
-  according to the handoff package's `CRITICAL_README.md`; run its `restore.py`
-  with `--dry-run` before allowing any writes. The package also contains the
-  exact artifact manifest and checksums.
+  at the historical base commit `8e1d961` according to the handoff package's
+  `CRITICAL_README.md`; run its `restore.py` with `--dry-run` before allowing
+  any writes. The recovery script checks that historical HEAD and will refuse
+  the newer published branch HEAD. **Do not run it directly on a clone of this
+  branch**: the formerly untracked source files are versioned here and would
+  conflict. Use the restored checkout for the large physical evidence, and
+  the published branch for ongoing source development. The package also
+  contains the exact artifact manifest and checksums.
 - Other intermediate `NOTEBOOK_ONLY` files, including earlier failed fabric
   revisions, are not all recovered by that minimum four-ZIP plan. Preserve the
   original notebook or a supplementary backup if the full experimental history
