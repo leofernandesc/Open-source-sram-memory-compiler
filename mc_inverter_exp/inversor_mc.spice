@@ -1,0 +1,17 @@
+* Inversor CMOS SKY130A - Monte Carlo
+.lib "/opt/pdks/sky130A/libs.tech/combined/continuous/sky130.lib.spice" mc
+.param mc_pr_switch=1
+.param mc_mm_switch=1
+
+VDD vdd 0 1.8
+VSS vss 0 0
+Vin in 0 0
+
+XMp out in vdd vdd sky130_fd_pr__pfet_01v8 l=0.15 w=1.0 nf=1
+XMn out in vss vss sky130_fd_pr__nfet_01v8 l=0.15 w=0.5 nf=1
+Cload out 0 10f
+
+.options ngbehavior=ps
+.dc Vin 0 1.8 0.001
+.meas dc Vm when v(out)=v(in)
+.end
