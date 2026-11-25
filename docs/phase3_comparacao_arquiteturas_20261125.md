@@ -2,8 +2,9 @@
 
 Revisão de 25/11/2026. Dados verificados no snapshot histórico
 `../phase3_evidence_20261124/` e nos replays locais de 247,5 ns.
-Esta análise serve de entrada para a decisão de P3. A escolha e o aceite
-da geometria definitiva permanecem abertos.
+A decisão técnica local de P3 seleciona a v6 híbrida como geometria física
+de referência para concluir a 4×8. O aceite da equipe permanece pendente.
+Ver [decisão P3](phase3_p3_decisao_arquitetura_20261125.md).
 
 | Critério | v6 híbrida, 3 StrongARM | Candidata virtual, 8 StrongARM |
 | --- | --- | --- |
@@ -12,8 +13,8 @@ da geometria definitiva permanecem abertos.
 | Vistas físicas | GDS, LEF, extração RC e correspondência LVS verificados historicamente | Binding SPICE com cinco núcleos e buffers adicionados sobre a RC da v6 |
 | DRC e LVS | 0 erros DRC e `Circuits match uniquely` na evidência histórica | Ainda requer novo layout, DRC, LVS e PEX |
 | C250 | PASS em TT, SS e FF na v6 física | PASS em TT, SS e FF na candidata virtual |
-| Integrado 370 ns em 247,5 ns | Ainda sem validação integral na PEX da própria v6 com o protocolo atualizado | Função 18/18 por corner, 9 leituras × 8 bits, TT/SS/FF, três recibos `COMPLETED` |
-| Ownership da candidata | Sem resultado final homologado sob 247,5 ns | TT c2 e FF c2/c10 inconclusivos nas lanes registradas em P2 |
+| Integrado 370 ns em 247,5 ns | TT/SS/FF `COMPLETED`; função 18/18, cobertura 72/72 lanes e quatro gates de classificação/cobertura/recibo/P1 em PASS | Função 18/18 por corner, 9 leituras × 8 bits, TT/SS/FF, três recibos `COMPLETED` |
+| Ownership observado no integrado | SS raw PASS; TT c2 e FF c2/c10 raw `INCONCLUSIVO`, com suplementos físicos por evento analisados | TT c2 e FF c2/c10 inconclusivos nas lanes registradas em P2 |
 | Timing, potência e SNM pós-layout | Pendente no domínio definitivo | Pendente, inclusive extração das cinco lanes físicas faltantes |
 
 ## Identidade e custo físico conhecido
@@ -50,11 +51,13 @@ funcionais e de ownership sob o mesmo estímulo e de valores elétricos
 extraídos de suas respectivas geometrias.
 
 O gate P3 requer decisão registrada de arquitetura e um conjunto coerente
-de vistas físicas. Se a escolhida for a v6, P4 exige replays completos
-na PEX v6 com o binding de três StrongARM. Se for a arquitetura de oito,
+de vistas físicas. A decisão técnica local seleciona a v6. P4 exige C250
+TT/SS/FF e replays integrados completos na PEX v6 com o binding de três
+StrongARM. Se a arquitetura de oito for escolhida em revisão posterior,
 P3 exige implementar as cinco lanes restantes no GDS, distribuir SCLK,
 alimentação e rotas, e obter DRC=0, LVS único e nova PEX assinada antes
-de P4. O gate P2 continua aberto por 12 lanes sem witness bruto de condução.
+de P4. P2 está fechado tecnicamente para a candidata virtual conforme a
+decisão de 25/11; seus vereditos brutos inconclusivos seguem preservados.
 
 Fontes locais de conferência.
 

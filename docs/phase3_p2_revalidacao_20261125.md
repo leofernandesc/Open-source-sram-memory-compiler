@@ -1,6 +1,6 @@
 # Fase 3 — revalidação dos gates P2 em 25/11/2026
 
-A revalidação confirmou as etapas 1 e 2 do plano e reproduziu a análise da etapa 3. **P2 permanece aberto:** o observador bruto continua inconclusivo em TT c2 e FF c2/c10. As condições dos suplementos foram confrontadas com os sete controles físicos negativos, mas sua homologação e a decisão de ownership por evento permanecem pendentes. Nenhum resultado bruto foi promovido a PASS.
+A revalidação confirmou as etapas 1 e 2 do plano e reproduziu a análise da etapa 3. **Na data deste snapshot, P2 permanecia aberto:** o observador bruto era inconclusivo em TT c2 e FF c2/c10. A decisão técnica posterior de 25/11 aceitou as regras suplementares por evento para a candidata virtual, conforme [registro P2](phase3_p2_decisao_tecnica_20261125.md). Nenhum resultado bruto foi promovido a PASS.
 
 Base local: branch `integration/phase3-danilo-ss`, HEAD `e15905237216098260774208305d8020fc1571e9`, com alterações locais preexistentes. A revisão começou em 25/11/2026 às 08:30, horário de Manaus. As fontes usadas e os resultados estão identificados por SHA-256 no [recibo de validação](../build/phase3/diagnostics/p2_revalidation_20261125T083047/validation_receipt.json) e no manifesto do diretório.
 
@@ -53,7 +53,7 @@ O piso de 50 ps foi preservado. A regra idle→write não foi aplicada a FF c10.
 
 ## Sequência restante
 
-P2 termina quando houver aceite dos três eventos e do perfil, com todos os checks exigidos aprovados nos três corners. A matriz foi corrigida para manter a decisão da arquitetura e a PEX física final em **P3/P4**, sem tratá-las como dependências anteriores ao fechamento de P2.
+O critério de encerramento definido nesta revisão foi atendido pela decisão técnica de 25/11 para a candidata virtual, com os checks exigidos por corner e os vereditos brutos preservados. A matriz mantém a decisão da arquitetura e a PEX física final em **P3/P4**, sem tratá-las como dependências anteriores ao fechamento de P2.
 
 P3 decide entre v6 híbrida e oito StrongARM e fecha as vistas físicas da escolha. P4 valida novamente no PEX final. P5 mede timing, potência, SNM Hold/Read e gera/valida Liberty. A candidata continua virtual em cinco lanes; `electrical_qualification=NOT_CHARACTERIZED` e `signoff_achieved=false`.
 
@@ -66,3 +66,6 @@ A continuação da revisão encontrou uma lacuna no auditor. Ele aceitava um tre
 A análise FF c10 foi recalculada em uma saída nova. O resultado permanece `ELIGIBLE_FOR_PROTOCOL_REVIEW`, com as seis lanes no trilho desde a primeira amostra observada em 208,527893 ns até a subida de CLK em 210 ns. A decisão de protocolo continua pendente. O relatório revisado está em `build/phase3/diagnostics/p2_revalidation_20261125T083047/FF_c10_read_to_write_candidate_v2.json`, e a matriz atualizada em `review_matrix_v2.json`.
 
 A regressão de análise não altera a onda original. A campanha física v6 continua serial. TT completou a simulação com 370 ns e 319 modelos verificados. Na atualização das 09h49 de Manaus, SS alcançou cerca de 288 ns de 370 e FF aguardava na fila serial. Análises de função e ownership da v6 serão registradas após os recibos, sem inferir o resultado apenas da simulação.
+
+
+A decisão técnica subsequente fechou P2 para a candidata virtual no domínio nominal declarado. O relatório de decisão registra os limites e evidências e mantém os vereditos brutos inconclusivos. P3 seleciona tecnicamente a geometria v6; P4 valida sua própria identidade física e continua em andamento.
