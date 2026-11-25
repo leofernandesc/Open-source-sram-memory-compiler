@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import shutil
@@ -40,10 +41,13 @@ def flatten(value):
         yield value
 
 
-def prepare(checkout: Path, corner: str) -> None:
+def prepare(checkout: Path, corner: str, output: Path | None = None,
+            idle_start_ns: float = 247.0) -> None:
     root = checkout
     base, c250 = root / BASE, root / C250
-    out = root / OUT_ROOT / corner.upper()
+    out = output if output is not None else root / OUT_ROOT / corner.upper()
+    if not math.isfinite(idle_start_ns) or not 244.05 < idle_start_ns < 249.95:
+        raise ValueError("idle request must follow restore and finish before CLK rises")
     if out.exists():
         raise FileExistsError(f"refusing to overwrite {out}")
     base_pre = json.loads((base / "preflight.json").read_text())
@@ -108,6 +112,21 @@ def prepare(checkout: Path, corner: str) -> None:
         else:
             candidate_bench.append(line)
     bench = "\n".join(candidate_bench) + "\n"
+    fixture = json.loads((base / "fixture.json").read_text())
+    idle = fixture["cycles"][12]
+    if (idle["cycle"], idle["operation"], idle["control_start_ns"], idle["rise_ns"]) != (12, "idle", 247, 250):
+        raise ValueError("unexpected c12 source schedule")
+    if idle_start_ns != 247.0:
+        for source in ("V_CSb", "V_OEb"):
+            lines = bench.splitlines()
+            positions = [i for i, line in enumerate(lines) if line.startswith(source + " ")]
+            if len(positions) != 1 or lines[positions[0]].count("247n 0 247.05n 1.8") != 1:
+                raise ValueError(f"unexpected c12 transition in {source}")
+            index = positions[0]
+            lines[index] = lines[index].replace("247n 0 247.05n 1.8",
+                f"{idle_start_ns:g}n 0 {idle_start_ns + .05:g}n 1.8")
+            bench = "\n".join(lines) + "\n"
+        idle["control_start_ns"] = idle_start_ns
     if [line for line in bench.splitlines() if line.startswith("tran ")] != ["tran 10p 370n 0 25p"]:
         raise ValueError("integrated 370 ns stimulus changed")
     if bench.count('.include "buf_1.spice"') != 1:
@@ -121,7 +140,10 @@ def prepare(checkout: Path, corner: str) -> None:
     (out / "buf_1.spice").write_bytes((c250 / "buf_1.spice").read_bytes())
     (out / "fabric.spice").write_bytes((base / "fabric.spice").read_bytes())
     (out / "model_hashes.json").write_bytes((base / "model_hashes.json").read_bytes())
-    (out / "fixture.json").write_bytes((base / "fixture.json").read_bytes())
+    if idle_start_ns == 247.0:
+        (out / "fixture.json").write_bytes((base / "fixture.json").read_bytes())
+    else:
+        (out / "fixture.json").write_text(json.dumps(fixture, indent=2) + "\n")
     (out / "probes.json").write_text(json.dumps(probe_aliases, indent=2) + "\n")
     internals["voltage_nodes"] = voltage_nodes
     (out / "internals.json").write_text(json.dumps(internals, indent=2) + "\n")
@@ -132,6 +154,8 @@ def prepare(checkout: Path, corner: str) -> None:
         "conditions": {**base_pre["conditions"], "corner": corner.lower()},
         "physical_pex_sha256": PEX_SHA, "gds_sha256": GDS_SHA,
         "historic_bench_sha256": sha(base / "bench.spice"),
+        "historic_fixture_sha256": sha(base / "fixture.json"),
+        "c12_idle_start_ns": idle_start_ns,
         "c250_virtual_binding_sha256": sha(c250 / "binding.spice"),
         "outputs": {name: sha(out / name) for name in outputs},
     }
@@ -154,8 +178,10 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--checkout", type=Path, default=CHECKOUT)
     p.add_argument("--corner", choices=("tt", "ss", "ff"), required=True)
+    p.add_argument("--output", type=Path)
+    p.add_argument("--c12-idle-start-ns", type=float, default=247.0)
     args = p.parse_args()
-    prepare(args.checkout.resolve(), args.corner)
+    prepare(args.checkout.resolve(), args.corner, args.output, args.c12_idle_start_ns)
 
 
 if __name__ == "__main__":

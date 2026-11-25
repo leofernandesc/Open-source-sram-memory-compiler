@@ -49,6 +49,8 @@ parser.add_argument("--archive-root", type=Path, required=True,
 parser.add_argument("--topology", choices=("v6", "virtual-eight"), required=True)
 parser.add_argument("--output-run", type=Path, required=True,
                     help="new directory for derived observer outputs")
+parser.add_argument("--fixture-reference", type=Path,
+                    help="pinned adjusted fixture directory for the 247.5 ns idle profile")
 args = parser.parse_args()
 run = args.run.resolve(strict=True)
 root = args.archive_root.resolve(strict=True)
@@ -93,11 +95,42 @@ def current_overlap_with_missing_probe_guard(tail_t, tail, devices, sclk):
 
 
 analyze_triple.current_overlap = current_overlap_with_missing_probe_guard
-from integrated_review import analyze
+import integrated_review
 from review_phase3_bus_ss import STRESS_WITNESS_NS, WITNESS_NS
 
+if args.fixture_reference is not None:
+    reference = args.fixture_reference.resolve(strict=True)
+    source_preflight = json.loads((reference / "preflight.json").read_text())
+    run_preflight = json.loads((run / "preflight.json").read_text())
+    expected_pex = "a1e812f717b91089596a10380eb14b53991678513d6db795e28383d02912474f"
+    expected_gds = "315c2ebceb2bc4cf258fa63be2279843805db3010637d0c273aea9db12813e37"
+    assert source_preflight == run_preflight
+    topology_gates = {"virtual-eight": "VIRTUAL_ECO_READY", "v6": "PHYSICAL_V6_READY"}
+    assert source_preflight["gate"] == "READY"
+    assert source_preflight["topology"] == topology_gates[args.topology]
+    assert source_preflight["physical_pex_sha256"] == expected_pex
+    assert source_preflight["gds_sha256"] == expected_gds
+    assert source_preflight["c12_idle_start_ns"] == 247.5
+    assert source_preflight["stop_ns"] == 370 and source_preflight["guard_ns"] == 1.5
+    if args.topology == "v6":
+        from phase3_replay_v6_integrated import validate as validate_physical_v6
+        validate_physical_v6(run, source_preflight["corner"].upper())
+        assert source_preflight["outputs"]["fixture.json"] == (
+            "95b78b73de0aaeadaf37a508168fdd124c19b79c03f2573ba23d2320b9f7b61d"
+        )
+    else:
+        from phase3_replay_integrated_idle import validate as validate_virtual_eight
+        validate_virtual_eight(run, source_preflight["corner"].upper())
+    assert source_preflight["outputs"]["fixture.json"] == hashlib.sha256((run / "fixture.json").read_bytes()).hexdigest()
+    assert all(hashlib.sha256((run / name).read_bytes()).hexdigest() == digest
+               for name, digest in source_preflight["outputs"].items())
+    assert hashlib.sha256((reference / "fixture.json").read_bytes()).hexdigest() == source_preflight["outputs"]["fixture.json"]
+    # The historical observer pins the old c12 fixture at module scope. Point
+    # that comparison to this independently verified adjusted stimulus.
+    integrated_review.HISTORICAL = reference
+
 isolated_input_tree(run, out)
-status = analyze(out)
+status = integrated_review.analyze(out)
 analysis = json.loads((out / "analysis.json").read_text())
 fixture = json.loads((run / "fixture.json").read_text())
 simulation = json.loads((run / "simulation.json").read_text())
@@ -149,8 +182,11 @@ receipt_integrity = {
     "no_simulator_errors": not simulation.get("errors"),
     "duration_is_370ns": simulation.get("simulation_ns") == 370.0,
     "waveform_hash_matches_receipt": hashlib.sha256((run / "waveform.dat").read_bytes()).hexdigest() == simulation.get("waveform_sha256"),
+    "currents_hash_matches_receipt": hashlib.sha256((run / "currents.dat").read_bytes()).hexdigest() == simulation.get("currents_sha256"),
     "log_hash_matches_receipt": hashlib.sha256((run / "ngspice.log").read_bytes()).hexdigest() == simulation.get("log_sha256"),
     "model_manifest_hash_matches_receipt": model_hashes_sha256 == simulation.get("model_check", {}).get("manifest_sha256"),
+    "preflight_hash_matches_receipt": hashlib.sha256((run / "preflight.json").read_bytes()).hexdigest() == simulation.get("preflight_sha256"),
+    "preflight_receipt_verified": simulation.get("preflight_outputs_verified") is True,
     "preflight_outputs_verified": preflight_outputs_verified,
     "model_hash_count": simulation.get("model_check", {}).get("sha256_matches"),
 }
