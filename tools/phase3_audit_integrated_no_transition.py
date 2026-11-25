@@ -85,25 +85,44 @@ def validate_receipts(run: Path, analysis: dict, fixture: dict, ownership: list)
     }
 
 
-def static_witness_eligible(event: dict, record: dict, lane: dict) -> tuple[bool, str]:
-    if event.get("kind") != "write" or event.get("operation") != "write":
-        return False, "static witness is allowed only for a write ownership event"
-    if event.get("overlap") is not False:
-        return False, "write ownership reports overlap or has no explicit overlap result"
-    strong = event.get("strong_check")
-    if not isinstance(strong, dict) or strong.get("weak_host_off") is not True:
-        return False, "strong-host isolation evidence is missing"
+def lane_isolation_eligible(lane: dict) -> tuple[bool, str]:
     if lane.get("disabled_gate") is not True or lane.get("strong_host_on") is not True:
         return False, "lane does not prove macro disabled and host enabled"
-    if lane.get("opposition_with_gate_off") is not None:
-        return False, "lane has an unresolved gate-off opposition result"
+    for field in ("sustained_opposition", "opposition_with_gate_off"):
+        if field not in lane or lane[field] is not None:
+            return False, f"lane has missing or unresolved {field} evidence"
     quiet = lane.get("quiet_suffix")
     if not isinstance(quiet, dict):
         return False, "lane has no quiet suffix witness"
     if int(quiet.get("actual_samples", 0)) < 3:
         return False, "quiet suffix has fewer than three raw samples"
-    if float(quiet.get("conservative_ps", 0.0)) < MIN_STATIC_WITNESS_PS:
-        return False, "quiet suffix is shorter than 50 ps"
+    duration = float(quiet.get("conservative_ps", 0.0))
+    if not np.isfinite(duration) or duration < MIN_STATIC_WITNESS_PS:
+        return False, "quiet suffix is shorter than 50 ps or invalid"
+    return True, "lane isolation verified"
+
+
+def static_witness_eligible(event: dict, record: dict, lane: dict) -> tuple[bool, str]:
+    if event.get("kind") != "write" or event.get("operation") != "write":
+        return False, "static witness is allowed only for a write ownership event"
+    if event.get("verdict") != "INCONCLUSIVO":
+        return False, "only an inconclusive ownership event can be supplemented"
+    if event.get("overlap") is not False:
+        return False, "write ownership reports overlap or has no explicit overlap result"
+    if (record.get("previous_operation") != "idle"
+            or event.get("release_verified") is not True
+            or not event.get("initial_idle_bridged")
+            or (event.get("initial_idle_probe") or {}).get("release_verified") is not True):
+        return False, "independent idle-to-write release and bridge are not verified"
+    strong = event.get("strong_check")
+    if (not isinstance(strong, dict) or strong.get("weak_host_off") is not True
+            or strong.get("overlap") is not False):
+        return False, "strong-host isolation evidence is missing"
+    eligible, reason = lane_isolation_eligible(lane)
+    if not eligible:
+        return False, reason
+    if "charge_response" not in lane or lane["charge_response"] is not None:
+        return False, "lane does not explicitly lack a charge witness"
     if record.get("host_payload_ns") is None or strong.get("end_ns") is None:
         return False, "write payload observation window is incomplete"
     return True, "eligible static payload lane"
@@ -125,6 +144,7 @@ def audit(run: Path, output: Path) -> dict:
     with (run / "waveform.dat").open() as stream:
         names = stream.readline().lower().split()
     require(len(names) == len(set(names)), "Waveform header contains duplicate signal names")
+    require(bool(names) and names[0] == "time", "Waveform first vector is not time")
     data = np.loadtxt(run / "waveform.dat", skiprows=1, ndmin=2)
     require(data.ndim == 2 and data.shape[1] == len(names),
             "Waveform vector width differs from its header")
@@ -141,9 +161,13 @@ def audit(run: Path, output: Path) -> dict:
     unresolved = []
     for event in ownership:
         cycle = int(event["cycle"])
+        cycle_analysis = analysis["cycles"][str(cycle)]
+        if (cycle_analysis.get("ownership") != event.get("verdict")
+                or cycle_analysis.get("operation") != records[cycle].get("operation")):
+            unresolved.append({"cycle": cycle, "reason": "cycle evidence disagrees with fixture or ownership"})
+            continue
         if event.get("verdict") == "PASS":
             continue
-        cycle_analysis = analysis["cycles"][str(cycle)]
         if (cycle_analysis.get("operation") != "write"
                 or cycle_analysis.get("verdict") != "PASS"
                 or cycle_analysis.get("ownership") == "PASS"):
@@ -154,6 +178,17 @@ def audit(run: Path, output: Path) -> dict:
         lane_ids = [int(lane["bit"]) for lane in lanes]
         if len(lane_ids) != 8 or set(lane_ids) != EXPECTED_BITS:
             unresolved.append({"cycle": cycle, "reason": "ownership lane coverage is not exactly bits 0 through 7"})
+            continue
+        # A missing charge response must be the only unresolved strong-host
+        # condition across all eight lanes, including lanes with charge evidence.
+        lane_failures = []
+        for lane in lanes:
+            eligible, reason = lane_isolation_eligible(lane)
+            if not eligible or "charge_response" not in lane:
+                lane_failures.append({"cycle": cycle, "bit": int(lane["bit"]),
+                                      "reason": reason if not eligible else "charge evidence missing"})
+        if lane_failures:
+            unresolved.extend(lane_failures)
             continue
         missing_charge = [lane for lane in lanes if lane.get("charge_response") is None]
         if not missing_charge:
@@ -174,10 +209,15 @@ def audit(run: Path, output: Path) -> dict:
             event_ns = float(record.get("host_payload_ns", strong.get("start_ns")))
             end_ns = float(strong.get("end_ns", event_ns))
             begin_ns = event_ns - 0.1
+            if (not np.isfinite([begin_ns, end_ns]).all() or end_ns <= begin_ns
+                    or begin_ns < times_ns[0] or end_ns > times_ns[-1]):
+                unresolved.append({"cycle": cycle, "bit": bit, "reason": "invalid DATA observation interval"})
+                continue
             window = (times_ns >= begin_ns) & (times_ns <= end_ns)
             observed = data[window, columns[pad_name]]
             observed_times = times_ns[window]
-            if len(observed) < 3 or observed_times[-1] - observed_times[0] < MIN_STATIC_WITNESS_PS / 1000:
+            if (len(observed) < 3 or not np.isfinite(observed).all()
+                    or observed_times[-1] - observed_times[0] < MIN_STATIC_WITNESS_PS / 1000):
                 unresolved.append({"cycle": cycle, "bit": bit, "reason": "DATA witness lacks three samples over 50 ps"})
                 continue
             lo, hi = float(observed.min()), float(observed.max())
@@ -228,10 +268,12 @@ def audit(run: Path, output: Path) -> dict:
             ownership_pass = False
             break
     if not unresolved_events:
-        verdict = "NO_SUPPLEMENT_REQUIRED"
+        verdict = ("NO_SUPPLEMENT_REQUIRED" if cycle_data_pass and not unresolved
+                   and analysis.get("verdict") == "PASS" else "INCONCLUSIVE")
     else:
         verdict = ("PASS_WITH_STATIC_PAYLOAD_WITNESS"
                    if cycle_data_pass and ownership_pass and supplements and not unresolved
+                   and analysis.get("verdict") == "INCONCLUSIVO"
                    else "INCONCLUSIVE")
     input_hashes_after = input_artifact_hashes(run)
     require(input_hashes_before == input_hashes_after,
@@ -243,7 +285,7 @@ def audit(run: Path, output: Path) -> dict:
         "raw_integrated_observer_verdict": analysis["verdict"],
         "supplemental_verdict": verdict,
         "cycles_data_pass": cycle_data_pass,
-        "ownership_pass_or_static_witness": ownership_pass,
+        "ownership_pass_or_static_witness": ownership_pass and not unresolved,
         "provenance": provenance,
         "supplements": supplements,
         "unresolved": unresolved,
